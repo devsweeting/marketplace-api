@@ -3,17 +3,16 @@ import { Type } from 'class-transformer';
 import { IsNotEmpty, MaxLength, ValidateNested } from 'class-validator';
 import { Attributes } from './attributes.dto';
 
-
 export class PartnerAssetDto {
-
-  @ApiProperty({description: 'Reference ID from the partners system'})
+  @ApiProperty({ description: 'Reference ID from the partners system' })
   public refId: string;
 
   @IsNotEmpty()
   @MaxLength(255)
   @ApiProperty({
-    description: 'URI pointing to asset image.  Must be less than 255 characters.',
-    required: true
+    description:
+      'URI pointing to asset image.  Must be less than 255 characters.',
+    required: true,
   })
   public image: string;
 
@@ -21,13 +20,14 @@ export class PartnerAssetDto {
   @MaxLength(50)
   @ApiProperty({
     description: 'Name of the asset. Must be less than 50 characters.',
-    required: true
+    required: true,
   })
   public name: string;
 
   @ApiProperty({
-    description: 'Array of attributes defining the characteristics of the asset.',
-    type: [Attributes]
+    description:
+      'Array of attributes defining the characteristics of the asset.',
+    type: [Attributes],
   })
   @ValidateNested({ each: true })
   @Type(() => Attributes)
@@ -37,6 +37,4 @@ export class PartnerAssetDto {
     name: string;
     family: string;
   };
-
-
 }
