@@ -3,14 +3,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-
-import { MulterModule } from '@nestjs/platform-express';
+import { PartnersModule } from 'modules/partners';
 
 @Module({
   imports: [
-    MulterModule.register({
-      dest: './upload',
-    }),
     ConfigModule.forRoot({
       isGlobal: true,
       // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -23,6 +19,7 @@ import { MulterModule } from '@nestjs/platform-express';
       }),
       inject: [ConfigService],
     }),
+    PartnersModule
   ],
   controllers: [AppController],
   providers: [AppService],
