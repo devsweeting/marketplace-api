@@ -16,7 +16,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const serverConfig = configService.get('server').default;
   const port = serverConfig.port;
-  
+
   await app.listen(port);
 
   // tslint:disable-next-line: no-console
