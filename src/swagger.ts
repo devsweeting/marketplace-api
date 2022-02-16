@@ -1,11 +1,10 @@
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
-export const setupSwaggerModule = ({ app }) => {
+export const setupSwagger = ({ app }) => {
   const options = new DocumentBuilder()
     .setTitle('Marketplace API')
-    .setDescription('Marketplace Backend API')
+    .setDescription('Fractionalist Marketplace API')
     .setVersion('1.0')
-    .addTag('marketplace')
     .addBearerAuth()
     .build();
 
