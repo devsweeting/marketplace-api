@@ -44,7 +44,7 @@ jobs:
 
       - name: 'Generate Version Label'
         if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
-        run: echo VERSION_LABEL=build--$(date +%s) >> $GITHUB_ENV
+        run: echo VERSION_LABEL=build-develop-$(date +%s) >> $GITHUB_ENV
 
       - name: 'Deploy to Elastic Beanstalk'
         if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
