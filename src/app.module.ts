@@ -19,7 +19,7 @@ import { PartnersModule } from 'modules/partners';
       }),
       inject: [ConfigService],
     }),
-    PartnersModule
+    PartnersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
