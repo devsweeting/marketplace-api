@@ -37,7 +37,7 @@ jobs:
       ######################################
       - name: 'Generate Deployment Package'
         if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
-        run: zip -r deploy.zip . -x '*.git*' -x '*node_modules*'
+        run: zip -r deploy.zip . -x '*.git*'
 
       - name: 'Generate Version Label'
         if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
