@@ -16,7 +16,6 @@ export class PartnersController {
     description: 'Transfer request accepted, processing.',
   })
   transfer(@Body() txreq: TransferRequestDto): ResultsDto {
-    console.log(txreq);
     return { statusCode: 201, message: 'CREATED' };
   }
 }

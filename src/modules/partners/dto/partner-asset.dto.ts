@@ -4,7 +4,12 @@ import { IsNotEmpty, MaxLength, ValidateNested } from 'class-validator';
 import { Attributes } from './attributes.dto';
 
 export class PartnerAssetDto {
-  @ApiProperty({ description: 'Reference ID from the partners system' })
+  @IsNotEmpty()
+  @MaxLength(100)
+  @ApiProperty({
+    description: 'Reference ID from the partners system',
+    required: true,
+  })
   public refId: string;
 
   @IsNotEmpty()
@@ -24,6 +29,13 @@ export class PartnerAssetDto {
   })
   public name: string;
 
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Full description of the asset.',
+    required: true,
+  })
+  public description: string;
+
   @ApiProperty({
     description:
       'Array of attributes defining the characteristics of the asset.',
@@ -33,6 +45,7 @@ export class PartnerAssetDto {
   @Type(() => Attributes)
   public attributes: Attributes[];
 
+  @ApiProperty()
   public collection: {
     name: string;
     family: string;
