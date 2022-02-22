@@ -1,0 +1,13 @@
+- name: default
+  type: postgres
+  host: localhost
+  port: 7432
+  database: marketplace
+  username: postgres
+  password: password
+  synchronize: true
+  logging: true
+  entities:
+  - ./dist/**/*.entity.js
+  cli:
+    entitiesDir: entity

@@ -1,0 +1,6 @@
+entity: partners
+items:
+  partner1:
+    name: 'PWCC'
+  partner{2..5}:
+    name: '{{company.companyName}}'

@@ -1,7 +1,18 @@
-import { Entity, Column, Index, BeforeInsert, BeforeUpdate } from 'typeorm';
+import {
+  Entity,
+  Column,
+  Index,
+  BeforeInsert,
+  BeforeUpdate,
+  OneToMany,
+  RelationId,
+  ManyToOne,
+} from 'typeorm';
 
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
-import { BaseModel } from 'modules/common/entities/base.model';
+import { BaseModel } from '../../../modules/common/entities/base.model';
+import { AssetAttributes } from './attributes.entity';
+import { Partner } from './partner.entity';
 
 @Entity('partner_assets')
 export class PartnerAsset extends BaseModel implements BaseEntityInterface {
@@ -10,47 +21,50 @@ export class PartnerAsset extends BaseModel implements BaseEntityInterface {
     nullable: false,
     length: 100,
   })
-  public refId: string;
+  refId: string;
 
   @Index()
   @Column({
     length: 50,
     nullable: false,
   })
-  public name: string;
+  name: string;
 
   @Index()
   @Column({
     length: 100,
     nullable: false,
   })
-  public image: string;
+  image: string;
 
   @Index()
   @Column({
     nullable: false,
   })
-  public slug: string;
+  slug: string;
 
   @Column({
     type: 'text',
     nullable: true,
   })
-  public description: string;
+  description: string;
 
-  // @Column({
-  //   type: 'json',
+  @ManyToOne(() => Partner, (partner) => partner.assets)
+  partner: Partner;
 
-  // })
-  // public attributes: Array<>;
+  @RelationId((asset: PartnerAsset) => asset.partner)
+  partnerId?: string;
+
+  @OneToMany(() => AssetAttributes, (attribute) => attribute.assetId)
+  attributes?: Array<AssetAttributes>;
 
   @BeforeInsert()
-  public beforeInsert(): void {
+  beforeInsert(): void {
     this.slug = this.generateSlug(this.name);
   }
 
   @BeforeUpdate()
-  public beforeUpdate(): void {
+  beforeUpdate(): void {
     this.slug = this.generateSlug(this.name);
   }
 

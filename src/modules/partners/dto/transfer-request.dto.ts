@@ -7,8 +7,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-import { PartnerAssetDto } from './partner-asset.dto';
-import { PartnerUser } from './partner-user.dto';
+import { PartnerAssetDto, PartnerUserDto } from '.';
 
 export class TransferRequestDto {
   @ApiProperty({
@@ -17,8 +16,8 @@ export class TransferRequestDto {
   })
   @IsNotEmptyObject()
   @ValidateNested()
-  @Type(() => PartnerUser)
-  user: PartnerUser;
+  @Type(() => PartnerUserDto)
+  user: PartnerUserDto;
 
   @ApiProperty({
     description: 'Description of the asset to be transferred.',

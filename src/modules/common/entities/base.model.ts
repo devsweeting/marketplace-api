@@ -4,13 +4,14 @@ import {
   CreateDateColumn,
   BeforeInsert,
   BeforeUpdate,
+  BaseEntity,
 } from 'typeorm';
 import { IsUUID } from 'class-validator';
 
-export abstract class BaseModel {
+export abstract class BaseModel extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   @IsUUID()
-  id: string;
+  id: number;
 
   @UpdateDateColumn()
   public updatedAt: Date;

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 
-export class PartnerUser {
+export class PartnerUserDto {
   @ApiProperty({ description: 'Reference ID from the partners system' })
   public refId: string;
 
