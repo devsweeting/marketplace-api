@@ -16,10 +16,7 @@ export class PartnersController {
     status: 201,
     description: 'Transfer request accepted, processing.',
   })
-  async transfer(
-    @Param() params,
-    @Body() txreq: TransferRequestDto,
-  ): Promise<ResultsDto> {
+  async transfer(@Param() params, @Body() txreq: TransferRequestDto): Promise<ResultsDto> {
     return new Promise<ResultsDto>(async (resolve, reject) => {
       const partner = await this.partnersService.findOneById(params.id);
       console.log(partner);

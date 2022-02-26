@@ -15,12 +15,7 @@ export class PartnerRepository extends Repository<Partner> {
    */
   public findOneById(id: string): Promise<Partner> {
     const query = this.createQueryBuilder('partners')
-      .select([
-        'partners.id',
-        'partners.name',
-        'partners.updatedAt',
-        'partners.createdAt',
-      ])
+      .select(['partners.id', 'partners.name', 'partners.updatedAt', 'partners.createdAt'])
       .andWhere('partners.id = :id', { id });
 
     return query.getOne();

@@ -9,12 +9,14 @@ describe('PartnersService', () => {
       controllers: [],
       providers: [PartnersService],
     }).compile();
+
     partnersService = app.get<PartnersService>(PartnersService);
   });
 
   describe('findOneById', () => {
     it('should return a partner for the given UUID', async () => {
       const partner = await partnersService.findOneById('123');
+
       expect(partner.name).toBe('PWCC');
     });
   });

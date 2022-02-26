@@ -4,11 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PartnersModule } from 'modules/partners';
-import {
-  PartnerAsset,
-  Partner,
-  AssetAttributes,
-} from 'modules/partners/entities';
+import { PartnerAsset, Partner, AssetAttributes } from 'modules/partners/entities';
 import { AdminModule, AdminModuleOptions, CustomLoader } from '@adminjs/nestjs';
 import { Database, Resource } from '@adminjs/typeorm';
 import AdminJS from 'adminjs';
