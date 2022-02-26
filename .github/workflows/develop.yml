@@ -54,11 +54,6 @@ jobs:
         env: 
           TYPEORM_PORT: ${{ job.services.postgres.ports['5432'] }}
 
-      - name: 'Debug'
-        run: echo $TYPEORM_PORT
-        env: 
-          TYPEORM_PORT: ${{ job.services.postgres.ports['5432'] }}
-
       - name: 'Run Tests'
         run: yarn test
 
