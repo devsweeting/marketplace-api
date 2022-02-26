@@ -1,4 +1,3 @@
-.env
 .env.test
 .env.staging
 .env.production
