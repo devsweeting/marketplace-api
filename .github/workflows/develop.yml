@@ -32,9 +32,6 @@ jobs:
       - name: 'Build'
         run: yarn build
 
-      - name: 'Run Fixtures'
-        run: yarn fixtures
-
       - name: 'Run Tests'
         run: yarn test
 
