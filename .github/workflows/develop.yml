@@ -29,11 +29,11 @@ jobs:
       - name: 'Install Dependencies'
         run: yarn install
 
-      - name: 'Run Fixtures'
-        run: yarn fixtures
-        
       - name: 'Build'
         run: yarn build
+
+      - name: 'Run Fixtures'
+        run: yarn fixtures
 
       - name: 'Run Tests'
         run: yarn test
