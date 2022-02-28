@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNotEmpty, MaxLength, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsUrl, MaxLength, ValidateNested } from 'class-validator';
 import { Attributes } from './attributes.dto';
+import { ListingDto } from './listing.dto';
 
 export class PartnerAssetDto {
   @IsNotEmpty()
@@ -9,45 +10,73 @@ export class PartnerAssetDto {
   @ApiProperty({
     description: 'Reference ID from the partners system',
     required: true,
+    example: '123456789',
   })
-  public refId: string;
+  refId: string;
+
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Auction Type',
+    required: true,
+  })
+  listing: ListingDto;
 
   @IsNotEmpty()
   @MaxLength(255)
   @ApiProperty({
-    description:
-      'URI pointing to asset image.  Must be less than 255 characters.',
+    description: 'URI pointing to asset image.  Must be less than 255 characters.',
     required: true,
+    example: 'https://picsum.photos/400/200',
   })
-  public image: string;
+  image: string;
+
+  @MaxLength(200)
+  @IsUrl()
+  @ApiProperty({
+    description: 'Link to partners asset page.  Must be less than 200 characters.',
+    required: false,
+    example: 'https://example.com/nfts/1337',
+  })
+  externalUrl?: string;
 
   @IsNotEmpty()
   @MaxLength(50)
   @ApiProperty({
     description: 'Name of the asset. Must be less than 50 characters.',
     required: true,
+    example: 'My Awesome Asset',
   })
-  public name: string;
+  name: string;
 
   @IsNotEmpty()
   @ApiProperty({
     description: 'Full description of the asset.',
     required: true,
+    example: 'This is a great asset',
   })
-  public description: string;
+  description: string;
 
   @ApiProperty({
-    description:
-      'Array of attributes defining the characteristics of the asset.',
+    description: 'Array of attributes defining the characteristics of the asset.',
     type: [Attributes],
+    example: [
+      {
+        name: 'Year',
+        value: '1980',
+        display: 'number',
+      },
+      {
+        name: 'Category',
+        value: 'Baseball',
+      },
+      {
+        name: 'Date Minted',
+        value: '1546360800',
+        display: 'date',
+      },
+    ],
   })
   @ValidateNested({ each: true })
   @Type(() => Attributes)
-  public attributes: Attributes[];
-
-  @ApiProperty()
-  public collection: {
-    name: string;
-    family: string;
-  };
+  attributes: Attributes[];
 }
