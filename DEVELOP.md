@@ -15,7 +15,7 @@ This document outlines the "standard operating procedures" for this repository c
       * Ensure all tests have passed and branch is has no conflicts.
       * Select someone to review your code.  All code must have **at lease one approval** from another team member before merging.
   * Wait for a code review.  If the reviewer requests changes make sure that they are addressed before merging.
-  * Once the code has been approved, merge.
+  * Once the code has been approved and has passed all checks you may merge your branch.
   * Delete old feature branch on Github
 
 ## Migrations
