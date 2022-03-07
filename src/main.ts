@@ -2,7 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
-import { setupSwagger } from './swagger';
+import { setupSwagger } from './middleware/swagger';
+import { HttpExceptionFilter } from './exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -11,11 +12,16 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
-  setupSwagger({ app });
+  // We may decide to make the swagger documentation public at some point,
+  // but for now it's going to only be available in development mode.
+  if (process.env.NODE_ENV === 'DEVELOP' || process.env.NODE_ENV === 'TEST') {
+    setupSwagger({ app });
+  }
 
   const configService = app.get(ConfigService);
   const serverConfig = configService.get('server').default;
   const port = serverConfig.port;
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   await app.listen(port);
 

@@ -11,4 +11,4 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=marketplace
     ports:
-      - 8432:5432
+      - 7432:5432

@@ -1,14 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import {
-  ArrayMinSize,
-  IsDefined,
-  IsNotEmptyObject,
-  ValidateNested,
-} from 'class-validator';
+import { ArrayMinSize, IsDefined, IsNotEmptyObject, ValidateNested } from 'class-validator';
 
-import { PartnerAssetDto } from './partner-asset.dto';
-import { PartnerUser } from './partner-user.dto';
+import { AssetDto, PartnerUserDto } from './';
 
 export class TransferRequestDto {
   @ApiProperty({
@@ -17,17 +11,17 @@ export class TransferRequestDto {
   })
   @IsNotEmptyObject()
   @ValidateNested()
-  @Type(() => PartnerUser)
-  user: PartnerUser;
+  @Type(() => PartnerUserDto)
+  user: PartnerUserDto;
 
   @ApiProperty({
     description: 'Description of the asset to be transferred.',
-    type: [PartnerAssetDto],
+    type: [AssetDto],
     required: true,
   })
   @ValidateNested({ each: true })
   @IsDefined()
   @ArrayMinSize(1)
-  @Type(() => PartnerAssetDto)
-  assets: PartnerAssetDto[];
+  @Type(() => AssetDto)
+  assets: AssetDto[];
 }

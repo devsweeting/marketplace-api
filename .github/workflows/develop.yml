@@ -12,6 +12,23 @@ jobs:
   main:
     name: 'Test & Deploy'
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PORT: 5432
+          POSTGRES_HOST: 'localhost'
+          POSTGRES_DB: 'marketplace'
+          POSTGRES_USERNAME: 'postgres'
+          POSTGRES_PASSWORD: 'password'
+        ports:
+          - 5432/tcp
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       ######################################
       # Build, Install and Test
@@ -31,6 +48,11 @@ jobs:
 
       - name: 'Build'
         run: yarn build
+
+      - name: 'Fixtures'
+        run: yarn fixtures
+        env: 
+          TYPEORM_PORT: ${{ job.services.postgres.ports['5432'] }}
 
       - name: 'Run Tests'
         run: yarn test
