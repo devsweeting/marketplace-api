@@ -1,6 +1,9 @@
 entity: partners
 items:
   partner1:
+    id: 1D700038-58B1-4EF0-8737-4DB7D6A9D60F
     name: 'PWCC'
+    apiKey: 'ca03na188ame03u1d78620de67282882a84'
   partner{2..5}:
     name: '{{company.companyName}}'
+    apiKey: 'd2e621a6646a4211768cd68e26f21228a81'

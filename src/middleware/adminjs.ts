@@ -1,34 +1,29 @@
 import { AdminModule, AdminModuleOptions, CustomLoader } from '@adminjs/nestjs';
 import { Database, Resource } from '@adminjs/typeorm';
 import AdminJS from 'adminjs';
-import {
-  AssetAttributes,
-  Partner,
-  PartnerAsset,
-} from 'modules/partners/entities';
+import { Attribute, Partner, Asset } from '../modules/partners/entities';
 
 const adminOptions: AdminModuleOptions & CustomLoader = {
   adminJsOptions: {
     rootPath: '/admin',
     branding: {
-      companyName: 'Fractionalist',
-      softwareBrothers: false,
+      companyName: 'Jump.co',
     },
     /* eslint-disable */
     resources: [
       {
-        resource: PartnerAsset,
+        resource: Asset,
         options: {
-          // listProperties: ['name', 'refId', 'description', 'updatedAt', 'createdAt'],
-          // editProperties: ['name', 'refId', 'description', 'slug', 'image', 'attributes'],
+          listProperties: ['name', 'refId', 'description', 'partner', 'updatedAt', 'createdAt'],
+          // editProperties: ['name', 'refId', 'description', 'slug', 'image', 'attributes', 'partner'],
           // showProperties: ['id', 'name', 'refId', 'description', 'slug', 'image', 'updatedAt', 'createdAt'],
           // filterProperties: ['name', 'refId', 'description', 'updatedAt', 'createdAt'],
         },
       },
       {
-        resource: AssetAttributes,
+        resource: Attribute,
         options: {
-          // listProperties: ['trait', 'value', 'updatedAt', 'createdAt'],
+          listProperties: ['trait', 'value', 'updatedAt', 'createdAt'],
           // editProperties: ['trait', 'value', 'asset'],
           // showProperties: ['id', 'trait', 'value', 'assetId', 'updatedAt', 'createdAt'],
           // filterProperties: ['trait', 'value', 'updatedAt', 'createdAt'],

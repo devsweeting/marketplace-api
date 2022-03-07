@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNotEmpty, IsUrl, MaxLength, ValidateNested } from 'class-validator';
-import { Attributes } from './attributes.dto';
+import { AttributeDto } from './attribute.dto';
 import { ListingDto } from './listing.dto';
 
-export class PartnerAssetDto {
+export class AssetDto {
   @IsNotEmpty()
   @MaxLength(100)
   @ApiProperty({
@@ -58,25 +58,25 @@ export class PartnerAssetDto {
 
   @ApiProperty({
     description: 'Array of attributes defining the characteristics of the asset.',
-    type: [Attributes],
+    type: [AttributeDto],
     example: [
       {
-        name: 'Year',
+        trait: 'Year',
         value: '1980',
         display: 'number',
       },
       {
-        name: 'Category',
+        trait: 'Category',
         value: 'Baseball',
       },
       {
-        name: 'Date Minted',
+        trait: 'Date Minted',
         value: '1546360800',
         display: 'date',
       },
     ],
   })
   @ValidateNested({ each: true })
-  @Type(() => Attributes)
-  attributes: Attributes[];
+  @Type(() => AttributeDto)
+  attributes: AttributeDto[];
 }

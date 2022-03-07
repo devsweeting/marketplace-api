@@ -1,33 +1,24 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { BaseService } from '../../../modules/common/services';
+import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import { BaseService } from 'modules/common/services';
 import { Partner } from '../entities';
-import { PartnerDto } from '../dto/';
-import { InjectRepository } from '@nestjs/typeorm';
-import { PartnerRepository } from '../repositories/partner.repository';
+import { TransferRequestDto } from '../dto';
 
 @Injectable()
 export class PartnersService extends BaseService {
-  public constructor(
-    @InjectRepository(Partner)
-    private readonly partnerRepository: PartnerRepository,
-  ) {
+  public constructor() {
     super();
   }
 
   /**
-   * Get partner by id
+   * Record a partner asset transfer request
    *
-   * @param id: string
-   * @returns Promise<PartnerDto>
    */
-  public async findOneById(id: string): Promise<PartnerDto> {
-    const partner: Partner = await this.partnerRepository.findOneById(id);
+  public async recordTransferRequest(partnerId: string, txreq: TransferRequestDto): Promise<void> {
+    const partner: Partner = await Partner.findOne(partnerId);
 
-    if (!partner) {
-      console.log('Invalid partner id');
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    Logger.log(`Partner ${partner.name} received transfer request`);
+    if (!txreq.assets) {
+      throw new HttpException('Missing Assets', HttpStatus.BAD_REQUEST);
     }
-
-    return <PartnerDto>partner;
   }
 }

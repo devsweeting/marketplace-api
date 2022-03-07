@@ -5,9 +5,11 @@ items:
     refId: '1337x42'
     name: 'Master Sword'
     image: '{{random.image}}'
+    attributes: []
   asset{2..20}:
     partner: '@partner{2..5}'
     refId: '{{random.alphaNumeric(8)}}'
     name: '{{lorem.words(4)}}'
     description: '{{lorem.sentence}}'
     image: '{{random.image}}'
+    attributes: []

@@ -11,7 +11,7 @@ import { IsUUID } from 'class-validator';
 export abstract class BaseModel extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   @IsUUID()
-  id: number;
+  id: string;
 
   @UpdateDateColumn()
   public updatedAt: Date;

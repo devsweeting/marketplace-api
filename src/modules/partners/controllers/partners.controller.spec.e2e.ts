@@ -1,22 +1,32 @@
 import { Test } from '@nestjs/testing';
 import * as request from 'supertest';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { PartnersModule } from '..';
+import { TestUtils } from '../../test/test.utils';
+const TEST_API_KEY = 'd2e621a6646a4211768cd68e26f21228a81';
+const TEST_API_PARTNER_ID = '1D700038-58B1-4EF0-8737-4DB7D6A9D60F';
 
 describe('PartnersController', () => {
   let app: INestApplication;
+  let testUtils: TestUtils;
 
   beforeEach(async () => {
-    const moduleRef = await Test.createTestingModule({
-      imports: [PartnersModule],
+    const module = await Test.createTestingModule({
+      // imports: [DatabaseModule],
+      // providers: [DatabaseService, TestUtils],
     }).compile();
+    testUtils = module.get<TestUtils>(TestUtils);
 
-    app = moduleRef.createNestApplication();
+    app = module.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
   });
 
-  describe('/POST assets', () => {
+  afterEach(async () => {
+    // await testUtils.closeDbConnection();
+    await app.close();
+  });
+
+  describe(`/POST /partners/${TEST_API_PARTNER_ID}/assets`, () => {
     it('Should create a new asset transfer object in the db', () => {
       const transferRequest: any = {
         user: {
@@ -33,7 +43,7 @@ describe('PartnersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post('/partners/assets')
+        .post(`/partners/${TEST_API_PARTNER_ID}/assets`)
         .send(transferRequest)
         .expect(201);
     });
@@ -46,7 +56,7 @@ describe('PartnersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post('/partners/assets')
+        .post(`/partners/${TEST_API_PARTNER_ID}/assets`)
         .send(transferRequest)
         .expect(400)
         .expect({
@@ -73,7 +83,7 @@ describe('PartnersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post('/partners/assets')
+        .post(`/partners/${TEST_API_PARTNER_ID}/assets`)
         .send(transferRequest)
         .expect(400)
         .expect({
@@ -100,7 +110,7 @@ describe('PartnersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post('/partners/assets')
+        .post(`/partners/${TEST_API_PARTNER_ID}/assets`)
         .send(transferRequest)
         .expect(400)
         .expect({
@@ -127,7 +137,7 @@ describe('PartnersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post('/partners/assets')
+        .post(`/partners/${TEST_API_PARTNER_ID}/assets`)
         .send(transferRequest)
         .expect(400)
         .expect({
@@ -153,7 +163,7 @@ describe('PartnersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post('/partners/assets')
+        .post(`/partners/${TEST_API_PARTNER_ID}/assets`)
         .send(transferRequest)
         .expect(400)
         .expect({
@@ -162,9 +172,5 @@ describe('PartnersController', () => {
           error: 'Bad Request',
         });
     });
-  });
-
-  afterAll(async () => {
-    await app.close();
   });
 });
