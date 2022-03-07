@@ -1,5 +1,9 @@
 # Marketplace Backend
 
+## Development
+
+Before contributing code to this repository please review the [Development SOP](DEVELOP.md)
+
 ## Installation
 
 ```bash
