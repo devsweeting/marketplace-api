@@ -13,6 +13,14 @@ export const quotes = [
   'There is no spoon.',
   'Follow the white rabbit.',
   'In a world of 1s and 0s... are you a zero, or The One?',
+  // Eddy Van Halen
+  'Rock stars come and go. Musicians play until they die.',
+  'To hell with the rules. If it sounds right, then it is.',
+  "Bass is for people who can't play guitar.",
+  // David Lee Roth
+  "It doesn't get better, it doesn't get worse, but it sure gets different!",
+  // Van Halen
+  "You gotta roll with the punches to get to what's real",
 ];
 
 @Injectable()
