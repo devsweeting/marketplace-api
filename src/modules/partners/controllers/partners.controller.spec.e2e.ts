@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import * as request from 'supertest';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { TestUtils } from '../../test/test.utils';
-const TEST_API_KEY = 'd2e621a6646a4211768cd68e26f21228a81';
+const TEST_API_KEY = 'd2e621a6646a4211768cd68e26f21228';
 const TEST_API_PARTNER_ID = '1D700038-58B1-4EF0-8737-4DB7D6A9D60F';
 
 describe('PartnersController', () => {

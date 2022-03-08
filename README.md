@@ -25,6 +25,11 @@ Start Postgres locally
 docker-compose up -d
 ```
 
+Add test data to database (optional)
+```
+yarn fixtures
+```
+
 Start development server
 ```bash
 yarn dev
