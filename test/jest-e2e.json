@@ -1,0 +1,18 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "./..",
+  "testEnvironment": "node",
+  "detectOpenHandles": true,
+  "forceExit": true,
+  "testRegex": "\\.e2e-spec\\.ts$",
+  "setupFilesAfterEnv": ["<rootDir>/test/jest.setup.ts"],
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^validators/(.*)$": "<rootDir>/src/validators/$1",
+    "^modules/(.*)$": "<rootDir>/src/modules/$1",
+    "^lib/(.*)$": "<rootDir>/src/lib/$1",
+    "^@/(.*)$": "<rootDir>/$1"
+  }
+}

@@ -8,20 +8,21 @@ export class TransferRequestDto {
   @ApiProperty({
     description: 'User information.',
     required: true,
+    type: () => PartnerUserDto,
   })
   @IsNotEmptyObject()
-  @ValidateNested()
   @Type(() => PartnerUserDto)
-  user: PartnerUserDto;
+  @ValidateNested()
+  public user: PartnerUserDto;
 
   @ApiProperty({
     description: 'Description of the asset to be transferred.',
-    type: [AssetDto],
+    type: AssetDto,
     required: true,
   })
   @ValidateNested({ each: true })
   @IsDefined()
   @ArrayMinSize(1)
   @Type(() => AssetDto)
-  assets: AssetDto[];
+  public assets: AssetDto[];
 }

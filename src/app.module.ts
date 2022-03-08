@@ -19,18 +19,24 @@ import { AuthModule } from 'modules/auth/auth.module';
     AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: [
+        `.env.${process.env.NODE_ENV}.local`,
+        `.env.${process.env.NODE_ENV}`,
+        '.env.local',
+        '.env',
+      ],
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       load: Object.values(require('./config')),
     }),
     TypeOrmModule.forRootAsync({
       useFactory: async (configService: ConfigService) => ({
-        ...configService.get('database').default,
+        ...configService.get('database.default'),
         entities: [Asset, Attribute, Partner],
       }),
       inject: [ConfigService],
     }),
     PartnersModule,
-    adminjs.module(),
+    // adminjs.module(),
   ],
   controllers: [AppController],
   providers: [AppService],

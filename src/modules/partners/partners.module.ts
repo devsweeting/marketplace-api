@@ -8,6 +8,6 @@ import { Attribute, Partner, Asset } from './entities';
   imports: [TypeOrmModule.forFeature([Partner, Asset, Attribute])],
   providers: [PartnersService],
   controllers: [PartnersController],
-  exports: [PartnersService, TypeOrmModule],
+  exports: [PartnersService],
 })
 export class PartnersModule {}

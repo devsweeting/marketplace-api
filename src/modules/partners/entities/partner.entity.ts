@@ -11,26 +11,26 @@ export class Partner extends BaseModel implements BaseEntityInterface {
     length: 50,
     nullable: false,
   })
-  name: string;
+  public name: string;
 
   @Index()
   @Column({
     length: 32,
     nullable: false,
   })
-  apiKey: string;
+  public apiKey: string;
 
   @OneToMany(() => Asset, (asset) => asset.partnerId)
-  assets: Asset[];
+  public assets: Asset[];
 
   @BeforeInsert()
-  beforeInsert(): void {
+  public beforeInsert(): void {
     if (this.apiKey === undefined) {
       this.apiKey = this.generateApiKey(32);
     }
   }
 
-  generateApiKey(length: number) {
+  public generateApiKey(length: number) {
     let result = '';
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const charactersLength = characters.length;
@@ -40,7 +40,7 @@ export class Partner extends BaseModel implements BaseEntityInterface {
     return result;
   }
 
-  constructor(partial: Partial<Partner>) {
+  public constructor(partial: Partial<Partner>) {
     super();
     Object.assign(this, partial);
   }

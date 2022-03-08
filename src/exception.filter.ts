@@ -8,11 +8,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
     const status = exception.getStatus();
-    Logger.error(`${request.method} ${request.url}`, exception.stack, 'ExceptionFilter');
-    response.status(status).json({
-      statusCode: status,
-      timestamp: new Date().toISOString(),
-      path: request.url,
-    });
+    Logger.error(`${request.method} ${request.url}`, exception.getResponse(), 'ExceptionFilter');
+    response.status(status).json(exception.getResponse());
   }
 }
