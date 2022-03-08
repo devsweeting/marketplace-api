@@ -10,33 +10,37 @@ import {
   Partner,
   Attribute,
 } from './modules/partners/entities';
-import { adminjs } from './middleware/adminjs';
 import { AuthMiddleware } from './middleware/auth';
 import { AuthModule } from 'modules/auth/auth.module';
+import { adminjs } from 'modules/admin/admin.config';
 
+const appModules = [AuthModule,
+  ConfigModule.forRoot({
+    isGlobal: true,
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    load: Object.values(require('./config')),
+  }),
+  TypeOrmModule.forRootAsync({
+    useFactory: async (configService: ConfigService) => ({
+      ...configService.get('database').default,
+      entities: [Asset, Attribute, Partner],
+    }),
+    inject: [ConfigService],
+  }),
+  PartnersModule,
+]
+if(process.env.NODE_ENV == 'DEVELOP' || process.env.NODE_ENV == 'ADMIN') {
+  appModules.push(adminjs.module())
+}
 @Module({
-  imports: [
-    AuthModule,
-    ConfigModule.forRoot({
-      isGlobal: true,
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      load: Object.values(require('./config')),
-    }),
-    TypeOrmModule.forRootAsync({
-      useFactory: async (configService: ConfigService) => ({
-        ...configService.get('database').default,
-        entities: [Asset, Attribute, Partner],
-      }),
-      inject: [ConfigService],
-    }),
-    PartnersModule,
-    adminjs.module(),
-  ],
+  imports: [...appModules],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes('');
+    consumer.apply(AuthMiddleware)
+    .forRoutes('')
   }
 }
+
