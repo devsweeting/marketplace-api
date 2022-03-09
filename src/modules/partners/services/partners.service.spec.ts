@@ -11,6 +11,7 @@ describe('PartnersService', () => {
       providers: [PartnersService],
     }).compile();
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     partnersService = app.get<PartnersService>(PartnersService);
   });
 

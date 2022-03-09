@@ -21,55 +21,55 @@ export class Asset extends BaseModel implements BaseEntityInterface {
     nullable: false,
     length: 100,
   })
-  refId: string;
+  public refId: string;
 
   @Index()
   @Column({
     length: 50,
     nullable: false,
   })
-  name: string;
+  public name: string;
 
   @Index()
   @Column({
     length: 100,
     nullable: false,
   })
-  image: string;
+  public image: string;
 
   @Index()
   @Column({
     nullable: false,
   })
-  slug?: string;
+  public slug?: string;
 
   @Column({
     type: 'text',
     nullable: true,
   })
-  description: string;
+  public description: string;
 
   @ManyToOne(() => Partner, (partner) => partner.assets)
   @JoinColumn({ name: 'partnerId' })
-  partner?: Partner;
+  public partner?: Partner;
 
   @Column({
     type: 'string',
     nullable: true,
   })
   @RelationId((asset: Asset) => asset.partner)
-  partnerId: string;
+  public partnerId: string;
 
   @OneToMany(() => Attribute, (attribute) => attribute.assetId)
-  attributes?: Array<Attribute>;
+  public attributes?: Array<Attribute>;
 
   @BeforeInsert()
-  beforeInsert(): void {
+  public beforeInsert(): void {
     this.slug = this.generateSlug(this.name);
   }
 
   @BeforeUpdate()
-  beforeUpdate(): void {
+  public beforeUpdate(): void {
     this.slug = this.generateSlug(this.name);
   }
 
@@ -99,7 +99,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   }
   */
 
-  constructor(partial: Partial<Asset>) {
+  public constructor(partial: Partial<Asset>) {
     super();
     Object.assign(this, partial);
   }

@@ -17,6 +17,7 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
+    "esModuleInterop": true,
     "typeRoots": ["./types", "./node_modules/@types"],
     "paths": {
       "validators/*": [
@@ -30,7 +31,7 @@
       ],
       "@/*": [
         "./*"
-      ],
-    },
+      ]
+    }
   }
 }
