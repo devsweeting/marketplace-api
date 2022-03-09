@@ -48,3 +48,6 @@ google_key.json
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+# Admin
+.adminjs
