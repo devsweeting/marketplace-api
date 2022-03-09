@@ -11,6 +11,9 @@ import {
   Attribute,
 } from './modules/partners/entities';
 import { AuthModule } from 'modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
+import { User } from './modules/users/user.entity';
+
 import { adminjs } from 'modules/admin/admin.config';
 
 const appModules = [AuthModule,
@@ -28,17 +31,16 @@ const appModules = [AuthModule,
   TypeOrmModule.forRootAsync({
     useFactory: async (configService: ConfigService) => ({
       ...configService.get('database.default'),
-      entities: [Asset, Attribute, Partner],
+      entities: [Asset, Attribute, Partner, User],
     }),
     inject: [ConfigService],
   }),
-  PartnersModule,
 ]
 if(process.env.NODE_ENV == 'DEVELOP' || process.env.NODE_ENV == 'ADMIN') {
   appModules.push(adminjs.module())
 }
 @Module({
-  imports: [...appModules ],
+  imports: [...appModules, PartnersModule, UsersModule ],
   controllers: [AppController],
   providers: [AppService],
 })
