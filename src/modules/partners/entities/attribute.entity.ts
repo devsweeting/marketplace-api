@@ -8,32 +8,32 @@ export class Attribute extends BaseModel {
     length: 50,
     nullable: false,
   })
-  trait: string;
+  public trait: string;
 
   @Column({
     length: 50,
     nullable: false,
   })
-  value: string;
+  public value: string;
 
   @Column({
     length: 50,
     nullable: true,
   })
-  display: string;
+  public display: string;
 
   @ManyToOne(() => Asset, (asset) => asset.attributes)
   @JoinColumn({ name: 'assetId' })
-  asset: Asset;
+  public asset: Asset;
 
   @Column({
     type: 'string',
     nullable: true,
   })
   @RelationId((attribute: Attribute) => attribute.asset)
-  assetId: string;
+  public assetId: string;
 
-  constructor(partial: Partial<Attribute>) {
+  public constructor(partial: Partial<Attribute>) {
     super();
     Object.assign(this, partial);
   }

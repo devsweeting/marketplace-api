@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsUrl, MaxLength, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsUrl, MaxLength, ValidateNested } from 'class-validator';
 import { AttributeDto } from './attribute.dto';
 import { ListingDto } from './listing.dto';
 
@@ -12,14 +12,14 @@ export class AssetDto {
     required: true,
     example: '123456789',
   })
-  refId: string;
+  public refId: string;
 
   @IsNotEmpty()
   @ApiProperty({
     description: 'Auction Type',
     required: true,
   })
-  listing: ListingDto;
+  public listing: ListingDto;
 
   @IsNotEmpty()
   @MaxLength(255)
@@ -28,16 +28,17 @@ export class AssetDto {
     required: true,
     example: 'https://picsum.photos/400/200',
   })
-  image: string;
+  public image: string;
 
   @MaxLength(200)
   @IsUrl()
+  @IsOptional()
   @ApiProperty({
     description: 'Link to partners asset page.  Must be less than 200 characters.',
     required: false,
     example: 'https://example.com/nfts/1337',
   })
-  externalUrl?: string;
+  public externalUrl?: string;
 
   @IsNotEmpty()
   @MaxLength(50)
@@ -46,7 +47,7 @@ export class AssetDto {
     required: true,
     example: 'My Awesome Asset',
   })
-  name: string;
+  public name: string;
 
   @IsNotEmpty()
   @ApiProperty({
@@ -54,7 +55,7 @@ export class AssetDto {
     required: true,
     example: 'This is a great asset',
   })
-  description: string;
+  public description: string;
 
   @ApiProperty({
     description: 'Array of attributes defining the characteristics of the asset.',
@@ -78,5 +79,5 @@ export class AssetDto {
   })
   @ValidateNested({ each: true })
   @Type(() => AttributeDto)
-  attributes: AttributeDto[];
+  public attributes: AttributeDto[];
 }

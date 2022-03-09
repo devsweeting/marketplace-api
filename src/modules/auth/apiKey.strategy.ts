@@ -1,6 +1,6 @@
 import { HeaderAPIKeyStrategy } from 'passport-headerapikey';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 @Injectable()
@@ -10,9 +10,9 @@ export class ApiKeyStrategy extends PassportStrategy(HeaderAPIKeyStrategy) {
       const checkKey = authService.validateApiKey(apikey);
       Logger.log(`ApiKeyStrategy.validateApiKey(${apikey}) = ${checkKey}`);
       if (!checkKey) {
-        return done(false);
+        throw new UnauthorizedException();
       }
-      return done(null);
+      return done(null, true);
     });
   }
 }

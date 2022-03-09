@@ -6,11 +6,11 @@ const displayTypes = ['text', 'number', 'boolean', 'date'];
 export class AttributeDto {
   @ApiProperty({ description: 'Attribute key type' })
   @IsNotEmpty()
-  trait: string;
+  public trait: string;
 
   @ApiProperty({ description: 'Attribute value' })
   @IsNotEmpty()
-  value: string;
+  public value: string;
 
   @ApiProperty({
     description: 'Attribute display hint',
@@ -19,5 +19,5 @@ export class AttributeDto {
   })
   @IsOptional()
   @IsEnum(displayTypes)
-  display?: string;
+  public display?: string;
 }

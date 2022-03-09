@@ -18,6 +18,21 @@ This document outlines the "standard operating procedures" for this repository c
   * Once the code has been approved and has passed all checks you may merge your branch.
   * Delete old feature branch on Github
 
+## Environment variables
+
+The .env file store the default values for environment variables. 
+These values can be easily overridden by creating .env.local file. 
+The application recognises NODE_ENV variable and load .env files depends on this value. 
+For example if we run `yarn test`, the NODE_ENV value is `test`.
+The application will load `.env.test` file.
+These test values can be overridden in `.env.test.local` file. 
+The hierarchy of loading .env files looks as below:
+
+- `.env.${process.env.NODE_ENV}.local`
+- `.env.${process.env.NODE_ENV}`
+- `.env.local`
+- `.env`
+
 ## Migrations
 
 Code that makes changes to entity files will need to enclude migration scripts before merging and those scripts will have to be tested in staging before being promoted to the main branch.
