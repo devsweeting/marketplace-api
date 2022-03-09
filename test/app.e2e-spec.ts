@@ -13,9 +13,6 @@ describe('AppController', () => {
   it('should return a random quote', () =>
     request(app.getHttpServer())
       .get('/')
-      .set({
-        'x-api-key': 'somekey',
-      })
       .expect(200)
       .expect(({ text }) => {
         expect(quotes).toContain(text);

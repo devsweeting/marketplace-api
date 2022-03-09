@@ -13,6 +13,31 @@ describe('PartnersController', () => {
   });
 
   describe(`POST /partners/${TEST_API_PARTNER_ID}/assets`, () => {
+    it('should throw 401 exception if auth token is missing', () => {
+      const transferRequest: any = {
+        user: {
+          refId: '1232',
+          email: 'steven@example.com',
+        },
+        assets: [
+          {
+            refId: '1232',
+            image: 'https://example.com/image.png',
+            name: 'Example',
+            description: 'test',
+            listing: {
+              marketplace: 'OpenSea',
+            },
+          },
+        ],
+      };
+
+      return request(app.getHttpServer())
+        .post(`/partners/${TEST_API_PARTNER_ID}/assets`)
+        .send(transferRequest)
+        .expect(401);
+    });
+
     it('should create a new asset transfer object in the db', () => {
       const transferRequest: any = {
         user: {
