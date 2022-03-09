@@ -6,13 +6,20 @@ import { AuthService } from './auth.service';
 @Injectable()
 export class ApiKeyStrategy extends PassportStrategy(HeaderAPIKeyStrategy) {
   constructor(private authService: AuthService) {
-    super({ header: 'x-api-key', prefix: '' }, true, (apikey: string, done) => {
-      const checkKey = authService.validateApiKey(apikey);
-      Logger.log(`ApiKeyStrategy.validateApiKey(${apikey}) = ${checkKey}`);
-      if (!checkKey) {
-        throw new UnauthorizedException();
-      }
-      return done(null, true);
-    });
+    super(
+      { header: 'x-api-key', prefix: '' },
+      true,
+      async (apiKey: string, done: CallableFunction) => {
+        const partner = await authService.validateApiKey(apiKey);
+
+        Logger.log(`ApiKeyStrategy.validateApiKey(${apiKey}) = ${!!partner}`);
+
+        if (!partner) {
+          return done(new UnauthorizedException());
+        }
+
+        return done(null, partner);
+      },
+    );
   }
 }

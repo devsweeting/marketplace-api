@@ -22,14 +22,11 @@ export class Attribute extends BaseModel {
   })
   public display: string;
 
-  @ManyToOne(() => Asset, (asset) => asset.attributes)
-  @JoinColumn({ name: 'assetId' })
+  @ManyToOne(() => Asset, (asset) => asset.attributes, { nullable: false })
+  @JoinColumn({ name: 'assetId', referencedColumnName: 'id' })
   public asset: Asset;
 
-  @Column({
-    type: 'string',
-    nullable: true,
-  })
+  @Column({ type: 'string', nullable: false })
   @RelationId((attribute: Attribute) => attribute.asset)
   public assetId: string;
 
