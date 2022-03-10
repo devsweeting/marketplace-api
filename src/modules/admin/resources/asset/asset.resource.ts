@@ -1,5 +1,5 @@
+import { Asset } from 'modules/assets/entities';
 import { CreateResourceResult } from '../create-resource-result.type';
-import { Asset } from '../../../../modules/partners/entities';
 
 const createAssetResource = (): CreateResourceResult<typeof Asset> => ({
   resource: Asset,

@@ -2,7 +2,7 @@ import { BeforeInsert, Column, Entity, Index, OneToMany } from 'typeorm';
 
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
-import { Asset } from './';
+import { Asset } from 'modules/assets/entities';
 
 @Entity('partners')
 export class Partner extends BaseModel implements BaseEntityInterface {

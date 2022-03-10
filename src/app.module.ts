@@ -1,22 +1,20 @@
-/* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PartnersModule } from './modules/partners/partners.module';
-import {
-  Asset,
-  Partner,
-  Attribute,
-} from './modules/partners/entities';
+import { PartnersModule } from 'modules/partners/partners.module';
 import { AuthModule } from 'modules/auth/auth.module';
-import { UsersModule } from './modules/users/users.module';
-import { User } from './modules/users/user.entity';
+import { UsersModule } from 'modules/users/users.module';
 
 import { adminjs } from 'modules/admin/admin.config';
+import { AssetsModule } from 'modules/assets/assets.module';
+import { User } from 'modules/users/user.entity';
+import { Partner } from 'modules/partners/entities';
+import { Asset, Attribute } from 'modules/assets/entities';
 
-const appModules = [AuthModule,
+const appModules = [
+  AuthModule,
   ConfigModule.forRoot({
     isGlobal: true,
     envFilePath: [
@@ -31,23 +29,17 @@ const appModules = [AuthModule,
   TypeOrmModule.forRootAsync({
     useFactory: async (configService: ConfigService) => ({
       ...configService.get('database.default'),
-      entities: [Asset, Attribute, Partner, User],
+      entities: [User, Partner, Asset, Attribute],
     }),
     inject: [ConfigService],
   }),
-]
-if(process.env.NODE_ENV == 'DEVELOP' || process.env.NODE_ENV == 'ADMIN') {
-  appModules.push(adminjs.module())
+];
+if (process.env.NODE_ENV == 'DEVELOP' || process.env.NODE_ENV == 'ADMIN') {
+  appModules.push(adminjs.module());
 }
 @Module({
-  imports: [...appModules, PartnersModule, UsersModule ],
+  imports: [...appModules, PartnersModule, AssetsModule, UsersModule],
   controllers: [AppController],
   providers: [AppService],
 })
-
 export class AppModule {}
-
-
-
-
-
