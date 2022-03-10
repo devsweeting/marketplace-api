@@ -6,6 +6,7 @@ import { Asset } from './entities';
 import { TransferRequestDto } from 'modules/assets/dto';
 import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 import { IPaginationMeta, paginate, Pagination } from 'nestjs-typeorm-paginate';
+import { AssetNotFoundException } from 'modules/assets/exceptions/asset-not-found.exception';
 
 @Injectable()
 export class AssetsService {
@@ -14,6 +15,14 @@ export class AssetsService {
       page: params.page,
       limit: params.limit,
     });
+  }
+
+  public async deleteAsset(partner: Partner, id: string): Promise<void> {
+    const asset = await Asset.findOne(id, { relations: ['attributes'] });
+    if (!asset || asset.partnerId !== partner.id) {
+      throw new AssetNotFoundException();
+    }
+    await asset.softRemove();
   }
 
   public async recordTransferRequest(partnerId: string, dto: TransferRequestDto): Promise<void> {

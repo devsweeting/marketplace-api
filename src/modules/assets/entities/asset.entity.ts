@@ -54,7 +54,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   @RelationId((asset: Asset) => asset.partner)
   public partnerId: string;
 
-  @OneToMany(() => Attribute, (attribute) => attribute.asset)
+  @OneToMany(() => Attribute, (attribute) => attribute.asset, { cascade: ['soft-remove'] })
   public attributes: Attribute[];
 
   @BeforeInsert()
