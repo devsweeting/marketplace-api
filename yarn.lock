@@ -31,6 +31,13 @@
     "@types/express-session" "^1.17.0"
     reflect-metadata "^0.1.13"
 
+"@adminjs/passwords@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@adminjs/passwords/-/passwords-2.0.0.tgz#4f1470587d76a28fe24f895f854bf4f0ba0d7da7"
+  integrity sha512-47QjuG0Q4+YzGx10sGq5rgkdA8MAotYozIVg8LeHDOAZBbvBU4CCt/F9bo1RiYGs/YwGsjfKS1FkcGSrB/JKrQ==
+  dependencies:
+    aws-sdk "^2.728.0"
+
 "@adminjs/typeorm@^2.0.1":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@adminjs/typeorm/-/typeorm-2.0.1.tgz#f6e9905b6d327e1fa9d1509f10042ba5f5e3c6ec"
@@ -1342,6 +1349,11 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
+"@faker-js/faker@^6.0.0-beta.0":
+  version "6.0.0-beta.0"
+  resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-6.0.0-beta.0.tgz#8d772b0c37ebc450e3a95114be549e8fd245f16f"
+  integrity sha512-7QdsX5ZqUEz87twuoKEJe7NHn6OHQsVYQpJcK0disnR0XuVb9FEgQUcsViard9OTNN/fG/nZT63V35vieOwZ4Q==
+
 "@hapi/address@^4.0.1":
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/@hapi/address/-/address-4.1.0.tgz#d60c5c0d930e77456fdcde2598e77302e2955e1d"
@@ -2049,6 +2061,11 @@
   integrity sha512-G4yqdVlhr6YhzLXFKy5F7HtRBU8Y23+iWy7UKthMq/OSQnL1hbsoeXESQ2LY8zEDlknipDG3nRGhUC9tkwvy/w==
   dependencies:
     "@types/babel-types" "*"
+
+"@types/bcryptjs@^2.4.2":
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/@types/bcryptjs/-/bcryptjs-2.4.2.tgz#e3530eac9dd136bfdfb0e43df2c4c5ce1f77dfae"
+  integrity sha512-LiMQ6EOPob/4yUL66SZzu6Yh77cbzJFYll+ZfaPiPPFswtIlA/Fs1MzdKYA7JApHU49zQTbJGX3PDmCpIdDBRQ==
 
 "@types/body-parser@*":
   version "1.19.2"
@@ -2836,6 +2853,21 @@ aws-sdk@^2.1064.0:
     uuid "3.3.2"
     xml2js "0.4.19"
 
+aws-sdk@^2.728.0:
+  version "2.1089.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1089.0.tgz#198ee116f3d6f70cd26cd6f7efa6adba46a54768"
+  integrity sha512-QhawXCxhOLR+SJHuKXNzyx1hd+oA1HqaDRjbeTKUrz7g2KF4EyPWvLwzf1fNaOTPK3Vp3JDYijusdKlfV69efw==
+  dependencies:
+    buffer "4.9.2"
+    events "1.1.1"
+    ieee754 "1.1.13"
+    jmespath "0.16.0"
+    querystring "0.2.0"
+    sax "1.2.1"
+    url "0.10.3"
+    uuid "3.3.2"
+    xml2js "0.4.19"
+
 axios@0.24.0, axios@^0.24.0:
   version "0.24.0"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.24.0.tgz#804e6fa1e4b9c5288501dd9dff56a7a0940d20d6"
@@ -3000,6 +3032,11 @@ base64url@3.x.x:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/base64url/-/base64url-3.0.1.tgz#6399d572e2bc3f90a9a8b22d5dbb0a32d33f788d"
   integrity sha512-ir1UPr3dkwexU7FdV8qBBbNDRUhMmIekYMFZfi+C/sLNnRESKPl23nB9b2pltqfOQNnGzsDdId90AEtG5tCx4A==
+
+bcryptjs@^2.4.3:
+  version "2.4.3"
+  resolved "https://registry.yarnpkg.com/bcryptjs/-/bcryptjs-2.4.3.tgz#9ab5627b93e60621ff7cdac5da9733027df1d0cb"
+  integrity sha1-mrVie5PmBiH/fNrF2pczAn3x0Ms=
 
 binary-extensions@^2.0.0:
   version "2.2.0"
