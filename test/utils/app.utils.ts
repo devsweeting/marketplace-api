@@ -46,6 +46,6 @@ export const createApp = async (providers: MockProvider[] = []): Promise<INestAp
 
 export const clearAllData = async (): Promise<void> => {
   await Attribute.delete({});
-  await Partner.delete({});
   await Asset.delete({});
+  await Partner.delete({});
 };

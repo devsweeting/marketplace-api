@@ -1,18 +1,33 @@
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
-import { createApp } from '@/test/utils/app.utils';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const TEST_API_KEY = 'd2e621a6646a4211768cd68e26f21228a81';
-const TEST_API_PARTNER_ID = '1D700038-58B1-4EF0-8737-4DB7D6A9D60F';
+import { clearAllData, createApp } from '@/test/utils/app.utils';
+import { createPartner } from '@/test/utils/partner.utils';
+import { Asset, Attribute, Partner } from 'modules/partners/entities';
+import { createAsset } from '@/test/utils/asset.utils';
 
 describe('PartnersController', () => {
   let app: INestApplication;
+  let partner: Partner;
 
   beforeEach(async () => {
     app = await createApp();
+    partner = await createPartner({
+      name: 'Test',
+      apiKey: 'test-api-key',
+    });
   });
 
-  describe(`POST /partners/${TEST_API_PARTNER_ID}/assets`, () => {
+  afterEach(async () => {
+    jest.clearAllMocks();
+    await Attribute.delete({});
+    await Asset.delete({});
+  });
+
+  afterAll(async () => {
+    await clearAllData();
+  });
+
+  describe(`POST /partners/assets`, () => {
     it('should throw 401 exception if auth token is missing', () => {
       const transferRequest: any = {
         user: {
@@ -33,12 +48,12 @@ describe('PartnersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/partners/${TEST_API_PARTNER_ID}/assets`)
+        .post(`/partners/assets`)
         .send(transferRequest)
         .expect(401);
     });
 
-    it('should create a new asset transfer object in the db', () => {
+    it('should throw 401 exception if token is invalid', () => {
       const transferRequest: any = {
         user: {
           refId: '1232',
@@ -58,12 +73,102 @@ describe('PartnersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/partners/${TEST_API_PARTNER_ID}/assets`)
+        .post(`/partners/assets`)
         .set({
-          'x-api-key': 'somekey',
+          'x-api-key': 'invalid key',
         })
         .send(transferRequest)
-        .expect(201);
+        .expect(401);
+    });
+
+    it('should create a new asset transfer object in the db', () => {
+      const transferRequest: any = {
+        user: {
+          refId: '1232',
+          email: 'steven@example.com',
+        },
+        assets: [
+          {
+            refId: '1232',
+            image: 'https://example.com/image.png',
+            name: 'Example',
+            description: 'test',
+            externalUrl: 'https://example.com/page-1',
+            listing: {
+              marketplace: 'OpenSea',
+            },
+            attributes: [
+              {
+                trait: 'trait name',
+                value: 'some value',
+                display: 'text',
+              },
+            ],
+          },
+        ],
+      };
+
+      return request(app.getHttpServer())
+        .post(`/partners/assets`)
+        .set({
+          'x-api-key': partner.apiKey,
+        })
+        .send(transferRequest)
+        .expect(201)
+        .then(async () => {
+          const asset = await Asset.findOne({
+            where: { refId: '1232' },
+          });
+          const attribute = await Attribute.findOne({
+            where: { assetId: asset.id },
+          });
+          expect(asset).toBeDefined();
+          expect(asset.name).toEqual(transferRequest.assets[0].name);
+          expect(asset.image).toEqual(transferRequest.assets[0].image);
+          expect(asset.description).toEqual(transferRequest.assets[0].description);
+          expect(asset.externalUrl).toEqual(transferRequest.assets[0].externalUrl);
+          expect(attribute).toBeDefined();
+          expect(attribute.trait).toEqual(transferRequest.assets[0].attributes[0].trait);
+          expect(attribute.value).toEqual(transferRequest.assets[0].attributes[0].value);
+          expect(attribute.display).toEqual(transferRequest.assets[0].attributes[0].display);
+        });
+    });
+
+    it('should throw 400 exception if asset already exist', async () => {
+      await createAsset({ slug: 'example', partner });
+
+      const transferRequest: any = {
+        user: {
+          refId: '1232',
+          email: 'steven@example.com',
+        },
+        assets: [
+          {
+            refId: '1232',
+            image: 'https://example.com/image.png',
+            name: 'Example',
+            description: 'test',
+            listing: {
+              marketplace: 'OpenSea',
+            },
+          },
+        ],
+      };
+
+      return request(app.getHttpServer())
+        .post(`/partners/assets`)
+        .set({
+          'x-api-key': partner.apiKey,
+        })
+        .send(transferRequest)
+        .expect(400)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            statusCode: 400,
+            message: 'Duplicated assets',
+            names: ['Example'],
+          });
+        });
     });
 
     it('should throw an exception if assets property is undefined', () => {
@@ -75,9 +180,9 @@ describe('PartnersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/partners/${TEST_API_PARTNER_ID}/assets`)
+        .post(`/partners/assets`)
         .set({
-          'x-api-key': 'somekey',
+          'x-api-key': partner.apiKey,
         })
         .send(transferRequest)
         .expect(400)
@@ -101,9 +206,9 @@ describe('PartnersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/partners/${TEST_API_PARTNER_ID}/assets`)
+        .post(`/partners/assets`)
         .set({
-          'x-api-key': 'somekey',
+          'x-api-key': partner.apiKey,
         })
         .send(transferRequest)
         .expect(400)
@@ -128,9 +233,9 @@ describe('PartnersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/partners/${TEST_API_PARTNER_ID}/assets`)
+        .post(`/partners/assets`)
         .set({
-          'x-api-key': 'somekey',
+          'x-api-key': partner.apiKey,
         })
         .send(transferRequest)
         .expect(400)

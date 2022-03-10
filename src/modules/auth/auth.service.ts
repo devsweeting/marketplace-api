@@ -1,18 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { Partner } from 'modules/partners/entities';
 
 @Injectable()
 export class AuthService {
-  // KEYS
-  private apiKeys: string[] = [
-    'ca03na188ame03u1d78620de67282882',
-    'd2e621a6646a4211768cd68e26f21228',
-  ];
-  validateApiKey(apiKey: string): boolean {
+  public validateApiKey(apiKey: string): Promise<Partner | null> {
     Logger.log(`AuthService.validateApiKey(${apiKey})`);
-    return true;
-    // return this.apiKeys.find((apiK) => {
-    //   Logger.log(`${apiKey} === ${apiK}`);
-    //   return apiKey == apiK;
-    // });
+    return Partner.findOne({ where: { apiKey } });
   }
 }
