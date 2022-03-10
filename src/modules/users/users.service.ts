@@ -25,13 +25,13 @@ export class UsersService extends BaseService {
   }
 
   async getByEmail(email: string): Promise<User> {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ where: { email } });
     if (user) return user;
     throw new UserNotFoundException();
   }
 
   async checkByEmail(email: string): Promise<User> {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ where: { email } });
     if (user) return user;
 
     return null;
