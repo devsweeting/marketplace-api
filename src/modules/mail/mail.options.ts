@@ -2,9 +2,6 @@ import { ConfigService } from '@nestjs/config';
 import nodemailer from 'nodemailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
-export const MESSAGES_AUTHOR =
-  process.env.MAILER_FROM || 'Notifications <notifications@jumpdemo.com>';
-
 export const getMailerTransport = (configService: ConfigService): any => {
   return {
     ...nodemailer.createTransport({
@@ -16,6 +13,11 @@ export const getMailerTransport = (configService: ConfigService): any => {
         pass: configService.get('mailer.default.mailerPassword'),
       },
     }),
+    defaults: {
+      from:
+        configService.get('mailer.default.mailerFrom') ||
+        'Notifications <notifications@jumpdemo.com>',
+    },
     template: {
       dir: __dirname + '/templates',
       adapter: new HandlebarsAdapter(),
