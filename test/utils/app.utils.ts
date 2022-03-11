@@ -5,6 +5,7 @@ import { Injectable } from '@nestjs/common/interfaces';
 import { AppModule } from '@/src/app.module';
 import { AuthModule } from '@/src/modules/auth/auth.module';
 import validationPipe from '@/src/modules/common/pipes/validation.pipe';
+import { User } from 'modules/users/user.entity';
 import { Asset, Attribute } from 'modules/assets/entities';
 import { Partner } from 'modules/partners/entities';
 
@@ -49,4 +50,5 @@ export const clearAllData = async (): Promise<void> => {
   await Attribute.delete({});
   await Asset.delete({});
   await Partner.delete({});
+  await User.delete({});
 };

@@ -8,6 +8,7 @@ import { AuthModule } from 'modules/auth/auth.module';
 import { UsersModule } from 'modules/users/users.module';
 
 import { adminjs } from 'modules/admin/admin.config';
+import { MailModule } from 'modules/mail/mail.module';
 import { AssetsModule } from 'modules/assets/assets.module';
 import { User } from 'modules/users/user.entity';
 import { Partner } from 'modules/partners/entities';
@@ -36,6 +37,10 @@ const appModules = [
 ];
 if (process.env.NODE_ENV == 'DEVELOP' || process.env.NODE_ENV == 'ADMIN') {
   appModules.push(adminjs.module());
+}
+
+if (process.env.NODE_ENV != 'DEVELOP' && process.env.NODE_ENV != 'test') {
+  appModules.push(MailModule);
 }
 @Module({
   imports: [...appModules, PartnersModule, AssetsModule, UsersModule],

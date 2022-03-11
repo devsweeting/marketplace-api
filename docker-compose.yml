@@ -14,5 +14,12 @@ services:
     volumes:
       - jump_marketplace_postgres:/var/lib/postgresql/data
 
+  mailhog:
+    container_name: jump-marketplace-mailhog
+    image: mailhog/mailhog
+    ports:
+      - 1025:1025 # smtp server
+      - 8025:8025 # web ui
+
 volumes:
   jump_marketplace_postgres:
