@@ -9,14 +9,18 @@ import {
   ManyToOne,
   JoinColumn,
   In,
+  SelectQueryBuilder,
+  Brackets,
 } from 'typeorm';
 
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from '../../common/entities/base.model';
-import { Attribute, Partner } from './';
+import { Attribute } from './';
 import { generateSlug } from 'modules/common/helpers/slug.helper';
-import { AssetDto, AttributeDto } from 'modules/partners/dto';
 import { InternalServerErrorException, Logger } from '@nestjs/common';
+import { Partner } from 'modules/partners/entities';
+import { AssetDto, AttributeDto } from 'modules/assets/dto';
+import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 
 @Entity('partner_assets')
 export class Asset extends BaseModel implements BaseEntityInterface {
@@ -50,7 +54,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   @RelationId((asset: Asset) => asset.partner)
   public partnerId: string;
 
-  @OneToMany(() => Attribute, (attribute) => attribute.assetId)
+  @OneToMany(() => Attribute, (attribute) => attribute.asset, { cascade: ['soft-remove'] })
   public attributes: Attribute[];
 
   @BeforeInsert()
@@ -98,6 +102,21 @@ export class Asset extends BaseModel implements BaseEntityInterface {
         throw new InternalServerErrorException();
       }
     }
+  }
+
+  public static list(params: ListAssetsDto): SelectQueryBuilder<Asset> {
+    const query = Asset.createQueryBuilder('asset')
+      .leftJoinAndMapMany('asset.attributes', 'asset.attributes', 'attributes')
+      .addOrderBy(params.sort, params.order);
+
+    if (params.query) {
+      query.andWhere(
+        new Brackets((b) => {
+          b.orWhere('LOWER(asset.name) LIKE LOWER(:query)', { query: `%${params.query}%` });
+        }),
+      );
+    }
+    return query;
   }
 
   public constructor(partial: Partial<Asset>) {

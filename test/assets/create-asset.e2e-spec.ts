@@ -2,14 +2,15 @@ import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { createPartner } from '@/test/utils/partner.utils';
-import { Asset, Attribute, Partner } from 'modules/partners/entities';
 import { createAsset } from '@/test/utils/asset.utils';
+import { Partner } from 'modules/partners/entities';
+import { Asset, Attribute } from 'modules/assets/entities';
 
-describe('PartnersController', () => {
+describe('AssetsController', () => {
   let app: INestApplication;
   let partner: Partner;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     app = await createApp();
     partner = await createPartner({
       name: 'Test',
@@ -27,7 +28,7 @@ describe('PartnersController', () => {
     await clearAllData();
   });
 
-  describe(`POST /partners/assets`, () => {
+  describe(`POST /assets`, () => {
     it('should throw 401 exception if auth token is missing', () => {
       const transferRequest: any = {
         user: {
@@ -47,10 +48,7 @@ describe('PartnersController', () => {
         ],
       };
 
-      return request(app.getHttpServer())
-        .post(`/partners/assets`)
-        .send(transferRequest)
-        .expect(401);
+      return request(app.getHttpServer()).post(`/assets`).send(transferRequest).expect(401);
     });
 
     it('should throw 401 exception if token is invalid', () => {
@@ -73,7 +71,7 @@ describe('PartnersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/partners/assets`)
+        .post(`/assets`)
         .set({
           'x-api-key': 'invalid key',
         })
@@ -109,7 +107,7 @@ describe('PartnersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/partners/assets`)
+        .post(`/assets`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -156,7 +154,7 @@ describe('PartnersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/partners/assets`)
+        .post(`/assets`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -180,7 +178,7 @@ describe('PartnersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/partners/assets`)
+        .post(`/assets`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -206,7 +204,7 @@ describe('PartnersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/partners/assets`)
+        .post(`/assets`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -233,7 +231,7 @@ describe('PartnersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/partners/assets`)
+        .post(`/assets`)
         .set({
           'x-api-key': partner.apiKey,
         })

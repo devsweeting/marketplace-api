@@ -6,7 +6,7 @@ import { quotes } from '@/src/app.service';
 describe('AppController', () => {
   let app: INestApplication;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     app = await createApp();
   });
 

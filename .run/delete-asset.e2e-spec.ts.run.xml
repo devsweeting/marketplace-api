@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="app.e2e-spec.ts" type="JavaScriptTestRunnerJest" nameIsGenerated="true">
+  <configuration default="false" name="delete-asset.e2e-spec.ts" type="JavaScriptTestRunnerJest" nameIsGenerated="true">
     <config-file value="$PROJECT_DIR$/test/jest-e2e.json" />
     <node-interpreter value="project" />
     <node-options value="" />
@@ -7,7 +7,7 @@
     <working-dir value="$PROJECT_DIR$" />
     <envs />
     <scope-kind value="TEST_FILE" />
-    <test-file value="$PROJECT_DIR$/test/app.e2e-spec.ts" />
+    <test-file value="$PROJECT_DIR$/test/assets/delete-asset.e2e-spec.ts" />
     <method v="2" />
   </configuration>
 </component>
