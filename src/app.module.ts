@@ -15,6 +15,7 @@ import { UsersModule } from './modules/users/users.module';
 import { User } from './modules/users/user.entity';
 
 import { adminjs } from 'modules/admin/admin.config';
+import { MailModule } from 'modules/mail/mail.module';
 
 const appModules = [AuthModule,
   ConfigModule.forRoot({
@@ -38,6 +39,10 @@ const appModules = [AuthModule,
 ]
 if(process.env.NODE_ENV == 'DEVELOP' || process.env.NODE_ENV == 'ADMIN') {
   appModules.push(adminjs.module())
+}
+
+if(process.env.NODE_ENV != 'DEVELOP' && process.env.NODE_ENV != 'test'){
+  appModules.push(MailModule)
 }
 @Module({
   imports: [...appModules, PartnersModule, UsersModule ],

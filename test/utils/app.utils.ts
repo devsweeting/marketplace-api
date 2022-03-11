@@ -6,6 +6,7 @@ import { AppModule } from '@/src/app.module';
 import { AuthModule } from '@/src/modules/auth/auth.module';
 import validationPipe from '@/src/modules/common/pipes/validation.pipe';
 import { Asset, Attribute, Partner } from 'modules/partners/entities';
+import { User } from 'modules/users/user.entity';
 
 let app: INestApplication;
 
@@ -48,4 +49,5 @@ export const clearAllData = async (): Promise<void> => {
   await Attribute.delete({});
   await Asset.delete({});
   await Partner.delete({});
+  await User.delete({});
 };
