@@ -7,6 +7,9 @@ import createAssetResource from './resources/asset/asset.resource';
 import createAttributeResource from './resources/attribute/attribute.resource';
 import createPartnerResource from './resources/partner/partner.resource';
 import createUserResource from './resources/user/user.resource';
+import { SessionEntity, TypeormStore } from 'typeorm-store';
+import { Session } from 'modules/auth/session/session.entity';
+import { createConnection } from 'typeorm';
 
 const createAdmin = async (passwordService, configService: ConfigService) => {
   if ((await User.count({ role: RoleEnum.SUPER_ADMIN })) === 0) {
@@ -61,5 +64,18 @@ export const getAuth = (configService: ConfigService) => {
     },
     cookiePassword: configService.get('admin.default.cookiePassword'),
     cookieName: configService.get('admin.default.cookieName'),
+  };
+};
+
+export const getSessionOptions = async (configService: ConfigService) => {
+  const config = configService.get('database.default');
+  const connection = await createConnection({
+    ...config,
+    entities: [Session],
+  });
+  const sessionRepository = connection.getRepository<SessionEntity>(Session);
+  return {
+    secret: configService.get('admin.default.sessionSecret'),
+    store: new TypeormStore({ repository: sessionRepository }),
   };
 };
