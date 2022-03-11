@@ -13,7 +13,6 @@ describe('AssetsController', () => {
   beforeAll(async () => {
     app = await createApp();
     partner = await createPartner({
-      name: 'Test',
       apiKey: 'test-api-key',
     });
   });
@@ -93,7 +92,8 @@ describe('AssetsController', () => {
             description: 'test',
             externalUrl: 'https://example.com/page-1',
             listing: {
-              marketplace: 'OpenSea',
+              marketplace: 'OPEN_SEA',
+              auctionType: 'FIXED_PRICE',
             },
             attributes: [
               {
@@ -125,6 +125,8 @@ describe('AssetsController', () => {
           expect(asset.image).toEqual(transferRequest.assets[0].image);
           expect(asset.description).toEqual(transferRequest.assets[0].description);
           expect(asset.externalUrl).toEqual(transferRequest.assets[0].externalUrl);
+          expect(asset.marketplace).toEqual(transferRequest.assets[0].listing.marketplace);
+          expect(asset.auctionType).toEqual(transferRequest.assets[0].listing.auctionType);
           expect(attribute).toBeDefined();
           expect(attribute.trait).toEqual(transferRequest.assets[0].attributes[0].trait);
           expect(attribute.value).toEqual(transferRequest.assets[0].attributes[0].value);

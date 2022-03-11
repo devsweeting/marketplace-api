@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   HttpStatus,
   Param,
   Post,
@@ -11,6 +12,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBasicAuth,
+  ApiConflictResponse,
   ApiNotFoundResponse,
   ApiOperation,
   ApiResponse,
@@ -26,7 +28,8 @@ import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 import { AssetResponse } from 'modules/assets/interfaces/response/asset.response';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
 import { generateSwaggerPaginatedSchema } from 'modules/common/helpers/generate-swagger-paginated-schema';
-import { DeleteAssetDto } from 'modules/assets/dto/delete-asset.dto';
+import { AssetIdDto } from 'modules/assets/dto/asset-id.dto';
+import { UpdateAssetDto } from 'modules/assets/dto/update-asset.dto';
 
 @ApiTags('assets')
 @Controller('assets')
@@ -60,11 +63,34 @@ export class AssetsController {
   @ApiNotFoundResponse({
     description: 'Asset not found',
   })
-  public async delete(
-    @GetPartner() partner: Partner,
-    @Param() params: DeleteAssetDto,
-  ): Promise<void> {
+  public async delete(@GetPartner() partner: Partner, @Param() params: AssetIdDto): Promise<void> {
     await this.assetsService.deleteAsset(partner, params.id);
+  }
+
+  @Post(':id')
+  @ApiBasicAuth('api-key')
+  @UseGuards(AuthGuard('headerapikey'))
+  @ApiOperation({ summary: 'Update an asset' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Asset updated',
+    type: AssetResponse,
+  })
+  @ApiNotFoundResponse({
+    description: 'Asset not found',
+  })
+  @ApiConflictResponse({
+    description: 'Ref id or name already taken',
+  })
+  @HttpCode(HttpStatus.OK)
+  public async update(
+    @GetPartner() partner: Partner,
+    @Param() params: AssetIdDto,
+    @Body() dto: UpdateAssetDto,
+  ): Promise<AssetResponse> {
+    const asset = await this.assetsService.updateAsset(partner, params.id, dto);
+
+    return this.assetsTransformer.transform(asset);
   }
 
   @Post()
