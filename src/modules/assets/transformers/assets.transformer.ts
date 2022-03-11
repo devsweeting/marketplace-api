@@ -1,6 +1,8 @@
 import { Asset } from '../entities';
-import { AssetResponse } from 'modules/partners/interfaces/response/asset.response';
 import { Injectable } from '@nestjs/common';
+import { AssetResponse } from '../interfaces/response/asset.response';
+import { Pagination } from 'nestjs-typeorm-paginate';
+import { PaginatedResponse } from 'modules/common/dto/paginated.response';
 
 @Injectable()
 export class AssetsTransformer {
@@ -19,5 +21,12 @@ export class AssetsTransformer {
 
   public transformAll(assets: Asset[]): AssetResponse[] {
     return assets.map((asset) => this.transform(asset));
+  }
+
+  public transformPaginated(pagination: Pagination<Asset>): PaginatedResponse<AssetResponse> {
+    return {
+      meta: pagination.meta,
+      items: this.transformAll(pagination.items),
+    };
   }
 }

@@ -5,7 +5,8 @@ import { Injectable } from '@nestjs/common/interfaces';
 import { AppModule } from '@/src/app.module';
 import { AuthModule } from '@/src/modules/auth/auth.module';
 import validationPipe from '@/src/modules/common/pipes/validation.pipe';
-import { Asset, Attribute, Partner } from 'modules/partners/entities';
+import { Asset, Attribute } from 'modules/assets/entities';
+import { Partner } from 'modules/partners/entities';
 
 let app: INestApplication;
 

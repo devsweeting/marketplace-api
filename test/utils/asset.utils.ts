@@ -1,4 +1,4 @@
-import { Asset } from 'modules/partners/entities';
+import { Asset } from 'modules/assets/entities';
 
 export const createAsset = (data: Partial<Asset>): Promise<Asset> => {
   const asset = new Asset({

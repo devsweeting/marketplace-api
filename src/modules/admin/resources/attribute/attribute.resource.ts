@@ -1,5 +1,5 @@
+import { Attribute } from 'modules/assets/entities';
 import { CreateResourceResult } from '../create-resource-result.type';
-import { Attribute } from '../../../partners/entities';
 
 const createAttributeResource = (): CreateResourceResult<typeof Attribute> => ({
   resource: Attribute,
