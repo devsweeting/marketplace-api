@@ -43,7 +43,7 @@ export const getAuth = (configService: ConfigService) => {
 
       await createAdmin(passwordService, configService);
 
-      const admin = await User.findOne({ email });
+      const admin = await User.findOne({ where: { email } });
 
       if (admin && ![RoleEnum.SUPER_ADMIN, RoleEnum.ADMIN, RoleEnum.PARTNER].includes(admin.role))
         return null;

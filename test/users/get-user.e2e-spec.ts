@@ -1,13 +1,16 @@
 import { User } from '@/src/modules/users/user.entity';
 import { INestApplication } from '@nestjs/common';
+import { RoleEnum } from 'modules/users/enums/role.enum';
 import request from 'supertest';
 
 import { createApp } from '../utils/app.utils';
 import { createUser } from '../utils/fixtures/create-user';
+import { generateToken } from '../utils/jwt.utils';
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;
   let user: User;
+  let admin: User;
 
   beforeAll(async () => {
     app = await createApp();
@@ -19,13 +22,14 @@ describe('UserController (e2e)', () => {
     await app.close();
   });
 
-  describe('GET /users/:id', () => {
+  describe('GET /users/:id AS SUPER_ADMIN', () => {
+    beforeEach(async () => {
+      admin = await createUser({ role: RoleEnum.SUPER_ADMIN });
+    });
     it('return status 200 for authorized user', async () => {
       return request(app.getHttpServer())
         .get(`/users/${user.id}`)
-        .set({
-          'x-api-key': 'somekey',
-        })
+        .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .expect(200);
     });
 
@@ -36,9 +40,7 @@ describe('UserController (e2e)', () => {
     it('should show user for authorized user', async () => {
       await request(app.getHttpServer())
         .get(`/users/${user.id}`)
-        .set({
-          'x-api-key': 'somekey',
-        })
+        .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .expect(200)
         .expect(({ body }) => {
           expect(body.id).toEqual(user.id);
@@ -48,9 +50,7 @@ describe('UserController (e2e)', () => {
       const wrongId = '1D700038-58B1-4EF0-8737-4DB7D6A9D60F';
       await request(app.getHttpServer())
         .get(`/users/${wrongId}`)
-        .set({
-          'x-api-key': 'somekey',
-        })
+        .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .expect(404);
     });
     it('should return 401 status for unavailable user for unauthorized user', async () => {
