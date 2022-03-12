@@ -3,6 +3,7 @@
 .env*.local
 
 # Do not remove
+.env.production
 .env.staging
 .env.test
 

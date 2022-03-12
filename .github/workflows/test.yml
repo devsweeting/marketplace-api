@@ -76,7 +76,7 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: 'Marketplace API'
+          application_name: 'Jump'
           environment_name: ${{ secrets.AWS_ENVIORNMENT_NAME_TEST }}
           version_label: ${{ env.VERSION_LABEL }}
           version_description: ${{ env.VERSION_LABEL }}
