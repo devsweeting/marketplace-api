@@ -1,3 +1,5 @@
+*.zip
+
 .env*.local
 
 # Do not remove
