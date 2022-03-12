@@ -1,5 +1,9 @@
 .env*.local
 
+# Do not remove
+.env.staging
+.env.test
+
 # compiled output
 /dist
 /node_modules
