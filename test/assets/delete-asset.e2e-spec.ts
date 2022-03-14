@@ -17,7 +17,6 @@ describe('AssetsController', () => {
   beforeAll(async () => {
     app = await createApp();
     partner = await createPartner({
-      name: 'Test',
       apiKey: 'test-api-key',
     });
     asset = await createAsset({
@@ -85,7 +84,6 @@ describe('AssetsController', () => {
 
     it('should throw 404 exception if asset does not belong to the partner', async () => {
       const otherPartner = await createPartner({
-        name: 'Other test',
         apiKey: 'other-test-api-key',
       });
       const otherAsset = await createAsset({ partner: otherPartner });

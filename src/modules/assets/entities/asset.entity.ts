@@ -21,6 +21,8 @@ import { InternalServerErrorException, Logger } from '@nestjs/common';
 import { Partner } from 'modules/partners/entities';
 import { AssetDto, AttributeDto } from 'modules/assets/dto';
 import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
+import { MarketplaceEnum } from 'modules/assets/enums/marketplace.enum';
+import { AuctionTypeEnum } from 'modules/assets/enums/auction-type.enum';
 
 @Entity('partner_assets')
 export class Asset extends BaseModel implements BaseEntityInterface {
@@ -45,6 +47,21 @@ export class Asset extends BaseModel implements BaseEntityInterface {
 
   @Column({ nullable: true })
   public externalUrl: string;
+
+  @Column({
+    type: 'enum',
+    enum: MarketplaceEnum,
+    nullable: false,
+    default: MarketplaceEnum.Jump,
+  })
+  public marketplace: MarketplaceEnum;
+
+  @Column({
+    type: 'enum',
+    enum: AuctionTypeEnum,
+    nullable: true,
+  })
+  public auctionType: AuctionTypeEnum;
 
   @ManyToOne(() => Partner, (partner) => partner.assets)
   @JoinColumn({ name: 'partnerId' })
@@ -75,6 +92,13 @@ export class Asset extends BaseModel implements BaseEntityInterface {
     });
   }
 
+  public async saveAttributes(attributes: AttributeDto[]): Promise<Attribute[]> {
+    await Attribute.delete({ assetId: this.id });
+    return Promise.all(
+      attributes.map((attribute) => new Attribute({ ...attribute, assetId: this.id }).save()),
+    );
+  }
+
   public static async saveAssetsForPartner(
     dtoList: Array<AssetDto>,
     partner: Partner,
@@ -89,6 +113,8 @@ export class Asset extends BaseModel implements BaseEntityInterface {
           partnerId: partner.id,
           description: dto.description,
           externalUrl: dto.externalUrl,
+          marketplace: dto.listing.marketplace,
+          auctionType: dto.listing.auctionType,
         });
         asset.partner = partner;
         await asset.save();
