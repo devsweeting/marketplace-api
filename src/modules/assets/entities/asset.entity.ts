@@ -54,7 +54,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   @RelationId((asset: Asset) => asset.partner)
   public partnerId: string;
 
-  @OneToMany(() => Attribute, (attribute) => attribute.asset, { cascade: ['soft-remove'] })
+  @OneToMany(() => Attribute, (attribute) => attribute.asset)
   public attributes: Attribute[];
 
   @BeforeInsert()
@@ -107,6 +107,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   public static list(params: ListAssetsDto): SelectQueryBuilder<Asset> {
     const query = Asset.createQueryBuilder('asset')
       .leftJoinAndMapMany('asset.attributes', 'asset.attributes', 'attributes')
+      .where('asset.isDeleted = :isDeleted', { isDeleted: false })
       .addOrderBy(params.sort, params.order);
 
     if (params.query) {

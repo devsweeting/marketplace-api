@@ -91,6 +91,6 @@ export class UsersController {
   @ApiResponse({ status: HttpStatus.NO_CONTENT })
   @ApiNotFoundResponse()
   public async delete(@Param('id') id): Promise<void> {
-    return this.usersService.delete(id);
+    return this.usersService.softDelete(id);
   }
 }

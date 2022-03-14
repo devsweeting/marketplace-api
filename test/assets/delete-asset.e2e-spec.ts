@@ -108,8 +108,12 @@ describe('AssetsController', () => {
         .send()
         .expect(200)
         .then(async () => {
-          const persistedAsset = await Asset.findOne(asset.id);
-          const persistedAttribute = await Attribute.findOne(attribute.id);
+          const persistedAsset = await Asset.findOne({
+            where: { id: asset.id, isDeleted: false },
+          });
+          const persistedAttribute = await Attribute.findOne({
+            where: { id: attribute.id, isDeleted: false },
+          });
           expect(persistedAsset).toBeUndefined();
           expect(persistedAttribute).toBeUndefined();
         });

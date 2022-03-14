@@ -13,11 +13,11 @@ export class UsersService extends BaseService {
   }
 
   public findAll(): Promise<User[]> {
-    return User.find();
+    return User.find({ where: { isDeleted: false } });
   }
 
   public async findOne(id: string): Promise<User> {
-    const user = await User.findOne(id);
+    const user = await User.findOne(id, { where: { isDeleted: false } });
     if (user) {
       return user;
     }
@@ -25,13 +25,13 @@ export class UsersService extends BaseService {
   }
 
   async getByEmail(email: string): Promise<User> {
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ where: { email, isDeleted: false } });
     if (user) return user;
     throw new UserNotFoundException();
   }
 
   async checkByEmail(email: string): Promise<User> {
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ where: { email, isDeleted: false } });
     if (user) return user;
 
     return null;
@@ -50,12 +50,13 @@ export class UsersService extends BaseService {
     return updatedUser;
   }
 
-  public async delete(id: string): Promise<void> {
+  public async softDelete(id: string): Promise<void> {
     const user = await this.findOne(id);
 
     if (!user) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
-    await user.remove();
+    Object.assign(user, { isDeleted: true, deletedAt: new Date() });
+    await user.save();
   }
 }

@@ -16,7 +16,7 @@ export class User extends BaseModel implements BaseEntityInterface {
   email: string;
 
   @Exclude({ toPlainOnly: true })
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   public password: string;
 
   @Column({
