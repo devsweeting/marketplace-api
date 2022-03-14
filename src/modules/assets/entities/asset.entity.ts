@@ -15,7 +15,7 @@ import {
 
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from '../../common/entities/base.model';
-import { Attribute } from './';
+import { Attribute, Label } from './';
 import { generateSlug } from 'modules/common/helpers/slug.helper';
 import { InternalServerErrorException, Logger } from '@nestjs/common';
 import { Partner } from 'modules/partners/entities';
@@ -73,6 +73,9 @@ export class Asset extends BaseModel implements BaseEntityInterface {
 
   @OneToMany(() => Attribute, (attribute) => attribute.asset)
   public attributes: Attribute[];
+
+  @OneToMany(() => Label, (label) => label.asset, { cascade: ['soft-remove'] })
+  public labels: Label[];
 
   @BeforeInsert()
   public beforeInsert(): void {
