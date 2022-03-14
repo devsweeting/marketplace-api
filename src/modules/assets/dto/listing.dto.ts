@@ -1,25 +1,24 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsEnum } from 'class-validator';
-
-const markets = ['Jump', 'OpenSea'];
-const auctionTypes = ['FixedPrice'];
+import { MarketplaceEnum } from 'modules/assets/enums/marketplace.enum';
+import { AuctionTypeEnum } from 'modules/assets/enums/auction-type.enum';
 
 export class ListingDto {
   @IsNotEmpty()
-  @IsEnum(markets)
+  @IsEnum(MarketplaceEnum)
   @ApiProperty({
     description: 'Marketplace to list asset on.',
     required: true,
-    enum: markets,
+    enum: MarketplaceEnum,
   })
-  public marketplace: string;
+  public marketplace: MarketplaceEnum;
 
   @IsNotEmpty()
-  @IsEnum(auctionTypes)
+  @IsEnum(AuctionTypeEnum)
   @ApiProperty({
     description: 'Auction Type',
     required: false,
-    enum: auctionTypes,
+    enum: AuctionTypeEnum,
   })
-  public auctionType?: string;
+  public auctionType?: AuctionTypeEnum;
 }
