@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
-
-const displayTypes = ['text', 'number', 'boolean', 'date'];
+import { displayTypes } from '../enums/display-type.enum';
 
 export class AttributeDto {
   @ApiProperty({ description: 'Attribute key type' })

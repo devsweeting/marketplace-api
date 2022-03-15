@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PasswordService } from '../../modules/auth/password.service';
 import { RoleEnum } from '../../modules/users/enums/role.enum';
 import { User } from '../../modules/users/user.entity';
+import locale from './locale';
 import createAssetResource from './resources/asset/asset.resource';
 import createAttributeResource from './resources/attribute/attribute.resource';
 import createPartnerResource from './resources/partner/partner.resource';
@@ -33,6 +34,7 @@ export const getAdminJSOptions = {
       createUserResource(),
     ],
     databases: [],
+    locale,
   },
 };
 
