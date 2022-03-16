@@ -12,7 +12,7 @@ import { MailModule } from 'modules/mail/mail.module';
 import { AssetsModule } from 'modules/assets/assets.module';
 import { User } from 'modules/users/user.entity';
 import { Partner } from 'modules/partners/entities';
-import { Asset, Attribute, Label } from 'modules/assets/entities';
+import { Asset, Attribute, Label, Contract } from 'modules/assets/entities';
 import { Session } from 'modules/auth/session/session.entity';
 
 const appModules = [
@@ -31,7 +31,7 @@ const appModules = [
   TypeOrmModule.forRootAsync({
     useFactory: async (configService: ConfigService) => ({
       ...configService.get('database.default'),
-      entities: [User, Partner, Asset, Attribute, Label, Session],
+      entities: [User, Partner, Asset, Attribute, Label, Contract, Session],
     }),
     inject: [ConfigService],
   }),
