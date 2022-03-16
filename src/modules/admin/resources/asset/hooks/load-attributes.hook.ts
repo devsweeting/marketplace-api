@@ -9,19 +9,18 @@ export const loadAttributes = async (
   if (!isGETMethod(request)) {
     return response;
   }
-
   if (response.records) {
     await Promise.all(
       response.records.map(async (record) => {
         const params = flat.unflatten(record.params);
-        params.attributes = await Attribute.find({ where: { assetId: params.id } });
+        params.assetAttributes = await Attribute.find({ where: { assetId: params.id } });
         record.params = flat.flatten(params);
         return record;
       }),
     );
   } else {
     const params = flat.unflatten(response.record.params);
-    params.attributes = await Attribute.find({ where: { assetId: params.id } });
+    params.assetAttributes = await Attribute.find({ where: { assetId: params.id } });
     response.record.params = flat.flatten(params);
   }
 

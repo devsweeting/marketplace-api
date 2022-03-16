@@ -3,4 +3,5 @@ export interface BaseEntityInterface {
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
+  isDeleted: boolean | false;
 }

@@ -1,4 +1,5 @@
 import { ATTRIBUTE_PROPERTY } from 'modules/admin/components.bundler';
+import { SHOW_DELETED_AT } from 'modules/admin/components.bundler';
 import { Asset } from 'modules/assets/entities';
 import { CreateResourceResult } from '../create-resource-result.type';
 import { forAdminGroup } from '../user/user-permissions';
@@ -13,12 +14,12 @@ const createAssetResource = (): CreateResourceResult<typeof Asset> => ({
     (options): object => ({
       ...options,
       listProperties: ['name', 'refId', 'description', 'partnerId', 'updatedAt', 'createdAt'],
-      editProperties: [...baseProperties, 'partnerId', 'attributes'],
+      editProperties: [...baseProperties, 'partnerId', 'assetAttributes'],
       showProperties: [
         'id',
         ...baseProperties,
         'partnerId',
-        'attributes',
+        'assetAttributes',
         'updatedAt',
         'createdAt',
       ],
@@ -47,10 +48,15 @@ const createAssetResource = (): CreateResourceResult<typeof Asset> => ({
       },
     },
     properties: {
-      attributes: {
+      assetAttributes: {
         components: {
           edit: ATTRIBUTE_PROPERTY,
           show: ATTRIBUTE_PROPERTY,
+        },
+      },
+      deletedAt: {
+        components: {
+          show: SHOW_DELETED_AT,
         },
       },
     },

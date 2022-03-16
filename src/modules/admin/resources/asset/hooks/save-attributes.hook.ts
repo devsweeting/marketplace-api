@@ -1,6 +1,6 @@
 import { ActionContext, ActionRequest, flat, RecordActionResponse } from 'adminjs';
 import { isPOSTMethod } from 'modules/admin/admin.utils';
-import { Attribute } from 'modules/assets/entities';
+import { Asset } from 'modules/assets/entities';
 
 export const saveAttributes = async (
   response: RecordActionResponse,
@@ -14,13 +14,12 @@ export const saveAttributes = async (
 
   if (!record.isValid()) return response;
 
-  const { attributes } = flat.unflatten(request.payload);
+  const { assetAttributes } = flat.unflatten(request.payload);
 
-  await Attribute.delete({ assetId: record.params.id });
-
-  await Promise.all(
-    attributes.map((attr) => new Attribute({ ...attr, assetId: record.params.id })),
-  );
+  const asset = await Asset.findOne(record.params.id);
+  if (Array.isArray(assetAttributes)) {
+    await asset.saveAttributes(assetAttributes);
+  }
 
   return response;
 };

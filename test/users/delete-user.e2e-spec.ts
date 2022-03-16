@@ -35,7 +35,7 @@ describe('UsersController', () => {
           expect(body).toEqual({});
         })
         .then(async () => {
-          const updatedUser = await User.findOne(user.id);
+          const updatedUser = await User.findOne({ where: { id: user.id, isDeleted: false } });
           expect(updatedUser).not.toBeDefined();
         });
     });

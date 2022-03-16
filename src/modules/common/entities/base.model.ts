@@ -5,7 +5,7 @@ import {
   BeforeInsert,
   BeforeUpdate,
   BaseEntity,
-  DeleteDateColumn,
+  Column,
 } from 'typeorm';
 import { IsUUID } from 'class-validator';
 
@@ -20,8 +20,11 @@ export abstract class BaseModel extends BaseEntity {
   @CreateDateColumn()
   public createdAt: Date;
 
-  @DeleteDateColumn()
+  @Column({ nullable: true, type: 'timestamp' })
   public deletedAt: Date | null;
+
+  @Column({ default: false })
+  public isDeleted: boolean | false;
 
   @BeforeInsert()
   public beforeInsert(): void {
