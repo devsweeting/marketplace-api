@@ -29,6 +29,7 @@ export const getAdminJSOptions = {
     branding: {
       companyName: 'Jump.co',
       softwareBrothers: false,
+      logo: '/logo.svg',
     },
     resources: [
       createAssetResource(),

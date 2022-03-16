@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -14,9 +15,13 @@ import { User } from 'modules/users/user.entity';
 import { Partner } from 'modules/partners/entities';
 import { Asset, Attribute, Label } from 'modules/assets/entities';
 import { Session } from 'modules/auth/session/session.entity';
+import { join } from 'path';
 
 const appModules = [
   AuthModule,
+  ServeStaticModule.forRoot({
+    rootPath: join(__dirname, '..', 'public'),
+  }),
   ConfigModule.forRoot({
     isGlobal: true,
     envFilePath: [
