@@ -1,3 +1,4 @@
+import { SHOW_DELETED_AT } from 'modules/admin/components.bundler';
 import { Asset } from 'modules/assets/entities';
 import { CreateResourceResult } from '../create-resource-result.type';
 
@@ -12,7 +13,15 @@ const createAssetResource = (): CreateResourceResult<typeof Asset> => ({
       // filterProperties: ['name', 'refId', 'description', 'updatedAt', 'createdAt'],
     }),
   ],
-  options: {},
+  options: {
+    properties: {
+      deletedAt: {
+        components: {
+          show: SHOW_DELETED_AT,
+        },
+      },
+    },
+  },
 });
 
 export default createAssetResource;
