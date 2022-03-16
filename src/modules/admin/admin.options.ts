@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { ConfigService } from '@nestjs/config';
-import { PasswordService } from '../../modules/auth/password.service';
-import { RoleEnum } from '../../modules/users/enums/role.enum';
-import { User } from '../../modules/users/user.entity';
-import locale from './locale';
+import { PasswordService } from 'modules/auth/password.service';
+import { RoleEnum } from 'modules/users/enums/role.enum';
+import { User } from 'modules/users/user.entity';
 import createAssetResource from './resources/asset/asset.resource';
 import createAttributeResource from './resources/attribute/attribute.resource';
 import createPartnerResource from './resources/partner/partner.resource';
@@ -11,6 +10,7 @@ import createUserResource from './resources/user/user.resource';
 import { SessionEntity, TypeormStore } from 'typeorm-store';
 import { Session } from 'modules/auth/session/session.entity';
 import { createConnection } from 'typeorm';
+import locale from './locale';
 
 const createAdmin = async (passwordService, configService: ConfigService) => {
   if ((await User.count({ role: RoleEnum.SUPER_ADMIN })) === 0) {
