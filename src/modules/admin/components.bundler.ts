@@ -8,5 +8,7 @@ export const bundle = (url: string, componentName?: OverridableComponent): strin
 /**
  * Common components
  */
+
+export const ATTRIBUTE_PROPERTY = bundle('resources/asset/components/attribute-property');
 export const LABELS_COMPONENT = bundle('components/labels.component');
 export const SHOW_DELETED_AT = bundle('components/deleted-at-show');

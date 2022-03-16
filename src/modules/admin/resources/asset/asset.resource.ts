@@ -1,6 +1,9 @@
+import { ATTRIBUTE_PROPERTY } from 'modules/admin/components.bundler';
 import { SHOW_DELETED_AT } from 'modules/admin/components.bundler';
 import { Asset } from 'modules/assets/entities';
 import { CreateResourceResult } from '../create-resource-result.type';
+import { loadAttributes } from './hooks/load-attributes.hook';
+import { saveAttributes } from './hooks/save-attributes.hook';
 import { LABELS_COMPONENT } from 'modules/admin/components.bundler';
 import { saveLabels } from 'modules/admin/resources/asset/hooks/save-labels.hook';
 import { getLabels } from './hooks/get-labels.hook';
@@ -11,27 +14,28 @@ const createAssetResource = (): CreateResourceResult<typeof Asset> => ({
   features: [
     (options): object => ({
       ...options,
-      listProperties: ['name', 'refId', 'description', 'partner', 'updatedAt', 'createdAt'],
-      // editProperties: ['name', 'refId', 'description', 'slug', 'image', 'attributes', 'partner'],
-      // showProperties: ['id', 'name', 'refId', 'description', 'slug', 'image', 'updatedAt', 'createdAt'],
-      // filterProperties: ['name', 'refId', 'description', 'updatedAt', 'createdAt'],
+      listProperties: ['name', 'refId', 'description', 'partnerId', 'updatedAt', 'createdAt'],
     }),
   ],
   options: {
     actions: {
-      show: {
-        after: [getLabels],
-      },
       new: {
-        after: [saveLabels],
-        isAccessible: forAdminGroup,
+        isAccessible: (context): boolean => forAdminGroup(context),
+        after: [saveLabels, saveAttributes],
       },
       edit: {
-        after: [getLabels, saveLabels],
-        isAccessible: forAdminGroup,
+        isAccessible: (context): boolean => forAdminGroup(context),
+        after: [getLabels, saveLabels, loadAttributes, saveAttributes],
+      },
+      show: {
+        after: [getLabels, loadAttributes],
+        isAccessible: (context): boolean => forAdminGroup(context),
       },
       delete: {
-        isAccessible: forAdminGroup,
+        isAccessible: (context): boolean => forAdminGroup(context),
+      },
+      bulkDelete: {
+        isAccessible: (context): boolean => forAdminGroup(context),
       },
     },
     properties: {
@@ -69,11 +73,22 @@ const createAssetResource = (): CreateResourceResult<typeof Asset> => ({
           show: LABELS_COMPONENT,
         },
       },
-      deletedAt: {
+      assetAttributes: {
         position: 11,
+        components: {
+          edit: ATTRIBUTE_PROPERTY,
+          show: ATTRIBUTE_PROPERTY,
+        },
+      },
+      deletedAt: {
+        position: 12,
+        isVisible: { edit: false },
         components: {
           show: SHOW_DELETED_AT,
         },
+      },
+      isDeleted: {
+        isVisible: { edit: false },
       },
     },
   },

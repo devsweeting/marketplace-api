@@ -10,6 +10,7 @@ import createUserResource from './resources/user/user.resource';
 import { SessionEntity, TypeormStore } from 'typeorm-store';
 import { Session } from 'modules/auth/session/session.entity';
 import { createConnection } from 'typeorm';
+import locale from './locale';
 
 const createAdmin = async (passwordService, configService: ConfigService) => {
   if ((await User.count({ role: RoleEnum.SUPER_ADMIN })) === 0) {
@@ -36,6 +37,7 @@ export const getAdminJSOptions = {
       createUserResource(),
     ],
     databases: [],
+    locale,
   },
 };
 
