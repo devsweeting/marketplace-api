@@ -5,19 +5,26 @@ import {
   BeforeInsert,
   BeforeUpdate,
   BaseEntity,
+  Column,
 } from 'typeorm';
 import { IsUUID } from 'class-validator';
 
 export abstract class BaseModel extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   @IsUUID()
-  id: string;
+  public id: string;
 
   @UpdateDateColumn()
   public updatedAt: Date;
 
   @CreateDateColumn()
   public createdAt: Date;
+
+  @Column({ nullable: true, type: 'timestamp' })
+  public deletedAt: Date | null;
+
+  @Column({ default: false })
+  public isDeleted: boolean | false;
 
   @BeforeInsert()
   public beforeInsert(): void {
@@ -27,23 +34,5 @@ export abstract class BaseModel extends BaseEntity {
   @BeforeUpdate()
   public beforeUpdate(): void {
     // pass
-  }
-
-  /**
-   * Method to generate slug value from a given text
-   * @param text: string
-   * @return text: string
-   */
-  public generateSlug(text: string): string {
-    return text
-      ? text
-          .toString()
-          .toLowerCase()
-          .normalize('NFD')
-          .trim()
-          .replace(/\s+/g, '-')
-          .replace(/[^\w\-]+/g, '')
-          .replace(/\-\-+/g, '-')
-      : '';
   }
 }

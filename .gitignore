@@ -1,9 +1,11 @@
 *.zip
 
-.env.test
-.env.staging
+.env*.local
+
+# Do not remove
 .env.production
-.env
+.env.staging
+.env.test
 
 # compiled output
 /dist
@@ -33,6 +35,7 @@ lerna-debug.log*
 *.launch
 .settings/
 *.sublime-workspace
+.run
 
 # IDE - VSCode
 .vscode/*
@@ -53,3 +56,6 @@ google_key.json
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+# Admin
+.adminjs

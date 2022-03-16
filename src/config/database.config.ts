@@ -13,6 +13,7 @@ export default registerAs('database', () => {
       synchronize: process.env.TYPEORM_SYNCHRONIZE,
       logging: process.env.TYPEORM_LOGGING,
       migrationsRun: false,
+      keepConnectionAlive: true,
     },
   };
 });

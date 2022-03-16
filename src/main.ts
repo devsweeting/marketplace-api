@@ -1,16 +1,18 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import { setupSwagger } from './middleware/swagger';
 import { HttpExceptionFilter } from './exception.filter';
+import validationPipe from 'modules/common/pipes/validation.pipe';
+import { SanitizePipe } from 'modules/common/pipes/sanitize.pipe';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     cors: true,
   });
 
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalPipes(new SanitizePipe());
+  app.useGlobalPipes(validationPipe);
 
   // We may decide to make the swagger documentation public at some point,
   // but for now it's going to only be available in development mode.

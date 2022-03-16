@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "jsx": "react-jsx",
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,
@@ -17,7 +18,12 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "typeRoots": ["./types", "./node_modules/@types"],
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "typeRoots": [
+      "./types",
+      "./node_modules/@types"
+    ],
     "paths": {
       "validators/*": [
         "./src/validators/*"
@@ -30,7 +36,7 @@
       ],
       "@/*": [
         "./*"
-      ],
-    },
+      ]
+    }
   }
 }

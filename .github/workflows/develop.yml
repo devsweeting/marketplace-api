@@ -17,8 +17,7 @@ jobs:
         image: postgres
         env:
           POSTGRES_PORT: 5432
-          POSTGRES_HOST: 'localhost'
-          POSTGRES_DB: 'marketplace'
+          POSTGRES_DB: 'test'
           POSTGRES_USERNAME: 'postgres'
           POSTGRES_PASSWORD: 'password'
         ports:
@@ -51,11 +50,14 @@ jobs:
 
       - name: 'Fixtures'
         run: yarn fixtures
-        env: 
+        env:
           TYPEORM_PORT: ${{ job.services.postgres.ports['5432'] }}
 
-      - name: 'Run Tests'
-        run: yarn test
+      - name: 'Run e2e Tests'
+        run: yarn test:e2e
+        env:
+          TYPEORM_HOST: localhost
+          TYPEORM_PORT: ${{ job.services.postgres.ports['5432'] }}
 
       ######################################
       # Deploy to Elastic Beanstalk
@@ -74,7 +76,7 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: 'Marketplace API'
+          application_name: 'Jump'
           environment_name: ${{ secrets.AWS_ENVIORNMENT_NAME_STAGING }}
           version_label: ${{ env.VERSION_LABEL }}
           version_description: ${{ env.VERSION_LABEL }}
