@@ -23,6 +23,7 @@ import { AssetDto, AttributeDto } from 'modules/assets/dto';
 import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 import { MarketplaceEnum } from 'modules/assets/enums/marketplace.enum';
 import { AuctionTypeEnum } from 'modules/assets/enums/auction-type.enum';
+import { Contract } from 'modules/assets/entities/contract.entity';
 
 @Entity('partner_assets')
 export class Asset extends BaseModel implements BaseEntityInterface {
@@ -76,6 +77,14 @@ export class Asset extends BaseModel implements BaseEntityInterface {
 
   @OneToMany(() => Label, (label) => label.asset, { cascade: ['soft-remove'] })
   public labels: Label[];
+
+  @ManyToOne(() => Contract, { nullable: true })
+  @JoinColumn({ name: 'contractId', referencedColumnName: 'id' })
+  public contract: Contract;
+
+  @Column({ type: 'string', nullable: true })
+  @RelationId((asset: Asset) => asset.contract)
+  public contractId: string;
 
   @BeforeInsert()
   public beforeInsert(): void {

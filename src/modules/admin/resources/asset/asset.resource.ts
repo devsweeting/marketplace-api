@@ -14,7 +14,7 @@ const createAssetResource = (): CreateResourceResult<typeof Asset> => ({
   features: [
     (options): object => ({
       ...options,
-      listProperties: ['name', 'refId', 'description', 'partnerId', 'updatedAt', 'createdAt'],
+      listProperties: ['name', 'refId',  'name', 'partnerId', 'contractId', 'createdAt'],
     }),
   ],
   options: {
@@ -42,32 +42,35 @@ const createAssetResource = (): CreateResourceResult<typeof Asset> => ({
       partnerId: {
         position: 1,
       },
-      name: {
+      contractId: {
         position: 2,
       },
-      refId: {
+      name: {
         position: 3,
       },
-      slug: {
+      refId: {
         position: 4,
       },
-      description: {
+      slug: {
         position: 5,
       },
-      externalUrl: {
+      description: {
         position: 6,
       },
-      marketplace: {
+      externalUrl: {
         position: 7,
       },
-      auctionType: {
+      marketplace: {
         position: 8,
       },
-      image: {
+      auctionType: {
         position: 9,
       },
-      labels: {
+      image: {
         position: 10,
+      },
+      labels: {
+        position: 11,
         components: {
           edit: LABELS_COMPONENT,
           show: LABELS_COMPONENT,

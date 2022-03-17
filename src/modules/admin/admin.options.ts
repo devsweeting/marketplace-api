@@ -10,6 +10,7 @@ import createUserResource from './resources/user/user.resource';
 import { SessionEntity, TypeormStore } from 'typeorm-store';
 import { Session } from 'modules/auth/session/session.entity';
 import { createConnection } from 'typeorm';
+import createContractResource from 'modules/admin/resources/contract/contract.resource';
 import locale from './locale';
 
 const createAdmin = async (passwordService, configService: ConfigService) => {
@@ -35,6 +36,7 @@ export const getAdminJSOptions = {
       createAssetResource(),
       createAttributeResource(),
       createPartnerResource(),
+      createContractResource(),
       createUserResource(),
     ],
     databases: [],
