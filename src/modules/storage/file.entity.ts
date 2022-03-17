@@ -22,4 +22,9 @@ export class File extends BaseModel implements BaseEntityInterface {
 
   @Column({ name: 'mime_type', nullable: true })
   public mimeType: string;
+
+  public constructor(partial: Partial<File>) {
+    super();
+    Object.assign(this, partial);
+  }
 }

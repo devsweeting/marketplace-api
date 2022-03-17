@@ -7,6 +7,7 @@ import { Partner } from 'modules/partners/entities';
 import { Asset, Attribute } from 'modules/assets/entities';
 import { createAttribute } from '@/test/utils/attribute.utils';
 import { v4 } from 'uuid';
+import { createFile } from '@/test/utils/file.utils';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -22,7 +23,7 @@ describe('AssetsController', () => {
     asset = await createAsset({
       refId: '1',
       name: 'Egg',
-      image: 'http://image-url.eu',
+      image: await createFile(),
       slug: 'egg',
       description: 'test-egg',
       partner,
