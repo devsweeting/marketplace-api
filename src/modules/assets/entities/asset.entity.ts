@@ -34,9 +34,8 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   @Column({ length: 50, nullable: false })
   public name: string;
 
-  @Index()
-  @Column({ length: 100, nullable: false })
-  public image: string;
+  @Column({ nullable: true, type: 'jsonb' })
+  public image: any;
 
   @Index()
   @Column({ nullable: false })
@@ -74,7 +73,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   @OneToMany(() => Attribute, (attribute) => attribute.asset)
   public attributes: Attribute[];
 
-  @OneToMany(() => Label, (label) => label.asset, { cascade: ['soft-remove'] })
+  @OneToMany(() => Label, (label) => label.asset)
   public labels: Label[];
 
   @BeforeInsert()

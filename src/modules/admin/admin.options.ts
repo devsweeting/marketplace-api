@@ -23,22 +23,24 @@ const createAdmin = async (passwordService, configService: ConfigService) => {
   }
 };
 
-export const getAdminJSOptions = {
-  adminJsOptions: {
-    rootPath: '/admin',
-    branding: {
-      companyName: 'Jump.co',
-      softwareBrothers: false,
+export const getAdminJSOptions = (configService: ConfigService) => {
+  return {
+    adminJsOptions: {
+      rootPath: '/admin',
+      branding: {
+        companyName: 'Jump.co',
+        softwareBrothers: false,
+      },
+      resources: [
+        createAssetResource(configService),
+        createAttributeResource(),
+        createPartnerResource(),
+        createUserResource(),
+      ],
+      databases: [],
+      locale,
     },
-    resources: [
-      createAssetResource(),
-      createAttributeResource(),
-      createPartnerResource(),
-      createUserResource(),
-    ],
-    databases: [],
-    locale,
-  },
+  };
 };
 
 export const getAuth = (configService: ConfigService) => {
