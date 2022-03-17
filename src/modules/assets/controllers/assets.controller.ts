@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -67,7 +68,7 @@ export class AssetsController {
     await this.assetsService.deleteAsset(partner, params.id);
   }
 
-  @Post(':id')
+  @Patch(':id')
   @ApiBasicAuth('api-key')
   @UseGuards(AuthGuard('headerapikey'))
   @ApiOperation({ summary: 'Update an asset' })

@@ -41,7 +41,7 @@ export class UsersController {
     return this.authService.generateToken(request.user);
   }
 
-  @Get('')
+  @Get()
   @UseGuards(JwtAuthGuard)
   @ApiResponse({
     status: 200,

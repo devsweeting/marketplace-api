@@ -35,14 +35,14 @@ describe('AssetsController', () => {
     await clearAllData();
   });
 
-  describe(`POST /assets/:id`, () => {
+  describe(`PATCH /assets/:id`, () => {
     it('should throw 401 exception if auth token is missing', () => {
-      return request(app.getHttpServer()).post(`/assets/${asset.id}`).send({}).expect(401);
+      return request(app.getHttpServer()).patch(`/assets/${asset.id}`).send({}).expect(401);
     });
 
     it('should throw 401 exception if token is invalid', () => {
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}`)
+        .patch(`/assets/${asset.id}`)
         .set({
           'x-api-key': 'invalid key',
         })
@@ -52,7 +52,7 @@ describe('AssetsController', () => {
 
     it('should throw 404 exception if asset does not exist', async () => {
       return request(app.getHttpServer())
-        .post(`/assets/${v4()}`)
+        .patch(`/assets/${v4()}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -67,7 +67,7 @@ describe('AssetsController', () => {
       const anotherAsset = await createAsset({ partner: anotherPartner });
 
       return request(app.getHttpServer())
-        .post(`/assets/${anotherAsset.id}`)
+        .patch(`/assets/${anotherAsset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -81,7 +81,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}`)
+        .patch(`/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -106,7 +106,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}`)
+        .patch(`/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -130,7 +130,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}`)
+        .patch(`/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -151,7 +151,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}`)
+        .patch(`/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -176,7 +176,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}`)
+        .patch(`/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -201,7 +201,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}`)
+        .patch(`/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -232,7 +232,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}`)
+        .patch(`/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -253,7 +253,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}`)
+        .patch(`/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -281,7 +281,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}`)
+        .patch(`/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -309,7 +309,7 @@ describe('AssetsController', () => {
       const attribute = await createAttribute({ asset });
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}`)
+        .patch(`/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -334,7 +334,7 @@ describe('AssetsController', () => {
       const attribute = await createAttribute({ asset });
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}`)
+        .patch(`/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -365,7 +365,7 @@ describe('AssetsController', () => {
       const attribute = await createAttribute({ asset });
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}`)
+        .patch(`/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
