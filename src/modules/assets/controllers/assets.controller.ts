@@ -53,6 +53,19 @@ export class AssetsController {
     return this.assetsTransformer.transformPaginated(list);
   }
 
+  @Get(':id')
+  @ApiOperation({ summary: 'Returns single asset' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'An assets',
+    type: AssetResponse,
+  })
+  public async getOne(@Param() params: AssetIdDto): Promise<AssetResponse> {
+    const asset = await this.assetsService.getOne(params.id);
+
+    return this.assetsTransformer.transform(asset);
+  }
+
   @Delete(':id')
   @ApiBasicAuth('api-key')
   @UseGuards(AuthGuard('headerapikey'))

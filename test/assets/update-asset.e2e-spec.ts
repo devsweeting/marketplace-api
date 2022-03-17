@@ -1,6 +1,11 @@
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
-import { clearAllData, createApp } from '@/test/utils/app.utils';
+import {
+  clearAllData,
+  createApp,
+  mockFileDownloadService,
+  mockS3Provider,
+} from '@/test/utils/app.utils';
 import { createPartner } from '@/test/utils/partner.utils';
 import { createAsset } from '@/test/utils/asset.utils';
 import { Partner } from 'modules/partners/entities';
@@ -11,6 +16,7 @@ import { generateSlug } from 'modules/common/helpers/slug.helper';
 import { createAttribute } from '@/test/utils/attribute.utils';
 import { MarketplaceEnum } from 'modules/assets/enums/marketplace.enum';
 import { AuctionTypeEnum } from 'modules/assets/enums/auction-type.enum';
+import { StorageEnum } from 'modules/storage/enums/storage.enum';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -149,6 +155,16 @@ describe('AssetsController', () => {
       const payload = {
         image: 'https://cdn.pixabay.com/photo/2012/04/11/17/53/approved-29149_960_720.png',
       };
+      mockS3Provider.upload.mockReturnValue({
+        id: v4(),
+        name: 'example.jpeg',
+        path: 'test/example.jpeg',
+        mimeType: 'image/jpeg',
+        storage: StorageEnum.S3,
+        size: 100,
+      });
+      mockS3Provider.getUrl.mockReturnValue('mocked-url');
+      mockFileDownloadService.download.mockReturnValue('downloaded-path');
 
       return request(app.getHttpServer())
         .patch(`/assets/${asset.id}`)
@@ -160,13 +176,21 @@ describe('AssetsController', () => {
         .expect(({ body }) => {
           expect(body).toEqual({
             ...assetTransformer.transform(asset),
-            image: payload.image,
+            image: 'mocked-url',
             updatedAt: expect.any(String),
           });
         })
         .then(async () => {
-          await asset.reload();
-          expect(asset.image).toEqual(payload.image);
+          const updatedAsset = await Asset.findOne({
+            where: { id: asset.id },
+            relations: ['image'],
+          });
+          expect(updatedAsset.image).toBeDefined();
+          expect(updatedAsset.image.path).toEqual('test/example.jpeg');
+          expect(mockS3Provider.upload).toHaveBeenCalledWith(
+            'downloaded-path',
+            `images/assets/${updatedAsset.id}`,
+          );
         });
     });
 
@@ -222,13 +246,13 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should throw 409 exception if slug is already exist', async () => {
+    it('should throw 409 exception if refID is already exist', async () => {
       await createAsset({
-        name: 'Test name 3',
-        slug: 'test-name-3',
+        refId: 'ref-1',
+        partnerId: partner.id,
       });
       const payload = {
-        name: 'Test name 3',
+        refId: 'ref-1',
       };
 
       return request(app.getHttpServer())
@@ -241,7 +265,7 @@ describe('AssetsController', () => {
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Conflict',
-            message: 'NAME_ALREADY_TAKEN',
+            message: 'REF_ALREADY_TAKEN',
             statusCode: 409,
           });
         });

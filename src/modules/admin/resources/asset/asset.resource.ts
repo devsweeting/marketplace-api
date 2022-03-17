@@ -14,7 +14,7 @@ const createAssetResource = (): CreateResourceResult<typeof Asset> => ({
   features: [
     (options): object => ({
       ...options,
-      listProperties: ['name', 'refId',  'name', 'partnerId', 'contractId', 'createdAt'],
+      listProperties: ['name', 'refId', 'name', 'partnerId', 'contractId', 'createdAt'],
     }),
   ],
   options: {
