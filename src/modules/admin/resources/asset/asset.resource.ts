@@ -12,6 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import uploadFile from 'modules/admin/hooks/upload-file.after';
 import { marketNavigation } from 'modules/admin/admin.navigation';
 import { MIME_TYPES } from '../file/mime-types';
+import { getImage } from 'modules/admin/hooks/get-image.after';
 
 const createAssetResource = (configService: ConfigService): CreateResourceResult<typeof Asset> => ({
   resource: Asset,
@@ -31,6 +32,7 @@ const createAssetResource = (configService: ConfigService): CreateResourceResult
       edit: {
         isAccessible: (context): boolean => forAdminGroup(context),
         after: [
+          getImage(configService),
           getLabels,
           saveLabels,
           loadAttributes,
@@ -39,7 +41,7 @@ const createAssetResource = (configService: ConfigService): CreateResourceResult
         ],
       },
       show: {
-        after: [getLabels, loadAttributes],
+        after: [getImage(configService), getLabels, loadAttributes],
         isAccessible: (context): boolean => forAdminGroup(context),
       },
       delete: {
