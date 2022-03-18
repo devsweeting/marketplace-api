@@ -3,15 +3,17 @@ import { Injectable } from '@nestjs/common';
 import { AssetResponse } from '../interfaces/response/asset.response';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
+import { FileTransformer } from 'modules/storage/transformers/file.transformer';
 
 @Injectable()
 export class AssetsTransformer {
+  public constructor(private readonly fileTransformer: FileTransformer) {}
   public transform(asset: Asset): AssetResponse {
     return {
       id: asset.id,
       name: asset.name,
       description: asset.description,
-      image: asset.image,
+      file: asset.image ? this.fileTransformer.transform(asset.image) : null,
       refId: asset.refId,
       slug: asset.slug,
       externalUrl: asset.externalUrl,

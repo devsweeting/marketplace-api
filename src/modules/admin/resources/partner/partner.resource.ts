@@ -1,5 +1,6 @@
 import { CreateResourceResult } from '../create-resource-result.type';
 import { Partner } from '../../../../modules/partners/entities';
+import { userAndOrgNavigation } from 'modules/admin/admin.navigation';
 
 const createPartnerResource = (): CreateResourceResult<typeof Partner> => ({
   resource: Partner,
@@ -12,7 +13,9 @@ const createPartnerResource = (): CreateResourceResult<typeof Partner> => ({
       //   filterProperties: ['name', 'updatedAt', 'createdAt'],
     }),
   ],
-  options: {},
+  options: {
+    navigation: userAndOrgNavigation,
+  },
 });
 
 export default createPartnerResource;

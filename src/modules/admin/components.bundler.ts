@@ -13,3 +13,4 @@ export const ATTRIBUTE_PROPERTY = bundle('resources/asset/components/attribute-p
 export const LABELS_COMPONENT = bundle('components/labels.component');
 export const SHOW_DELETED_AT = bundle('components/deleted-at-show');
 export const PHOTO_PROPERTY = bundle('components/photo-property');
+export const IMAGE_UPLOAD = bundle('components/image-upload');

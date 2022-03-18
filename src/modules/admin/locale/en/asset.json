@@ -1,6 +1,7 @@
 {
   "properties": {
     "partnerId": "Partner",
+    "contractId": "Contract",
     "assetAttributes": "Attributes"
   }
 }

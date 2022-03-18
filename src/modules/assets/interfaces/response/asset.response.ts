@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ListingResponse } from 'modules/assets/interfaces/response/listing.response';
+import { FileResponse } from 'modules/storage/dto/file.response';
 
 export class AssetResponse {
   @ApiProperty({ example: '1' })
@@ -12,7 +13,7 @@ export class AssetResponse {
   public name: string;
 
   @ApiProperty({ example: 'https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg' })
-  public image: string;
+  public file: FileResponse;
 
   @ApiProperty({ example: 'test-asset-name' })
   public slug: string;

@@ -1,4 +1,4 @@
-import { ATTRIBUTE_PROPERTY, PHOTO_PROPERTY } from 'modules/admin/components.bundler';
+import { ATTRIBUTE_PROPERTY, PHOTO_PROPERTY, IMAGE_UPLOAD } from 'modules/admin/components.bundler';
 import { SHOW_DELETED_AT } from 'modules/admin/components.bundler';
 import { Asset } from 'modules/assets/entities';
 import { CreateResourceResult } from '../create-resource-result.type';
@@ -8,47 +8,35 @@ import { LABELS_COMPONENT } from 'modules/admin/components.bundler';
 import { saveLabels } from 'modules/admin/resources/asset/hooks/save-labels.hook';
 import { getLabels } from './hooks/get-labels.hook';
 import { forAdminGroup } from 'modules/admin/resources/user/user-permissions';
-import uploadFeature from '@adminjs/upload';
 import { ConfigService } from '@nestjs/config';
+import uploadFile from 'modules/admin/hooks/upload-file.after';
+import { marketNavigation } from 'modules/admin/admin.navigation';
+import { MIME_TYPES } from '../file/mime-types';
 
 const createAssetResource = (configService: ConfigService): CreateResourceResult<typeof Asset> => ({
   resource: Asset,
   features: [
     (options): object => ({
       ...options,
-      listProperties: ['name', 'refId', 'description', 'partnerId', 'updatedAt', 'createdAt'],
-    }),
-    uploadFeature({
-      provider: {
-        aws: {
-          bucket: configService.get('aws.default.bucket'),
-          accessKeyId: configService.get('aws.default.accessKeyId'),
-          secretAccessKey: configService.get('aws.default.secretAccessKey'),
-          region: configService.get('aws.default.region'),
-        },
-      },
-      properties: {
-        file: 'image.file',
-        filePath: 'image.filePath',
-        filename: 'image.filename',
-        filesToDelete: 'image.toDelete',
-        key: 'image.s3Key',
-        bucket: 'image.bucket',
-        mimeType: 'image.mime',
-      },
-      uploadPath: (record, filename) => `assets/${record.id()}/images/${filename}`,
-      validation: { mimeTypes: ['image/png', 'image/jpeg'] },
+      listProperties: ['name', 'refId', 'name', 'partnerId', 'contractId', 'createdAt'],
     }),
   ],
   options: {
+    navigation: marketNavigation,
     actions: {
       new: {
         isAccessible: (context): boolean => forAdminGroup(context),
-        after: [saveLabels, saveAttributes],
+        after: [saveLabels, saveAttributes, uploadFile('image', configService)],
       },
       edit: {
         isAccessible: (context): boolean => forAdminGroup(context),
-        after: [getLabels, saveLabels, loadAttributes, saveAttributes],
+        after: [
+          getLabels,
+          saveLabels,
+          loadAttributes,
+          saveAttributes,
+          uploadFile('image', configService),
+        ],
       },
       show: {
         after: [getLabels, loadAttributes],
@@ -65,36 +53,46 @@ const createAssetResource = (configService: ConfigService): CreateResourceResult
       partnerId: {
         position: 1,
       },
-      name: {
+      contractId: {
         position: 2,
       },
-      refId: {
+      name: {
         position: 3,
       },
-      slug: {
+      refId: {
         position: 4,
       },
-      description: {
+      slug: {
         position: 5,
       },
-      externalUrl: {
+      description: {
         position: 6,
+        type: 'textarea',
       },
-      marketplace: {
+      externalUrl: {
         position: 7,
       },
-      auctionType: {
+      marketplace: {
         position: 8,
       },
-      image: {
+      auctionType: {
         position: 9,
-        // components: {
-        //   show: PHOTO_PROPERTY,
-        //   list: PHOTO_PROPERTY,
-        // },
+      },
+      image: {
+        position: 10,
+        props: {
+          validation: {
+            mimeTypes: MIME_TYPES,
+          },
+        },
+        components: {
+          edit: IMAGE_UPLOAD,
+          show: PHOTO_PROPERTY,
+          list: PHOTO_PROPERTY,
+        },
       },
       labels: {
-        position: 10,
+        position: 11,
         components: {
           edit: LABELS_COMPONENT,
           show: LABELS_COMPONENT,
@@ -116,6 +114,9 @@ const createAssetResource = (configService: ConfigService): CreateResourceResult
       },
       isDeleted: {
         isVisible: { edit: false },
+      },
+      imageId: {
+        isVisible: false,
       },
     },
   },
