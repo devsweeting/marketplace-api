@@ -14,14 +14,14 @@ export const getLabels = async (
     await Promise.all(
       response.records.map(async (record) => {
         const params = flat.unflatten(record.params);
-        params.labels = await Label.find({ where: { assetId: record.params.recordId } });
+        params.assetLabels = await Label.find({ where: { assetId: record.params.recordId } });
         record.params = flat.flatten(params);
         return record;
       }),
     );
   } else {
     const params = flat.unflatten(response.record.params);
-    params.labels = await Label.find({ where: { assetId: request.params.recordId } });
+    params.assetLabels = await Label.find({ where: { assetId: request.params.recordId } });
     response.record.params = flat.flatten(params);
   }
 

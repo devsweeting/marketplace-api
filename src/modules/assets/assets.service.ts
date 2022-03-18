@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Partner } from 'modules/partners/entities';
 import { generateSlug } from 'modules/common/helpers/slug.helper';
 import { AssetsDuplicatedException } from 'modules/assets/exceptions/assets-duplicated.exception';
-import { Asset, Attribute } from './entities';
+import { Asset, Attribute, Label } from './entities';
 import { TransferRequestDto } from 'modules/assets/dto';
 import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 import { IPaginationMeta, paginate, Pagination } from 'nestjs-typeorm-paginate';
@@ -75,6 +75,7 @@ export class AssetsService {
     await asset.save();
 
     await Attribute.update({ assetId: asset.id }, { isDeleted: true, deletedAt: new Date() });
+    await Label.update({ assetId: asset.id }, { isDeleted: true, deletedAt: new Date() });
   }
 
   public async recordTransferRequest(partnerId: string, dto: TransferRequestDto): Promise<void> {
