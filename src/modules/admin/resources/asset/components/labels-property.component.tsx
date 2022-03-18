@@ -48,7 +48,7 @@ const LabelComponent: React.FC<EditPropertyProps> = (props) => {
   return (
     <FormGroup error={!!error}>
       <Label property={property}>{property.label}</Label>
-      <Table style={{ width: '50%' }}>
+      <Table style={{ width: '100%' }}>
         <TableHead>
           <TableRow>
             <TableCell>Name</TableCell>
