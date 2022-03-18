@@ -10,15 +10,26 @@ import { AssetNotFoundException } from 'modules/assets/exceptions/asset-not-foun
 import { UpdateAssetDto } from 'modules/assets/dto/update-asset.dto';
 import { RefAlreadyTakenException } from 'modules/common/exceptions/ref-already-taken.exception';
 import { NameAlreadyTakenException } from 'modules/common/exceptions/name-already-taken.exception';
+import { StorageService } from 'modules/storage/storage.service';
 import { Not } from 'typeorm';
 
 @Injectable()
 export class AssetsService {
+  public constructor(private readonly storageService: StorageService) {}
+
   public getList(params: ListAssetsDto): Promise<Pagination<Asset>> {
     return paginate<Asset, IPaginationMeta>(Asset.list(params), {
       page: params.page,
       limit: params.limit,
     });
+  }
+
+  public async getOne(id: string): Promise<Asset> {
+    const asset = await Asset.findOne({ where: { id }, relations: ['attributes', 'image'] });
+    if (!asset) {
+      throw new AssetNotFoundException();
+    }
+    return asset;
   }
 
   public async updateAsset(partner: Partner, id: string, dto: UpdateAssetDto): Promise<Asset> {
@@ -52,9 +63,13 @@ export class AssetsService {
       }
     }
 
-    const { attributes, listing, ...data } = dto;
+    const { attributes, listing, image, ...data } = dto;
     if (Array.isArray(attributes)) {
       await asset.saveAttributes(attributes);
+    }
+
+    if (image) {
+      asset.image = await this.storageService.uploadFromUrl(image, `images/assets/${asset.id}`);
     }
 
     if (listing) {
@@ -82,14 +97,25 @@ export class AssetsService {
 
     Logger.log(`Partner ${partner.name} received transfer request`);
 
-    const duplicatedAssetsBySlug = await Asset.findDuplicatedBySlugs(
-      dto.assets.map((asset) => generateSlug(asset.name)),
+    const duplicatedAssetsByRefIds = await Asset.findDuplicatedByRefIds(
+      dto.assets.map((asset) => asset.refId),
     );
 
-    if (duplicatedAssetsBySlug.length) {
-      throw new AssetsDuplicatedException(duplicatedAssetsBySlug.map((asset) => asset.name));
+    if (duplicatedAssetsByRefIds.length) {
+      throw new AssetsDuplicatedException(duplicatedAssetsByRefIds.map((asset) => asset.refId));
     }
 
-    await Asset.saveAssetsForPartner(dto.assets, partner);
+    await Promise.all(
+      dto.assets.map(async (assetDto) => {
+        const asset = await Asset.saveAssetForPartner(assetDto, partner);
+        if (assetDto.image) {
+          asset.image = await this.storageService.uploadFromUrl(
+            assetDto.image,
+            `images/assets/${asset.id}`,
+          );
+          await asset.save();
+        }
+      }),
+    );
   }
 }

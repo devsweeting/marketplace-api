@@ -1,14 +1,16 @@
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
-import { clearAllData, createApp } from '@/test/utils/app.utils';
+import { clearAllData, createApp, mockS3Provider } from '@/test/utils/app.utils';
 import { Asset } from 'modules/assets/entities';
 import { createAsset } from '@/test/utils/asset.utils';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
+import { createFile } from '@/test/utils/file.utils';
 
 describe('AssetsController', () => {
   let app: INestApplication;
   let assets: Asset[];
   let assetsTransformer: AssetsTransformer;
+  const mockedFileUrl = 'http://example.com';
 
   beforeAll(async () => {
     app = await createApp();
@@ -17,18 +19,19 @@ describe('AssetsController', () => {
       await createAsset({
         refId: '1',
         name: 'Egg',
-        image: 'http://image-url.eu',
+        image: await createFile(),
         slug: 'egg',
         description: 'test-egg',
       }),
       await createAsset({
         refId: '2',
         name: 'Pumpkin',
-        image: 'http://image-url.eu',
+        image: await createFile(),
         slug: 'pumpkin',
         description: 'test-pumpkin',
       }),
     ];
+    mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);
   });
 
   afterEach(async () => {
