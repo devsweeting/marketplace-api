@@ -1,3 +1,4 @@
+import { marketNavigation } from 'modules/admin/admin.navigation';
 import { Attribute } from 'modules/assets/entities';
 import { CreateResourceResult } from '../create-resource-result.type';
 
@@ -12,7 +13,9 @@ const createAttributeResource = (): CreateResourceResult<typeof Attribute> => ({
       // filterProperties: ['trait', 'value', 'updatedAt', 'createdAt'],
     }),
   ],
-  options: {},
+  options: {
+    navigation: marketNavigation,
+  },
 });
 
 export default createAttributeResource;

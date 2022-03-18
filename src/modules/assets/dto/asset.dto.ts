@@ -21,14 +21,9 @@ export class AssetDto {
   })
   public listing: ListingDto;
 
+  //TODO
   @IsNotEmpty()
-  @MaxLength(255)
-  @ApiProperty({
-    description: 'URI pointing to asset image.  Must be less than 255 characters.',
-    required: true,
-    example: 'https://picsum.photos/400/200',
-  })
-  public image: string;
+  public image: any;
 
   @MaxLength(200)
   @IsUrl()

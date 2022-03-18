@@ -1,6 +1,7 @@
 import { Contract } from 'modules/assets/entities';
 import { CreateResourceResult } from '../create-resource-result.type';
 import { forAdminGroup } from 'modules/admin/resources/user/user-permissions';
+import { marketNavigation } from 'modules/admin/admin.navigation';
 
 const createContractResource = (): CreateResourceResult<typeof Contract> => ({
   resource: Contract,
@@ -11,6 +12,7 @@ const createContractResource = (): CreateResourceResult<typeof Contract> => ({
     }),
   ],
   options: {
+    navigation: marketNavigation,
     actions: {
       new: {
         isAccessible: forAdminGroup,

@@ -80,7 +80,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   @OneToMany(() => Attribute, (attribute) => attribute.asset)
   public attributes: Attribute[];
 
-  @OneToMany(() => Label, (label) => label.asset, { cascade: ['soft-remove'] })
+  @OneToMany(() => Label, (label) => label.asset)
   public labels: Label[];
 
   @ManyToOne(() => Contract, { nullable: true })

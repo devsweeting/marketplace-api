@@ -271,7 +271,6 @@ describe('AssetsController', () => {
           message: [
             'assets.0.refId must be shorter than or equal to 100 characters',
             'assets.0.listing should not be empty',
-            'assets.0.image must be shorter than or equal to 255 characters',
             'assets.0.image should not be empty',
             'assets.0.name must be shorter than or equal to 50 characters',
             'assets.0.name should not be empty',

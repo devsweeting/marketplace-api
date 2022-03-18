@@ -1,4 +1,4 @@
-import { ATTRIBUTE_PROPERTY } from 'modules/admin/components.bundler';
+import { ATTRIBUTE_PROPERTY, PHOTO_PROPERTY, IMAGE_UPLOAD } from 'modules/admin/components.bundler';
 import { SHOW_DELETED_AT } from 'modules/admin/components.bundler';
 import { Asset } from 'modules/assets/entities';
 import { CreateResourceResult } from '../create-resource-result.type';
@@ -8,8 +8,13 @@ import { LABELS_COMPONENT } from 'modules/admin/components.bundler';
 import { saveLabels } from 'modules/admin/resources/asset/hooks/save-labels.hook';
 import { getLabels } from './hooks/get-labels.hook';
 import { forAdminGroup } from 'modules/admin/resources/user/user-permissions';
+import { ConfigService } from '@nestjs/config';
+import uploadFile from 'modules/admin/hooks/upload-file.after';
+import { marketNavigation } from 'modules/admin/admin.navigation';
+import { MIME_TYPES } from '../file/mime-types';
+import { getImage } from 'modules/admin/hooks/get-image.after';
 
-const createAssetResource = (): CreateResourceResult<typeof Asset> => ({
+const createAssetResource = (configService: ConfigService): CreateResourceResult<typeof Asset> => ({
   resource: Asset,
   features: [
     (options): object => ({
@@ -18,17 +23,25 @@ const createAssetResource = (): CreateResourceResult<typeof Asset> => ({
     }),
   ],
   options: {
+    navigation: marketNavigation,
     actions: {
       new: {
         isAccessible: (context): boolean => forAdminGroup(context),
-        after: [saveLabels, saveAttributes],
+        after: [saveLabels, saveAttributes, uploadFile('image', configService)],
       },
       edit: {
         isAccessible: (context): boolean => forAdminGroup(context),
-        after: [getLabels, saveLabels, loadAttributes, saveAttributes],
+        after: [
+          getImage(configService),
+          getLabels,
+          saveLabels,
+          loadAttributes,
+          saveAttributes,
+          uploadFile('image', configService),
+        ],
       },
       show: {
-        after: [getLabels, loadAttributes],
+        after: [getImage(configService), getLabels, loadAttributes],
         isAccessible: (context): boolean => forAdminGroup(context),
       },
       delete: {
@@ -56,6 +69,7 @@ const createAssetResource = (): CreateResourceResult<typeof Asset> => ({
       },
       description: {
         position: 6,
+        type: 'textarea',
       },
       externalUrl: {
         position: 7,
@@ -68,6 +82,16 @@ const createAssetResource = (): CreateResourceResult<typeof Asset> => ({
       },
       image: {
         position: 10,
+        props: {
+          validation: {
+            mimeTypes: MIME_TYPES,
+          },
+        },
+        components: {
+          edit: IMAGE_UPLOAD,
+          show: PHOTO_PROPERTY,
+          list: PHOTO_PROPERTY,
+        },
       },
       labels: {
         position: 11,
@@ -92,6 +116,9 @@ const createAssetResource = (): CreateResourceResult<typeof Asset> => ({
       },
       isDeleted: {
         isVisible: { edit: false },
+      },
+      imageId: {
+        isVisible: false,
       },
     },
   },
