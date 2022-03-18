@@ -7,6 +7,7 @@ import { restoreHandler } from './handlers/restore.handler';
 import { deleteHandler } from './handlers/delete.handler';
 import { SHOW_DELETED_AT } from '../../components.bundler';
 import { filterByIsDeleted } from 'modules/admin/hooks/filter-is-deleted-records';
+import { userAndOrgNavigation } from 'modules/admin/admin.navigation';
 
 const baseProperties = ['email', 'firstName', 'lastName', 'role'];
 
@@ -42,6 +43,7 @@ const createUserResource = (): CreateResourceResult<typeof User> => ({
     }),
   ],
   options: {
+    navigation: userAndOrgNavigation,
     actions: {
       list: {
         isAccessible: (context): boolean => forAdminGroup(context),

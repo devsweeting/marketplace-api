@@ -5,6 +5,7 @@ import { forAdminGroup } from '../user/user-permissions';
 import bulkSoftDeleteHandler from 'modules/admin/hooks/bulk-soft-delete.handler';
 import softDeleteHandler from 'modules/admin/hooks/soft-delete.handler';
 import { filterByIsDeleted } from 'modules/admin/hooks/filter-is-deleted-records';
+import { userAndOrgNavigation } from 'modules/admin/admin.navigation';
 
 const createPartnerResource = (): CreateResourceResult<typeof Partner> => ({
   resource: Partner,
@@ -54,6 +55,7 @@ const createPartnerResource = (): CreateResourceResult<typeof Partner> => ({
         isVisible: { edit: false, filter: true },
       },
     },
+    navigation: userAndOrgNavigation,
   },
 });
 

@@ -1,20 +1,39 @@
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
-import { clearAllData, createApp } from '@/test/utils/app.utils';
+import {
+  clearAllData,
+  createApp,
+  mockFileDownloadService,
+  mockS3Provider,
+} from '@/test/utils/app.utils';
 import { createPartner } from '@/test/utils/partner.utils';
 import { createAsset } from '@/test/utils/asset.utils';
 import { Partner } from 'modules/partners/entities';
 import { Asset, Attribute } from 'modules/assets/entities';
+import { StorageEnum } from 'modules/storage/enums/storage.enum';
+import { v4 } from 'uuid';
 
 describe('AssetsController', () => {
   let app: INestApplication;
   let partner: Partner;
+  const mockedUrl = 'https://example.com';
+  const mockTmpFilePath = '/tmp/temp-file.jpeg';
 
   beforeAll(async () => {
     app = await createApp();
     partner = await createPartner({
       apiKey: 'test-api-key',
     });
+    mockS3Provider.getUrl.mockReturnValue(mockedUrl);
+    mockS3Provider.upload.mockReturnValue({
+      id: v4(),
+      name: 'example.jpeg',
+      path: 'test/example.jpeg',
+      mimeType: 'image/jpeg',
+      storage: StorageEnum.S3,
+      size: 100,
+    });
+    mockFileDownloadService.download.mockReturnValue(mockTmpFilePath);
   });
 
   afterEach(async () => {
@@ -116,26 +135,34 @@ describe('AssetsController', () => {
         .then(async () => {
           const asset = await Asset.findOne({
             where: { refId: '1232' },
-          });
-          const attribute = await Attribute.findOne({
-            where: { assetId: asset.id },
+            relations: ['attributes', 'image'],
           });
           expect(asset).toBeDefined();
           expect(asset.name).toEqual(transferRequest.assets[0].name);
-          expect(asset.image).toEqual(transferRequest.assets[0].image);
+          expect(asset.image).toBeDefined();
+          expect(asset.image.path).toEqual('test/example.jpeg');
           expect(asset.description).toEqual(transferRequest.assets[0].description);
           expect(asset.externalUrl).toEqual(transferRequest.assets[0].externalUrl);
           expect(asset.marketplace).toEqual(transferRequest.assets[0].listing.marketplace);
           expect(asset.auctionType).toEqual(transferRequest.assets[0].listing.auctionType);
-          expect(attribute).toBeDefined();
-          expect(attribute.trait).toEqual(transferRequest.assets[0].attributes[0].trait);
-          expect(attribute.value).toEqual(transferRequest.assets[0].attributes[0].value);
-          expect(attribute.display).toEqual(transferRequest.assets[0].attributes[0].display);
+          expect(asset.attributes[0]).toBeDefined();
+          expect(asset.attributes[0].trait).toEqual(transferRequest.assets[0].attributes[0].trait);
+          expect(asset.attributes[0].value).toEqual(transferRequest.assets[0].attributes[0].value);
+          expect(asset.attributes[0].display).toEqual(
+            transferRequest.assets[0].attributes[0].display,
+          );
+          expect(mockFileDownloadService.download).toHaveBeenCalledWith(
+            transferRequest.assets[0].image,
+          );
+          expect(mockS3Provider.upload).toHaveBeenCalledWith(
+            mockTmpFilePath,
+            `images/assets/${asset.id}`,
+          );
         });
     });
 
-    it('should throw 400 exception if asset already exist', async () => {
-      await createAsset({ slug: 'example', partner });
+    it('should throw 400 exception if asset already exist by refId', async () => {
+      await createAsset({ refId: '1232', partner });
 
       const transferRequest: any = {
         user: {
@@ -149,7 +176,7 @@ describe('AssetsController', () => {
             name: 'Example',
             description: 'test',
             listing: {
-              marketplace: 'OpenSea',
+              marketplace: 'OPEN_SEA',
             },
           },
         ],
@@ -166,7 +193,7 @@ describe('AssetsController', () => {
           expect(body).toEqual({
             statusCode: 400,
             message: 'Duplicated assets',
-            names: ['Example'],
+            names: ['1232'],
           });
         });
     });
@@ -244,7 +271,6 @@ describe('AssetsController', () => {
           message: [
             'assets.0.refId must be shorter than or equal to 100 characters',
             'assets.0.listing should not be empty',
-            'assets.0.image must be shorter than or equal to 255 characters',
             'assets.0.image should not be empty',
             'assets.0.name must be shorter than or equal to 50 characters',
             'assets.0.name should not be empty',
@@ -252,6 +278,49 @@ describe('AssetsController', () => {
           ],
           error: 'Bad Request',
         });
+    });
+
+    it('should throw an exception if partner is deleted', async () => {
+      const deletedPartner = await createPartner({
+        apiKey: 'deleted-partner-api-key',
+        deletedAt: new Date(),
+        isDeleted: true,
+      });
+
+      const transferRequest: any = {
+        user: {
+          refId: '1236',
+          email: 'steven@example.com',
+        },
+        assets: [
+          {
+            refId: '1236',
+            image: 'https://example.com/image.png',
+            name: 'Example',
+            description: 'test',
+            externalUrl: 'https://example.com/page-1',
+            listing: {
+              marketplace: 'OPEN_SEA',
+              auctionType: 'FIXED_PRICE',
+            },
+            attributes: [
+              {
+                trait: 'trait name',
+                value: 'some value',
+                display: 'text',
+              },
+            ],
+          },
+        ],
+      };
+
+      return request(app.getHttpServer())
+        .post(`/assets`)
+        .set({
+          'x-api-key': deletedPartner.apiKey,
+        })
+        .send(transferRequest)
+        .expect(401);
     });
   });
 });

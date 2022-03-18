@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Partner } from 'modules/partners/entities';
-import { generateSlug } from 'modules/common/helpers/slug.helper';
 import { AssetsDuplicatedException } from 'modules/assets/exceptions/assets-duplicated.exception';
 import { Asset, Attribute, Label } from './entities';
 import { TransferRequestDto } from 'modules/assets/dto';
@@ -9,16 +8,29 @@ import { IPaginationMeta, paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { AssetNotFoundException } from 'modules/assets/exceptions/asset-not-found.exception';
 import { UpdateAssetDto } from 'modules/assets/dto/update-asset.dto';
 import { RefAlreadyTakenException } from 'modules/common/exceptions/ref-already-taken.exception';
-import { NameAlreadyTakenException } from 'modules/common/exceptions/name-already-taken.exception';
+import { StorageService } from 'modules/storage/storage.service';
 import { Not } from 'typeorm';
 
 @Injectable()
 export class AssetsService {
+  public constructor(private readonly storageService: StorageService) {}
+
   public getList(params: ListAssetsDto): Promise<Pagination<Asset>> {
     return paginate<Asset, IPaginationMeta>(Asset.list(params), {
       page: params.page,
       limit: params.limit,
     });
+  }
+
+  public async getOne(id: string): Promise<Asset> {
+    const asset = await Asset.findOne({
+      where: { id, isDeleted: false },
+      relations: ['attributes', 'image'],
+    });
+    if (!asset) {
+      throw new AssetNotFoundException();
+    }
+    return asset;
   }
 
   public async updateAsset(partner: Partner, id: string, dto: UpdateAssetDto): Promise<Asset> {
@@ -33,6 +45,7 @@ export class AssetsService {
           id: Not(asset.id),
           partnerId: partner.id,
           refId: dto.refId,
+          isDeleted: false,
         },
       });
       if (assetByRefId) {
@@ -40,21 +53,13 @@ export class AssetsService {
       }
     }
 
-    if (dto.name) {
-      const assetBySlug = await Asset.findOne({
-        where: {
-          id: Not(asset.id),
-          slug: generateSlug(dto.name),
-        },
-      });
-      if (assetBySlug) {
-        throw new NameAlreadyTakenException();
-      }
-    }
-
-    const { attributes, listing, ...data } = dto;
+    const { attributes, listing, image, ...data } = dto;
     if (Array.isArray(attributes)) {
       await asset.saveAttributes(attributes);
+    }
+
+    if (image) {
+      asset.image = await this.storageService.uploadFromUrl(image, `images/assets/${asset.id}`);
     }
 
     if (listing) {
@@ -67,13 +72,14 @@ export class AssetsService {
   }
 
   public async deleteAsset(partner: Partner, id: string): Promise<void> {
-    const asset = await Asset.findOne({ where: { id, isDeleted: false } });
-    if (!asset || asset.partnerId !== partner.id) {
+    const asset = await Asset.findOne({ where: { id, isDeleted: false, partnerId: partner.id } });
+    if (!asset) {
       throw new AssetNotFoundException();
     }
     Object.assign(asset, { isDeleted: true, deletedAt: new Date() });
     await asset.save();
 
+    await Label.update({ assetId: asset.id }, { isDeleted: true, deletedAt: new Date() });
     await Attribute.update({ assetId: asset.id }, { isDeleted: true, deletedAt: new Date() });
     await Label.update({ assetId: asset.id }, { isDeleted: true, deletedAt: new Date() });
   }
@@ -83,14 +89,25 @@ export class AssetsService {
 
     Logger.log(`Partner ${partner.name} received transfer request`);
 
-    const duplicatedAssetsBySlug = await Asset.findDuplicatedBySlugs(
-      dto.assets.map((asset) => generateSlug(asset.name)),
+    const duplicatedAssetsByRefIds = await Asset.findDuplicatedByRefIds(
+      dto.assets.map((asset) => asset.refId),
     );
 
-    if (duplicatedAssetsBySlug.length) {
-      throw new AssetsDuplicatedException(duplicatedAssetsBySlug.map((asset) => asset.name));
+    if (duplicatedAssetsByRefIds.length) {
+      throw new AssetsDuplicatedException(duplicatedAssetsByRefIds.map((asset) => asset.refId));
     }
 
-    await Asset.saveAssetsForPartner(dto.assets, partner);
+    await Promise.all(
+      dto.assets.map(async (assetDto) => {
+        const asset = await Asset.saveAssetForPartner(assetDto, partner);
+        if (assetDto.image) {
+          asset.image = await this.storageService.uploadFromUrl(
+            assetDto.image,
+            `images/assets/${asset.id}`,
+          );
+          await asset.save();
+        }
+      }),
+    );
   }
 }

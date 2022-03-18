@@ -10,7 +10,7 @@ export const adminjs = {
     return AdminModule.createAdminAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        ...getAdminJSOptions,
+        ...getAdminJSOptions(configService),
         auth: getAuth(configService),
         sessionOptions: await getSessionOptions(configService),
       }),

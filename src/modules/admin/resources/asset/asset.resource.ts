@@ -1,4 +1,8 @@
-import { ATTRIBUTE_COMPONENT } from 'modules/admin/components.bundler';
+import {
+  ATTRIBUTE_COMPONENT,
+  PHOTO_PROPERTY,
+  IMAGE_UPLOAD,
+} from 'modules/admin/components.bundler';
 import {
   SHOW_DELETED_AT,
   FILTER_PROPERTY,
@@ -15,8 +19,13 @@ import { forAdminGroup } from 'modules/admin/resources/user/user-permissions';
 import { filterByIsDeleted } from 'modules/admin/hooks/filter-is-deleted-records';
 import bulkSoftDeleteHandler from 'modules/admin/hooks/bulk-soft-delete.handler';
 import { softDeleteHandler } from 'modules/admin/hooks/soft-delete.handler';
+import { ConfigService } from '@nestjs/config';
+import uploadFile from 'modules/admin/hooks/upload-file.after';
+import { marketNavigation } from 'modules/admin/admin.navigation';
+import { MIME_TYPES } from '../file/mime-types';
+import { getImage } from 'modules/admin/hooks/get-image.after';
 
-const createAssetResource = (): CreateResourceResult<typeof Asset> => ({
+const createAssetResource = (configService: ConfigService): CreateResourceResult<typeof Asset> => ({
   resource: Asset,
   features: [
     (options): object => ({
@@ -25,6 +34,7 @@ const createAssetResource = (): CreateResourceResult<typeof Asset> => ({
     }),
   ],
   options: {
+    navigation: marketNavigation,
     actions: {
       list: {
         isAccessible: (context): boolean => forAdminGroup(context),
@@ -32,14 +42,21 @@ const createAssetResource = (): CreateResourceResult<typeof Asset> => ({
       },
       new: {
         isAccessible: (context): boolean => forAdminGroup(context),
-        after: [saveLabels, saveAttributes],
+        after: [saveLabels, saveAttributes, uploadFile('image', configService)],
       },
       edit: {
         isAccessible: (context): boolean => forAdminGroup(context),
-        after: [getLabels, saveLabels, loadAttributes, saveAttributes],
+        after: [
+          getImage(configService),
+          getLabels,
+          saveLabels,
+          loadAttributes,
+          saveAttributes,
+          uploadFile('image', configService),
+        ],
       },
       show: {
-        after: [getLabels, loadAttributes],
+        after: [getImage(configService), getLabels, loadAttributes],
         isAccessible: (context): boolean => forAdminGroup(context),
       },
       delete: {
@@ -104,6 +121,16 @@ const createAssetResource = (): CreateResourceResult<typeof Asset> => ({
       },
       image: {
         position: 10,
+        props: {
+          validation: {
+            mimeTypes: MIME_TYPES,
+          },
+        },
+        components: {
+          edit: IMAGE_UPLOAD,
+          show: PHOTO_PROPERTY,
+          list: PHOTO_PROPERTY,
+        },
       },
       assetLabels: {
         position: 11,
@@ -128,6 +155,9 @@ const createAssetResource = (): CreateResourceResult<typeof Asset> => ({
       },
       isDeleted: {
         isVisible: { edit: false, filter: true },
+      },
+      imageId: {
+        isVisible: false,
       },
     },
   },

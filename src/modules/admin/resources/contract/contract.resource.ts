@@ -5,6 +5,7 @@ import { SHOW_DELETED_AT } from 'modules/admin/components.bundler';
 import softDeleteHandler from 'modules/admin/hooks/soft-delete.handler';
 import bulkSoftDeleteHandler from 'modules/admin/hooks/bulk-soft-delete.handler';
 import { filterByIsDeleted } from 'modules/admin/hooks/filter-is-deleted-records';
+import { marketNavigation } from 'modules/admin/admin.navigation';
 
 const createContractResource = (): CreateResourceResult<typeof Contract> => ({
   resource: Contract,
@@ -15,6 +16,7 @@ const createContractResource = (): CreateResourceResult<typeof Contract> => ({
     }),
   ],
   options: {
+    navigation: marketNavigation,
     actions: {
       list: {
         isAccessible: forAdminGroup,
