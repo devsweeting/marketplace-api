@@ -271,7 +271,6 @@ describe('AssetsController', () => {
           message: [
             'assets.0.refId must be shorter than or equal to 100 characters',
             'assets.0.listing should not be empty',
-            'assets.0.image must be shorter than or equal to 255 characters',
             'assets.0.image should not be empty',
             'assets.0.name must be shorter than or equal to 50 characters',
             'assets.0.name should not be empty',
@@ -279,6 +278,49 @@ describe('AssetsController', () => {
           ],
           error: 'Bad Request',
         });
+    });
+
+    it('should throw an exception if partner is deleted', async () => {
+      const deletedPartner = await createPartner({
+        apiKey: 'deleted-partner-api-key',
+        deletedAt: new Date(),
+        isDeleted: true,
+      });
+
+      const transferRequest: any = {
+        user: {
+          refId: '1236',
+          email: 'steven@example.com',
+        },
+        assets: [
+          {
+            refId: '1236',
+            image: 'https://example.com/image.png',
+            name: 'Example',
+            description: 'test',
+            externalUrl: 'https://example.com/page-1',
+            listing: {
+              marketplace: 'OPEN_SEA',
+              auctionType: 'FIXED_PRICE',
+            },
+            attributes: [
+              {
+                trait: 'trait name',
+                value: 'some value',
+                display: 'text',
+              },
+            ],
+          },
+        ],
+      };
+
+      return request(app.getHttpServer())
+        .post(`/assets`)
+        .set({
+          'x-api-key': deletedPartner.apiKey,
+        })
+        .send(transferRequest)
+        .expect(401);
     });
   });
 });

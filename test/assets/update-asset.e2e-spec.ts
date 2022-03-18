@@ -246,13 +246,13 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should throw 409 exception if slug is already exist', async () => {
+    it('should throw 409 exception if refID is already exist', async () => {
       await createAsset({
-        name: 'Test name 3',
-        slug: 'test-name-3',
+        refId: 'ref-1',
+        partnerId: partner.id,
       });
       const payload = {
-        name: 'Test name 3',
+        refId: 'ref-1',
       };
 
       return request(app.getHttpServer())
@@ -265,7 +265,7 @@ describe('AssetsController', () => {
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Conflict',
-            message: 'NAME_ALREADY_TAKEN',
+            message: 'REF_ALREADY_TAKEN',
             statusCode: 409,
           });
         });
