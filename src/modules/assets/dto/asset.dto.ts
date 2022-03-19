@@ -21,7 +21,6 @@ export class AssetDto {
   })
   public listing: ListingDto;
 
-  //TODO
   @IsNotEmpty()
   @MaxLength(255)
   @ApiProperty({
