@@ -55,7 +55,7 @@ const AttributeComponent: React.FC<EditPropertyProps> = (props) => {
     options.find((opt) => opt.value === v) ?? { value: null, label: '' };
 
   return (
-    <FormGroup error={!!error}>
+    <FormGroup error={!!error} style={{ marginTop: '16px' }}>
       <Label property={property}>{property.label}</Label>
       <Table style={{ width: '100%' }}>
         <TableHead>
@@ -115,7 +115,7 @@ const AttributeComponent: React.FC<EditPropertyProps> = (props) => {
         </TableBody>
       </Table>
       {where === 'edit' && (
-        <Button type="button" onClick={addNewAttribute}>
+        <Button type="button" onClick={addNewAttribute} style={{ marginTop: '16px' }}>
           Add new Attributes
         </Button>
       )}

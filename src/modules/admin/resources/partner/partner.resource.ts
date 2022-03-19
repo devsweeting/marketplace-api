@@ -43,7 +43,7 @@ const createPartnerResource = (): CreateResourceResult<typeof Partner> => ({
     },
     properties: {
       apiKey: {
-        isVisible: { edit: false },
+        isVisible: { edit: false, show: true },
       },
       deletedAt: {
         isVisible: { edit: false, filter: true },

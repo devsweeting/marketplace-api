@@ -132,18 +132,18 @@ const createAssetResource = (configService: ConfigService): CreateResourceResult
           list: PHOTO_PROPERTY,
         },
       },
-      assetLabels: {
-        position: 11,
-        components: {
-          edit: LABELS_COMPONENT,
-          show: LABELS_COMPONENT,
-        },
-      },
       assetAttributes: {
         position: 11,
         components: {
           edit: ATTRIBUTE_COMPONENT,
           show: ATTRIBUTE_COMPONENT,
+        },
+      },
+      assetLabels: {
+        position: 12,
+        components: {
+          edit: LABELS_COMPONENT,
+          show: LABELS_COMPONENT,
         },
       },
       deletedAt: {
