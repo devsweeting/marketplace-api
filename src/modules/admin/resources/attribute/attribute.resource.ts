@@ -12,7 +12,28 @@ const createAttributeResource = (): CreateResourceResult<typeof Attribute> => ({
       // filterProperties: ['trait', 'value', 'updatedAt', 'createdAt'],
     }),
   ],
-  options: {},
+  options: {
+    actions: {
+      list: {
+        isAccessible: false,
+      },
+      show: {
+        isAccessible: false,
+      },
+      edit: {
+        isAccessible: false,
+      },
+      new: {
+        isAccessible: false,
+      },
+      delete: {
+        isAccessible: false,
+      },
+      bulkDelete: {
+        isAccessible: false,
+      },
+    },
+  },
 });
 
 export default createAttributeResource;

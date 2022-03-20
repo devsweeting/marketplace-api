@@ -20,6 +20,7 @@ export class TransferRequestDto {
     description: 'Description of the asset to be transferred.',
     type: AssetDto,
     required: true,
+    isArray: true,
   })
   @ValidateNested({ each: true })
   @IsDefined()

@@ -25,10 +25,10 @@ export class AssetDto {
   @MaxLength(255)
   @ApiProperty({
     description: 'URI pointing to asset image.  Must be less than 255 characters.',
-    required: true,
+    required: false,
     example: 'https://picsum.photos/400/200',
   })
-  public image: string;
+  public image: any;
 
   @MaxLength(200)
   @IsUrl()
@@ -36,7 +36,7 @@ export class AssetDto {
   @ApiProperty({
     description: 'Link to partners asset page.  Must be less than 200 characters.',
     required: false,
-    example: 'https://example.com/nfts/1337',
+    example: 'https://example.com/asset/1337',
   })
   public externalUrl?: string;
 

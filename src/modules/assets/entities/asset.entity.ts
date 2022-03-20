@@ -23,6 +23,8 @@ import { AssetDto, AttributeDto } from 'modules/assets/dto';
 import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 import { MarketplaceEnum } from 'modules/assets/enums/marketplace.enum';
 import { AuctionTypeEnum } from 'modules/assets/enums/auction-type.enum';
+import { Contract } from 'modules/assets/entities/contract.entity';
+import { File } from 'modules/storage/file.entity';
 
 @Entity('partner_assets')
 export class Asset extends BaseModel implements BaseEntityInterface {
@@ -33,10 +35,6 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   @Index()
   @Column({ length: 50, nullable: false })
   public name: string;
-
-  @Index()
-  @Column({ length: 100, nullable: false })
-  public image: string;
 
   @Index()
   @Column({ nullable: false })
@@ -63,6 +61,14 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   })
   public auctionType: AuctionTypeEnum;
 
+  @ManyToOne(() => File, { nullable: true })
+  @JoinColumn({ name: 'imageId' })
+  public image?: File;
+
+  @Column({ type: 'string', nullable: true })
+  @RelationId((asset: Asset) => asset.image)
+  public imageId?: string;
+
   @ManyToOne(() => Partner, (partner) => partner.assets)
   @JoinColumn({ name: 'partnerId' })
   public partner?: Partner;
@@ -74,8 +80,16 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   @OneToMany(() => Attribute, (attribute) => attribute.asset)
   public attributes: Attribute[];
 
-  @OneToMany(() => Label, (label) => label.asset, { cascade: ['soft-remove'] })
+  @OneToMany(() => Label, (label) => label.asset)
   public labels: Label[];
+
+  @ManyToOne(() => Contract, { nullable: true })
+  @JoinColumn({ name: 'contractId', referencedColumnName: 'id' })
+  public contract: Contract;
+
+  @Column({ type: 'string', nullable: true })
+  @RelationId((asset: Asset) => asset.contract)
+  public contractId: string;
 
   @BeforeInsert()
   public beforeInsert(): void {
@@ -87,10 +101,10 @@ export class Asset extends BaseModel implements BaseEntityInterface {
     this.slug = generateSlug(this.name);
   }
 
-  public static findDuplicatedBySlugs(slugs: string[]): Promise<Asset[]> {
+  public static findDuplicatedByRefIds(refIds: string[]): Promise<Asset[]> {
     return Asset.find({
       where: {
-        slug: In(slugs),
+        refId: In(refIds),
       },
     });
   }
@@ -102,40 +116,38 @@ export class Asset extends BaseModel implements BaseEntityInterface {
     );
   }
 
-  public static async saveAssetsForPartner(
-    dtoList: Array<AssetDto>,
-    partner: Partner,
-  ): Promise<void> {
-    for (const dto of dtoList) {
-      try {
-        const asset = new Asset({
-          refId: dto.refId,
-          name: dto.name,
-          image: dto.image,
-          partner: partner,
-          partnerId: partner.id,
-          description: dto.description,
-          externalUrl: dto.externalUrl,
-          marketplace: dto.listing.marketplace,
-          auctionType: dto.listing.auctionType,
-        });
-        asset.partner = partner;
-        await asset.save();
-        await Promise.all(
-          dto.attributes?.map((attribute: AttributeDto) =>
-            new Attribute({ ...attribute, assetId: asset.id }).save(),
-          ),
-        );
-      } catch (e) {
-        Logger.error(e);
-        throw new InternalServerErrorException();
-      }
+  public static async saveAssetForPartner(dto: AssetDto, partner: Partner): Promise<Asset> {
+    let newAsset = null;
+    try {
+      const asset = new Asset({
+        refId: dto.refId,
+        name: dto.name,
+        partner: partner,
+        partnerId: partner.id,
+        description: dto.description,
+        externalUrl: dto.externalUrl,
+        marketplace: dto.listing.marketplace,
+        auctionType: dto.listing.auctionType,
+      });
+
+      asset.partner = partner;
+      newAsset = await asset.save();
+      await Promise.all(
+        dto.attributes?.map((attribute: AttributeDto) =>
+          new Attribute({ ...attribute, assetId: asset.id }).save(),
+        ),
+      );
+    } catch (e) {
+      Logger.error(e);
+      throw new InternalServerErrorException();
     }
+    return newAsset;
   }
 
   public static list(params: ListAssetsDto): SelectQueryBuilder<Asset> {
     const query = Asset.createQueryBuilder('asset')
       .leftJoinAndMapMany('asset.attributes', 'asset.attributes', 'attributes')
+      .leftJoinAndMapOne('asset.image', 'asset.image', 'image')
       .where('asset.isDeleted = :isDeleted', { isDeleted: false })
       .addOrderBy(params.sort, params.order);
 

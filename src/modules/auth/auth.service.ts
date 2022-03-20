@@ -13,7 +13,7 @@ export class AuthService {
 
   public validateApiKey(apiKey: string): Promise<Partner | null> {
     Logger.log(`AuthService.validateApiKey(${apiKey})`);
-    return Partner.findOne({ where: { apiKey } });
+    return Partner.findOne({ where: { apiKey, isDeleted: false } });
   }
 
   public generateToken(user: { id: string; email: string; role: RoleEnum }): string {

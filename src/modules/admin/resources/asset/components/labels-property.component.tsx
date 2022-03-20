@@ -46,9 +46,9 @@ const LabelComponent: React.FC<EditPropertyProps> = (props) => {
   }
 
   return (
-    <FormGroup error={!!error}>
+    <FormGroup error={!!error} style={{ marginTop: '30px' }}>
       <Label property={property}>{property.label}</Label>
-      <Table style={{ width: '50%' }}>
+      <Table style={{ width: '100%' }}>
         <TableHead>
           <TableRow>
             <TableCell>Name</TableCell>
@@ -95,7 +95,7 @@ const LabelComponent: React.FC<EditPropertyProps> = (props) => {
         </TableBody>
       </Table>
       {where === 'edit' && (
-        <Button type="button" onClick={addNewLabel}>
+        <Button type="button" onClick={addNewLabel} style={{ marginTop: '16px' }}>
           Add new label
         </Button>
       )}

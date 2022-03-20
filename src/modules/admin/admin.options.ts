@@ -10,7 +10,9 @@ import createUserResource from './resources/user/user.resource';
 import { SessionEntity, TypeormStore } from 'typeorm-store';
 import { Session } from 'modules/auth/session/session.entity';
 import { createConnection } from 'typeorm';
+import createContractResource from 'modules/admin/resources/contract/contract.resource';
 import locale from './locale';
+import createFileResource from './resources/file/file.resource';
 
 const createAdmin = async (passwordService, configService: ConfigService) => {
   if ((await User.count({ role: RoleEnum.SUPER_ADMIN })) === 0) {
@@ -23,23 +25,27 @@ const createAdmin = async (passwordService, configService: ConfigService) => {
   }
 };
 
-export const getAdminJSOptions = {
-  adminJsOptions: {
-    rootPath: '/admin',
-    branding: {
-      companyName: 'Jump.co',
-      softwareBrothers: false,
-      logo: '/logo.svg',
+export const getAdminJSOptions = (configService: ConfigService) => {
+  return {
+    adminJsOptions: {
+      rootPath: '/admin',
+      branding: {
+        companyName: 'Jump.co',
+        softwareBrothers: false,
+        logo: '/logo.svg',
+      },
+      resources: [
+        createAssetResource(configService),
+        createAttributeResource(),
+        createPartnerResource(),
+        createContractResource(),
+        createUserResource(),
+        createFileResource(),
+      ],
+      databases: [],
+      locale,
     },
-    resources: [
-      createAssetResource(),
-      createAttributeResource(),
-      createPartnerResource(),
-      createUserResource(),
-    ],
-    databases: [],
-    locale,
-  },
+  };
 };
 
 export const getAuth = (configService: ConfigService) => {

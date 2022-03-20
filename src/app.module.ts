@@ -13,9 +13,11 @@ import { MailModule } from 'modules/mail/mail.module';
 import { AssetsModule } from 'modules/assets/assets.module';
 import { User } from 'modules/users/user.entity';
 import { Partner } from 'modules/partners/entities';
-import { Asset, Attribute, Label } from 'modules/assets/entities';
+import { Asset, Attribute, Label, Contract } from 'modules/assets/entities';
 import { Session } from 'modules/auth/session/session.entity';
 import { join } from 'path';
+import { StorageModule } from 'modules/storage/storage.module';
+import { File } from 'modules/storage/file.entity';
 
 const appModules = [
   AuthModule,
@@ -36,10 +38,11 @@ const appModules = [
   TypeOrmModule.forRootAsync({
     useFactory: async (configService: ConfigService) => ({
       ...configService.get('database.default'),
-      entities: [User, Partner, Asset, Attribute, Label, Session],
+      entities: [User, Partner, Asset, Attribute, Label, Contract, Session, File],
     }),
     inject: [ConfigService],
   }),
+  StorageModule,
 ];
 if (process.env.NODE_ENV == 'DEVELOP' || process.env.NODE_ENV == 'ADMIN') {
   appModules.push(adminjs.module());
