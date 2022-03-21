@@ -81,6 +81,7 @@ export class AssetsService {
 
     await Label.update({ assetId: asset.id }, { isDeleted: true, deletedAt: new Date() });
     await Attribute.update({ assetId: asset.id }, { isDeleted: true, deletedAt: new Date() });
+    await Label.update({ assetId: asset.id }, { isDeleted: true, deletedAt: new Date() });
   }
 
   public async recordTransferRequest(partnerId: string, dto: TransferRequestDto): Promise<void> {

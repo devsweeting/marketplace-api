@@ -39,7 +39,7 @@ export class UpdateAssetDto {
   @ApiProperty({
     description: 'Link to partners asset page.  Must be less than 200 characters.',
     required: false,
-    example: 'https://example.com/nfts/1337',
+    example: 'https://example.com/asset/1337',
   })
   public externalUrl?: string;
 
