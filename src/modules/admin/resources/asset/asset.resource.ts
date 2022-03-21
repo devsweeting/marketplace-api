@@ -2,8 +2,6 @@ import {
   ATTRIBUTE_COMPONENT,
   PHOTO_PROPERTY,
   IMAGE_UPLOAD,
-} from 'modules/admin/components.bundler';
-import {
   SHOW_DELETED_AT,
   FILTER_PROPERTY,
   REFERENCE_FIELD,
