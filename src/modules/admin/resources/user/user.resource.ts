@@ -3,11 +3,12 @@ import { User } from '../../../users/user.entity';
 import passwordFeature from '@adminjs/passwords';
 import bcrypt from 'bcryptjs';
 import { forAdminGroup, forSuperAdmins } from './user-permissions';
-import { restoreHandler } from './handlers/restore.handler';
+import { restoreHandler } from '../../hooks/restore.handler';
 import { deleteHandler } from './handlers/delete.handler';
 import { SHOW_DELETED_AT } from '../../components.bundler';
 import { filterByIsDeleted } from 'modules/admin/hooks/filter-is-deleted-records';
 import { userAndOrgNavigation } from 'modules/admin/admin.navigation';
+import bulkSoftDeleteHandler from 'modules/admin/hooks/bulk-soft-delete.handler';
 
 const baseProperties = ['email', 'firstName', 'lastName', 'role'];
 
@@ -68,6 +69,7 @@ const createUserResource = (): CreateResourceResult<typeof User> => ({
           forSuperAdmins(context) &&
           !context.record.params.deletedAt &&
           context.record.params.id !== context.currentAdmin.id,
+        handler: bulkSoftDeleteHandler,
       },
       restore: {
         isAccessible: (context): boolean =>

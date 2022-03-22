@@ -6,6 +6,7 @@ import bulkSoftDeleteHandler from 'modules/admin/hooks/bulk-soft-delete.handler'
 import softDeleteHandler from 'modules/admin/hooks/soft-delete.handler';
 import { filterByIsDeleted } from 'modules/admin/hooks/filter-is-deleted-records';
 import { userAndOrgNavigation } from 'modules/admin/admin.navigation';
+import { restoreHandler } from 'modules/admin/hooks/restore.handler';
 
 const createPartnerResource = (): CreateResourceResult<typeof Partner> => ({
   resource: Partner,
@@ -40,19 +41,43 @@ const createPartnerResource = (): CreateResourceResult<typeof Partner> => ({
           forAdminGroup(context) && !context.record.params.deletedAt,
         handler: bulkSoftDeleteHandler,
       },
+      restore: {
+        isAccessible: (context): boolean =>
+          forAdminGroup(context) && context.record.params.deletedAt,
+        actionType: 'record',
+        variant: 'primary',
+        icon: 'Renew',
+        handler: restoreHandler,
+        component: false,
+      },
     },
     properties: {
+      id: {
+        position: 1,
+      },
+      name: {
+        position: 2,
+      },
       apiKey: {
+        position: 3,
         isVisible: { edit: false, show: true },
       },
       deletedAt: {
-        isVisible: { edit: false, filter: true },
+        position: 4,
+        isVisible: { edit: false, show: true, filter: true },
         components: {
           show: SHOW_DELETED_AT,
         },
       },
       isDeleted: {
-        isVisible: { edit: false, filter: true },
+        position: 5,
+        isVisible: { edit: false, show: true, filter: true },
+      },
+      createdAt: {
+        position: 6,
+      },
+      updatedAt: {
+        position: 7,
       },
     },
     navigation: userAndOrgNavigation,
