@@ -2,6 +2,7 @@ import * as common from './common.json';
 
 import * as Asset from './asset.json';
 import * as User from './user.json';
+import * as Partner from './partner.json';
 
 const enLocale = {
   language: 'en',
@@ -10,6 +11,7 @@ const enLocale = {
     resources: {
       Asset,
       User,
+      Partner,
     },
   },
 };

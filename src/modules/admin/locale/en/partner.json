@@ -1,0 +1,6 @@
+{
+  "properties": {
+    "isDeleted": "isDisabled",
+    "deletedAt": "Disabled At"
+  }
+}
