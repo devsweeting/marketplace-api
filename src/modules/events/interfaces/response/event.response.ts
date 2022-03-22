@@ -25,8 +25,5 @@ export class EventResponse {
   public assetId: string;
 
   @ApiProperty({ example: '2022-03-09T09:05:34.176Z' })
-  public updatedAt: string;
-
-  @ApiProperty({ example: '2022-03-09T09:05:34.176Z' })
   public createdAt: string;
 }

@@ -59,6 +59,9 @@ const createEventResource = (): CreateResourceResult<typeof Event> => ({
       isDeleted: {
         isVisible: { edit: false, filter: true },
       },
+      updatedAt: {
+        isVisible: false,
+      },
     },
   },
 });

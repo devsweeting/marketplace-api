@@ -1,4 +1,12 @@
-import { Column, Entity, JoinColumn, ManyToOne, RelationId, SelectQueryBuilder } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  RelationId,
+  SelectQueryBuilder,
+} from 'typeorm';
 
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from '../../common/entities/base.model';
@@ -8,6 +16,7 @@ import { PaymentTokenEnum } from '../enums/payment-token.enum';
 import { ListEventsDto } from '../dto/list-events.dto';
 
 @Entity('asset_events')
+@Index(['assetId', 'createdAt'])
 export class Event extends BaseModel implements BaseEntityInterface {
   @Column({ name: 'from_account', nullable: false })
   public fromAccount: string;
@@ -48,10 +57,10 @@ export class Event extends BaseModel implements BaseEntityInterface {
   public totalPrice: number;
 
   @ManyToOne(() => Asset, (asset) => asset.attributes, { nullable: false })
-  @JoinColumn({ name: 'assetId', referencedColumnName: 'id' })
+  @JoinColumn({ name: 'asset_id', referencedColumnName: 'id' })
   public asset: Asset;
 
-  @Column({ type: 'string', nullable: false })
+  @Column({ name: 'asset_id', type: 'string', nullable: false })
   @RelationId((event: Event) => event.asset)
   public assetId: string;
 

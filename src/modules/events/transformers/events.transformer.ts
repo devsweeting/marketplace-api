@@ -16,7 +16,6 @@ export class EventsTransformer {
       isPrivate: event.isPrivate,
       assetId: event.assetId,
       createdAt: event.createdAt.toISOString(),
-      updatedAt: event.updatedAt.toISOString(),
     };
   }
 
