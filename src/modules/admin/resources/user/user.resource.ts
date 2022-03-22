@@ -26,8 +26,6 @@ const createUserResource = (): CreateResourceResult<typeof User> => ({
       filterProperties: [
         'id',
         ...baseProperties,
-        'firstName',
-        'lastName',
         'createdAt',
         'updatedAt',
         'deletedAt',

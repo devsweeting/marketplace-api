@@ -30,7 +30,7 @@ const createAssetResource = (configService: ConfigService): CreateResourceResult
   features: [
     (options): object => ({
       ...options,
-      listProperties: ['name', 'refId', 'name', 'partnerId', 'contractId', 'createdAt'],
+      listProperties: ['name', 'refId', 'partnerId', 'contractId', 'createdAt'],
     }),
   ],
   options: {
