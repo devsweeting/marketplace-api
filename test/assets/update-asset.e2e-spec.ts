@@ -17,17 +17,23 @@ import { createAttribute } from '@/test/utils/attribute.utils';
 import { MarketplaceEnum } from 'modules/assets/enums/marketplace.enum';
 import { AuctionTypeEnum } from 'modules/assets/enums/auction-type.enum';
 import { StorageEnum } from 'modules/storage/enums/storage.enum';
+import { User } from 'modules/users/user.entity';
+import { RoleEnum } from 'modules/users/enums/role.enum';
+import { createUser } from '../utils/fixtures/create-user';
 
 describe('AssetsController', () => {
   let app: INestApplication;
   let partner: Partner;
+  let user: User;
   let asset: Asset;
   let assetTransformer: AssetsTransformer;
 
   beforeAll(async () => {
     app = await createApp();
+    user = await createUser({ email: 'partner@test.com', role: RoleEnum.USER });
     partner = await createPartner({
       apiKey: 'test-api-key',
+      accountOwner: user,
     });
     asset = await createAsset({ partner });
     assetTransformer = app.get(AssetsTransformer);
@@ -67,8 +73,10 @@ describe('AssetsController', () => {
     });
 
     it('should throw 404 exception if assets belongs to another partner', async () => {
+      const anotherUser = await createUser({});
       const anotherPartner = await createPartner({
         apiKey: 'another-api-key',
+        accountOwner: anotherUser,
       });
       const anotherAsset = await createAsset({ partner: anotherPartner });
 

@@ -12,7 +12,7 @@ import { adminjs } from 'modules/admin/admin.config';
 import { MailModule } from 'modules/mail/mail.module';
 import { AssetsModule } from 'modules/assets/assets.module';
 import { User } from 'modules/users/user.entity';
-import { Partner } from 'modules/partners/entities';
+import { Partner, PartnerMemberUser } from 'modules/partners/entities';
 import { Asset, Attribute, Label, Contract } from 'modules/assets/entities';
 import { Session } from 'modules/auth/session/session.entity';
 import { join } from 'path';
@@ -38,7 +38,17 @@ const appModules = [
   TypeOrmModule.forRootAsync({
     useFactory: async (configService: ConfigService) => ({
       ...configService.get('database.default'),
-      entities: [User, Partner, Asset, Attribute, Label, Contract, Session, File],
+      entities: [
+        User,
+        Partner,
+        PartnerMemberUser,
+        Asset,
+        Attribute,
+        Label,
+        Contract,
+        Session,
+        File,
+      ],
     }),
     inject: [ConfigService],
   }),

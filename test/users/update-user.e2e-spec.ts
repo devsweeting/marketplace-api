@@ -10,7 +10,6 @@ describe('UsersController', () => {
   let app: INestApplication;
   let user: User;
   let admin: User;
-  let partner: User;
 
   beforeEach(async () => {
     app = await createApp();
@@ -145,66 +144,6 @@ describe('UsersController', () => {
           statusCode: 400,
           message: ['property password should not exist'],
           error: 'Bad Request',
-        });
-    });
-  });
-  describe(`PATCH /users/:id as PARTNER`, () => {
-    beforeEach(async () => {
-      partner = await createUser({ role: RoleEnum.PARTNER });
-    });
-    it('should update a user record in the db', () => {
-      const userRequest: any = {
-        email: 'updated@mail.com',
-      };
-      return request(app.getHttpServer())
-        .patch(`/users/${user.id}`)
-        .set({ Authorization: `Bearer ${generateToken(partner)}` })
-        .send(userRequest)
-        .expect(403)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            statusCode: 403,
-            message: 'Forbidden resource',
-            error: 'Forbidden',
-          });
-        })
-        .then(async () => {
-          const updatedUser = await User.findOne(user.id);
-          expect(updatedUser).toBeDefined();
-          expect(updatedUser.email).toEqual(user.email);
-        });
-    });
-
-    it('should throw an exception if user email is invalid', () => {
-      const userRequest: any = {
-        email: 'wrong-email',
-      };
-
-      return request(app.getHttpServer())
-        .patch(`/users/${user.id}`)
-        .set({ Authorization: `Bearer ${generateToken(partner)}` })
-        .send(userRequest)
-        .expect(403)
-        .expect({
-          statusCode: 403,
-          message: 'Forbidden resource',
-          error: 'Forbidden',
-        });
-    });
-    it('should throw an exception if user password is exists in data', () => {
-      const userRequest: any = {
-        password: 'password',
-      };
-
-      return request(app.getHttpServer())
-        .patch(`/users/${user.id}`)
-        .set({ Authorization: `Bearer ${generateToken(partner)}` })
-        .send(userRequest)
-        .expect(403)
-        .expect({
-          statusCode: 403,
-          message: 'Forbidden resource',
-          error: 'Forbidden',
         });
     });
   });

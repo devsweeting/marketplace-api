@@ -1,8 +1,10 @@
-import { BeforeInsert, Column, Entity, Index, OneToMany } from 'typeorm';
+import { BeforeInsert, Column, Entity, Index, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
 import { Asset } from 'modules/assets/entities';
+import { User } from 'modules/users/user.entity';
+import { PartnerMemberUser } from './partners-members-users';
 
 @Entity('partners')
 export class Partner extends BaseModel implements BaseEntityInterface {
@@ -19,6 +21,16 @@ export class Partner extends BaseModel implements BaseEntityInterface {
     nullable: false,
   })
   public apiKey: string;
+
+  @Column({ nullable: false })
+  public accountOwnerId: string;
+
+  @OneToOne(() => User)
+  @JoinColumn({ referencedColumnName: 'id' })
+  public accountOwner: User;
+
+  @OneToMany(() => PartnerMemberUser, (partnerMemberUser) => partnerMemberUser.partner)
+  public members: [];
 
   @OneToMany(() => Asset, (asset) => asset.partnerId)
   public assets: Asset[];

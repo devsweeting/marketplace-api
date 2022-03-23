@@ -57,8 +57,7 @@ export const getAuth = (configService: ConfigService) => {
 
       const admin = await User.findOne({ where: { email } });
 
-      if (admin && ![RoleEnum.SUPER_ADMIN, RoleEnum.ADMIN, RoleEnum.PARTNER].includes(admin.role))
-        return null;
+      if (admin && ![RoleEnum.SUPER_ADMIN, RoleEnum.ADMIN].includes(admin.role)) return null;
 
       const passwordMatch = admin && (await passwordService.verify(admin.password, password));
       delete admin?.password;
