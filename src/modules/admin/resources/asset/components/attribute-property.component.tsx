@@ -27,7 +27,7 @@ const AttributeComponent: React.FC<EditPropertyProps> = (props) => {
   });
 
   const addNewAttribute = useCallback(() => {
-    setAttributes((attr) => [...attr, { trait: '', value: '', display: '' }]);
+    setAttributes((attr) => [...attr, { trait: '', value: '', maxValue: '', display: '' }]);
   }, [attributes, setAttributes]);
 
   const onDelete = useCallback(
@@ -62,6 +62,7 @@ const AttributeComponent: React.FC<EditPropertyProps> = (props) => {
           <TableRow>
             <TableCell>Trait</TableCell>
             <TableCell>Value</TableCell>
+            <TableCell>Max Value</TableCell>
             <TableCell>Display</TableCell>
             {where === 'edit' && <TableCell />}
           </TableRow>
@@ -97,10 +98,21 @@ const AttributeComponent: React.FC<EditPropertyProps> = (props) => {
                 </TableCell>
                 <TableCell>
                   {where === 'edit' && (
+                    <Input
+                      style={{ width: '100%' }}
+                      value={attr.maxValue}
+                      onChange={(event) => onUpdate(index, { maxValue: event.target.value })}
+                    />
+                  )}
+                  {where === 'show' && attr.maxValue}
+                </TableCell>
+                <TableCell>
+                  {where === 'edit' && (
                     <Select
                       options={options}
                       value={selectedOption(attr.display)}
-                      onChange={(event) => onUpdate(index, { display: event.value })}
+                      onChange={(event) => onUpdate(index, { display: event?.value ?? null })}
+                      isClearable={true}
                     />
                   )}
                   {where === 'show' && attr.display}
