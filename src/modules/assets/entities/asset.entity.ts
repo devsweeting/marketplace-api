@@ -25,6 +25,7 @@ import { MarketplaceEnum } from 'modules/assets/enums/marketplace.enum';
 import { AuctionTypeEnum } from 'modules/assets/enums/auction-type.enum';
 import { Contract } from 'modules/assets/entities/contract.entity';
 import { File } from 'modules/storage/file.entity';
+import { Token } from './token.entity';
 
 @Entity('partner_assets')
 export class Asset extends BaseModel implements BaseEntityInterface {
@@ -82,6 +83,9 @@ export class Asset extends BaseModel implements BaseEntityInterface {
 
   @OneToMany(() => Label, (label) => label.asset)
   public labels: Label[];
+
+  @OneToMany(() => Token, (token) => token.asset)
+  public tokens: Token[];
 
   @ManyToOne(() => Contract, { nullable: true })
   @JoinColumn({ name: 'contractId', referencedColumnName: 'id' })

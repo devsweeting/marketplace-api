@@ -18,6 +18,7 @@ import { Session } from 'modules/auth/session/session.entity';
 import { join } from 'path';
 import { StorageModule } from 'modules/storage/storage.module';
 import { File } from 'modules/storage/file.entity';
+import { Token } from 'modules/assets/entities/token.entity';
 import { EventModule } from 'modules/events/event.module';
 import { Event } from 'modules/events/entities';
 
@@ -51,6 +52,7 @@ const appModules = [
         Session,
         File,
         Event,
+        Token,
       ],
     }),
     inject: [ConfigService],
