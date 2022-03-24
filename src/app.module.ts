@@ -19,6 +19,8 @@ import { join } from 'path';
 import { StorageModule } from 'modules/storage/storage.module';
 import { File } from 'modules/storage/file.entity';
 import { Token } from 'modules/assets/entities/token.entity';
+import { EventModule } from 'modules/events/event.module';
+import { Event } from 'modules/events/entities';
 
 const appModules = [
   AuthModule,
@@ -39,7 +41,7 @@ const appModules = [
   TypeOrmModule.forRootAsync({
     useFactory: async (configService: ConfigService) => ({
       ...configService.get('database.default'),
-      entities: [User, Partner, Asset, Attribute, Label, Contract, Session, File, Token],
+      entities: [User, Partner, Asset, Attribute, Label, Contract, Session, File, Event, Token],
     }),
     inject: [ConfigService],
   }),
@@ -53,7 +55,7 @@ if (process.env.NODE_ENV != 'DEVELOP' && process.env.NODE_ENV != 'test') {
   appModules.push(MailModule);
 }
 @Module({
-  imports: [...appModules, PartnersModule, AssetsModule, UsersModule],
+  imports: [...appModules, PartnersModule, AssetsModule, EventModule, UsersModule],
   controllers: [AppController],
   providers: [AppService],
 })
