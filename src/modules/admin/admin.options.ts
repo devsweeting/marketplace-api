@@ -13,6 +13,7 @@ import { createConnection } from 'typeorm';
 import createContractResource from 'modules/admin/resources/contract/contract.resource';
 import locale from './locale';
 import createFileResource from './resources/file/file.resource';
+import createEventResource from './resources/events/event.resource';
 
 const createAdmin = async (passwordService, configService: ConfigService) => {
   if ((await User.count({ role: RoleEnum.SUPER_ADMIN })) === 0) {
@@ -41,6 +42,7 @@ export const getAdminJSOptions = (configService: ConfigService) => {
         createContractResource(),
         createUserResource(),
         createFileResource(),
+        createEventResource(),
       ],
       databases: [],
       locale,
