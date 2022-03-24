@@ -3,6 +3,7 @@ import { BeforeInsert, Column, Entity, Index, OneToMany } from 'typeorm';
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
 import { Asset } from 'modules/assets/entities';
+import { Token } from 'modules/assets/entities/token.entity';
 
 @Entity('partners')
 export class Partner extends BaseModel implements BaseEntityInterface {
@@ -22,6 +23,9 @@ export class Partner extends BaseModel implements BaseEntityInterface {
 
   @OneToMany(() => Asset, (asset) => asset.partnerId)
   public assets: Asset[];
+
+  @OneToMany(() => Token, (token) => token.partner)
+  public tokens: Token[];
 
   @BeforeInsert()
   public beforeInsert(): void {
