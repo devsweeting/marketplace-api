@@ -10,7 +10,6 @@ export class TraitsMetaResponse {
   @ApiProperty({ example: '1' })
   public value: string;
 
-  //TODO
-  // @ApiProperty({ example: '1' })
-  // public max_value: string;
+  @ApiProperty({ example: '1' })
+  public max_value: string;
 }

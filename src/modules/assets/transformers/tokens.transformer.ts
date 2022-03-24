@@ -51,9 +51,9 @@ export class TokensTransformer {
   public traitMetaTransform(attribute: Attribute): TraitsMetaResponse {
     return {
       trait_type: attribute.trait,
-      display_type: attribute.display,
+      display_type: attribute.display ? attribute.display : null,
       value: attribute.value,
-      // max_value: attribute.maxValue,
+      max_value: attribute.maxValue ? attribute.maxValue : null,
     };
   }
 }

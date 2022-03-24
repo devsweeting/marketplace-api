@@ -20,6 +20,12 @@ export class Attribute extends BaseModel {
     length: 50,
     nullable: true,
   })
+  public maxValue: string;
+
+  @Column({
+    length: 50,
+    nullable: true,
+  })
   public display: string;
 
   @ManyToOne(() => Asset, (asset) => asset.attributes, { nullable: false })
