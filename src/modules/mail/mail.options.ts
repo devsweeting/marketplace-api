@@ -1,17 +1,21 @@
 import { ConfigService } from '@nestjs/config';
 import nodemailer from 'nodemailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import path from 'path';
+import { MailerOptions } from '@nestjs-modules/mailer';
 
-export const getMailerTransport = (configService: ConfigService): any => {
+export const getMailerTransport = (configService: ConfigService): MailerOptions => {
   return {
-    ...nodemailer.createTransport({
+    transport: nodemailer.createTransport({
       host: configService.get('mailer.default.mailerHost'),
       port: parseInt(configService.get('mailer.default.mailerPort'), 10),
       secure: configService.get('mailer.default.mailerSecure') === 'true',
-      auth: {
-        user: configService.get('mailer.default.mailerUser'),
-        pass: configService.get('mailer.default.mailerPassword'),
-      },
+      auth: configService.get('mailer.default.mailerUser')
+        ? {
+            user: configService.get('mailer.default.mailerUser'),
+            pass: configService.get('mailer.default.mailerPassword'),
+          }
+        : null,
     }),
     defaults: {
       from:
@@ -19,7 +23,7 @@ export const getMailerTransport = (configService: ConfigService): any => {
         'Notifications <notifications@jumpdemo.com>',
     },
     template: {
-      dir: __dirname + '/templates',
+      dir: path.join(__dirname, 'templates'),
       adapter: new HandlebarsAdapter(),
       options: {
         strict: true,

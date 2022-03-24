@@ -1,4 +1,4 @@
-import { File } from 'modules/storage/file.entity';
+import { File } from 'modules/storage/entities/file.entity';
 import { v4 } from 'uuid';
 import { StorageEnum } from 'modules/storage/enums/storage.enum';
 

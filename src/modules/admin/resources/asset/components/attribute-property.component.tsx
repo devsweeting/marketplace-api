@@ -1,16 +1,16 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Select from 'react-select';
 import {
-  Label,
-  FormGroup,
   Button,
+  FormGroup,
+  Icon,
+  Input,
+  Label,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
-  Input,
-  Icon,
 } from '@adminjs/design-system';
 import { EditPropertyProps, flat } from 'adminjs';
 import { displayTypes } from 'modules/assets/enums/display-type.enum';

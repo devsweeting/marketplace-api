@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Asset, Attribute } from './entities';
 import { AssetsService } from 'modules/assets/assets.service';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
 import { AssetsController } from './controllers/assets.controller';
@@ -10,7 +8,7 @@ import { TokensController } from './controllers/token.controller';
 import { TokensTransformer } from './transformers/tokens.transformer';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Asset, Attribute]), StorageModule],
+  imports: [StorageModule],
   providers: [AssetsService, AssetsTransformer, TokensService, TokensTransformer],
   controllers: [AssetsController, TokensController],
   exports: [AssetsService],

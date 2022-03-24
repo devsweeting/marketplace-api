@@ -1,1 +1,6 @@
-{}
+{
+  "messages": {
+    "Email and/or password cannot be empty": "Email and/or password cannot be empty",
+    "There are no users matching given credentials": "There are no users matching given credentials"
+  }
+}

@@ -1,16 +1,16 @@
 import {
-  Entity,
-  Column,
-  Index,
   BeforeInsert,
   BeforeUpdate,
+  Brackets,
+  Column,
+  Entity,
+  In,
+  Index,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   RelationId,
-  ManyToOne,
-  JoinColumn,
-  In,
   SelectQueryBuilder,
-  Brackets,
 } from 'typeorm';
 
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
@@ -24,8 +24,8 @@ import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 import { MarketplaceEnum } from 'modules/assets/enums/marketplace.enum';
 import { AuctionTypeEnum } from 'modules/assets/enums/auction-type.enum';
 import { Contract } from 'modules/assets/entities/contract.entity';
-import { File } from 'modules/storage/file.entity';
 import { Token } from './token.entity';
+import { File } from 'modules/storage/entities/file.entity';
 
 @Entity('partner_assets')
 export class Asset extends BaseModel implements BaseEntityInterface {
