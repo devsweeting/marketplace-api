@@ -62,9 +62,9 @@ export const getAuth = (serviceAccessor: ServiceAccessor) => {
 
       await createAdmin(passwordService, configService);
 
-      const admin = await User.findOne({ where: { email } });
+      const admin = await User.findOne({ where: { email, isDeleted: false } });
 
-      if (admin && ![RoleEnum.SUPER_ADMIN, RoleEnum.ADMIN, RoleEnum.PARTNER].includes(admin.role))
+      if (!admin || ![RoleEnum.SUPER_ADMIN, RoleEnum.ADMIN, RoleEnum.PARTNER].includes(admin.role))
         return null;
 
       const passwordMatch = admin && (await passwordService.verify(admin.password, password));
@@ -77,6 +77,16 @@ export const getAuth = (serviceAccessor: ServiceAccessor) => {
       }
 
       return null;
+    },
+    authenticateByAddress: async (address: string) => {
+      const admin = await User.findOne({ where: { address, isDeleted: false } });
+      if (!admin || ![RoleEnum.SUPER_ADMIN, RoleEnum.ADMIN, RoleEnum.USER].includes(admin.role))
+        return null;
+
+      return {
+        ...admin,
+        title: admin.role,
+      };
     },
     cookiePassword: configService.get('admin.default.cookiePassword'),
     cookieName: configService.get('admin.default.cookieName'),

@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import { LoginWelcomeLogo } from './login-welcome-logo';
 import { Web3Logo } from './web3-logo';
 import axios from 'axios';
+import { ethers } from 'ethers';
 
 const GlobalStyle = createGlobalStyle`
   html, body, #app {
@@ -260,6 +261,34 @@ export const AdminLogin = () => {
     }
   }, [email, password]);
 
+  const onWeb3Login = React.useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const message = 'Hi there! Your special nonce: ' + window.nonce;
+
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      provider.on('network', (newNetwork, oldNetwork) => {
+        if (oldNetwork) {
+          window.location.reload();
+        }
+      });
+      const addresses = await provider.send('eth_requestAccounts', []);
+      const signed = await provider.getSigner().signMessage(message);
+      await axios.post('/admin/login-web3', {
+        address: addresses[0],
+        message,
+        signed,
+      });
+      window.location.reload();
+    } catch (error) {
+      if (error.response.data?.message) {
+        setError(error.response.data.message);
+      }
+      setLoading(false);
+    }
+  }, []);
+
   return (
     <>
       <GlobalStyle />
@@ -306,7 +335,7 @@ export const AdminLogin = () => {
                     <SubmitButton type="button" onClick={onStandardLogin}>
                       <span>Login</span>
                     </SubmitButton>
-                    <SubmitButton type="button">
+                    <SubmitButton type="button" onClick={onWeb3Login}>
                       <Web3Logo />
                     </SubmitButton>
                   </ButtonWrapper>
@@ -319,6 +348,14 @@ export const AdminLogin = () => {
     </>
   );
 };
+
+declare global {
+  interface Window {
+    web3: any;
+    ethereum: any;
+    nonce: string;
+  }
+}
 
 const mountNode = window.document.getElementById('app');
 ReactDOM.render(<AdminLogin />, mountNode);

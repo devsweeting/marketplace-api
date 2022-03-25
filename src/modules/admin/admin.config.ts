@@ -8,6 +8,10 @@ import path from 'path';
 import expressSession from 'express-session';
 import bodyParser from 'body-parser';
 import { SessionRequestInterface } from 'modules/admin/interfaces/session-request.interface';
+import { v4 } from 'uuid';
+import fs from 'fs';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const ethAccounts = require('web3-eth-accounts');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const AdminJSExpress = require('@adminjs/express');
 
@@ -18,38 +22,67 @@ const getRouter = async (adminJS: AdminJS, serviceAccessor: ServiceAccessor): Pr
   const auth = getAuth(serviceAccessor);
   const session = await getSessionOptions(serviceAccessor);
 
+  const loginPath = adminJS.options.loginPath.replace(adminJS.options.rootPath, '');
+
   predefinedRouter.use(expressSession(session));
 
-  predefinedRouter.get(
-    adminJS.options.loginPath.replace(adminJS.options.rootPath, ''),
-    (req: SessionRequestInterface, res) => {
-      if (req.session.adminUser) {
-        return res.redirect(adminJS.options.rootPath);
-      }
-      return res.sendFile(path.join(__dirname, '..', '..', '..', 'public', 'login.html'));
-    },
-  );
+  predefinedRouter.get(loginPath, (req: SessionRequestInterface, res) => {
+    if (req.session.adminUser) {
+      return res.redirect(adminJS.options.rootPath);
+    }
+    req.session.nonce = v4();
+    const file = path.join(__dirname, '..', '..', '..', 'public', 'login.html');
+    return res.send(fs.readFileSync(file).toString().replace('__NONCE__', req.session.nonce));
+  });
 
-  predefinedRouter.post(
-    adminJS.options.loginPath.replace(adminJS.options.rootPath, ''),
-    async (req: SessionRequestInterface, res) => {
-      if (!req.body.email || !req.body.password)
-        return res.status(400).json({
-          message: adminJS.translateMessage('Email and/or password cannot be empty'),
-        });
+  predefinedRouter.post('/login-web3', async (req: SessionRequestInterface, res) => {
+    if (!req.body.message || !req.body.address || !req.body.signed)
+      return res.status(400).json({
+        message: adminJS.translateMessage('Invalid credentials'),
+      });
 
-      const user = await auth.authenticate(req.body.email, req.body.password);
-      if (!user)
-        return res.status(401).json({
-          message: adminJS.translateMessage('There are no users matching given credentials'),
-        });
+    if (!req.session?.nonce || !req.body.message.includes(req.session.nonce)) {
+      return res.status(401).json({
+        message: adminJS.translateMessage('Invalid nonce'),
+      });
+    }
 
-      req.session.adminUser = user;
-      await req.session.save();
+    const address = new ethAccounts().recover(req.body.message, req.body.signed);
+    if (address.toLowerCase() !== req.body.address.toLowerCase()) {
+      return res.status(401).json({
+        message: adminJS.translateMessage('Invalid signature'),
+      });
+    }
 
-      return res.status(200).json(user);
-    },
-  );
+    const user = await auth.authenticateByAddress(address);
+    if (!user)
+      return res.status(401).json({
+        message: adminJS.translateMessage('There are no users matching given address'),
+      });
+
+    req.session.adminUser = user;
+    await req.session.save();
+
+    return res.status(200).json(user);
+  });
+
+  predefinedRouter.post(loginPath, async (req: SessionRequestInterface, res) => {
+    if (!req.body.email || !req.body.password)
+      return res.status(400).json({
+        message: adminJS.translateMessage('Email and/or password cannot be empty'),
+      });
+
+    const user = await auth.authenticate(req.body.email, req.body.password);
+    if (!user)
+      return res.status(401).json({
+        message: adminJS.translateMessage('There are no users matching given credentials'),
+      });
+
+    req.session.adminUser = user;
+    await req.session.save();
+
+    return res.status(200).json(user);
+  });
 
   return AdminJSExpress.buildAuthenticatedRouter(adminJS, auth, predefinedRouter, {
     httpOnly: false,
