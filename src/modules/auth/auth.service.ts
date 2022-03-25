@@ -4,6 +4,7 @@ import { Partner } from 'modules/partners/entities';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { User } from 'modules/users/user.entity';
 import { PasswordService } from './password.service';
+
 @Injectable()
 export class AuthService {
   constructor(

@@ -9,11 +9,16 @@ import createPartnerResource from './resources/partner/partner.resource';
 import createUserResource from './resources/user/user.resource';
 import { SessionEntity, TypeormStore } from 'typeorm-store';
 import { Session } from 'modules/auth/session/session.entity';
-import { createConnection } from 'typeorm';
+import { getRepository } from 'typeorm';
 import createContractResource from 'modules/admin/resources/contract/contract.resource';
+import createEventResource from './resources/events/event.resource';
 import locale from './locale';
 import createFileResource from './resources/file/file.resource';
-import createEventResource from './resources/events/event.resource';
+import { ServiceAccessor } from 'modules/admin/utils/service.accessor';
+import AdminJS, { AdminJSOptions } from 'adminjs';
+import { Database, Resource } from '@adminjs/typeorm';
+
+AdminJS.registerAdapter({ Database, Resource });
 
 const createAdmin = async (passwordService, configService: ConfigService) => {
   if ((await User.count({ role: RoleEnum.SUPER_ADMIN })) === 0) {
@@ -26,34 +31,34 @@ const createAdmin = async (passwordService, configService: ConfigService) => {
   }
 };
 
-export const getAdminJSOptions = (configService: ConfigService) => {
+export const getAdminJSOptions = (serviceAccessor: ServiceAccessor): AdminJSOptions => {
   return {
-    adminJsOptions: {
-      rootPath: '/admin',
-      branding: {
-        companyName: 'Jump.co',
-        softwareBrothers: false,
-        logo: '/logo.svg',
-      },
-      resources: [
-        createAssetResource(configService),
-        createAttributeResource(),
-        createPartnerResource(),
-        createContractResource(),
-        createUserResource(),
-        createFileResource(),
-        createEventResource(),
-      ],
-      databases: [],
-      locale,
+    rootPath: '/admin',
+    branding: {
+      companyName: 'Jump.co',
+      softwareBrothers: false,
+      logo: '/logo.svg',
     },
+    resources: [
+      createAssetResource(serviceAccessor),
+      createAttributeResource(),
+      createPartnerResource(),
+      createContractResource(),
+      createUserResource(),
+      createFileResource(),
+      createEventResource(),
+    ],
+    databases: [],
+    locale,
   };
 };
 
-export const getAuth = (configService: ConfigService) => {
+export const getAuth = (serviceAccessor: ServiceAccessor) => {
+  const configService = serviceAccessor.getService(ConfigService);
+
   return {
     authenticate: async (email: string, password: string) => {
-      const passwordService = new PasswordService();
+      const passwordService = serviceAccessor.getService(PasswordService);
 
       await createAdmin(passwordService, configService);
 
@@ -77,15 +82,18 @@ export const getAuth = (configService: ConfigService) => {
   };
 };
 
-export const getSessionOptions = async (configService: ConfigService) => {
-  const config = configService.get('database.default');
-  const connection = await createConnection({
-    ...config,
-    entities: [Session],
-  });
-  const sessionRepository = connection.getRepository<SessionEntity>(Session);
+interface SessionOptionsInterface {
+  secret: string;
+  store: TypeormStore;
+}
+
+export const getSessionOptions = async (
+  serviceAccessor: ServiceAccessor,
+): Promise<SessionOptionsInterface> => {
+  const configService = serviceAccessor.getService(ConfigService);
+
   return {
     secret: configService.get('admin.default.sessionSecret'),
-    store: new TypeormStore({ repository: sessionRepository }),
+    store: new TypeormStore({ repository: getRepository<SessionEntity>(Session) }),
   };
 };

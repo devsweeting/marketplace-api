@@ -1,11 +1,11 @@
 import {
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-  CreateDateColumn,
+  BaseEntity,
   BeforeInsert,
   BeforeUpdate,
-  BaseEntity,
   Column,
+  CreateDateColumn,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { IsUUID } from 'class-validator';
 

@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsInt, IsEnum, IsOptional, IsString, IsNotEmpty, Min } from 'class-validator';
+import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
 import { OrderEnum } from 'modules/common/enums/order.enum';
 
 export class ListDto {

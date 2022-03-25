@@ -1,5 +1,5 @@
 import { CreateResourceResult } from '../create-resource-result.type';
-import { File } from 'modules/storage/file.entity';
+import { File } from 'modules/storage/entities/file.entity';
 
 const createFileResource = (): CreateResourceResult<typeof File> => ({
   resource: File,

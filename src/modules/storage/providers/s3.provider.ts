@@ -7,7 +7,7 @@ import mime from 'mime-types';
 import { StorageEnum } from 'modules/storage/enums/storage.enum';
 import { UploadResponseDto } from 'modules/storage/dto/upload-response.dto';
 import { AwsUploadResponseInterface } from 'modules/storage/interfaces/aws-upload-response.interface';
-import { File } from 'modules/storage/file.entity';
+import { File } from 'modules/storage/entities/file.entity';
 import { ProviderInterface } from 'modules/storage/interfaces/provider.interface';
 
 @Injectable()

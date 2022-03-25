@@ -4,14 +4,16 @@ import { StorageService } from 'modules/storage/storage.service';
 import { FileDownloadService } from 'modules/storage/file-download.service';
 import { S3Provider } from 'modules/storage/providers/s3.provider';
 import { ConfigService } from '@nestjs/config';
-import { File } from 'modules/storage/file.entity';
+import { File } from 'modules/storage/entities/file.entity';
+import { ServiceAccessor } from 'modules/admin/utils/service.accessor';
 
 export const getImage =
-  (configService: ConfigService) =>
+  (serviceAccessor: ServiceAccessor) =>
   async (response: RecordActionResponse, request: ActionRequest): Promise<RecordActionResponse> => {
     if (!isGETMethod(request)) {
       return response;
     }
+    const configService = serviceAccessor.getService(ConfigService);
     const s3Provider = new S3Provider(configService);
     const fileDownloadService = new FileDownloadService();
 
