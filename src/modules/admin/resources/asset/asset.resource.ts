@@ -5,6 +5,7 @@ import {
   SHOW_DELETED_AT,
   FILTER_PROPERTY,
   REFERENCE_FIELD,
+  EVENT_COMPONENT,
 } from 'modules/admin/components.bundler';
 import { Asset } from 'modules/assets/entities';
 import { CreateResourceResult } from '../create-resource-result.type';
@@ -22,6 +23,7 @@ import uploadFile from 'modules/admin/hooks/upload-file.after';
 import { marketNavigation } from 'modules/admin/admin.navigation';
 import { MIME_TYPES } from '../file/mime-types';
 import { getImage } from 'modules/admin/hooks/get-image.after';
+import { loadEvents } from './hooks/load-events.hook';
 
 const createAssetResource = (configService: ConfigService): CreateResourceResult<typeof Asset> => ({
   resource: Asset,
@@ -54,7 +56,7 @@ const createAssetResource = (configService: ConfigService): CreateResourceResult
         ],
       },
       show: {
-        after: [getImage(configService), getLabels, loadAttributes],
+        after: [getImage(configService), getLabels, loadAttributes, loadEvents],
         isAccessible: (context): boolean => forAdminGroup(context),
       },
       delete: {
@@ -149,6 +151,13 @@ const createAssetResource = (configService: ConfigService): CreateResourceResult
         isVisible: { edit: false, filter: true },
         components: {
           show: SHOW_DELETED_AT,
+        },
+      },
+      events: {
+        position: 13,
+        isVisible: { show: true },
+        components: {
+          show: EVENT_COMPONENT,
         },
       },
       isDeleted: {

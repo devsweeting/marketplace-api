@@ -56,7 +56,7 @@ export class Event extends BaseModel implements BaseEntityInterface {
   @Column({ name: 'total_price', type: 'float', nullable: false })
   public totalPrice: number;
 
-  @ManyToOne(() => Asset, (asset) => asset.attributes, { nullable: false })
+  @ManyToOne(() => Asset, (asset) => asset.events, { nullable: false })
   @JoinColumn({ name: 'asset_id', referencedColumnName: 'id' })
   public asset: Asset;
 

@@ -25,6 +25,7 @@ import { MarketplaceEnum } from 'modules/assets/enums/marketplace.enum';
 import { AuctionTypeEnum } from 'modules/assets/enums/auction-type.enum';
 import { Contract } from 'modules/assets/entities/contract.entity';
 import { File } from 'modules/storage/file.entity';
+import { Event } from 'modules/events/entities';
 
 @Entity('partner_assets')
 export class Asset extends BaseModel implements BaseEntityInterface {
@@ -91,6 +92,9 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   @RelationId((asset: Asset) => asset.contract)
   public contractId: string;
 
+  @OneToMany(() => Event, (event) => event.asset)
+  public events: Event[];
+
   @BeforeInsert()
   public beforeInsert(): void {
     this.slug = generateSlug(this.name);
@@ -100,6 +104,14 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   public beforeUpdate(): void {
     this.slug = generateSlug(this.name);
   }
+
+  //TODO after merge partner user mapping
+  // @AfterInsert()
+  // public async afterInsert(): Promise<void> {
+  //   const partner = await Partner.findOne({ where: { id: this.partnerId } });
+  //   const event = new Event({ fromAccount: partner.accountOwnerId });
+  //   await event.save();
+  // }
 
   public static findDuplicatedByRefIds(refIds: string[]): Promise<Asset[]> {
     return Asset.find({
