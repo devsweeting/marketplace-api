@@ -12,15 +12,10 @@ yarn
 
 ## Configuration
 
-Create your .env configuration file.  You may need additional crednetials
-here depending on what you are testing.
-
-```bash
-cp .env.template .env
-```
+You can override your environment variables in file `.env.local`, but it's not necessary for development environment
 
 ## Running the app
-Start Postgres locally
+Start Postgres and mail server (mailhog) locally
 ```bash
 docker-compose up -d
 ```
@@ -30,9 +25,14 @@ Add test data to database (optional)
 yarn fixtures
 ```
 
+Bundle custom login page
+```bash
+yarn bundle
+```
+
 Start development server
 ```bash
-yarn dev
+yarn start:dev
 ```
 
 ## API Docs

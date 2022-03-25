@@ -5,11 +5,16 @@ import { setupSwagger } from './middleware/swagger';
 import { HttpExceptionFilter } from './exception.filter';
 import validationPipe from 'modules/common/pipes/validation.pipe';
 import { SanitizePipe } from 'modules/common/pipes/sanitize.pipe';
+import path from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import setUpAdminJS from 'modules/admin/admin.config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: true,
   });
+
+  const configService = app.get(ConfigService);
 
   app.useGlobalPipes(new SanitizePipe());
   app.useGlobalPipes(validationPipe);
@@ -17,13 +22,17 @@ async function bootstrap() {
   // We may decide to make the swagger documentation public at some point,
   // but for now it's going to only be available in development mode.
   if (process.env.NODE_ENV === 'DEVELOP' || process.env.NODE_ENV === 'TEST') {
-    setupSwagger({ app });
+    setupSwagger(app);
   }
 
-  const configService = app.get(ConfigService);
-  const serverConfig = configService.get('server').default;
-  const port = serverConfig.port;
+  if (process.env.NODE_ENV == 'DEVELOP' || process.env.NODE_ENV == 'ADMIN') {
+    await setUpAdminJS(app);
+  }
+
+  const port = configService.get('server.default.port');
   app.useGlobalFilters(new HttpExceptionFilter());
+  app.setViewEngine('hbs');
+  app.setBaseViewsDir(path.join(__dirname, 'modules', 'admin', 'views'));
 
   await app.listen(port);
 

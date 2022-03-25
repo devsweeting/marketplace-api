@@ -1,6 +1,6 @@
 import { UploadedFile } from 'adminjs';
 import { UploadResponseDto } from 'modules/storage/dto/upload-response.dto';
-import { File } from 'modules/storage/file.entity';
+import { File } from 'modules/storage/entities/file.entity';
 
 export interface ProviderInterface {
   upload(filePath: string, directory: string): Promise<UploadResponseDto>;

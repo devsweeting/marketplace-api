@@ -1,15 +1,15 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-  Label,
-  FormGroup,
   Button,
+  FormGroup,
+  Icon,
+  Input,
+  Label,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
-  Input,
-  Icon,
 } from '@adminjs/design-system';
 import { EditPropertyProps, flat } from 'adminjs';
 

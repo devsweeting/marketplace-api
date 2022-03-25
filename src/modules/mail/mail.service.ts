@@ -1,7 +1,8 @@
-import { Injectable, BadGatewayException, Logger } from '@nestjs/common';
+import { BadGatewayException, Injectable, Logger } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 import { SentMessageInfo } from 'nodemailer';
 import mailInfo from './interfaces/mailInfo.interface';
+
 @Injectable()
 export class MailService {
   constructor(private readonly mailerService: MailerService) {}
