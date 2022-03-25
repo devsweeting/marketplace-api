@@ -1,6 +1,10 @@
 import { CreateResourceResult } from '../create-resource-result.type';
 import { Partner } from '../../../../modules/partners/entities';
-import { SHOW_DELETED_AT } from 'modules/admin/components.bundler';
+import {
+  FILTER_PROPERTY,
+  REFERENCE_FIELD,
+  SHOW_DELETED_AT,
+} from 'modules/admin/components.bundler';
 import { forAdminGroup } from '../user/user-permissions';
 import bulkSoftDeleteHandler from 'modules/admin/hooks/bulk-soft-delete.handler';
 import softDeleteHandler from 'modules/admin/hooks/soft-delete.handler';
@@ -62,22 +66,35 @@ const createPartnerResource = (): CreateResourceResult<typeof Partner> => ({
         position: 3,
         isVisible: { edit: false, show: true },
       },
-      deletedAt: {
+      accountOwnerId: {
         position: 4,
+        type: 'reference',
+        reference: 'User',
+        components: {
+          edit: REFERENCE_FIELD,
+          filter: FILTER_PROPERTY,
+        },
+        custom: {
+          searchProperty: 'email',
+          resourceId: 'User',
+        },
+      },
+      deletedAt: {
+        position: 5,
         isVisible: { edit: false, show: true, filter: true },
         components: {
           show: SHOW_DELETED_AT,
         },
       },
       isDeleted: {
-        position: 5,
+        position: 6,
         isVisible: { edit: false, show: true, filter: true },
       },
       createdAt: {
-        position: 6,
+        position: 7,
       },
       updatedAt: {
-        position: 7,
+        position: 8,
       },
     },
     navigation: userAndOrgNavigation,

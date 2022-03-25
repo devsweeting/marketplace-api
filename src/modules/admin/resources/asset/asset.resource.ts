@@ -1,31 +1,33 @@
 import {
   ATTRIBUTE_COMPONENT,
-  PHOTO_PROPERTY,
-  IMAGE_UPLOAD,
-  SHOW_DELETED_AT,
   FILTER_PROPERTY,
+  IMAGE_UPLOAD,
+  LABELS_COMPONENT,
+  PHOTO_PROPERTY,
   REFERENCE_FIELD,
   EVENT_COMPONENT,
+  SHOW_DELETED_AT,
 } from 'modules/admin/components.bundler';
 import { Asset } from 'modules/assets/entities';
 import { CreateResourceResult } from '../create-resource-result.type';
 import { loadAttributes } from './hooks/load-attributes.hook';
 import { saveAttributes } from './hooks/save-attributes.hook';
-import { LABELS_COMPONENT } from 'modules/admin/components.bundler';
 import { saveLabels } from 'modules/admin/resources/asset/hooks/save-labels.hook';
 import { getLabels } from './hooks/get-labels.hook';
 import { forAdminGroup } from 'modules/admin/resources/user/user-permissions';
 import { filterByIsDeleted } from 'modules/admin/hooks/filter-is-deleted-records';
 import bulkSoftDeleteHandler from 'modules/admin/hooks/bulk-soft-delete.handler';
 import { softDeleteHandler } from 'modules/admin/hooks/soft-delete.handler';
-import { ConfigService } from '@nestjs/config';
 import uploadFile from 'modules/admin/hooks/upload-file.after';
 import { marketNavigation } from 'modules/admin/admin.navigation';
 import { MIME_TYPES } from '../file/mime-types';
 import { getImage } from 'modules/admin/hooks/get-image.after';
 import { loadEvents } from './hooks/load-events.hook';
+import { ServiceAccessor } from 'modules/admin/utils/service.accessor';
 
-const createAssetResource = (configService: ConfigService): CreateResourceResult<typeof Asset> => ({
+const createAssetResource = (
+  serviceAccessor: ServiceAccessor,
+): CreateResourceResult<typeof Asset> => ({
   resource: Asset,
   features: [
     (options): object => ({
@@ -42,21 +44,21 @@ const createAssetResource = (configService: ConfigService): CreateResourceResult
       },
       new: {
         isAccessible: (context): boolean => forAdminGroup(context),
-        after: [saveLabels, saveAttributes, uploadFile('image', configService)],
+        after: [saveLabels, saveAttributes, uploadFile('image', serviceAccessor)],
       },
       edit: {
         isAccessible: (context): boolean => forAdminGroup(context),
         after: [
-          getImage(configService),
+          getImage(serviceAccessor),
           getLabels,
           saveLabels,
           loadAttributes,
           saveAttributes,
-          uploadFile('image', configService),
+          uploadFile('image', serviceAccessor),
         ],
       },
       show: {
-        after: [getImage(configService), getLabels, loadAttributes, loadEvents],
+        after: [getImage(serviceAccessor), getLabels, loadAttributes, loadEvents],
         isAccessible: (context): boolean => forAdminGroup(context),
       },
       delete: {

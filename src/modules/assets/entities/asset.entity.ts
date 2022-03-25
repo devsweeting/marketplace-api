@@ -1,16 +1,16 @@
 import {
-  Entity,
-  Column,
-  Index,
   BeforeInsert,
   BeforeUpdate,
+  Brackets,
+  Column,
+  Entity,
+  In,
+  Index,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   RelationId,
-  ManyToOne,
-  JoinColumn,
-  In,
   SelectQueryBuilder,
-  Brackets,
 } from 'typeorm';
 
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
@@ -24,8 +24,9 @@ import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 import { MarketplaceEnum } from 'modules/assets/enums/marketplace.enum';
 import { AuctionTypeEnum } from 'modules/assets/enums/auction-type.enum';
 import { Contract } from 'modules/assets/entities/contract.entity';
-import { File } from 'modules/storage/file.entity';
 import { Event } from 'modules/events/entities';
+import { Token } from './token.entity';
+import { File } from 'modules/storage/entities/file.entity';
 
 @Entity('partner_assets')
 export class Asset extends BaseModel implements BaseEntityInterface {
@@ -84,6 +85,9 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   @OneToMany(() => Label, (label) => label.asset)
   public labels: Label[];
 
+  @OneToMany(() => Token, (token) => token.asset)
+  public tokens: Token[];
+
   @ManyToOne(() => Contract, { nullable: true })
   @JoinColumn({ name: 'contractId', referencedColumnName: 'id' })
   public contract: Contract;
@@ -104,14 +108,6 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   public beforeUpdate(): void {
     this.slug = generateSlug(this.name);
   }
-
-  //TODO after merge partner user mapping
-  // @AfterInsert()
-  // public async afterInsert(): Promise<void> {
-  //   const partner = await Partner.findOne({ where: { id: this.partnerId } });
-  //   const event = new Event({ fromAccount: partner.accountOwnerId });
-  //   await event.save();
-  // }
 
   public static findDuplicatedByRefIds(refIds: string[]): Promise<Asset[]> {
     return Asset.find({

@@ -48,6 +48,9 @@ jobs:
       - name: 'Build'
         run: yarn build
 
+      - name: 'Bundle'
+        run: yarn bundle
+
       - name: 'Fixtures'
         run: yarn fixtures
         env:

@@ -3,7 +3,7 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "assets": [
-      "modules/mail/templates/**/*"
+      "modules/**/*.hbs"
     ],
     "watchAssets": true
   }

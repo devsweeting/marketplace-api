@@ -1,8 +1,9 @@
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
 import { AssetResponse } from 'modules/assets/interfaces/response/asset.response';
+import { INestApplication } from '@nestjs/common';
 
-export const setupSwagger = ({ app }) => {
+export const setupSwagger = (app: INestApplication) => {
   const options = new DocumentBuilder()
     .setTitle('Jump API')
     .setDescription('Jump.co API')

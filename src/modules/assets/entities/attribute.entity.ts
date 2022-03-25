@@ -1,9 +1,10 @@
 import { BaseModel } from '../../common/entities/base.model';
 import { Column, Entity, JoinColumn, ManyToOne, RelationId } from 'typeorm';
 import { Asset } from './';
+import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 
 @Entity('asset_attributes')
-export class Attribute extends BaseModel {
+export class Attribute extends BaseModel implements BaseEntityInterface {
   @Column({
     length: 50,
     nullable: false,
@@ -15,6 +16,12 @@ export class Attribute extends BaseModel {
     nullable: false,
   })
   public value: string;
+
+  @Column({
+    length: 50,
+    nullable: true,
+  })
+  public maxValue: string;
 
   @Column({
     length: 50,

@@ -1,9 +1,9 @@
 import {
+  ActionHandler,
   ActionRequest,
   ActionResponse,
   BulkActionResponse,
   NotFoundError,
-  ActionHandler,
 } from 'adminjs';
 
 export const bulkSoftDeleteHandler: ActionHandler<BulkActionResponse> = async (
