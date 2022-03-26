@@ -10,8 +10,7 @@ import bodyParser from 'body-parser';
 import { SessionRequestInterface } from 'modules/admin/interfaces/session-request.interface';
 import { v4 } from 'uuid';
 import fs from 'fs';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const ethAccounts = require('web3-eth-accounts');
+import { ethers } from 'ethers';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const AdminJSExpress = require('@adminjs/express');
 
@@ -47,7 +46,7 @@ const getRouter = async (adminJS: AdminJS, serviceAccessor: ServiceAccessor): Pr
       });
     }
 
-    const address = new ethAccounts().recover(req.body.message, req.body.signed);
+    const address = ethers.utils.verifyMessage(req.body.message, req.body.signed);
     if (address.toLowerCase() !== req.body.address.toLowerCase()) {
       return res.status(401).json({
         message: adminJS.translateMessage('Invalid signature'),
