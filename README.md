@@ -50,17 +50,17 @@ Metamask for testing locally and via staging.
 Keep in mind that this ether has to mined and most test transactions can be done with .01 - .05 eth
 
 Jump Test 1 (Super Admin)
-0xF467Fb921d2EEb81961057d82Bb0350f688398e8
-afba7de138c51b95fece9d5893ee1b9cee41ba00d6839ccc55563d79ce5341b8
+address: 0xF467Fb921d2EEb81961057d82Bb0350f688398e8
+     pk: afba7de138c51b95fece9d5893ee1b9cee41ba00d6839ccc55563d79ce5341b8
 
 
 Jump Test 2
-0xEd90010E9F6af8367A0ea3f54900c2dA09E00777
-2de73ed8b3e7b1378677b0f74004f7da48da23187cdda23b40e5566362b1a89b
+address: 0xEd90010E9F6af8367A0ea3f54900c2dA09E00777
+     pk: 2de73ed8b3e7b1378677b0f74004f7da48da23187cdda23b40e5566362b1a89b
 
 Jump Text 3
-0xB4eE90a462559600dFe34AAa30Ac7dC3d28e3d5d
-e70206e2ba62124531bada75cd23b45d847840e950de07fb73088ac92c3027c6
+address: 0xB4eE90a462559600dFe34AAa30Ac7dC3d28e3d5d
+     pk: e70206e2ba62124531bada75cd23b45d847840e950de07fb73088ac92c3027c6
 
 ## Terminology
 
