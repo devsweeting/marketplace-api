@@ -6,7 +6,7 @@ export default registerAs('admin', () => {
       cookiePassword: process.env.COOKIE_PASSWORD,
       cookieName: process.env.COOKIE_NAME,
       adminEmail: process.env.ADMIN_EMAIL,
-      adminPassword: process.env.ADMIN_PASSWORD,
+      adminAddress: process.env.ADMIN_ADDRESS,
       sessionSecret: process.env.SESSION_SECRET,
     },
   };

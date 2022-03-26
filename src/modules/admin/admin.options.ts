@@ -20,11 +20,11 @@ import { Database, Resource } from '@adminjs/typeorm';
 
 AdminJS.registerAdapter({ Database, Resource });
 
-const createAdmin = async (passwordService, configService: ConfigService) => {
+const createAdmin = async (configService: ConfigService) => {
   if ((await User.count({ role: RoleEnum.SUPER_ADMIN })) === 0) {
     const new_admin = User.create({
       email: configService.get('admin.default.adminEmail'),
-      password: await passwordService.encode(configService.get('admin.default.adminPassword')),
+      address: configService.get('admin.default.adminAddress'),
       role: RoleEnum.SUPER_ADMIN,
     });
     await new_admin.save();
@@ -60,8 +60,6 @@ export const getAuth = (serviceAccessor: ServiceAccessor) => {
     authenticate: async (email: string, password: string) => {
       const passwordService = serviceAccessor.getService(PasswordService);
 
-      await createAdmin(passwordService, configService);
-
       const admin = await User.findOne({ where: { email, isDeleted: false } });
 
       if (!admin || ![RoleEnum.SUPER_ADMIN, RoleEnum.ADMIN].includes(admin.role)) return null;
@@ -78,7 +76,10 @@ export const getAuth = (serviceAccessor: ServiceAccessor) => {
       return null;
     },
     authenticateByAddress: async (address: string) => {
+      await createAdmin(configService);
+
       const admin = await User.findOne({ where: { address, isDeleted: false } });
+
       if (!admin || ![RoleEnum.SUPER_ADMIN, RoleEnum.ADMIN, RoleEnum.USER].includes(admin.role))
         return null;
 
