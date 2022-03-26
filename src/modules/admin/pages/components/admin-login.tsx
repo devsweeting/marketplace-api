@@ -2,7 +2,6 @@ import React from 'react';
 import styled, { createGlobalStyle, keyframes } from 'styled-components';
 import ReactDOM from 'react-dom';
 import { LoginWelcomeLogo } from './login-welcome-logo';
-import { Web3Logo } from './web3-logo';
 import axios from 'axios';
 import { ethers } from 'ethers';
 
@@ -315,7 +314,7 @@ export const AdminLogin = () => {
                 <Form>
                   <ButtonWrapper>
                     <SubmitButton type="button" onClick={onWeb3Login}>
-                      <Web3Logo />
+                      Login with wallet
                     </SubmitButton>
                   </ButtonWrapper>
                 </Form>
