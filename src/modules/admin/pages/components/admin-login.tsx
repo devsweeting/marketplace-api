@@ -2,7 +2,6 @@ import React from 'react';
 import styled, { createGlobalStyle, keyframes } from 'styled-components';
 import ReactDOM from 'react-dom';
 import { LoginWelcomeLogo } from './login-welcome-logo';
-import { Web3Logo } from './web3-logo';
 import axios from 'axios';
 import { ethers } from 'ethers';
 
@@ -265,7 +264,7 @@ export const AdminLogin = () => {
     try {
       setLoading(true);
       setError(null);
-      const message = 'Hi there! Your special nonce: ' + window.nonce;
+      const message = 'Sign here to login to Jump!\nLogin nonce: ' + window.nonce;
 
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       provider.on('network', (newNetwork, oldNetwork) => {
@@ -313,30 +312,9 @@ export const AdminLogin = () => {
             ) : (
               <>
                 <Form>
-                  <FormGroup>
-                    <Label required>Email</Label>
-                    <Input
-                      name="email"
-                      placeholder="Email"
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </FormGroup>
-                  <FormGroup>
-                    <Label required>Password</Label>
-                    <Input
-                      type="password"
-                      name="password"
-                      placeholder="Password"
-                      autoComplete="password"
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </FormGroup>
                   <ButtonWrapper>
-                    <SubmitButton type="button" onClick={onStandardLogin}>
-                      <span>Login</span>
-                    </SubmitButton>
                     <SubmitButton type="button" onClick={onWeb3Login}>
-                      <Web3Logo />
+                      Login with wallet
                     </SubmitButton>
                   </ButtonWrapper>
                 </Form>
