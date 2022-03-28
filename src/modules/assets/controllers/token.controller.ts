@@ -6,8 +6,8 @@ import { TokenResponse } from '../interfaces/response/tokens/token.response';
 import { TokensService } from '../services/token.service';
 import { TokensTransformer } from '../transformers/tokens.transformer';
 
-@ApiTags('nft')
-@Controller('nft')
+@ApiTags('token')
+@Controller('token')
 export class TokensController {
   constructor(
     private readonly tokensService: TokensService,
