@@ -5,6 +5,7 @@ import { Partner, PartnerMemberUser } from 'modules/partners/entities';
 import { User } from 'modules/users/user.entity';
 import { Session } from 'modules/auth/session/session.entity';
 import { Event } from 'modules/events/entities';
+import { AssetSubscriber } from 'modules/assets/subscribers/after-insert';
 
 export default registerAs('database', () => {
   return {
@@ -33,6 +34,7 @@ export default registerAs('database', () => {
         Event,
         Token,
       ],
+      subscribers: [AssetSubscriber],
     },
   };
 });

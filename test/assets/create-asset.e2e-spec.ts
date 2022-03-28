@@ -15,6 +15,7 @@ import { v4 } from 'uuid';
 import { User } from 'modules/users/user.entity';
 import { createUser } from '../utils/fixtures/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
+import { Event } from 'modules/events/entities';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -45,6 +46,7 @@ describe('AssetsController', () => {
   afterEach(async () => {
     jest.clearAllMocks();
     await Attribute.delete({});
+    await Event.delete({});
     await Asset.delete({});
   });
 

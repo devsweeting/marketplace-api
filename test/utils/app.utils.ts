@@ -6,8 +6,9 @@ import { AppModule } from '@/src/app.module';
 import { AuthModule } from '@/src/modules/auth/auth.module';
 import validationPipe from '@/src/modules/common/pipes/validation.pipe';
 import { User } from 'modules/users/user.entity';
-import { Asset, Attribute } from 'modules/assets/entities';
-import { Partner } from 'modules/partners/entities';
+import { Asset, Attribute, Label } from 'modules/assets/entities';
+import { Event } from 'modules/events/entities';
+import { Partner, PartnerMemberUser } from 'modules/partners/entities';
 import { S3Provider } from 'modules/storage/providers/s3.provider';
 import { FileDownloadService } from 'modules/storage/file-download.service';
 
@@ -62,7 +63,10 @@ export const createApp = async (providers: MockProvider[] = []): Promise<INestAp
 
 export const clearAllData = async (): Promise<void> => {
   await Attribute.delete({});
+  await Label.delete({});
+  await Event.delete({});
   await Asset.delete({});
+  await PartnerMemberUser.delete({});
   await Partner.delete({});
   await User.delete({});
 };

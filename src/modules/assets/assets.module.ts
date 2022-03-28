@@ -6,10 +6,11 @@ import { StorageModule } from 'modules/storage/storage.module';
 import { TokensService } from './services/token.service';
 import { TokensController } from './controllers/token.controller';
 import { TokensTransformer } from './transformers/tokens.transformer';
+import { AssetSubscriber } from './subscribers/after-insert';
 
 @Module({
   imports: [StorageModule],
-  providers: [AssetsService, AssetsTransformer, TokensService, TokensTransformer],
+  providers: [AssetsService, AssetsTransformer, TokensService, TokensTransformer, AssetSubscriber],
   controllers: [AssetsController, TokensController],
   exports: [AssetsService],
 })
