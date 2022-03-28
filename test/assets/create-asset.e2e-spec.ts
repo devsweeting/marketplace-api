@@ -12,17 +12,23 @@ import { Partner } from 'modules/partners/entities';
 import { Asset, Attribute } from 'modules/assets/entities';
 import { StorageEnum } from 'modules/storage/enums/storage.enum';
 import { v4 } from 'uuid';
+import { User } from 'modules/users/user.entity';
+import { createUser } from '../utils/fixtures/create-user';
+import { RoleEnum } from 'modules/users/enums/role.enum';
 
 describe('AssetsController', () => {
   let app: INestApplication;
   let partner: Partner;
+  let user: User;
   const mockedUrl = 'https://example.com';
   const mockTmpFilePath = '/tmp/temp-file.jpeg';
 
   beforeAll(async () => {
     app = await createApp();
+    user = await createUser({ email: 'partner@test.com', role: RoleEnum.USER });
     partner = await createPartner({
       apiKey: 'test-api-key',
+      accountOwner: user,
     });
     mockS3Provider.getUrl.mockReturnValue(mockedUrl);
     mockS3Provider.upload.mockReturnValue({
@@ -282,8 +288,10 @@ describe('AssetsController', () => {
     });
 
     it('should throw an exception if partner is deleted', async () => {
+      const anotherUser = await createUser({});
       const deletedPartner = await createPartner({
         apiKey: 'deleted-partner-api-key',
+        accountOwner: anotherUser,
         deletedAt: new Date(),
         isDeleted: true,
       });

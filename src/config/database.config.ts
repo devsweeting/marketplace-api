@@ -1,7 +1,7 @@
 import { registerAs } from '@nestjs/config';
 import { Asset, Attribute, Contract, Label, Token } from 'modules/assets/entities';
 import { File } from 'modules/storage/entities/file.entity';
-import { Partner } from 'modules/partners/entities';
+import { Partner, PartnerMemberUser } from 'modules/partners/entities';
 import { User } from 'modules/users/user.entity';
 import { Session } from 'modules/auth/session/session.entity';
 import { Event } from 'modules/events/entities';
@@ -20,7 +20,19 @@ export default registerAs('database', () => {
       logging: process.env.TYPEORM_LOGGING,
       migrationsRun: false,
       keepConnectionAlive: true,
-      entities: [Asset, Attribute, Label, File, Partner, Contract, User, Session, Event, Token],
+      entities: [
+        Asset,
+        Attribute,
+        Label,
+        File,
+        Partner,
+        PartnerMemberUser,
+        Contract,
+        User,
+        Session,
+        Event,
+        Token,
+      ],
     },
   };
 });

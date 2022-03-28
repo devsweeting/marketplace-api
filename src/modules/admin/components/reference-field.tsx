@@ -22,7 +22,7 @@ const SingleReferenceEdit = (props) => {
     );
   }
 
-  const isMulti = property.isArray;
+  const isMulti = property.isArray || property.custom.isArray;
   const selectedRaw = flat.get(record.params, property.path);
   const selectedIds = Array.isArray(selectedRaw) ? selectedRaw : [selectedRaw].filter(Boolean);
 
