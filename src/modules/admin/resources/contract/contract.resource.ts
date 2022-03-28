@@ -12,7 +12,7 @@ const createContractResource = (): CreateResourceResult<typeof Contract> => ({
   features: [
     (options): object => ({
       ...options,
-      listProperties: ['address', 'name', 'symbol', 'externalLink'],
+      listProperties: ['address', 'name', 'symbol', 'chain', 'externalLink'],
     }),
   ],
   options: {
