@@ -1,0 +1,10 @@
+{
+  "messages": {
+    "eventsTable.event": "Event",
+    "eventsTable.unitPrice": "Unit Price",
+    "eventsTable.quantity": "Quantity",
+    "eventsTable.from": "From",
+    "eventsTable.to": "To",
+    "eventsTable.date": "Date"
+  }
+}

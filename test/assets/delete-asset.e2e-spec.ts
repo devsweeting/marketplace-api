@@ -8,17 +8,23 @@ import { Asset, Attribute } from 'modules/assets/entities';
 import { createAttribute } from '@/test/utils/attribute.utils';
 import { v4 } from 'uuid';
 import { createFile } from '@/test/utils/file.utils';
+import { User } from 'modules/users/user.entity';
+import { createUser } from '../utils/fixtures/create-user';
+import { RoleEnum } from 'modules/users/enums/role.enum';
 
 describe('AssetsController', () => {
   let app: INestApplication;
   let partner: Partner;
   let asset: Asset;
   let attribute: Attribute;
+  let user: User;
 
   beforeAll(async () => {
     app = await createApp();
+    user = await createUser({ email: 'partner@test.com', role: RoleEnum.USER });
     partner = await createPartner({
       apiKey: 'test-api-key',
+      accountOwner: user,
     });
     asset = await createAsset({
       refId: '1',
@@ -84,8 +90,10 @@ describe('AssetsController', () => {
     });
 
     it('should throw 404 exception if asset does not belong to the partner', async () => {
+      const anotherUser = await createUser({});
       const otherPartner = await createPartner({
         apiKey: 'other-test-api-key',
+        accountOwner: anotherUser,
       });
       const otherAsset = await createAsset({ partner: otherPartner });
 

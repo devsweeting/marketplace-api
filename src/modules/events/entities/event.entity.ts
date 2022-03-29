@@ -33,7 +33,7 @@ export class Event extends BaseModel implements BaseEntityInterface {
   @Column({
     type: 'enum',
     enum: PaymentTokenEnum,
-    nullable: false,
+    nullable: true,
   })
   public paymentToken: PaymentTokenEnum;
 
@@ -48,13 +48,13 @@ export class Event extends BaseModel implements BaseEntityInterface {
   @Column({ nullable: false, default: false })
   public isPrivate: boolean;
 
-  @Column({ default: 1, nullable: false })
+  @Column({ default: 1, nullable: true })
   public quantity: number;
 
-  @Column({ type: 'float', nullable: false })
+  @Column({ type: 'float', nullable: true })
   public totalPrice: number;
 
-  @ManyToOne(() => Asset, (asset) => asset.attributes, { nullable: false })
+  @ManyToOne(() => Asset, (asset) => asset.events, { nullable: false })
   @JoinColumn({ referencedColumnName: 'id' })
   public asset: Asset;
 
