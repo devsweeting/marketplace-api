@@ -79,12 +79,6 @@ const Form = styled.form`
   width: 100%;
 `;
 
-const FormGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding-bottom: 16px;
-`;
-
 const ErrorBox = styled.div`
   font-family: Roboto, sans-serif;
   font-size: 12px;
@@ -99,41 +93,6 @@ const ErrorBox = styled.div`
   justify-content: center;
   align-items: center;
   width: 100%;
-`;
-
-const Label = styled.label`
-  display: block;
-  font-size: 12px;
-  line-height: 16px;
-  margin-bottom: 8px;
-
-  &[required] {
-    &:before {
-      content: '*';
-      color: #4268f6;
-      margin-right: 4px;
-      display: block-inline;
-    }
-  }
-`;
-
-const Input = styled.input`
-  box-sizing: border-box;
-  color: #454655;
-  background: transparent;
-  border: 1px solid #c0c0ca;
-  font-size: 14px;
-  line-height: 24px;
-  font-family: 'Roboto', sans-serif;
-  outline: none;
-  padding-left: 8px;
-  padding-right: 8px;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  &:focus {
-    border-color: #4268f6;
-    box-shadow: 0 1px 4px 0 rgb(56 202 241 / 58%);
-  }
 `;
 
 const SubmitButton = styled.button` 
@@ -239,28 +198,11 @@ const Logo = styled.img`
   margin-top: 12px;
 `;
 
-const errAdminNotFound = 'There are no users matching given credentials';
-
 export const AdminLogin = () => {
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
   const [error, setError] = React.useState('');
   const [loading, setLoading] = React.useState(false);
 
-  const onStandardLogin = React.useCallback(async () => {
-    if (!email.length || !password.length) return;
-    setLoading(true);
-    setError('');
-    try {
-      await axios.post('/admin/login', { email, password });
-      window.location.reload();
-    } catch (error) {
-      setError(error.response?.data?.message || errAdminNotFound);
-      setLoading(false);
-    }
-  }, [email, password]);
-
-  const onWeb3Login = React.useCallback(async () => {
+  const onLogin = React.useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -274,7 +216,7 @@ export const AdminLogin = () => {
       });
       const addresses = await provider.send('eth_requestAccounts', []);
       const signed = await provider.getSigner().signMessage(message);
-      await axios.post('/admin/login-web3', {
+      await axios.post('/admin/login', {
         address: addresses[0],
         message,
         signed,
@@ -313,7 +255,7 @@ export const AdminLogin = () => {
               <>
                 <Form>
                   <ButtonWrapper>
-                    <SubmitButton type="button" onClick={onWeb3Login}>
+                    <SubmitButton type="button" onClick={onLogin}>
                       Login with wallet
                     </SubmitButton>
                   </ButtonWrapper>

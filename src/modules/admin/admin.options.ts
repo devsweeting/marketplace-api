@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { ConfigService } from '@nestjs/config';
-import { PasswordService } from 'modules/auth/password.service';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { User } from 'modules/users/user.entity';
 import createAssetResource from './resources/asset/asset.resource';
@@ -57,34 +56,12 @@ export const getAuth = (serviceAccessor: ServiceAccessor) => {
   const configService = serviceAccessor.getService(ConfigService);
 
   return {
-    authenticate: async (email: string, password: string) => {
-      const passwordService = serviceAccessor.getService(PasswordService);
-
-      await createAdmin(configService);
-
-      const admin = await User.findOne({ where: { email, isDeleted: false } });
-
-      if (!admin || ![RoleEnum.SUPER_ADMIN, RoleEnum.ADMIN, RoleEnum.USER].includes(admin.role))
-        return null;
-
-      const passwordMatch = admin && (await passwordService.verify(admin.password, password));
-      delete admin?.password;
-      if (passwordMatch && admin) {
-        return {
-          ...admin,
-          title: admin.role,
-        };
-      }
-
-      return null;
-    },
-    authenticateByAddress: async (address: string) => {
+    authenticate: async (address: string) => {
       await createAdmin(configService);
 
       const admin = await User.findOne({ where: { address, isDeleted: false } });
 
-      if (!admin || ![RoleEnum.SUPER_ADMIN, RoleEnum.ADMIN, RoleEnum.USER].includes(admin.role))
-        return null;
+      if (!admin || ![RoleEnum.SUPER_ADMIN, RoleEnum.ADMIN].includes(admin.role)) return null;
 
       return {
         ...admin,

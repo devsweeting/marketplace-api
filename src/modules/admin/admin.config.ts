@@ -34,7 +34,7 @@ const getRouter = async (adminJS: AdminJS, serviceAccessor: ServiceAccessor): Pr
     return res.send(fs.readFileSync(file).toString().replace('__NONCE__', req.session.nonce));
   });
 
-  predefinedRouter.post('/login-web3', async (req: SessionRequestInterface, res) => {
+  predefinedRouter.post(loginPath, async (req: SessionRequestInterface, res) => {
     if (!req.body.message || !req.body.address || !req.body.signed)
       return res.status(400).json({
         message: adminJS.translateMessage('Invalid credentials'),
@@ -53,28 +53,10 @@ const getRouter = async (adminJS: AdminJS, serviceAccessor: ServiceAccessor): Pr
       });
     }
 
-    const user = await auth.authenticateByAddress(address);
+    const user = await auth.authenticate(address);
     if (!user)
       return res.status(401).json({
         message: adminJS.translateMessage('There are no users matching given address'),
-      });
-
-    req.session.adminUser = user;
-    await req.session.save();
-
-    return res.status(200).json(user);
-  });
-
-  predefinedRouter.post(loginPath, async (req: SessionRequestInterface, res) => {
-    if (!req.body.email || !req.body.password)
-      return res.status(400).json({
-        message: adminJS.translateMessage('Email and/or password cannot be empty'),
-      });
-
-    const user = await auth.authenticate(req.body.email, req.body.password);
-    if (!user)
-      return res.status(401).json({
-        message: adminJS.translateMessage('There are no users matching given credentials'),
       });
 
     req.session.adminUser = user;
