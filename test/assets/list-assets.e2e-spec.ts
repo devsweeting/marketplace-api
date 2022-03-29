@@ -6,15 +6,28 @@ import { createAsset } from '@/test/utils/asset.utils';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
 import { createFile } from '@/test/utils/file.utils';
 
+import { Partner } from 'modules/partners/entities';
+import { RoleEnum } from 'modules/users/enums/role.enum';
+import { createUser } from '../utils/fixtures/create-user';
+import { createPartner } from '../utils/partner.utils';
+import { User } from 'modules/users/user.entity';
+
 describe('AssetsController', () => {
   let app: INestApplication;
   let assets: Asset[];
+  let partner: Partner;
+  let user: User;
   let assetsTransformer: AssetsTransformer;
   const mockedFileUrl = 'http://example.com';
 
   beforeAll(async () => {
     app = await createApp();
     assetsTransformer = app.get(AssetsTransformer);
+    user = await createUser({ email: 'partner@test.com', role: RoleEnum.USER });
+    partner = await createPartner({
+      apiKey: 'test-api-key',
+      accountOwner: user,
+    });
     assets = [
       await createAsset({
         refId: '1',
@@ -22,6 +35,7 @@ describe('AssetsController', () => {
         image: await createFile(),
         slug: 'egg',
         description: 'test-egg',
+        partner,
       }),
       await createAsset({
         refId: '2',
@@ -29,6 +43,7 @@ describe('AssetsController', () => {
         image: await createFile(),
         slug: 'pumpkin',
         description: 'test-pumpkin',
+        partner,
       }),
     ];
     mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);

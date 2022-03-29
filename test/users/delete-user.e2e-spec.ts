@@ -10,7 +10,6 @@ describe('UsersController', () => {
   let app: INestApplication;
   let user: User;
   let admin: User;
-  let partner: User;
 
   beforeEach(async () => {
     app = await createApp();
@@ -107,36 +106,6 @@ describe('UsersController', () => {
       return request(app.getHttpServer())
         .delete(`/users/${wrongId}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
-        .expect(403);
-    });
-  });
-  describe(`DELETE /users/:id AS PARTNER`, () => {
-    beforeEach(async () => {
-      partner = await createUser({ role: RoleEnum.PARTNER });
-    });
-    it('should not delete a user record from the db', () => {
-      return request(app.getHttpServer())
-        .delete(`/users/${user.id}`)
-        .set({ Authorization: `Bearer ${generateToken(partner)}` })
-        .expect(403)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            error: 'Forbidden',
-            message: 'Forbidden resource',
-            statusCode: 403,
-          });
-        })
-        .then(async () => {
-          const updatedUser = await User.findOne(user.id);
-          expect(updatedUser).toBeDefined();
-        });
-    });
-
-    it('should throw an exception if user id does not exists', () => {
-      const wrongId = '1D700038-58B1-4EF0-8737-4DB7D6A9D60F';
-      return request(app.getHttpServer())
-        .delete(`/users/${wrongId}`)
-        .set({ Authorization: `Bearer ${generateToken(partner)}` })
         .expect(403);
     });
   });

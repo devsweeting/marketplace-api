@@ -18,28 +18,26 @@ import { ListEventsDto } from '../dto/list-events.dto';
 @Entity('asset_events')
 @Index(['assetId', 'createdAt'])
 export class Event extends BaseModel implements BaseEntityInterface {
-  @Column({ name: 'from_account', nullable: false })
+  @Column({ nullable: false })
   public fromAccount: string;
 
-  @Column({ name: 'from_address', nullable: true })
+  @Column({ nullable: true })
   public fromAddress: string;
 
-  @Column({ name: 'to_account', nullable: true })
+  @Column({ nullable: true })
   public toAccount: string;
 
-  @Column({ name: 'to_address', nullable: true })
+  @Column({ nullable: true })
   public toAddress: string;
 
   @Column({
-    name: 'payment_token',
     type: 'enum',
     enum: PaymentTokenEnum,
-    nullable: false,
+    nullable: true,
   })
   public paymentToken: PaymentTokenEnum;
 
   @Column({
-    name: 'event_type',
     type: 'enum',
     enum: EventTypeEnum,
     nullable: false,
@@ -47,20 +45,20 @@ export class Event extends BaseModel implements BaseEntityInterface {
   })
   public eventType: EventTypeEnum;
 
-  @Column({ name: 'is_private', nullable: false, default: false })
+  @Column({ nullable: false, default: false })
   public isPrivate: boolean;
 
-  @Column({ default: 1, nullable: false })
+  @Column({ default: 1, nullable: true })
   public quantity: number;
 
-  @Column({ name: 'total_price', type: 'float', nullable: false })
+  @Column({ type: 'float', nullable: true })
   public totalPrice: number;
 
-  @ManyToOne(() => Asset, (asset) => asset.attributes, { nullable: false })
-  @JoinColumn({ name: 'asset_id', referencedColumnName: 'id' })
+  @ManyToOne(() => Asset, (asset) => asset.events, { nullable: false })
+  @JoinColumn({ referencedColumnName: 'id' })
   public asset: Asset;
 
-  @Column({ name: 'asset_id', type: 'string', nullable: false })
+  @Column({ type: 'string', nullable: false })
   @RelationId((event: Event) => event.asset)
   public assetId: string;
 

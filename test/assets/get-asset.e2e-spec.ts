@@ -6,22 +6,35 @@ import { createAsset } from '@/test/utils/asset.utils';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
 import { createFile } from '@/test/utils/file.utils';
 import { v4 } from 'uuid';
+import { Partner } from 'modules/partners/entities';
+import { createPartner } from '../utils/partner.utils';
+import { User } from 'modules/users/user.entity';
+import { createUser } from '../utils/fixtures/create-user';
+import { RoleEnum } from 'modules/users/enums/role.enum';
 
 describe('AssetsController', () => {
   let app: INestApplication;
   let asset: Asset;
+  let partner: Partner;
+  let user: User;
   let assetsTransformer: AssetsTransformer;
   const mockedFileUrl = 'http://example.com';
 
   beforeAll(async () => {
     app = await createApp();
     assetsTransformer = app.get(AssetsTransformer);
+    user = await createUser({ email: 'partner@test.com', role: RoleEnum.USER });
+    partner = await createPartner({
+      apiKey: 'test-api-key',
+      accountOwner: user,
+    });
     asset = await createAsset({
       refId: '1',
       name: 'Egg',
       image: await createFile(),
       slug: 'egg',
       description: 'test-egg',
+      partner,
     });
   });
 

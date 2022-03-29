@@ -5,6 +5,7 @@ import {
   LABELS_COMPONENT,
   PHOTO_PROPERTY,
   REFERENCE_FIELD,
+  EVENT_COMPONENT,
   SHOW_DELETED_AT,
 } from 'modules/admin/components.bundler';
 import { Asset } from 'modules/assets/entities';
@@ -21,6 +22,7 @@ import uploadFile from 'modules/admin/hooks/upload-file.after';
 import { marketNavigation } from 'modules/admin/admin.navigation';
 import { MIME_TYPES } from '../file/mime-types';
 import { getImage } from 'modules/admin/hooks/get-image.after';
+import { loadEvents } from './hooks/load-events.hook';
 import { ServiceAccessor } from 'modules/admin/utils/service.accessor';
 
 const createAssetResource = (
@@ -56,7 +58,7 @@ const createAssetResource = (
         ],
       },
       show: {
-        after: [getImage(serviceAccessor), getLabels, loadAttributes],
+        after: [getImage(serviceAccessor), getLabels, loadAttributes, loadEvents],
         isAccessible: (context): boolean => forAdminGroup(context),
       },
       delete: {
@@ -151,6 +153,13 @@ const createAssetResource = (
         isVisible: { edit: false, filter: true },
         components: {
           show: SHOW_DELETED_AT,
+        },
+      },
+      events: {
+        position: 13,
+        isVisible: { show: true },
+        components: {
+          show: EVENT_COMPONENT,
         },
       },
       isDeleted: {

@@ -7,7 +7,7 @@ export const forSelf: IsFunction = (context: ActionContext): boolean => {
 
   return (
     [RoleEnum.SUPER_ADMIN, RoleEnum.ADMIN].includes(user.role) ||
-    ([RoleEnum.PARTNER].includes(user.role) && context.record.params.id === user.id)
+    context.record.params.id === user.id
   );
 };
 

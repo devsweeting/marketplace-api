@@ -24,6 +24,7 @@ import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 import { MarketplaceEnum } from 'modules/assets/enums/marketplace.enum';
 import { AuctionTypeEnum } from 'modules/assets/enums/auction-type.enum';
 import { Contract } from 'modules/assets/entities/contract.entity';
+import { Event } from 'modules/events/entities';
 import { Token } from './token.entity';
 import { File } from 'modules/storage/entities/file.entity';
 
@@ -94,6 +95,9 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   @Column({ type: 'string', nullable: true })
   @RelationId((asset: Asset) => asset.contract)
   public contractId: string;
+
+  @OneToMany(() => Event, (event) => event.asset)
+  public events: Event[];
 
   @BeforeInsert()
   public beforeInsert(): void {
