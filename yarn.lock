@@ -23,13 +23,6 @@
   dependencies:
     path-to-regexp "^6.2.0"
 
-"@adminjs/passwords@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@adminjs/passwords/-/passwords-2.0.0.tgz#4f1470587d76a28fe24f895f854bf4f0ba0d7da7"
-  integrity sha512-47QjuG0Q4+YzGx10sGq5rgkdA8MAotYozIVg8LeHDOAZBbvBU4CCt/F9bo1RiYGs/YwGsjfKS1FkcGSrB/JKrQ==
-  dependencies:
-    aws-sdk "^2.728.0"
-
 "@adminjs/typeorm@^2.0.1":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@adminjs/typeorm/-/typeorm-2.0.1.tgz#f6e9905b6d327e1fa9d1509f10042ba5f5e3c6ec"

@@ -1,7 +1,5 @@
 import { CreateResourceResult } from '../create-resource-result.type';
 import { User } from '../../../users/user.entity';
-import passwordFeature from '@adminjs/passwords';
-import bcrypt from 'bcryptjs';
 import { forAdminGroup, forSuperAdmins } from './user-permissions';
 import { restoreHandler } from '../../hooks/restore.handler';
 import { deleteHandler } from './handlers/delete.handler';
@@ -12,17 +10,13 @@ import bulkSoftDeleteHandler from 'modules/admin/hooks/bulk-soft-delete.handler'
 
 const baseProperties = ['email', 'firstName', 'lastName', 'role'];
 
-function hash(newPassword: string) {
-  return bcrypt.hash(newPassword, 10);
-}
-
 const createUserResource = (): CreateResourceResult<typeof User> => ({
   resource: User,
   features: [
     (options): object => ({
       ...options,
       listProperties: [...baseProperties],
-      editProperties: [...baseProperties, 'newPassword'],
+      editProperties: [...baseProperties],
       showProperties: ['id', ...baseProperties, 'createdAt', 'updatedAt', 'deletedAt', 'isDeleted'],
       filterProperties: [
         'id',
@@ -32,13 +26,6 @@ const createUserResource = (): CreateResourceResult<typeof User> => ({
         'deletedAt',
         'isDeleted',
       ],
-    }),
-    passwordFeature({
-      properties: {
-        encryptedPassword: 'password',
-        password: 'newPassword',
-      },
-      hash,
     }),
   ],
   options: {
@@ -84,7 +71,6 @@ const createUserResource = (): CreateResourceResult<typeof User> => ({
     properties: {
       email: { isRequired: true },
       role: { isRequired: true },
-      password: { isVisible: false },
       deletedAt: {
         components: {
           show: SHOW_DELETED_AT,
