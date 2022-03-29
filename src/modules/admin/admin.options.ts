@@ -62,7 +62,8 @@ export const getAuth = (serviceAccessor: ServiceAccessor) => {
 
       const admin = await User.findOne({ where: { email, isDeleted: false } });
 
-      if (!admin || ![RoleEnum.SUPER_ADMIN, RoleEnum.ADMIN].includes(admin.role)) return null;
+      if (!admin || ![RoleEnum.SUPER_ADMIN, RoleEnum.ADMIN].includes(admin.role))
+        return null;
 
       const passwordMatch = admin && (await passwordService.verify(admin.password, password));
       delete admin?.password;
