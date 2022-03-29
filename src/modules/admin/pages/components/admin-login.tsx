@@ -2,8 +2,8 @@ import React from 'react';
 import styled, { createGlobalStyle, keyframes } from 'styled-components';
 import ReactDOM from 'react-dom';
 import { LoginWelcomeLogo } from './login-welcome-logo';
-import { Web3Logo } from './web3-logo';
 import axios from 'axios';
+import { ethers } from 'ethers';
 
 const GlobalStyle = createGlobalStyle`
   html, body, #app {
@@ -79,12 +79,6 @@ const Form = styled.form`
   width: 100%;
 `;
 
-const FormGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding-bottom: 16px;
-`;
-
 const ErrorBox = styled.div`
   font-family: Roboto, sans-serif;
   font-size: 12px;
@@ -99,41 +93,6 @@ const ErrorBox = styled.div`
   justify-content: center;
   align-items: center;
   width: 100%;
-`;
-
-const Label = styled.label`
-  display: block;
-  font-size: 12px;
-  line-height: 16px;
-  margin-bottom: 8px;
-
-  &[required] {
-    &:before {
-      content: '*';
-      color: #4268f6;
-      margin-right: 4px;
-      display: block-inline;
-    }
-  }
-`;
-
-const Input = styled.input`
-  box-sizing: border-box;
-  color: #454655;
-  background: transparent;
-  border: 1px solid #c0c0ca;
-  font-size: 14px;
-  line-height: 24px;
-  font-family: 'Roboto', sans-serif;
-  outline: none;
-  padding-left: 8px;
-  padding-right: 8px;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  &:focus {
-    border-color: #4268f6;
-    box-shadow: 0 1px 4px 0 rgb(56 202 241 / 58%);
-  }
 `;
 
 const SubmitButton = styled.button` 
@@ -239,26 +198,37 @@ const Logo = styled.img`
   margin-top: 12px;
 `;
 
-const errAdminNotFound = 'There are no users matching given credentials';
-
 export const AdminLogin = () => {
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
   const [error, setError] = React.useState('');
   const [loading, setLoading] = React.useState(false);
 
-  const onStandardLogin = React.useCallback(async () => {
-    if (!email.length || !password.length) return;
-    setLoading(true);
-    setError('');
+  const onLogin = React.useCallback(async () => {
     try {
-      await axios.post('/admin/login', { email, password });
+      setLoading(true);
+      setError(null);
+      const message = 'Sign here to login to Jump!\nLogin nonce: ' + window.nonce;
+
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      provider.on('network', (newNetwork, oldNetwork) => {
+        if (oldNetwork) {
+          window.location.reload();
+        }
+      });
+      const addresses = await provider.send('eth_requestAccounts', []);
+      const signed = await provider.getSigner().signMessage(message);
+      await axios.post('/admin/login', {
+        address: addresses[0],
+        message,
+        signed,
+      });
       window.location.reload();
     } catch (error) {
-      setError(error.response?.data?.message || errAdminNotFound);
+      if (error.response.data?.message) {
+        setError(error.response.data.message);
+      }
       setLoading(false);
     }
-  }, [email, password]);
+  }, []);
 
   return (
     <>
@@ -284,30 +254,9 @@ export const AdminLogin = () => {
             ) : (
               <>
                 <Form>
-                  <FormGroup>
-                    <Label required>Email</Label>
-                    <Input
-                      name="email"
-                      placeholder="Email"
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </FormGroup>
-                  <FormGroup>
-                    <Label required>Password</Label>
-                    <Input
-                      type="password"
-                      name="password"
-                      placeholder="Password"
-                      autoComplete="password"
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </FormGroup>
                   <ButtonWrapper>
-                    <SubmitButton type="button" onClick={onStandardLogin}>
-                      <span>Login</span>
-                    </SubmitButton>
-                    <SubmitButton type="button">
-                      <Web3Logo />
+                    <SubmitButton type="button" onClick={onLogin}>
+                      Login with wallet
                     </SubmitButton>
                   </ButtonWrapper>
                 </Form>
@@ -319,6 +268,14 @@ export const AdminLogin = () => {
     </>
   );
 };
+
+declare global {
+  interface Window {
+    web3: any;
+    ethereum: any;
+    nonce: string;
+  }
+}
 
 const mountNode = window.document.getElementById('app');
 ReactDOM.render(<AdminLogin />, mountNode);

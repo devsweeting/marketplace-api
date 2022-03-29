@@ -8,7 +8,7 @@ import { filterByIsDeleted } from 'modules/admin/hooks/filter-is-deleted-records
 import { userAndOrgNavigation } from 'modules/admin/admin.navigation';
 import bulkSoftDeleteHandler from 'modules/admin/hooks/bulk-soft-delete.handler';
 
-const baseProperties = ['email', 'firstName', 'lastName', 'role'];
+const baseProperties = ['email', 'firstName', 'lastName', 'address', 'role'];
 
 const createUserResource = (): CreateResourceResult<typeof User> => ({
   resource: User,
