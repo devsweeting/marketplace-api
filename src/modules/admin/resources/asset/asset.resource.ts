@@ -24,6 +24,8 @@ import { MIME_TYPES } from '../file/mime-types';
 import { getImage } from 'modules/admin/hooks/get-image.after';
 import { loadEvents } from './hooks/load-events.hook';
 import { ServiceAccessor } from 'modules/admin/utils/service.accessor';
+import loggerFeature from '@adminjs/logger';
+import loggerConfig from '@/src/config/logger.config';
 
 const createAssetResource = (
   serviceAccessor: ServiceAccessor,
@@ -34,6 +36,7 @@ const createAssetResource = (
       ...options,
       listProperties: ['name', 'refId', 'partnerId', 'contractId', 'createdAt'],
     }),
+    loggerFeature(loggerConfig),
   ],
   options: {
     navigation: marketNavigation,
