@@ -5,8 +5,8 @@ import {
   LABELS_COMPONENT,
   PHOTO_PROPERTY,
   REFERENCE_FIELD,
-  EVENT_COMPONENT,
   SHOW_DELETED_AT,
+  ASSET_SHOW,
 } from 'modules/admin/components.bundler';
 import { Asset } from 'modules/assets/entities';
 import { CreateResourceResult } from '../create-resource-result.type';
@@ -60,6 +60,7 @@ const createAssetResource = (
       show: {
         after: [getImage(serviceAccessor), getLabels, loadAttributes, loadEvents],
         isAccessible: (context): boolean => forAdminGroup(context),
+        component: ASSET_SHOW,
       },
       delete: {
         isAccessible: (context): boolean =>
@@ -149,21 +150,24 @@ const createAssetResource = (
         },
       },
       deletedAt: {
-        position: 12,
+        position: 50,
         isVisible: { edit: false, filter: true },
         components: {
           show: SHOW_DELETED_AT,
         },
       },
-      events: {
-        position: 13,
-        isVisible: { show: true },
-        components: {
-          show: EVENT_COMPONENT,
-        },
-      },
       isDeleted: {
+        position: 51,
         isVisible: { edit: false, filter: true },
+      },
+      createdAt: {
+        position: 52,
+      },
+      updatedAt: {
+        position: 53,
+      },
+      events: {
+        isVisible: false,
       },
       imageId: {
         isVisible: false,
