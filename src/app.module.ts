@@ -13,6 +13,7 @@ import { MailModule } from 'modules/mail/mail.module';
 import { AssetsModule } from 'modules/assets/assets.module';
 import { join } from 'path';
 import { StorageModule } from 'modules/storage/storage.module';
+import { CollectionsModule } from './modules/collections/collections.module';
 
 const modules = [
   ConfigModule.forRoot({
@@ -47,6 +48,7 @@ if (process.env.NODE_ENV === 'STAGING' || process.env.NODE_ENV === 'PRODUCTION')
 }
 @Module({
   imports: [
+    ...modules,
     AuthModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
@@ -60,7 +62,7 @@ if (process.env.NODE_ENV === 'STAGING' || process.env.NODE_ENV === 'PRODUCTION')
     PartnersModule,
     AssetsModule,
     UsersModule,
-    ...modules,
+    CollectionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

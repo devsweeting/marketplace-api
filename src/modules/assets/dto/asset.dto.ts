@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNotEmpty, IsOptional, IsUrl, MaxLength, ValidateNested } from 'class-validator';
+import { CollectionDto } from '.';
 import { AttributeDto } from './attribute.dto';
 import { ListingDto } from './listing.dto';
 
@@ -80,4 +81,12 @@ export class AssetDto {
   @ValidateNested({ each: true })
   @Type(() => AttributeDto)
   public attributes: AttributeDto[];
+
+  @ApiProperty({
+    description: 'Collection id or slug.',
+    required: true,
+    type: () => CollectionDto,
+  })
+  @IsOptional()
+  public collection?: CollectionDto;
 }

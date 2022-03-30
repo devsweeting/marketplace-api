@@ -6,6 +6,7 @@ import { User } from 'modules/users/user.entity';
 import { Session } from 'modules/auth/session/session.entity';
 import { Event } from 'modules/events/entities';
 import { AssetSubscriber } from 'modules/assets/subscribers/after-insert';
+import { Collection, CollectionAsset } from 'modules/collections/entities';
 
 export default registerAs('database', () => {
   return {
@@ -33,6 +34,8 @@ export default registerAs('database', () => {
         Session,
         Event,
         Token,
+        Collection,
+        CollectionAsset,
       ],
       subscribers: [AssetSubscriber],
     },

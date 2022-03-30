@@ -18,12 +18,13 @@ import { forAdminGroup } from 'modules/admin/resources/user/user-permissions';
 import { filterByIsDeleted } from 'modules/admin/hooks/filter-is-deleted-records';
 import bulkSoftDeleteHandler from 'modules/admin/hooks/bulk-soft-delete.handler';
 import { softDeleteHandler } from 'modules/admin/hooks/soft-delete.handler';
-import uploadFile from 'modules/admin/hooks/upload-file.after';
+import uploadFile from 'modules/admin/resources/asset/hooks/upload-file.after';
 import { marketNavigation } from 'modules/admin/admin.navigation';
 import { MIME_TYPES } from '../file/mime-types';
 import { getImage } from 'modules/admin/hooks/get-image.after';
 import { loadEvents } from './hooks/load-events.hook';
 import { ServiceAccessor } from 'modules/admin/utils/service.accessor';
+import { softDeleteRelations } from './hooks/soft-delete-relations.hook';
 
 const createAssetResource = (
   serviceAccessor: ServiceAccessor,
@@ -44,7 +45,7 @@ const createAssetResource = (
       },
       new: {
         isAccessible: (context): boolean => forAdminGroup(context),
-        after: [saveLabels, saveAttributes, uploadFile('image', serviceAccessor)],
+        after: [saveLabels, saveAttributes, uploadFile('image', 'images/assets', serviceAccessor)],
       },
       edit: {
         isAccessible: (context): boolean => forAdminGroup(context),
@@ -54,7 +55,7 @@ const createAssetResource = (
           saveLabels,
           loadAttributes,
           saveAttributes,
-          uploadFile('image', serviceAccessor),
+          uploadFile('image', 'images/assets', serviceAccessor),
         ],
       },
       show: {
@@ -65,11 +66,13 @@ const createAssetResource = (
         isAccessible: (context): boolean =>
           forAdminGroup(context) && !context.record.params.deletedAt,
         handler: softDeleteHandler,
+        after: [softDeleteRelations],
       },
       bulkDelete: {
         isAccessible: (context): boolean =>
           forAdminGroup(context) && !context.record.params.deletedAt,
         handler: bulkSoftDeleteHandler,
+        after: [softDeleteRelations],
       },
     },
     properties: {
