@@ -1,4 +1,4 @@
-import { DrawerContent, Box } from '@adminjs/design-system';
+import { DrawerContent, Box, Header } from '@adminjs/design-system';
 import { BasePropertyComponent } from 'adminjs';
 
 import EventComponent from '../resources/asset/components/events-table.component';
@@ -23,6 +23,7 @@ const ShowWithEvents = (props) => {
         </DrawerContent>
       </Box>
       <Box variant="grey">
+        <Header>Asset History</Header>
         <DrawerContent>
           <EventComponent {...props} />
         </DrawerContent>
