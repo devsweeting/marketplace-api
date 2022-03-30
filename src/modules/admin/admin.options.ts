@@ -16,6 +16,7 @@ import createFileResource from './resources/file/file.resource';
 import { ServiceAccessor } from 'modules/admin/utils/service.accessor';
 import AdminJS, { AdminJSOptions } from 'adminjs';
 import { Database, Resource } from '@adminjs/typeorm';
+import createTokenResource from './resources/token/token.resource';
 
 AdminJS.registerAdapter({ Database, Resource });
 
@@ -46,6 +47,7 @@ export const getAdminJSOptions = (serviceAccessor: ServiceAccessor): AdminJSOpti
       createUserResource(),
       createFileResource(),
       createEventResource(),
+      createTokenResource(),
     ],
     databases: [],
     locale,
