@@ -90,6 +90,7 @@ export class AssetsService {
     Logger.log(`Partner ${partner.name} received transfer request`);
 
     const duplicatedAssetsByRefIds = await Asset.findDuplicatedByRefIds(
+      partnerId,
       dto.assets.map((asset) => asset.refId),
     );
 

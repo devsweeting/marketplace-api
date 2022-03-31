@@ -4,6 +4,7 @@ import { ProviderInterface } from 'modules/storage/interfaces/provider.interface
 import { S3Provider } from 'modules/storage/providers/s3.provider';
 import { FileDownloadService } from 'modules/storage/file-download.service';
 import { UploadedFile } from 'adminjs';
+import { v4 } from 'uuid';
 
 @Injectable()
 export class StorageService {
@@ -16,13 +17,12 @@ export class StorageService {
   public async uploadFromUrl(url: string, directory: string): Promise<File> {
     const path = await this.fileDownloadService.download(url);
     const object = await this.provider.upload(path, directory);
-    return new File(object).save();
+    return new File({ ...object, id: v4() }).save();
   }
 
   public async uploadAndSave(directory: string, rawFile: UploadedFile): Promise<File> {
     const object = await this.provider.uploadFromAdmin(directory, rawFile);
-    delete object.id;
-    return new File(object).save();
+    return new File({ ...object, id: v4() }).save();
   }
 
   public getUrl(file: File): string {

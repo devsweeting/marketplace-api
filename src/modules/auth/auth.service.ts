@@ -4,6 +4,7 @@ import { Partner } from 'modules/partners/entities';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { User } from 'modules/users/user.entity';
 import { PasswordService } from './password.service';
+import { IsNull } from 'typeorm';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +15,7 @@ export class AuthService {
 
   public validateApiKey(apiKey: string): Promise<Partner | null> {
     Logger.log(`AuthService.validateApiKey(${apiKey})`);
-    return Partner.findOne({ where: { apiKey, isDeleted: false } });
+    return Partner.findOne({ where: { apiKey, isDeleted: false, deletedAt: IsNull() } });
   }
 
   public generateToken(user: { id: string; email: string; role: RoleEnum }): string {

@@ -32,6 +32,7 @@ describe('AssetsController', () => {
       accountOwner: user,
     });
     mockS3Provider.getUrl.mockReturnValue(mockedUrl);
+    mockFileDownloadService.download.mockReturnValue(mockTmpFilePath);
     mockS3Provider.upload.mockReturnValue({
       id: v4(),
       name: 'example.jpeg',
@@ -40,7 +41,6 @@ describe('AssetsController', () => {
       storage: StorageEnum.S3,
       size: 100,
     });
-    mockFileDownloadService.download.mockReturnValue(mockTmpFilePath);
   });
 
   afterEach(async () => {
@@ -169,6 +169,42 @@ describe('AssetsController', () => {
         });
     });
 
+    it('should pass if refId is taken by another partner', async () => {
+      const anotherUser = await createUser({});
+      const partner2 = await createPartner({
+        apiKey: 'another-partner2-api-key',
+        accountOwner: anotherUser,
+      });
+      await Asset.delete({});
+      await createAsset({ refId: '1232', partner: partner2 });
+
+      const transferRequest: any = {
+        user: {
+          refId: '1232',
+          email: 'steven@example.com',
+        },
+        assets: [
+          {
+            refId: '1232',
+            image: 'https://example.com/image.png',
+            name: 'Example',
+            description: 'test',
+            listing: {
+              marketplace: 'OPEN_SEA',
+            },
+          },
+        ],
+      };
+
+      return request(app.getHttpServer())
+        .post(`/assets`)
+        .set({
+          'x-api-key': partner.apiKey,
+        })
+        .send(transferRequest)
+        .expect(201);
+    });
+
     it('should throw 400 exception if asset already exist by refId', async () => {
       await createAsset({ refId: '1232', partner });
 
@@ -201,7 +237,7 @@ describe('AssetsController', () => {
           expect(body).toEqual({
             statusCode: 400,
             message: 'Duplicated assets',
-            names: ['1232'],
+            refIds: ['1232'],
           });
         });
     });
