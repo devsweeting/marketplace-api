@@ -1,4 +1,4 @@
-import { DrawerContent, Box, Header } from '@adminjs/design-system';
+import { Box, DrawerContent, Header } from '@adminjs/design-system';
 import { BasePropertyComponent } from 'adminjs';
 
 import EventComponent from '../resources/asset/components/events-table.component';

@@ -8,5 +8,6 @@ export const createAsset = (data: Partial<Asset>): Promise<Asset> => {
     description: 'test description',
     ...data,
   });
+
   return asset.save();
 };

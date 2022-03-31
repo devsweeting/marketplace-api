@@ -4,10 +4,14 @@ import { AssetResponse } from '../interfaces/response/asset.response';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
 import { StorageService } from 'modules/storage/storage.service';
+import { AttributeTransformer } from 'modules/assets/transformers/attribute.transformer';
 
 @Injectable()
 export class AssetsTransformer {
-  public constructor(private readonly storageService: StorageService) {}
+  public constructor(
+    private readonly storageService: StorageService,
+    private readonly attributeTransformer: AttributeTransformer,
+  ) {}
 
   public transform(asset: Asset): AssetResponse {
     return {
@@ -24,6 +28,7 @@ export class AssetsTransformer {
         marketplace: asset.marketplace,
         auctionType: asset.auctionType,
       },
+      attributes: this.attributeTransformer.transformAll(asset.attributes || []),
     };
   }
 
