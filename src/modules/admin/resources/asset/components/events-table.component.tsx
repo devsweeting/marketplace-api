@@ -11,14 +11,15 @@ import {
 import { flat, useTranslation } from 'adminjs';
 
 const EventComponent = (props) => {
-  const { record, property } = props;
+  const { record } = props;
+
   const params = flat.unflatten(record.params);
-  const events = params[property.path] || [];
+  const events = params['events'] || [];
 
   const { translateMessage: tm } = useTranslation();
 
   return (
-    <Box height="100vh" overflowY="auto">
+    <Box>
       <Table>
         <TableHead>
           <TableRow>

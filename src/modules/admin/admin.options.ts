@@ -17,6 +17,12 @@ import { ServiceAccessor } from 'modules/admin/utils/service.accessor';
 import AdminJS, { AdminJSOptions } from 'adminjs';
 import { Database, Resource } from '@adminjs/typeorm';
 import createCollectionResource from './resources/collection/collection.resource';
+import { Log } from 'modules/log/entities/log.entity';
+import loggerConfig from '@/src/config/logger.config';
+import { forSuperAdmins } from 'modules/admin/resources/user/user-permissions';
+import { merge } from 'lodash';
+import { createLoggerResource } from '@adminjs/logger';
+import createTokenResource from './resources/token/token.resource';
 
 AdminJS.registerAdapter({ Database, Resource });
 
@@ -48,6 +54,17 @@ export const getAdminJSOptions = (serviceAccessor: ServiceAccessor): AdminJSOpti
       createFileResource(),
       createEventResource(),
       createCollectionResource(serviceAccessor),
+      createTokenResource(),
+      merge(createLoggerResource({ resource: Log, featureOptions: loggerConfig }), {
+        actions: {
+          list: {
+            isAccessible: forSuperAdmins,
+          },
+          show: {
+            isAccessible: forSuperAdmins,
+          },
+        },
+      }),
     ],
     databases: [],
     locale,

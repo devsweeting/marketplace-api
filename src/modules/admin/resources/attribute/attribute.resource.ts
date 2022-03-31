@@ -1,5 +1,7 @@
 import { Attribute } from 'modules/assets/entities';
 import { CreateResourceResult } from '../create-resource-result.type';
+import loggerFeature from '@adminjs/logger';
+import loggerConfig from '@/src/config/logger.config';
 
 const createAttributeResource = (): CreateResourceResult<typeof Attribute> => ({
   resource: Attribute,
@@ -11,6 +13,7 @@ const createAttributeResource = (): CreateResourceResult<typeof Attribute> => ({
       // showProperties: ['id', 'trait', 'value', 'assetId', 'updatedAt', 'createdAt'],
       // filterProperties: ['trait', 'value', 'updatedAt', 'createdAt'],
     }),
+    loggerFeature(loggerConfig),
   ],
   options: {
     actions: {
