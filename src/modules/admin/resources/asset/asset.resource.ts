@@ -48,7 +48,7 @@ const createAssetResource = (
       },
       new: {
         isAccessible: (context): boolean => forAdminGroup(context),
-        after: [saveLabels, saveAttributes, uploadFile('image', 'images/assets', serviceAccessor)],
+        after: [saveLabels, saveAttributes, uploadFile('image', 'assets', serviceAccessor)],
       },
       edit: {
         isAccessible: (context): boolean => forAdminGroup(context),
@@ -58,7 +58,7 @@ const createAssetResource = (
           saveLabels,
           loadAttributes,
           saveAttributes,
-          uploadFile('image', 'images/assets', serviceAccessor),
+          uploadFile('image', 'assets', serviceAccessor),
         ],
       },
       show: {

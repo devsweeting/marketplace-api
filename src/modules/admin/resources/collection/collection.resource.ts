@@ -33,14 +33,11 @@ const createCollectionResource = (
       },
       new: {
         isAccessible: (context): boolean => forAdminGroup(context),
-        after: [uploadFile('banner', 'images/collections', serviceAccessor)],
+        after: [uploadFile('banner', 'collections', serviceAccessor)],
       },
       edit: {
         isAccessible: (context): boolean => forAdminGroup(context),
-        after: [
-          getBanner(serviceAccessor),
-          uploadFile('banner', 'images/collections', serviceAccessor),
-        ],
+        after: [getBanner(serviceAccessor), uploadFile('banner', 'collections', serviceAccessor)],
       },
       show: {
         after: [getBanner(serviceAccessor)],

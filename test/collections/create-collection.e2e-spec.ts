@@ -67,7 +67,7 @@ describe('CollectionController', () => {
           expect(mockFileDownloadService.download).toHaveBeenCalledWith(collectionDto.banner);
           expect(mockS3Provider.upload).toHaveBeenCalledWith(
             mockTmpFilePath,
-            `images/collections/${collection.id}`,
+            `collections/${collection.id}`,
           );
         });
     });

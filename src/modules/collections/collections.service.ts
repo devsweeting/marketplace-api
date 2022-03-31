@@ -42,7 +42,7 @@ export class CollectionsService {
     if (banner) {
       collection.banner = await this.storageService.uploadFromUrl(
         banner,
-        `images/collections/${collection.id}`,
+        `collections/${collection.id}`,
       );
     }
 
@@ -76,7 +76,7 @@ export class CollectionsService {
       const getCollection = await Collection.findOne(collection.id);
       const collectionBanner = await this.storageService.uploadFromUrl(
         dto.banner,
-        `images/collections/${collection.id}`,
+        `collections/${collection.id}`,
       );
 
       Object.assign(getCollection, { bannerId: collectionBanner.id });

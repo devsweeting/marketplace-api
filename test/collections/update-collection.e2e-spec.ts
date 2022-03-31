@@ -82,7 +82,7 @@ describe('CollectionsController', () => {
           expect(updatedCollection.banner.path).toEqual('test/example.jpeg');
           expect(mockS3Provider.upload).toHaveBeenCalledWith(
             'downloaded-path',
-            `images/collections/${updatedCollection.id}`,
+            `collections/${updatedCollection.id}`,
           );
         });
     });
