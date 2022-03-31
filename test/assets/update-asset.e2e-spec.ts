@@ -197,7 +197,7 @@ describe('AssetsController', () => {
           expect(updatedAsset.image.path).toEqual('test/example.jpeg');
           expect(mockS3Provider.upload).toHaveBeenCalledWith(
             'downloaded-path',
-            `images/assets/${updatedAsset.id}`,
+            `assets/${updatedAsset.id}`,
           );
         });
     });
