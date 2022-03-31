@@ -1,5 +1,5 @@
 import { CreateResourceResult } from '../create-resource-result.type';
-import { User } from '../../../users/user.entity';
+import { User } from 'modules/users/user.entity';
 import { forAdminGroup, forSuperAdmins } from './user-permissions';
 import { restoreHandler } from '../../hooks/restore.handler';
 import { deleteHandler } from './handlers/delete.handler';
@@ -7,6 +7,8 @@ import { SHOW_DELETED_AT } from '../../components.bundler';
 import { filterByIsDeleted } from 'modules/admin/hooks/filter-is-deleted-records';
 import { userAndOrgNavigation } from 'modules/admin/admin.navigation';
 import bulkSoftDeleteHandler from 'modules/admin/hooks/bulk-soft-delete.handler';
+import loggerFeature from '@adminjs/logger';
+import loggerConfig from '@/src/config/logger.config';
 
 const baseProperties = ['email', 'firstName', 'lastName', 'address', 'role'];
 
@@ -27,6 +29,7 @@ const createUserResource = (): CreateResourceResult<typeof User> => ({
         'isDeleted',
       ],
     }),
+    loggerFeature(loggerConfig),
   ],
   options: {
     navigation: userAndOrgNavigation,

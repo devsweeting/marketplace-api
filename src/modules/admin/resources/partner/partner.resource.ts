@@ -11,6 +11,8 @@ import softDeleteHandler from 'modules/admin/hooks/soft-delete.handler';
 import { filterByIsDeleted } from 'modules/admin/hooks/filter-is-deleted-records';
 import { userAndOrgNavigation } from 'modules/admin/admin.navigation';
 import { restoreHandler } from 'modules/admin/hooks/restore.handler';
+import loggerFeature from '@adminjs/logger';
+import loggerConfig from '@/src/config/logger.config';
 
 const createPartnerResource = (): CreateResourceResult<typeof Partner> => ({
   resource: Partner,
@@ -22,6 +24,7 @@ const createPartnerResource = (): CreateResourceResult<typeof Partner> => ({
       //   showProperties: ['id', 'name', 'updatedAt', 'createdAt'],
       //   filterProperties: ['name', 'updatedAt', 'createdAt'],
     }),
+    loggerFeature(loggerConfig),
   ],
   options: {
     actions: {

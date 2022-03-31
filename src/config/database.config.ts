@@ -5,6 +5,7 @@ import { Partner, PartnerMemberUser } from 'modules/partners/entities';
 import { User } from 'modules/users/user.entity';
 import { Session } from 'modules/auth/session/session.entity';
 import { Event } from 'modules/events/entities';
+import { Log } from 'modules/log/entities/log.entity';
 import { AssetSubscriber } from 'modules/assets/subscribers/after-insert';
 
 export default registerAs('database', () => {
@@ -21,6 +22,7 @@ export default registerAs('database', () => {
       logging: process.env.TYPEORM_LOGGING,
       migrationsRun: false,
       keepConnectionAlive: true,
+      subscribers: [AssetSubscriber],
       entities: [
         Asset,
         Attribute,
@@ -33,8 +35,8 @@ export default registerAs('database', () => {
         Session,
         Event,
         Token,
+        Log,
       ],
-      subscribers: [AssetSubscriber],
     },
   };
 });
