@@ -1,17 +1,17 @@
 import { BadRequestException } from '@nestjs/common';
 
 export class AssetsDuplicatedException extends BadRequestException {
-  private readonly duplicatedNames: string[];
+  private readonly duplicatedRefIds: string[];
 
-  public constructor(names: string[]) {
+  public constructor(refIds: string[]) {
     super();
-    this.duplicatedNames = names;
+    this.duplicatedRefIds = refIds;
   }
 
   public getResponse(): string | object {
     return Object.assign(super.getResponse(), {
       message: 'Duplicated assets',
-      names: this.duplicatedNames,
+      refIds: this.duplicatedRefIds,
     });
   }
 }

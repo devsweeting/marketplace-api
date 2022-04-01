@@ -11,6 +11,8 @@ import { RoleEnum } from 'modules/users/enums/role.enum';
 import { createUser } from '../utils/fixtures/create-user';
 import { createPartner } from '../utils/partner.utils';
 import { User } from 'modules/users/user.entity';
+import { createAttribute } from '@/test/utils/attribute.utils';
+import { Event } from 'modules/events/entities';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -315,6 +317,45 @@ describe('AssetsController', () => {
               'order must be a valid enum value',
             ],
             statusCode: 400,
+          });
+        });
+    });
+
+    it('should return valid meta if asset has multiple attributes', async () => {
+      await Event.delete({});
+      await Asset.delete({});
+
+      const asset1 = await createAsset({ partner, name: 'test-1' });
+      const asset2 = await createAsset({ partner, name: 'test-2' });
+      const asset3 = await createAsset({ partner, name: 'test-3' });
+
+      await createAttribute({ asset: asset1 });
+      await createAttribute({ asset: asset1 });
+      await createAttribute({ asset: asset1 });
+      await createAttribute({ asset: asset2 });
+
+      const assetWithAttributes1 = await Asset.findOne(asset1.id, { relations: ['attributes'] });
+      const assetWithAttributes2 = await Asset.findOne(asset2.id, { relations: ['attributes'] });
+      const assetWithAttributes3 = await Asset.findOne(asset3.id, { relations: ['attributes'] });
+
+      return request(app.getHttpServer())
+        .get(`/assets`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 3,
+              itemCount: 3,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: assetsTransformer.transformAll([
+              assetWithAttributes3,
+              assetWithAttributes2,
+              assetWithAttributes1,
+            ]),
           });
         });
     });

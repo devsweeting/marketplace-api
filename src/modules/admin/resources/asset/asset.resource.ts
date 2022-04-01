@@ -1,4 +1,5 @@
 import {
+  ASSET_SHOW,
   ATTRIBUTE_COMPONENT,
   FILTER_PROPERTY,
   IMAGE_UPLOAD,
@@ -6,7 +7,6 @@ import {
   PHOTO_PROPERTY,
   REFERENCE_FIELD,
   SHOW_DELETED_AT,
-  ASSET_SHOW,
 } from 'modules/admin/components.bundler';
 import { Asset } from 'modules/assets/entities';
 import { CreateResourceResult } from '../create-resource-result.type';

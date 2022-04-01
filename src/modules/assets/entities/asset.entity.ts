@@ -113,10 +113,11 @@ export class Asset extends BaseModel implements BaseEntityInterface {
     this.slug = generateSlug(this.name);
   }
 
-  public static findDuplicatedByRefIds(refIds: string[]): Promise<Asset[]> {
+  public static findDuplicatedByRefIds(partnerId: string, refIds: string[]): Promise<Asset[]> {
     return Asset.find({
       where: {
         refId: In(refIds),
+        partnerId,
       },
     });
   }
@@ -144,11 +145,14 @@ export class Asset extends BaseModel implements BaseEntityInterface {
 
       asset.partner = partner;
       newAsset = await asset.save();
-      await Promise.all(
-        dto.attributes?.map((attribute: AttributeDto) =>
-          new Attribute({ ...attribute, assetId: asset.id }).save(),
-        ),
-      );
+
+      if (dto.attributes) {
+        await Promise.all(
+          dto.attributes.map((attribute: AttributeDto) =>
+            new Attribute({ ...attribute, assetId: asset.id }).save(),
+          ),
+        );
+      }
     } catch (e) {
       Logger.error(e);
       throw new InternalServerErrorException();
@@ -158,9 +162,9 @@ export class Asset extends BaseModel implements BaseEntityInterface {
 
   public static list(params: ListAssetsDto): SelectQueryBuilder<Asset> {
     const query = Asset.createQueryBuilder('asset')
-      .leftJoinAndMapMany('asset.attributes', 'asset.attributes', 'attributes')
       .leftJoinAndMapOne('asset.image', 'asset.image', 'image')
-      .where('asset.isDeleted = :isDeleted', { isDeleted: false })
+      .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
+      .andWhere('asset.deletedAt IS NULL')
       .addOrderBy(params.sort, params.order);
 
     if (params.query) {

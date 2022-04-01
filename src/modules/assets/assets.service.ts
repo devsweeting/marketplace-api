@@ -17,11 +17,22 @@ import { CollectionNotFoundException } from 'modules/collections/exceptions/coll
 export class AssetsService {
   public constructor(private readonly storageService: StorageService) {}
 
-  public getList(params: ListAssetsDto): Promise<Pagination<Asset>> {
-    return paginate<Asset, IPaginationMeta>(Asset.list(params), {
+  public async getList(params: ListAssetsDto): Promise<Pagination<Asset>> {
+    const results = await paginate<Asset, IPaginationMeta>(Asset.list(params), {
       page: params.page,
       limit: params.limit,
     });
+
+    return new Pagination(
+      await Promise.all(
+        results.items.map(async (item: Asset) => {
+          item.attributes = await Attribute.findAllByAssetId(item.id);
+
+          return item;
+        }),
+      ),
+      results.meta,
+    );
   }
 
   public async getOne(id: string): Promise<Asset> {
@@ -61,7 +72,7 @@ export class AssetsService {
     }
 
     if (image) {
-      asset.image = await this.storageService.uploadFromUrl(image, `images/assets/${asset.id}`);
+      asset.image = await this.storageService.uploadFromUrl(image, `assets/${asset.id}`);
     }
 
     if (listing) {
@@ -92,6 +103,7 @@ export class AssetsService {
     Logger.log(`Partner ${partner.name} received transfer request`);
 
     const duplicatedAssetsByRefIds = await Asset.findDuplicatedByRefIds(
+      partnerId,
       dto.assets.map((asset) => asset.refId),
     );
 
@@ -105,7 +117,7 @@ export class AssetsService {
         if (assetDto.image) {
           asset.image = await this.storageService.uploadFromUrl(
             assetDto.image,
-            `images/assets/${asset.id}`,
+            `assets/${asset.id}`,
           );
           if (assetDto.collection) {
             const collection = assetDto.collection.id

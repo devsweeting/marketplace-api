@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ListingResponse } from 'modules/assets/interfaces/response/listing.response';
+import { AttributeResponse } from 'modules/assets/interfaces/response/attribute.response';
 
 export class AssetResponse {
   @ApiProperty({ example: '1' })
@@ -34,4 +35,7 @@ export class AssetResponse {
 
   @ApiProperty()
   public listing: ListingResponse;
+
+  @ApiProperty({ isArray: true })
+  public attributes: AttributeResponse[];
 }
