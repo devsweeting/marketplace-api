@@ -6,7 +6,7 @@ import { PaginatedResponse } from 'modules/common/dto/paginated.response';
 import { StorageService } from 'modules/storage/storage.service';
 import { CollectionResponse } from '../interfaces/responses/collection.response';
 import { Asset } from 'modules/assets/entities/asset.entity';
-import { AssetResponse } from 'modules/assets/interfaces/response/asset.response';
+import { CollectionAssetResponse } from '../interfaces/responses/collection-asset.response';
 
 @Injectable()
 export class CollectionsTransformer {
@@ -29,7 +29,7 @@ export class CollectionsTransformer {
     return collections.map((collection) => this.transform(collection));
   }
 
-  public transformAsset(asset: Asset): AssetResponse {
+  public transformAsset(asset: Asset): CollectionAssetResponse {
     return {
       id: asset.id,
       name: asset.name,
@@ -40,14 +40,10 @@ export class CollectionsTransformer {
       externalUrl: asset.externalUrl,
       createdAt: asset.createdAt.toISOString(),
       updatedAt: asset.updatedAt.toISOString(),
-      listing: {
-        marketplace: asset.marketplace,
-        auctionType: asset.auctionType,
-      },
     };
   }
 
-  public transformAllAssets(assets: Asset[]): AssetResponse[] {
+  public transformAllAssets(assets: Asset[]): CollectionAssetResponse[] {
     return assets.map((asset) => this.transformAsset(asset));
   }
 

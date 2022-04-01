@@ -34,7 +34,6 @@ if (process.env.NODE_ENV === 'STAGING' || process.env.NODE_ENV === 'PRODUCTION')
     }),
   );
 }
-console.log('modules', modules);
 @Module({
   imports: [
     ConfigModule.forRoot({
