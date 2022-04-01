@@ -27,6 +27,7 @@ import { Contract } from 'modules/assets/entities/contract.entity';
 import { Event } from 'modules/events/entities';
 import { Token } from './token.entity';
 import { File } from 'modules/storage/entities/file.entity';
+import { CollectionAsset } from 'modules/collections/entities';
 
 @Entity('partner_assets')
 export class Asset extends BaseModel implements BaseEntityInterface {
@@ -98,6 +99,9 @@ export class Asset extends BaseModel implements BaseEntityInterface {
 
   @OneToMany(() => Event, (event) => event.asset)
   public events: Event[];
+
+  @OneToMany(() => CollectionAsset, (collectionAsset) => collectionAsset.asset)
+  public collectionAssets: CollectionAsset[];
 
   @BeforeInsert()
   public beforeInsert(): void {

@@ -16,6 +16,7 @@ import createFileResource from './resources/file/file.resource';
 import { ServiceAccessor } from 'modules/admin/utils/service.accessor';
 import AdminJS, { AdminJSOptions } from 'adminjs';
 import { Database, Resource } from '@adminjs/typeorm';
+import createCollectionResource from './resources/collection/collection.resource';
 import { Log } from 'modules/log/entities/log.entity';
 import loggerConfig from '@/src/config/logger.config';
 import { forSuperAdmins } from 'modules/admin/resources/user/user-permissions';
@@ -53,6 +54,7 @@ export const getAdminJSOptions = (serviceAccessor: ServiceAccessor): AdminJSOpti
       createUserResource(),
       createFileResource(),
       createEventResource(),
+      createCollectionResource(serviceAccessor),
       createTokenResource(),
       merge(createLoggerResource({ resource: Log, featureOptions: loggerConfig }), {
         options: {

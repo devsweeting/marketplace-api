@@ -3,10 +3,11 @@ import { S3Provider } from 'modules/storage/providers/s3.provider';
 import { StorageService } from 'modules/storage/storage.service';
 import { ServiceAccessor } from 'modules/admin/utils/service.accessor';
 import { ConfigService } from '@nestjs/config';
-import { Asset } from 'modules/assets/entities';
+import { Collection } from 'modules/collections/entities';
 
 const uploadFile =
-  (uploadProperty, serviceAccessor: ServiceAccessor) => async (response, request, context) => {
+  (uploadProperty, storagePath: string, serviceAccessor: ServiceAccessor) =>
+  async (response, request, context) => {
     if (request.method !== 'post') return response;
 
     const { record } = context;
@@ -21,11 +22,12 @@ const uploadFile =
 
     const storageService = new StorageService(s3Provider, fileDownloadService);
 
-    const image = await storageService.uploadAndSave(`assets/${record.id()}/`, file);
+    const banner = await storageService.uploadAndSave(`${storagePath}/${record.id()}/`, file);
 
-    const asset: Asset = await Asset.findOne(record.params.id);
-    Object.assign(asset, { imageId: image.id });
-    await asset.save();
+    const collection: Collection = await Collection.findOne(record.params.id);
+
+    Object.assign(collection, { bannerId: banner.id });
+    await collection.save();
 
     return response;
   };

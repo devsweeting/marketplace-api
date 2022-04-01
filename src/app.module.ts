@@ -13,20 +13,9 @@ import { MailModule } from 'modules/mail/mail.module';
 import { AssetsModule } from 'modules/assets/assets.module';
 import { join } from 'path';
 import { StorageModule } from 'modules/storage/storage.module';
+import { CollectionsModule } from './modules/collections/collections.module';
 
-const modules = [
-  ConfigModule.forRoot({
-    isGlobal: true,
-    envFilePath: [
-      `.env.${process.env.NODE_ENV}.local`,
-      `.env.${process.env.NODE_ENV}`,
-      '.env.local',
-      '.env',
-    ],
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    load: Object.values(require('./config')),
-  }),
-];
+const modules = [];
 
 if (process.env.NODE_ENV === 'STAGING' || process.env.NODE_ENV === 'PRODUCTION') {
   modules.push(
@@ -47,6 +36,17 @@ if (process.env.NODE_ENV === 'STAGING' || process.env.NODE_ENV === 'PRODUCTION')
 }
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: [
+        `.env.${process.env.NODE_ENV}.local`,
+        `.env.${process.env.NODE_ENV}`,
+        '.env.local',
+        '.env',
+      ],
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      load: Object.values(require('./config')),
+    }),
     AuthModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
@@ -60,6 +60,7 @@ if (process.env.NODE_ENV === 'STAGING' || process.env.NODE_ENV === 'PRODUCTION')
     PartnersModule,
     AssetsModule,
     UsersModule,
+    CollectionsModule,
     ...modules,
   ],
   controllers: [AppController],
