@@ -158,9 +158,9 @@ export class Asset extends BaseModel implements BaseEntityInterface {
 
   public static list(params: ListAssetsDto): SelectQueryBuilder<Asset> {
     const query = Asset.createQueryBuilder('asset')
-      .leftJoinAndMapMany('asset.attributes', 'asset.attributes', 'attributes')
       .leftJoinAndMapOne('asset.image', 'asset.image', 'image')
-      .where('asset.isDeleted = :isDeleted', { isDeleted: false })
+      .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
+      .andWhere('asset.deletedAt IS NULL')
       .addOrderBy(params.sort, params.order);
 
     if (params.query) {

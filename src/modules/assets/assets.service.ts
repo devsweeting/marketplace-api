@@ -15,11 +15,22 @@ import { Not } from 'typeorm';
 export class AssetsService {
   public constructor(private readonly storageService: StorageService) {}
 
-  public getList(params: ListAssetsDto): Promise<Pagination<Asset>> {
-    return paginate<Asset, IPaginationMeta>(Asset.list(params), {
+  public async getList(params: ListAssetsDto): Promise<Pagination<Asset>> {
+    const results = await paginate<Asset, IPaginationMeta>(Asset.list(params), {
       page: params.page,
       limit: params.limit,
     });
+
+    return new Pagination(
+      await Promise.all(
+        results.items.map(async (item: Asset) => {
+          item.attributes = await Attribute.findAllByAssetId(item.id);
+
+          return item;
+        }),
+      ),
+      results.meta,
+    );
   }
 
   public async getOne(id: string): Promise<Asset> {

@@ -1,5 +1,5 @@
 import { BaseModel } from '../../common/entities/base.model';
-import { Column, Entity, JoinColumn, ManyToOne, RelationId } from 'typeorm';
+import { Column, Entity, IsNull, JoinColumn, ManyToOne, RelationId } from 'typeorm';
 import { Asset } from './';
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 
@@ -40,5 +40,15 @@ export class Attribute extends BaseModel implements BaseEntityInterface {
   public constructor(partial: Partial<Attribute>) {
     super();
     Object.assign(this, partial);
+  }
+
+  public static findAllByAssetId(assetId: string): Promise<Attribute[]> {
+    return Attribute.find({
+      where: {
+        assetId,
+        isDeleted: false,
+        deletedAt: IsNull(),
+      },
+    });
   }
 }
