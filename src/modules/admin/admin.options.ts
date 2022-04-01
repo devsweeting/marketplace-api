@@ -22,6 +22,7 @@ import { forSuperAdmins } from 'modules/admin/resources/user/user-permissions';
 import { merge } from 'lodash';
 import { createLoggerResource } from '@adminjs/logger';
 import createTokenResource from './resources/token/token.resource';
+import { adminUtilitiesNavigation } from 'modules/admin/admin.navigation';
 
 AdminJS.registerAdapter({ Database, Resource });
 
@@ -54,12 +55,15 @@ export const getAdminJSOptions = (serviceAccessor: ServiceAccessor): AdminJSOpti
       createEventResource(),
       createTokenResource(),
       merge(createLoggerResource({ resource: Log, featureOptions: loggerConfig }), {
-        actions: {
-          list: {
-            isAccessible: forSuperAdmins,
-          },
-          show: {
-            isAccessible: forSuperAdmins,
+        options: {
+          navigation: adminUtilitiesNavigation,
+          actions: {
+            list: {
+              isAccessible: forSuperAdmins,
+            },
+            show: {
+              isAccessible: forSuperAdmins,
+            },
           },
         },
       }),
