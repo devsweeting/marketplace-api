@@ -48,11 +48,7 @@ export class S3Provider implements ProviderInterface {
   }
 
   public getUrl(file: File): string {
-    return this.getS3().getSignedUrl('getObject', {
-      Key: file.path,
-      Bucket: this.configService.get('aws.default.s3Bucket'),
-      Expires: 30,
-    });
+    return `${this.configService.get('aws.default.cloudFrontDomain')}/${file.path}`;
   }
 
   private async s3Upload(filePath: string, key: string): Promise<AwsUploadResponseInterface> {

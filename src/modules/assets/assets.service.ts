@@ -59,7 +59,7 @@ export class AssetsService {
     }
 
     if (image) {
-      asset.image = await this.storageService.uploadFromUrl(image, `images/assets/${asset.id}`);
+      asset.image = await this.storageService.uploadFromUrl(image, `assets/${asset.id}`);
     }
 
     if (listing) {
@@ -104,7 +104,7 @@ export class AssetsService {
         if (assetDto.image) {
           asset.image = await this.storageService.uploadFromUrl(
             assetDto.image,
-            `images/assets/${asset.id}`,
+            `assets/${asset.id}`,
           );
           await asset.save();
         }

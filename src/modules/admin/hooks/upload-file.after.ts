@@ -3,6 +3,7 @@ import { S3Provider } from 'modules/storage/providers/s3.provider';
 import { StorageService } from 'modules/storage/storage.service';
 import { ServiceAccessor } from 'modules/admin/utils/service.accessor';
 import { ConfigService } from '@nestjs/config';
+import { Asset } from 'modules/assets/entities';
 
 const uploadFile =
   (uploadProperty, serviceAccessor: ServiceAccessor) => async (response, request, context) => {
@@ -20,7 +21,11 @@ const uploadFile =
 
     const storageService = new StorageService(s3Provider, fileDownloadService);
 
-    await storageService.uploadAndSave(`images/assets/${record.id()}/`, file);
+    const image = await storageService.uploadAndSave(`assets/${record.id()}/`, file);
+
+    const asset: Asset = await Asset.findOne(record.params.id);
+    Object.assign(asset, { imageId: image.id });
+    await asset.save();
 
     return response;
   };
