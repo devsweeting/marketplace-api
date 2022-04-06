@@ -5,6 +5,7 @@
     "Invalid credentials": "Invalid credentials",
     "Invalid nonce": "Invalid nonce",
     "Invalid signature": "Invalid signature",
-    "There are no users matching given address": "There are no users matching given address"
+    "There are no users matching given address": "There are no users matching given address",
+    "areYouSureToRemove": "Are you sure you want to remove this file?"
   }
 }
