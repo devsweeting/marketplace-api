@@ -17,7 +17,7 @@ const createTokenResource = (): CreateResourceResult<typeof Token> => ({
       ...options,
       listProperties: ['tokenId', 'supply', 'assetId', 'partnerId', 'contractId', 'createdAt'],
       showProperties: ['id', 'tokenId', 'supply', 'assetId', 'partnerId', 'contractId'],
-      editProperties: ['supply', 'assetId', 'partnerId', 'contractId'],
+      editProperties: ['supply', 'assetId'],
       filterProperties: [],
     }),
   ],
