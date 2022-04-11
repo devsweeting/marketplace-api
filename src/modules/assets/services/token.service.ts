@@ -10,7 +10,7 @@ export class TokensService {
 
     const token = await Token.findOne({
       where: { tokenId, contract: { address: contractAddress }, isDeleted: false },
-      relations: ['asset', 'asset.attributes', 'contract'],
+      relations: ['asset', 'asset.attributes', 'asset.image', 'partner', 'contract'],
     });
     if (!token) {
       throw new TokenNotFoundException();
@@ -22,7 +22,16 @@ export class TokensService {
     const { tokenId, contractAddress } = dto;
     const token = await Token.findOne({
       where: { tokenId, contract: { address: contractAddress }, isDeleted: false },
-      relations: ['asset', 'asset.attributes', 'partner', 'contract'],
+      relations: [
+        'asset',
+        'asset.attributes',
+        'asset.image',
+        'partner',
+        'contract',
+        'partner.avatar',
+        'partner.logo',
+        'partner.banner',
+      ],
     });
     if (!token) {
       throw new TokenNotFoundException();
