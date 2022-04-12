@@ -51,16 +51,16 @@ export class Token extends BaseModel {
 
   @BeforeInsert()
   public async beforeInsert(): Promise<void> {
-    const asset = await Asset.findOne(this.assetId);
-    this.partnerId = asset.partnerId;
-    this.partner = asset.partner;
-    this.contractId = asset.contractId;
-    this.contract = asset.contract;
+    await this.populateRelations();
   }
 
   @BeforeUpdate()
   public async beforeUpdate(): Promise<void> {
-    const asset = await Asset.findOne(this.assetId);
+    await this.populateRelations();
+  }
+
+  private async populateRelations(): Promise<void> {
+    const asset = await Asset.findOne(this.assetId, { relations: ['partner', 'contract'] });
     this.partnerId = asset.partnerId;
     this.partner = asset.partner;
     this.contractId = asset.contractId;

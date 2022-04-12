@@ -63,9 +63,9 @@ export class TokensTransformer {
 
   public partnerTransform(partner: Partner): PartnerResponse {
     return {
-      avatar: partner?.avatar ? this.storageService.getUrl(partner.avatar) : null,
-      logo: partner?.logo ? this.storageService.getUrl(partner.logo) : null,
-      banner: partner?.banner ? this.storageService.getUrl(partner.banner) : null,
+      avatar: partner.avatar ? this.storageService.getUrl(partner.avatar) : null,
+      logo: partner.logo ? this.storageService.getUrl(partner.logo) : null,
+      banner: partner.banner ? this.storageService.getUrl(partner.banner) : null,
     };
   }
 }

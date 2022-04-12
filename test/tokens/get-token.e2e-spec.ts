@@ -43,6 +43,10 @@ describe('TokensController', () => {
     });
   });
 
+  beforeEach(async () => {
+    token = await createToken({ assetId: asset.id, asset });
+  });
+
   afterEach(async () => {
     jest.clearAllMocks();
   });
@@ -54,7 +58,6 @@ describe('TokensController', () => {
   describe(`GET /token/:contractAddress/:tokenId`, () => {
     it('should return token', async () => {
       mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);
-      token = await createToken({ assetId: asset.id, asset });
 
       return request(app.getHttpServer())
         .get(`/token/${contract.address}/${token.tokenId}`)
@@ -66,8 +69,6 @@ describe('TokensController', () => {
     });
 
     it('should 400 exception tokenId is invalid', async () => {
-      token = await createToken({ assetId: asset.id, asset });
-
       return request(app.getHttpServer())
         .get(`/token/${contract.address}/123`)
         .send()

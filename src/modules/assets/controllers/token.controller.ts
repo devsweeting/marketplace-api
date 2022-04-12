@@ -22,7 +22,7 @@ export class TokensController {
     type: TokenMetaResponse,
   })
   public async getTokenMeta(@Param() params: TokenDto): Promise<string | TokenMetaResponse> {
-    const token = await this.tokensService.getTokenMeta(params);
+    const token = await this.tokensService.getToken(params);
     const res = this.tokensTransformer.transformMeta(token);
     return params.ext === 'json' ? JSON.stringify(res) : res;
   }

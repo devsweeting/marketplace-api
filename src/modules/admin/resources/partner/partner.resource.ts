@@ -44,6 +44,14 @@ const createPartnerResource = (
         isAccessible: forAdminGroup,
         after: [getImage(serviceAccessor)],
       },
+      new: {
+        isAccessible: forAdminGroup,
+        after: [
+          uploadFile('avatar', 'partners/avatars', serviceAccessor),
+          uploadFile('logo', 'partners/logos', serviceAccessor),
+          uploadFile('banner', 'partners/banners', serviceAccessor),
+        ],
+      },
       edit: {
         isAccessible: forAdminGroup,
         after: [
