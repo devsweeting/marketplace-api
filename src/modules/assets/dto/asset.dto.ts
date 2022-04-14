@@ -4,6 +4,7 @@ import { IsNotEmpty, IsOptional, IsUrl, MaxLength, ValidateNested } from 'class-
 import { CollectionDto } from '.';
 import { AttributeDto } from './attribute.dto';
 import { ListingDto } from './listing.dto';
+import { MediaDto } from './media/media.dto';
 
 export class AssetDto {
   @IsNotEmpty()
@@ -29,7 +30,16 @@ export class AssetDto {
     required: false,
     example: 'https://picsum.photos/400/200',
   })
+  @IsOptional()
   public image: any;
+
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Media for asset',
+    required: false,
+  })
+  @IsOptional()
+  public media?: MediaDto[];
 
   @MaxLength(200)
   @IsUrl()

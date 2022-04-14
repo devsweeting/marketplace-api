@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Partner } from 'modules/partners/entities';
 import { AssetsDuplicatedException } from 'modules/assets/exceptions/assets-duplicated.exception';
-import { Asset, Attribute, Label, Token } from './entities';
+import { Asset, Attribute, Label, Media, Token } from './entities';
 import { TransferRequestDto } from 'modules/assets/dto';
 import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 import { IPaginationMeta, paginate, Pagination } from 'nestjs-typeorm-paginate';
@@ -12,10 +12,14 @@ import { StorageService } from 'modules/storage/storage.service';
 import { Not } from 'typeorm';
 import { Collection, CollectionAsset } from 'modules/collections/entities';
 import { CollectionNotFoundException } from 'modules/collections/exceptions/collection-not-found.exception';
+import { MediaService } from './services/media.service';
 
 @Injectable()
 export class AssetsService {
-  public constructor(private readonly storageService: StorageService) {}
+  public constructor(
+    private readonly storageService: StorageService,
+    private readonly mediaService: MediaService,
+  ) {}
 
   public async getList(params: ListAssetsDto): Promise<Pagination<Asset>> {
     const results = await paginate<Asset, IPaginationMeta>(Asset.list(params), {
@@ -27,7 +31,11 @@ export class AssetsService {
       await Promise.all(
         results.items.map(async (item: Asset) => {
           item.attributes = await Attribute.findAllByAssetId(item.id);
-
+          item.medias = await Media.find({
+            where: { assetId: item.id, isDeleted: false, deletedAt: null },
+            order: { sortOrder: 'ASC' },
+            take: 1,
+          });
           return item;
         }),
       ),
@@ -36,10 +44,16 @@ export class AssetsService {
   }
 
   public async getOne(id: string): Promise<Asset> {
-    const asset = await Asset.findOne({
-      where: { id, isDeleted: false },
-      relations: ['attributes', 'image'],
-    });
+    const asset = await Asset.createQueryBuilder('asset')
+      .leftJoinAndMapMany('asset.attributes', 'asset.attributes', 'attributes')
+      .leftJoinAndMapOne('asset.image', 'asset.image', 'image')
+      .leftJoinAndMapMany('asset.medias', 'asset.medias', 'medias')
+      .where('asset.id = :id', { id })
+      .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
+      .andWhere('asset.deletedAt IS NULL')
+      .orderBy('medias.sortOrder', 'ASC')
+      .getOne();
+
     if (!asset) {
       throw new AssetNotFoundException();
     }
@@ -66,13 +80,17 @@ export class AssetsService {
       }
     }
 
-    const { attributes, listing, image, ...data } = dto;
+    const { attributes, listing, image, media, ...data } = dto;
     if (Array.isArray(attributes)) {
       await asset.saveAttributes(attributes);
     }
 
     if (image) {
       asset.image = await this.storageService.uploadFromUrl(image, `assets/${asset.id}`);
+    }
+
+    if (media) {
+      asset.medias = await this.mediaService.createBulkMedia(id, media);
     }
 
     if (listing) {
@@ -95,6 +113,7 @@ export class AssetsService {
     await Token.update({ assetId: asset.id }, { isDeleted: true, deletedAt: new Date() });
     await Attribute.update({ assetId: asset.id }, { isDeleted: true, deletedAt: new Date() });
     await Label.update({ assetId: asset.id }, { isDeleted: true, deletedAt: new Date() });
+    await Media.update({ assetId: asset.id }, { isDeleted: true, deletedAt: new Date() });
   }
 
   public async recordTransferRequest(partnerId: string, dto: TransferRequestDto): Promise<void> {
@@ -119,20 +138,23 @@ export class AssetsService {
             assetDto.image,
             `assets/${asset.id}`,
           );
-          if (assetDto.collection) {
-            const collection = assetDto.collection.id
-              ? await Collection.findOne(assetDto.collection.id)
-              : await Collection.findOne({ where: { slug: assetDto.collection.id } });
-            if (!collection) {
-              throw new CollectionNotFoundException();
-            }
-            const collectionAsset = CollectionAsset.create({
-              collectionId: collection.id,
-              assetId: asset.id,
-            });
-            await collectionAsset.save();
-          }
           await asset.save();
+        }
+        if (assetDto.collection) {
+          const collection = assetDto.collection.id
+            ? await Collection.findOne(assetDto.collection.id)
+            : await Collection.findOne({ where: { slug: assetDto.collection.id } });
+          if (!collection) {
+            throw new CollectionNotFoundException();
+          }
+          const collectionAsset = CollectionAsset.create({
+            collectionId: collection.id,
+            assetId: asset.id,
+          });
+          await collectionAsset.save();
+        }
+        if (assetDto.media) {
+          asset.medias = await this.mediaService.createBulkMedia(asset.id, assetDto.media);
         }
       }),
     );

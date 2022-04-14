@@ -1,5 +1,5 @@
 import { registerAs } from '@nestjs/config';
-import { Asset, Attribute, Contract, Label, Token } from 'modules/assets/entities';
+import { Asset, Attribute, Contract, Label, Media, Token } from 'modules/assets/entities';
 import { File } from 'modules/storage/entities/file.entity';
 import { Partner, PartnerMemberUser } from 'modules/partners/entities';
 import { User } from 'modules/users/user.entity';
@@ -39,6 +39,7 @@ export default registerAs('database', () => {
         Collection,
         CollectionAsset,
         Log,
+        Media,
       ],
     },
   };

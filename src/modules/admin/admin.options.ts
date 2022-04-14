@@ -24,6 +24,7 @@ import { merge } from 'lodash';
 import { createLoggerResource } from '@adminjs/logger';
 import createTokenResource from './resources/token/token.resource';
 import { adminUtilitiesNavigation } from 'modules/admin/admin.navigation';
+import createMediaResource from './resources/media/media.resource';
 
 AdminJS.registerAdapter({ Database, Resource });
 
@@ -56,6 +57,7 @@ export const getAdminJSOptions = (serviceAccessor: ServiceAccessor): AdminJSOpti
       createEventResource(),
       createCollectionResource(serviceAccessor),
       createTokenResource(),
+      createMediaResource(),
       merge(createLoggerResource({ resource: Log, featureOptions: loggerConfig }), {
         options: {
           navigation: adminUtilitiesNavigation,

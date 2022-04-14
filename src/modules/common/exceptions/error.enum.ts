@@ -7,4 +7,6 @@ export enum ErrorEnum {
   SessionNotFound = 'SESSION_NOT_FOUND',
   RefAlreadyTaken = 'REF_ALREADY_TAKEN',
   NameAlreadyTaken = 'NAME_ALREADY_TAKEN',
+
+  MediaOrderIsNotUnique = 'MEDIA_ORDER_NOT_UNIQUE',
 }

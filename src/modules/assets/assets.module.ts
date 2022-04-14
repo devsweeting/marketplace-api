@@ -8,6 +8,9 @@ import { TokensController } from './controllers/token.controller';
 import { TokensTransformer } from './transformers/tokens.transformer';
 import { AssetSubscriber } from './subscribers/after-insert';
 import { AttributeTransformer } from 'modules/assets/transformers/attribute.transformer';
+import { MediaService } from './services/media.service';
+import { MediaController } from './controllers/media.controller';
+import { MediaTransformer } from './transformers/media.transformer';
 
 @Module({
   imports: [StorageModule],
@@ -18,8 +21,10 @@ import { AttributeTransformer } from 'modules/assets/transformers/attribute.tran
     TokensTransformer,
     AttributeTransformer,
     AssetSubscriber,
+    MediaService,
+    MediaTransformer,
   ],
-  controllers: [AssetsController, TokensController],
+  controllers: [AssetsController, TokensController, MediaController],
   exports: [AssetsService],
 })
 export class AssetsModule {}

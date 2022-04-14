@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import { IsNotEmpty, IsOptional, IsUrl, MaxLength, ValidateNested } from 'class-validator';
 import { AttributeDto } from './attribute.dto';
 import { ListingDto } from './listing.dto';
+import { MediaDto } from './media/media.dto';
 
 export class UpdateAssetDto {
   @IsNotEmpty()
@@ -32,6 +33,14 @@ export class UpdateAssetDto {
   })
   @IsOptional()
   public image?: string;
+
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Media for asset',
+    required: false,
+  })
+  @IsOptional()
+  public media?: MediaDto[];
 
   @MaxLength(200)
   @IsUrl()

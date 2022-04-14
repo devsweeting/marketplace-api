@@ -7,10 +7,10 @@ import { Collection } from '.';
 
 @Entity({ name: 'collections_assets' })
 export class CollectionAsset extends BaseModel implements BaseEntityInterface {
-  @Column()
+  @Column({ primary: true })
   public collectionId: string;
 
-  @Column()
+  @Column({ primary: true })
   public assetId: string;
 
   @ManyToOne(() => Collection)

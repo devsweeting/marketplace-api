@@ -28,6 +28,7 @@ import { Event } from 'modules/events/entities';
 import { Token } from './token.entity';
 import { File } from 'modules/storage/entities/file.entity';
 import { CollectionAsset } from 'modules/collections/entities';
+import { Media } from './media.entity';
 
 @Entity('partner_assets')
 export class Asset extends BaseModel implements BaseEntityInterface {
@@ -88,6 +89,9 @@ export class Asset extends BaseModel implements BaseEntityInterface {
 
   @OneToMany(() => Token, (token) => token.asset)
   public tokens: Token[];
+
+  @OneToMany(() => Media, (media) => media.asset)
+  public medias: Media[];
 
   @ManyToOne(() => Contract, { nullable: true })
   @JoinColumn({ name: 'contractId', referencedColumnName: 'id' })
