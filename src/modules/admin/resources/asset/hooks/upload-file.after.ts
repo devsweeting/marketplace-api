@@ -11,7 +11,14 @@ const uploadFile =
     const { record } = context;
     const file = request.payload[uploadProperty];
 
-    if (!record.isValid() || !file) {
+    if (!record.isValid()) {
+      return response;
+    }
+
+    if (!file) {
+      const asset: Asset = await Asset.findOne(record.params.id);
+      Object.assign(asset, { imageId: null });
+      await asset.save();
       return response;
     }
     const storageService = serviceAccessor.getService(StorageService);
