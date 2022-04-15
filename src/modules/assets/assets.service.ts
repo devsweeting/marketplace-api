@@ -102,15 +102,6 @@ export class AssetsService {
 
     Logger.log(`Partner ${partner.name} received transfer request`);
 
-    const duplicatedAssetsByRefIds = await Asset.findDuplicatedByRefIds(
-      partnerId,
-      dto.assets.map((asset) => asset.refId),
-    );
-
-    if (duplicatedAssetsByRefIds.length) {
-      throw new AssetsDuplicatedException(duplicatedAssetsByRefIds.map((asset) => asset.refId));
-    }
-
     await Promise.all(
       dto.assets.map(async (assetDto) => {
         const asset = await Asset.saveAssetForPartner(assetDto, partner);

@@ -1,1 +1,2 @@
 export const MAX_INT_VALUE = 2147483647;
+export const POSTGRES_DUPE_KEY_ERROR = '23505';

@@ -239,6 +239,50 @@ describe('AssetsController', () => {
         });
     });
 
+    it('should throw 400 exception if asset already exist by refId (same request)', async () => {
+      const transferRequest: any = {
+        user: {
+          refId: '1232',
+          email: 'steven@example.com',
+        },
+        assets: [
+          {
+            refId: '1232',
+            image: 'https://example.com/image.png',
+            name: 'Example',
+            description: 'test',
+            listing: {
+              marketplace: 'OPEN_SEA',
+            },
+          },
+          {
+            refId: '1232',
+            image: 'https://example.com/image.png',
+            name: 'Example',
+            description: 'test',
+            listing: {
+              marketplace: 'OPEN_SEA',
+            },
+          },
+        ],
+      };
+
+      return request(app.getHttpServer())
+        .post(`/assets`)
+        .set({
+          'x-api-key': partner.apiKey,
+        })
+        .send(transferRequest)
+        .expect(400)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            statusCode: 400,
+            message: 'Duplicated assets',
+            refIds: ['1232'],
+          });
+        });
+    });
+
     it('should throw an exception if assets property is undefined', () => {
       const transferRequest: any = {
         user: {

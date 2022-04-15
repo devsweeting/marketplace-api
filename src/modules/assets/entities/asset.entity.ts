@@ -11,6 +11,7 @@ import {
   OneToMany,
   RelationId,
   SelectQueryBuilder,
+  Unique,
 } from 'typeorm';
 
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
@@ -28,8 +29,11 @@ import { Event } from 'modules/events/entities';
 import { Token } from './token.entity';
 import { File } from 'modules/storage/entities/file.entity';
 import { CollectionAsset } from 'modules/collections/entities';
+import { POSTGRES_DUPE_KEY_ERROR } from 'modules/common/constants';
+import { AssetsDuplicatedException } from '../exceptions/assets-duplicated.exception';
 
 @Entity('partner_assets')
+@Unique('PARTNER_REF_UNIQUE', ['refId', 'partnerId'])
 export class Asset extends BaseModel implements BaseEntityInterface {
   @Index()
   @Column({ nullable: false, length: 100 })
@@ -113,15 +117,6 @@ export class Asset extends BaseModel implements BaseEntityInterface {
     this.slug = generateSlug(this.name);
   }
 
-  public static findDuplicatedByRefIds(partnerId: string, refIds: string[]): Promise<Asset[]> {
-    return Asset.find({
-      where: {
-        refId: In(refIds),
-        partnerId,
-      },
-    });
-  }
-
   public async saveAttributes(attributes: AttributeDto[]): Promise<Attribute[]> {
     await Attribute.delete({ assetId: this.id });
     return Promise.all(
@@ -154,7 +149,9 @@ export class Asset extends BaseModel implements BaseEntityInterface {
         );
       }
     } catch (e) {
-      Logger.error(e);
+      if (e.code === POSTGRES_DUPE_KEY_ERROR && e.constraint == 'PARTNER_REF_UNIQUE') {
+        throw new AssetsDuplicatedException([dto.refId]);
+      }
       throw new InternalServerErrorException();
     }
     return newAsset;
