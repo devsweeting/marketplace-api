@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { PartnerResponse } from '../partner.response';
 import { TraitsMetaResponse } from './traits-meta.response';
 
 export class TokenMetaResponse {
@@ -19,4 +20,7 @@ export class TokenMetaResponse {
 
   @ApiProperty()
   public traits: TraitsMetaResponse[];
+
+  @ApiProperty()
+  public partner: PartnerResponse;
 }

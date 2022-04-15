@@ -5,24 +5,20 @@ import { TokenNotFoundException } from '../exceptions/token-not-found.exception'
 
 @Injectable()
 export class TokensService {
-  public async getTokenMeta(dto: TokenDto): Promise<Token> {
-    const { tokenId, contractAddress } = dto;
-
-    const token = await Token.findOne({
-      where: { tokenId, contract: { address: contractAddress }, isDeleted: false },
-      relations: ['asset', 'asset.attributes', 'contract'],
-    });
-    if (!token) {
-      throw new TokenNotFoundException();
-    }
-    return token;
-  }
-
   public async getToken(dto: TokenDto): Promise<Token> {
     const { tokenId, contractAddress } = dto;
     const token = await Token.findOne({
       where: { tokenId, contract: { address: contractAddress }, isDeleted: false },
-      relations: ['asset', 'asset.attributes', 'partner', 'contract'],
+      relations: [
+        'asset',
+        'asset.attributes',
+        'asset.image',
+        'partner',
+        'contract',
+        'partner.avatar',
+        'partner.logo',
+        'partner.banner',
+      ],
     });
     if (!token) {
       throw new TokenNotFoundException();
