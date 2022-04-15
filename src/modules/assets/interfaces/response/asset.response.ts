@@ -3,22 +3,22 @@ import { ListingResponse } from 'modules/assets/interfaces/response/listing.resp
 import { AttributeResponse } from 'modules/assets/interfaces/response/attribute.response';
 
 export class AssetResponse {
-  @ApiProperty({ example: '1' })
+  @ApiProperty({ example: '5c2481c4-c622-48a3-ae6d-657097c3d5e7' })
   public id: string;
 
-  @ApiProperty({ example: '5c2481c4-c622-48a3-ae6d-657097c3d5e7' })
+  @ApiProperty({ example: '1' })
   public refId: string;
 
   @ApiProperty({ example: 'Test asset name' })
   public name: string;
 
-  @ApiProperty({ example: 'https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg' })
+  @ApiProperty({ example: 'https://picsum.photos/200/300' })
   public image: string;
 
   @ApiProperty({ example: 'test-asset-name' })
   public slug: string;
 
-  @ApiProperty({ example: 'https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg' })
+  @ApiProperty({ example: 'https://picsum.photos/200/300' })
   public externalUrl: string;
 
   @ApiProperty({
