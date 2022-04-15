@@ -325,9 +325,9 @@ describe('AssetsController', () => {
       await Event.delete({});
       await Asset.delete({});
 
-      const asset1 = await createAsset({ partner, name: 'test-1' });
-      const asset2 = await createAsset({ partner, name: 'test-2' });
-      const asset3 = await createAsset({ partner, name: 'test-3' });
+      const asset1 = await createAsset({ partner, refId: '1', name: 'test-1' });
+      const asset2 = await createAsset({ partner, refId: '2', name: 'test-2' });
+      const asset3 = await createAsset({ partner, refId: '3', name: 'test-3' });
 
       await createAttribute({ asset: asset1 });
       await createAttribute({ asset: asset1 });

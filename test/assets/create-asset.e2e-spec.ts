@@ -7,7 +7,7 @@ import {
   mockS3Provider,
 } from '@/test/utils/app.utils';
 import { createPartner } from '@/test/utils/partner.utils';
-import { createAsset } from '@/test/utils/asset.utils';
+import { createAsset, softDeleteAsset } from '@/test/utils/asset.utils';
 import { Partner } from 'modules/partners/entities';
 import { Asset, Attribute } from 'modules/assets/entities';
 import { StorageEnum } from 'modules/storage/enums/storage.enum';
@@ -211,6 +211,85 @@ describe('AssetsController', () => {
           email: 'steven@example.com',
         },
         assets: [
+          {
+            refId: '1232',
+            image: 'https://example.com/image.png',
+            name: 'Example',
+            description: 'test',
+            listing: {
+              marketplace: 'OPEN_SEA',
+            },
+          },
+        ],
+      };
+
+      return request(app.getHttpServer())
+        .post(`/assets`)
+        .set({
+          'x-api-key': partner.apiKey,
+        })
+        .send(transferRequest)
+        .expect(400)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            statusCode: 400,
+            message: 'Duplicated assets',
+            refIds: ['1232'],
+          });
+        });
+    });
+
+    it('should be able to recreate a deleted asset', async () => {
+      const anotherUser = await createUser({});
+      const partner2 = await createPartner({
+        apiKey: 'another-partner2-api-key',
+        accountOwner: anotherUser,
+      });
+      const asset = await createAsset({ refId: '1232', partner: partner2 });
+      softDeleteAsset(asset);
+      const transferRequest: any = {
+        user: {
+          refId: '1232',
+          email: 'steven@example.com',
+        },
+        assets: [
+          {
+            refId: '1232',
+            image: 'https://example.com/image.png',
+            name: 'Example',
+            description: 'test',
+            listing: {
+              marketplace: 'OPEN_SEA',
+            },
+          },
+        ],
+      };
+
+      return request(app.getHttpServer())
+        .post(`/assets`)
+        .set({
+          'x-api-key': partner.apiKey,
+        })
+        .send(transferRequest)
+        .expect(201);
+    });
+
+    it('should throw 400 exception if asset already exist by refId (same request)', async () => {
+      const transferRequest: any = {
+        user: {
+          refId: '1232',
+          email: 'steven@example.com',
+        },
+        assets: [
+          {
+            refId: '1232',
+            image: 'https://example.com/image.png',
+            name: 'Example',
+            description: 'test',
+            listing: {
+              marketplace: 'OPEN_SEA',
+            },
+          },
           {
             refId: '1232',
             image: 'https://example.com/image.png',
