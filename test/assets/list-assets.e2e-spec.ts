@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { clearAllData, createApp, mockS3Provider } from '@/test/utils/app.utils';
-import { Asset } from 'modules/assets/entities';
+import { Asset, Attribute, Media } from 'modules/assets/entities';
 import { createAsset } from '@/test/utils/asset.utils';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
 import { createFile } from '@/test/utils/file.utils';
@@ -13,6 +13,8 @@ import { createPartner } from '../utils/partner.utils';
 import { User } from 'modules/users/user.entity';
 import { createAttribute } from '@/test/utils/attribute.utils';
 import { Event } from 'modules/events/entities';
+import { createImageMedia, createVideoMedia } from '../utils/media.utils';
+import { MediaTransformer } from 'modules/assets/transformers/media.transformer';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -20,11 +22,13 @@ describe('AssetsController', () => {
   let partner: Partner;
   let user: User;
   let assetsTransformer: AssetsTransformer;
+  let mediaTransformer: MediaTransformer;
   const mockedFileUrl = 'http://example.com';
 
   beforeAll(async () => {
     app = await createApp();
     assetsTransformer = app.get(AssetsTransformer);
+    mediaTransformer = app.get(MediaTransformer);
     user = await createUser({ email: 'partner@test.com', role: RoleEnum.USER });
     partner = await createPartner({
       apiKey: 'test-api-key',
@@ -359,5 +363,49 @@ describe('AssetsController', () => {
           });
         });
     });
+  });
+  it('should return valid meta if asset has media', async () => {
+    await Attribute.delete({});
+    await Event.delete({});
+    await Media.delete({});
+    await Asset.delete({});
+
+    const asset1 = await createAsset({ partner, name: 'test-1' });
+    const asset2 = await createAsset({ partner, name: 'test-2' });
+    const asset3 = await createAsset({ partner, name: 'test-3' });
+
+    const imageMedia = await createImageMedia({ asset: asset1, sortOrder: 1 });
+    await createImageMedia({ asset: asset1, sortOrder: 2 });
+    await createImageMedia({ asset: asset1, sortOrder: 3 });
+    const videoMedia = await createVideoMedia({ asset: asset2, sortOrder: 1 });
+
+    const assetWithMedia1 = await Asset.findOne(asset1.id, { relations: ['medias'] });
+    const assetWithMedia2 = await Asset.findOne(asset2.id, { relations: ['medias'] });
+    const assetWithMedia3 = await Asset.findOne(asset3.id, { relations: ['medias'] });
+
+    const medias3 = mediaTransformer.transformAll(assetWithMedia3.medias);
+    const medias2 = mediaTransformer.transformAll([videoMedia]);
+    const medias1 = mediaTransformer.transformAll([imageMedia]);
+
+    return request(app.getHttpServer())
+      .get(`/assets`)
+      .send()
+      .expect(200)
+      .expect(({ body }) => {
+        expect(body).toEqual({
+          meta: {
+            totalItems: 3,
+            itemCount: 3,
+            itemsPerPage: 25,
+            totalPages: 1,
+            currentPage: 1,
+          },
+          items: assetsTransformer.transformAll([
+            Object.assign(assetWithMedia3, { medias: medias3 }),
+            Object.assign(assetWithMedia2, { medias: medias2 }),
+            Object.assign(assetWithMedia1, { medias: medias1 }),
+          ]),
+        });
+      });
   });
 });

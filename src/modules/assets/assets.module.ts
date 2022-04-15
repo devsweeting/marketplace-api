@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AssetsService } from 'modules/assets/assets.service';
+import { AssetsService } from 'modules/assets/services/assets.service';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
 import { AssetsController } from './controllers/assets.controller';
 import { StorageModule } from 'modules/storage/storage.module';

@@ -20,7 +20,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
-import { AssetsService } from 'modules/assets/assets.service';
+import { AssetsService } from 'modules/assets/services/assets.service';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
 import { GetPartner } from 'modules/auth/decorators/get-partner.decorator';
 import { Partner } from 'modules/partners/entities';

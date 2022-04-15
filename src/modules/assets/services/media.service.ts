@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Partner } from 'modules/partners/entities';
 import { StorageService } from 'modules/storage/storage.service';
 import { MediaDto } from '../dto/media/media.dto';
 import { UpdateMediaDto } from '../dto/media/update-media.dto';
 import { Asset, Media } from '../entities';
 import { MediaTypeEnum } from '../enums/media-type.enum';
 import { AssetMaxMediaOverLimitException } from '../exceptions/asset-max-media-over-limit.exception';
+import { AssetNotFoundException } from '../exceptions/asset-not-found.exception';
 import { MediaNotFoundException } from '../exceptions/media-not-found.exception';
 import { OrderIsNotUniqueException } from '../exceptions/order-is-not-unique.exception';
 
@@ -26,8 +28,19 @@ export class MediaService {
     return media;
   }
 
-  public async createMedia(assetId: string, dto: MediaDto): Promise<Media> {
-    const asset = await Asset.findOne(assetId, { relations: ['medias'] });
+  public async getAsset(partner: Partner, id: string): Promise<Asset> {
+    const asset = await Asset.findOne(id, {
+      where: { partnerId: partner.id },
+      relations: ['medias'],
+    });
+    if (!asset) {
+      throw new AssetNotFoundException();
+    }
+    return asset;
+  }
+
+  public async createMedia(partner: Partner, assetId: string, dto: MediaDto): Promise<Media> {
+    const asset = await this.getAsset(partner, assetId);
 
     const isOrderExists = await Media.findOne({
       where: { assetId: asset.id, sortOrder: dto.sortOrder, isDeleted: false, deletedAt: null },
@@ -52,10 +65,9 @@ export class MediaService {
     return newMedia;
   }
 
-  public async updateMedia(id: string, dto: UpdateMediaDto): Promise<Media> {
+  public async updateMedia(partner: Partner, id: string, dto: UpdateMediaDto): Promise<Media> {
     const media = await this.getMedia(id);
-    const asset = await Asset.findOne(media.assetId, { relations: ['medias'] });
-
+    const asset = await this.getAsset(partner, media.assetId);
     const isOrderExists = await Media.findOne({
       where: {
         assetId: asset.id,
@@ -89,8 +101,9 @@ export class MediaService {
     return media.save();
   }
 
-  public async deleteMedia(id: string): Promise<void> {
+  public async deleteMedia(partner: Partner, id: string): Promise<void> {
     const media = await this.getMedia(id);
+    await this.getAsset(partner, media.assetId);
     Object.assign(media, { isDeleted: true, deletedAt: new Date() });
     await media.save();
   }

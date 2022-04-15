@@ -89,6 +89,22 @@ describe('MediaController', () => {
         .expect(401);
     });
 
+    it('should throw 404 exception if partner is not owner', async () => {
+      const anotherUser = await createUser({});
+      const notOwnerPartner = await createPartner({
+        apiKey: 'not-owner-partner-api-key',
+        accountOwner: anotherUser,
+      });
+
+      return request(app.getHttpServer())
+        .post(`/assets/${asset.id}/media`)
+        .set({
+          'x-api-key': notOwnerPartner.apiKey,
+        })
+        .send(dtoRequest)
+        .expect(404);
+    });
+
     it('should create a new media object in the db', () => {
       const dto: any = {
         url: 'https://example.com/image.png',

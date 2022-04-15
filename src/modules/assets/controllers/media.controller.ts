@@ -17,6 +17,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { GetPartner } from 'modules/auth/decorators/get-partner.decorator';
+import { Partner } from 'modules/partners/entities';
 import { AssetIdDto } from '../dto/media/asset-id.dto';
 import { MediaIdDto } from '../dto/media/media-id.dto';
 import { MediaDto } from '../dto/media/media.dto';
@@ -43,8 +45,12 @@ export class MediaController {
     description: 'Media created',
   })
   @HttpCode(HttpStatus.CREATED)
-  public async create(@Param() params: AssetIdDto, @Body() dto: MediaDto): Promise<MediaResponse> {
-    const media = await this.mediaService.createMedia(params.assetId, dto);
+  public async create(
+    @GetPartner() partner: Partner,
+    @Param() params: AssetIdDto,
+    @Body() dto: MediaDto,
+  ): Promise<MediaResponse> {
+    const media = await this.mediaService.createMedia(partner, params.assetId, dto);
 
     return this.mediaTransformer.transform(media);
   }
@@ -61,8 +67,12 @@ export class MediaController {
     description: 'Media not found',
   })
   @HttpCode(HttpStatus.OK)
-  public async update(@Param() params: MediaIdDto, @Body() dto: UpdateMediaDto) {
-    const media = await this.mediaService.updateMedia(params.id, dto);
+  public async update(
+    @GetPartner() partner: Partner,
+    @Param() params: MediaIdDto,
+    @Body() dto: UpdateMediaDto,
+  ) {
+    const media = await this.mediaService.updateMedia(partner, params.id, dto);
 
     return this.mediaTransformer.transform(media);
   }
@@ -78,7 +88,7 @@ export class MediaController {
   @ApiNotFoundResponse({
     description: 'Media not found',
   })
-  public async delete(@Param() params: MediaIdDto): Promise<void> {
-    await this.mediaService.deleteMedia(params.id);
+  public async delete(@GetPartner() partner: Partner, @Param() params: MediaIdDto): Promise<void> {
+    await this.mediaService.deleteMedia(partner, params.id);
   }
 }

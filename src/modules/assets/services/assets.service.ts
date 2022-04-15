@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Partner } from 'modules/partners/entities';
 import { AssetsDuplicatedException } from 'modules/assets/exceptions/assets-duplicated.exception';
-import { Asset, Attribute, Label, Media, Token } from './entities';
+import { Asset, Attribute, Label, Media, Token } from '../entities';
 import { TransferRequestDto } from 'modules/assets/dto';
 import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 import { IPaginationMeta, paginate, Pagination } from 'nestjs-typeorm-paginate';
@@ -12,7 +12,7 @@ import { StorageService } from 'modules/storage/storage.service';
 import { Not } from 'typeorm';
 import { Collection, CollectionAsset } from 'modules/collections/entities';
 import { CollectionNotFoundException } from 'modules/collections/exceptions/collection-not-found.exception';
-import { MediaService } from './services/media.service';
+import { MediaService } from './media.service';
 
 @Injectable()
 export class AssetsService {
@@ -47,7 +47,12 @@ export class AssetsService {
     const asset = await Asset.createQueryBuilder('asset')
       .leftJoinAndMapMany('asset.attributes', 'asset.attributes', 'attributes')
       .leftJoinAndMapOne('asset.image', 'asset.image', 'image')
-      .leftJoinAndMapMany('asset.medias', 'asset.medias', 'medias')
+      .leftJoinAndMapMany(
+        'asset.medias',
+        'asset.medias',
+        'medias',
+        'medias.isDeleted = FALSE AND medias.deletedAt IS NULL',
+      )
       .where('asset.id = :id', { id })
       .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
       .andWhere('asset.deletedAt IS NULL')
