@@ -4,21 +4,19 @@ import {
   Brackets,
   Column,
   Entity,
-  In,
   Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
   RelationId,
   SelectQueryBuilder,
-  Unique,
 } from 'typeorm';
 
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from '../../common/entities/base.model';
 import { Attribute, Label } from './';
 import { generateSlug } from 'modules/common/helpers/slug.helper';
-import { InternalServerErrorException, Logger } from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
 import { Partner } from 'modules/partners/entities';
 import { AssetDto, AttributeDto } from 'modules/assets/dto';
 import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
@@ -33,7 +31,16 @@ import { POSTGRES_DUPE_KEY_ERROR } from 'modules/common/constants';
 import { AssetsDuplicatedException } from '../exceptions/assets-duplicated.exception';
 
 @Entity('partner_assets')
-@Unique('PARTNER_REF_UNIQUE', ['refId', 'partnerId'])
+// This requires two partial indexes because Postgres treats all
+// null values as unique
+@Index('PARTNER_REF_UNIQUE', ['refId', 'partnerId'], {
+  unique: true,
+  where: '"deletedAt" IS NULL',
+})
+@Index('PARTNER_REF_UNIQUE_DEL', ['refId', 'partnerId', 'deletedAt'], {
+  unique: true,
+  where: '"deletedAt" IS NOT NULL',
+})
 export class Asset extends BaseModel implements BaseEntityInterface {
   @Index()
   @Column({ nullable: false, length: 100 })

@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Partner } from 'modules/partners/entities';
-import { AssetsDuplicatedException } from 'modules/assets/exceptions/assets-duplicated.exception';
 import { Asset, Attribute, Label, Token } from './entities';
 import { TransferRequestDto } from 'modules/assets/dto';
 import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
