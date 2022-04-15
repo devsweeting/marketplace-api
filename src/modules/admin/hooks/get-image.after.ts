@@ -34,7 +34,8 @@ export const getImage =
       );
     } else {
       const params = flat.unflatten(response.record.params);
-      params.image = await File.findOne(params.imageId);
+      params.image = params.imageId ? await File.findOne(params.imageId) : null;
+
       if (params.image) {
         params.image.path = await storageService.getUrl(params.image);
       }
