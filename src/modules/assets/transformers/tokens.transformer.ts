@@ -17,7 +17,6 @@ export class TokensTransformer {
       image: token.asset.image ? this.storageService.getUrl(token.asset.image) : null,
       name: token.asset.name,
       description: token.asset.description,
-      externalUrl: token.asset.externalUrl,
       traits: token.asset.attributes
         ? this.traitsTransformAll<TraitsResponse>(token.asset.attributes)
         : [],
@@ -30,8 +29,7 @@ export class TokensTransformer {
       image: token.asset.image ? this.storageService.getUrl(token.asset.image) : null,
       name: token.asset.name,
       description: token.asset.description,
-      external_link: token.asset.externalUrl,
-      traits: token.asset.attributes
+      properties: token.asset.attributes
         ? this.traitsTransformAll<TraitsMetaResponse>(token.asset.attributes, true)
         : [],
       partner: this.partnerTransform(token.partner),
