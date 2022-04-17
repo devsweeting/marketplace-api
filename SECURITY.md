@@ -9,16 +9,16 @@ openssl rand -base64 60
 ```
 
 ### Application environments
-- `NODE_ENV` - determine the application environment e.g. `DEVELOP`, `ADMIN` 
-- `TYPEORM_PASSWORD` - database password e.g. `password`
+- `NODE_ENV` - The application environment e.g. `DEVELOP`, `ADMIN` 
+- `TYPEORM_PASSWORD` - Database password e.g. `password`
 
 ### AdminJS environments
-- `COOKIE_PASSWORD` - this is secret password for AdminJS cookie session. Should be some random string
-- `ADMIN_ADDRESS` - the wallet address wit which the administrator will be created, if there is no one in the database e.g. `0xF467Fb921d2EEb81961057d82Bb0350f688398e8`
-- `SESSION_SECRET` - password that is used to encode the user's session, which is stored in the database in the `sessions`. This should be some random string
+- `ADMIN_ADDRESS` - Super admin wallet address e.g. `0xF467Fb921d2EEb81961057d82Bb0350f688398e8`
+- `COOKIE_PASSWORD` - Secret password for AdminJS cookie session. Should be some random string
+- `SESSION_SECRET` - Random string that is used to encode the user's session, which is stored in the database in the `sessions`.
 
 ### API environments
-- `JWT_SECRET` - the password that is used to encode the JWT token. This should be some random string
+- `JWT_SECRET` - Random string assword that is used to encode the JWT token.
 - `JWT_EXPIRATION_TIME` - jwt token expiration time in ms e.g. `3600`
 
 ### AWS environments
@@ -27,4 +27,4 @@ openssl rand -base64 60
 
 ### Rollbar environments
 This tool is enabled for NODE_ENV `STAGING` or `PRODUCTION`
-- `ROLLBAR_TOKEN` - rollbar token for reporting errors
+- `ROLLBAR_TOKEN` - Rollbar token for reporting errors
