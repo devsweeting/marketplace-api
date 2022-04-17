@@ -41,9 +41,6 @@ describe('TokensController', () => {
       partner,
       contract,
     });
-  });
-
-  beforeEach(async () => {
     token = await createToken({ assetId: asset.id, asset });
   });
 

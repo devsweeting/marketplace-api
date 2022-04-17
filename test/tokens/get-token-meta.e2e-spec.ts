@@ -11,7 +11,7 @@ import { createUser } from '../utils/fixtures/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { TokensTransformer } from 'modules/assets/transformers/tokens.transformer';
 import { createContract } from '../utils/contract.utils';
-import { createToken } from '../utils/token.utils';
+import { createToken, deleteToken } from '../utils/token.utils';
 
 describe('TokensController', () => {
   let app: INestApplication;
@@ -41,8 +41,6 @@ describe('TokensController', () => {
       partner,
       contract,
     });
-  });
-  beforeEach(async () => {
     token = await createToken({ assetId: asset.id, asset });
   });
 
