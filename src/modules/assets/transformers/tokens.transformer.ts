@@ -21,7 +21,6 @@ export class TokensTransformer {
       traits: token.asset.attributes
         ? this.traitsTransformAll<TraitsResponse>(token.asset.attributes)
         : [],
-      partner: this.partnerTransform(token.partner),
     };
   }
 
@@ -34,7 +33,6 @@ export class TokensTransformer {
       traits: token.asset.attributes
         ? this.traitsTransformAll<TraitsMetaResponse>(token.asset.attributes, true)
         : [],
-      partner: this.partnerTransform(token.partner),
     };
   }
 

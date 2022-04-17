@@ -46,7 +46,7 @@ export class Partner extends BaseModel implements BaseEntityInterface {
   @OneToMany(() => Asset, (asset) => asset.partnerId)
   public assets: Asset[];
 
-  @OneToMany(() => Token, (token) => token.partner)
+  @OneToMany(() => Token, (token) => token.asset.partner)
   public tokens: Token[];
 
   @ManyToOne(() => File, { nullable: true })

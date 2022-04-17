@@ -1,8 +1,9 @@
-import { Column, Entity, Index } from 'typeorm';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
 
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from '../../common/entities/base.model';
 import { ChainEnum } from 'modules/assets/enums/chain.enum';
+import { Token } from './token.entity';
 
 @Entity('asset_contracts')
 export class Contract extends BaseModel implements BaseEntityInterface {
@@ -24,8 +25,11 @@ export class Contract extends BaseModel implements BaseEntityInterface {
   @Column({ nullable: true })
   public description: string;
 
-  @Column({ length: 200, nullable: true })
+  @Column({ length: 1024, nullable: true })
   public externalLink: string;
+
+  @OneToMany(() => Token, (token) => token.contract)
+  public tokens: Token[];
 
   @Column({
     type: 'enum',

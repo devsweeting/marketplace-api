@@ -8,6 +8,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   RelationId,
   SelectQueryBuilder,
 } from 'typeorm';
@@ -97,8 +98,8 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   @OneToMany(() => Label, (label) => label.asset)
   public labels: Label[];
 
-  @OneToMany(() => Token, (token) => token.asset)
-  public tokens: Token[];
+  @OneToOne(() => Token, (token) => token.asset)
+  public token: Token[];
 
   @ManyToOne(() => Contract, { nullable: true })
   @JoinColumn({ name: 'contractId', referencedColumnName: 'id' })
