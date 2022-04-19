@@ -12,12 +12,65 @@ import { StorageService } from 'modules/storage/storage.service';
 import { Not } from 'typeorm';
 import { Collection, CollectionAsset } from 'modules/collections/entities';
 import { CollectionNotFoundException } from 'modules/collections/exceptions/collection-not-found.exception';
+import { ConfigService } from '@nestjs/config';
+import { AssetSearchOverLimitException } from './exceptions/asset-search-over-limit.exception';
+import { AssetFilterLabelOverLimitException } from './exceptions/asset-filter-label-over-limit.exception';
+import { AssetFilterAttributeOverLimitException } from './exceptions/asset-filter-attribute-over-limit.exception';
+import { AttributeDuplicatedException } from './exceptions/attribute-filter-duplicate.exception';
 
 @Injectable()
 export class AssetsService {
-  public constructor(private readonly storageService: StorageService) {}
+  public constructor(
+    private readonly storageService: StorageService,
+    private readonly configService: ConfigService,
+  ) {}
 
   public async getList(params: ListAssetsDto): Promise<Pagination<Asset>> {
+    if (params?.search?.length > this.configService.get('asset.default.searchMaxNumber')) {
+      throw new AssetSearchOverLimitException();
+    }
+    if (
+      params.label_eq &&
+      Object.keys(params.label_eq).length >
+        this.configService.get('asset.default.filterLabelMaxNumber')
+    ) {
+      throw new AssetFilterLabelOverLimitException();
+    }
+    if (
+      params.attr_eq &&
+      Object.keys(params.attr_eq).length >
+        this.configService.get('asset.default.filterAttributeMaxNumber')
+    ) {
+      throw new AssetFilterAttributeOverLimitException();
+    }
+
+    if (
+      params.attr_eq &&
+      Object.keys(params.attr_eq).filter(
+        (item, index) => Object.keys(params.attr_eq).indexOf(item) !== index,
+      ).length > 0
+    ) {
+      throw new AttributeDuplicatedException();
+    }
+
+    if (
+      params.attr_eq &&
+      params.attr_gte &&
+      Object.keys(params.attr_eq).filter((value) => Object.keys(params.attr_gte).includes(value))
+        .length > 0
+    ) {
+      throw new AttributeDuplicatedException();
+    }
+
+    if (
+      params.attr_eq &&
+      params.attr_lte &&
+      Object.keys(params.attr_eq).filter((value) => Object.keys(params.attr_lte).includes(value))
+        .length > 0
+    ) {
+      throw new AttributeDuplicatedException();
+    }
+
     const results = await paginate<Asset, IPaginationMeta>(Asset.list(params), {
       page: params.page,
       limit: params.limit,
@@ -27,7 +80,7 @@ export class AssetsService {
       await Promise.all(
         results.items.map(async (item: Asset) => {
           item.attributes = await Attribute.findAllByAssetId(item.id);
-
+          item.labels = await Label.findAllByAssetId(item.id);
           return item;
         }),
       ),

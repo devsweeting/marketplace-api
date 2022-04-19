@@ -28,6 +28,7 @@ import { Event } from 'modules/events/entities';
 import { Token } from './token.entity';
 import { File } from 'modules/storage/entities/file.entity';
 import { CollectionAsset } from 'modules/collections/entities';
+import { AttributeLteMustBeGreaterThanGteException } from '../exceptions/attribute-lte-greater-than-gte.exception';
 
 @Entity('partner_assets')
 export class Asset extends BaseModel implements BaseEntityInterface {
@@ -165,7 +166,8 @@ export class Asset extends BaseModel implements BaseEntityInterface {
       .leftJoinAndMapOne('asset.image', 'asset.image', 'image')
       .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
       .andWhere('asset.deletedAt IS NULL')
-      .addOrderBy(params.sort, params.order);
+      .addOrderBy(params.sort, params.order)
+      .addGroupBy('asset.id, image.id');
 
     if (params.query) {
       query.andWhere(
@@ -174,6 +176,129 @@ export class Asset extends BaseModel implements BaseEntityInterface {
         }),
       );
     }
+    if (params.search) {
+      query.andWhere(
+        new Brackets((b) => {
+          b.andWhere(
+            'LOWER(asset.name) @@ to_tsquery(:searchQuery) OR LOWER(asset.description) @@ to_tsquery(:searchQuery)',
+            { searchQuery: params.search },
+          );
+        }),
+      );
+    }
+
+    if (params.attr_eq || params.attr_gte || params.attr_lte) {
+      query.innerJoin(
+        'asset.attributes',
+        'attributes',
+        'attributes.isDeleted = FALSE AND attributes.deletedAt IS NULL',
+      );
+    }
+    let values;
+    if (params.attr_eq && Object.keys(params.attr_eq).length) {
+      query.andWhere(
+        new Brackets((b) => {
+          return Object.entries(params.attr_eq).map((attr) => {
+            values = Array.isArray(attr[1]) ? attr[1] : [attr[1]];
+
+            return b.orWhere(
+              'LOWER(attributes.trait) = LOWER(:trait) AND LOWER(attributes.value) IN (:...values) ',
+              { trait: attr[0], values },
+            );
+          });
+        }),
+      );
+    }
+
+    if (params.label_eq && Object.keys(params.label_eq).length) {
+      query.innerJoin(
+        'asset.labels',
+        'labels',
+        'labels.isDeleted = FALSE AND labels.deletedAt IS NULL',
+      );
+
+      Object.entries(params.label_eq).map((label) => {
+        return query.andWhere(
+          new Brackets((b) => {
+            b.andWhere(
+              'LOWER(labels.name) = LOWER(:name) AND LOWER(labels.value) = LOWER(:value)',
+              {
+                name: label[0],
+                value: label[1],
+              },
+            );
+          }),
+        );
+      });
+    }
+
+    if (params.attr_lte || params.attr_gte) {
+      const fromAttr = params.attr_gte ? Object.keys(params.attr_gte) : [];
+      const toAttr = params.attr_lte ? Object.keys(params.attr_lte) : [];
+      const arr = fromAttr.length
+        ? fromAttr.filter((value) => toAttr.includes(value))
+        : toAttr.filter((value) => fromAttr.includes(value));
+      const fromArr = fromAttr.filter((el) => {
+        return !arr.some((s) => {
+          return s === el;
+        });
+      });
+      const toArr = toAttr.filter((el) => {
+        return !arr.some((s) => {
+          return s === el;
+        });
+      });
+      if (arr.length) {
+        arr.map((attr) => {
+          if (params.attr_gte[attr] >= params.attr_lte[attr]) {
+            throw new AttributeLteMustBeGreaterThanGteException();
+          }
+          return query.andWhere(
+            new Brackets((b) => {
+              b.andWhere(
+                'LOWER(attributes.trait) = LOWER(:trait) AND attributes.value::integer >= :fromValue AND attributes.value::integer <= :toValue',
+                {
+                  trait: attr,
+                  fromValue: params.attr_gte[attr],
+                  toValue: params.attr_lte[attr],
+                },
+              );
+            }),
+          );
+        });
+      }
+      if (fromArr) {
+        fromArr.map((attr) => {
+          return query.andWhere(
+            new Brackets((b) => {
+              b.andWhere(
+                'LOWER(attributes.trait) = LOWER(:trait) AND attributes.value::integer >= :from',
+                {
+                  trait: attr,
+                  from: params.attr_gte[attr],
+                },
+              );
+            }),
+          );
+        });
+      }
+      if (toArr) {
+        toArr.map((attr) => {
+          return query.andWhere(
+            new Brackets((b) => {
+              b.andWhere(
+                'LOWER(attributes.trait) = LOWER(:trait) AND attributes.value::integer <= :to',
+                {
+                  trait: attr,
+                  to: params.attr_lte[attr],
+                },
+              );
+            }),
+          );
+        });
+      }
+    }
+
     return query;
   }
 
