@@ -27,6 +27,7 @@ export class UpdateAssetDto {
 
   @IsNotEmpty()
   @ApiProperty({
+    type: [MediaDto],
     description: 'Media for asset',
     required: false,
   })

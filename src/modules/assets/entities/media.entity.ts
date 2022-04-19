@@ -35,7 +35,7 @@ export class Media extends BaseModel implements BaseEntityInterface {
   @RelationId((media: Media) => media.file)
   public fileId?: string;
 
-  @ManyToOne(() => Asset, (asset) => asset.medias, { nullable: true })
+  @ManyToOne(() => Asset, (asset) => asset.media, { nullable: true })
   @JoinColumn({ name: 'assetId', referencedColumnName: 'id' })
   public asset: Asset;
 

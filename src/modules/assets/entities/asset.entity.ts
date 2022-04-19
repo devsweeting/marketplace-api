@@ -84,7 +84,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   public token: Token | null;
 
   @OneToMany(() => Media, (media) => media.asset)
-  public medias: Media[];
+  public media: Media[];
 
   @ManyToOne(() => Contract, { nullable: true })
   @JoinColumn({ name: 'contractId', referencedColumnName: 'id' })
