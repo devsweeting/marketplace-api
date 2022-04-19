@@ -9,8 +9,6 @@ import { UpdateAssetDto } from 'modules/assets/dto/update-asset.dto';
 import { RefAlreadyTakenException } from 'modules/common/exceptions/ref-already-taken.exception';
 import { StorageService } from 'modules/storage/storage.service';
 import { Not } from 'typeorm';
-import { Collection, CollectionAsset } from 'modules/collections/entities';
-import { CollectionNotFoundException } from 'modules/collections/exceptions/collection-not-found.exception';
 
 @Injectable()
 export class AssetsService {
@@ -65,17 +63,13 @@ export class AssetsService {
       }
     }
 
-    const { attributes, listing, image, ...data } = dto;
+    const { attributes, image, ...data } = dto;
     if (Array.isArray(attributes)) {
       await asset.saveAttributes(attributes);
     }
 
     if (image) {
       asset.image = await this.storageService.uploadFromUrl(image, `assets/${asset.id}`);
-    }
-
-    if (listing) {
-      Object.assign(asset, listing);
     }
 
     Object.assign(asset, data);
@@ -109,19 +103,6 @@ export class AssetsService {
             assetDto.image,
             `assets/${asset.id}`,
           );
-          if (assetDto.collection) {
-            const collection = assetDto.collection.id
-              ? await Collection.findOne(assetDto.collection.id)
-              : await Collection.findOne({ where: { slug: assetDto.collection.id } });
-            if (!collection) {
-              throw new CollectionNotFoundException();
-            }
-            const collectionAsset = CollectionAsset.create({
-              collectionId: collection.id,
-              assetId: asset.id,
-            });
-            await collectionAsset.save();
-          }
           await asset.save();
         }
       }),

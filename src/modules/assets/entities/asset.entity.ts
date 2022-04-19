@@ -21,8 +21,6 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { Partner } from 'modules/partners/entities';
 import { AssetDto, AttributeDto } from 'modules/assets/dto';
 import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
-import { MarketplaceEnum } from 'modules/assets/enums/marketplace.enum';
-import { AuctionTypeEnum } from 'modules/assets/enums/auction-type.enum';
 import { Contract } from 'modules/assets/entities/contract.entity';
 import { Event } from 'modules/events/entities';
 import { Token } from './token.entity';
@@ -57,24 +55,6 @@ export class Asset extends BaseModel implements BaseEntityInterface {
 
   @Column({ type: 'text', nullable: true })
   public description: string;
-
-  @Column({ nullable: true })
-  public externalUrl: string;
-
-  @Column({
-    type: 'enum',
-    enum: MarketplaceEnum,
-    nullable: false,
-    default: MarketplaceEnum.Jump,
-  })
-  public marketplace: MarketplaceEnum;
-
-  @Column({
-    type: 'enum',
-    enum: AuctionTypeEnum,
-    nullable: true,
-  })
-  public auctionType: AuctionTypeEnum;
 
   @ManyToOne(() => File, { nullable: true })
   @JoinColumn({ name: 'imageId' })
@@ -141,9 +121,6 @@ export class Asset extends BaseModel implements BaseEntityInterface {
         partner: partner,
         partnerId: partner.id,
         description: dto.description,
-        externalUrl: dto.externalUrl,
-        marketplace: dto.listing.marketplace,
-        auctionType: dto.listing.auctionType,
       });
 
       asset.partner = partner;

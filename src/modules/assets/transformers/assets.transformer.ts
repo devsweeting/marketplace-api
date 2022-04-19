@@ -21,13 +21,8 @@ export class AssetsTransformer {
       image: asset.image ? this.storageService.getUrl(asset.image) : null,
       refId: asset.refId,
       slug: asset.slug,
-      externalUrl: asset.externalUrl,
       createdAt: asset.createdAt.toISOString(),
       updatedAt: asset.updatedAt.toISOString(),
-      listing: {
-        marketplace: asset.marketplace,
-        auctionType: asset.auctionType,
-      },
       attributes: this.attributeTransformer.transformAll(asset.attributes || []),
     };
   }

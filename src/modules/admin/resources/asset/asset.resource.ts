@@ -119,15 +119,6 @@ const createAssetResource = (
         position: 6,
         type: 'textarea',
       },
-      externalUrl: {
-        position: 7,
-      },
-      marketplace: {
-        position: 8,
-      },
-      auctionType: {
-        position: 9,
-      },
       image: {
         position: 10,
         props: {

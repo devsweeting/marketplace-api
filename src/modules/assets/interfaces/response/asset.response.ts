@@ -1,12 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ListingResponse } from 'modules/assets/interfaces/response/listing.response';
 import { AttributeResponse } from 'modules/assets/interfaces/response/attribute.response';
 
 export class AssetResponse {
-  @ApiProperty({ example: '5c2481c4-c622-48a3-ae6d-657097c3d5e7' })
+  @ApiProperty({ example: '1' })
   public id: string;
 
-  @ApiProperty({ example: '1' })
+  @ApiProperty({ example: '5c2481c4-c622-48a3-ae6d-657097c3d5e7' })
   public refId: string;
 
   @ApiProperty({ example: 'Test asset name' })
@@ -17,9 +16,6 @@ export class AssetResponse {
 
   @ApiProperty({ example: 'test-asset-name' })
   public slug: string;
-
-  @ApiProperty({ example: 'https://picsum.photos/200/300' })
-  public externalUrl: string;
 
   @ApiProperty({
     example:
@@ -32,9 +28,6 @@ export class AssetResponse {
 
   @ApiProperty({ example: '2022-03-09T09:05:34.176Z' })
   public createdAt: string;
-
-  @ApiProperty()
-  public listing: ListingResponse;
 
   @ApiProperty({ isArray: true })
   public attributes: AttributeResponse[];
