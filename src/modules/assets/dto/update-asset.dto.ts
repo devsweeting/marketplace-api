@@ -1,8 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Exclude, Type } from 'class-transformer';
 import { IsNotEmpty, IsOptional, IsUrl, MaxLength, ValidateNested } from 'class-validator';
 import { AttributeDto } from './attribute.dto';
-import { ListingDto } from './listing.dto';
 import { MediaDto } from './media/media.dto';
 
 export class UpdateAssetDto {
@@ -15,14 +14,6 @@ export class UpdateAssetDto {
   })
   @IsOptional()
   public refId?: string;
-
-  @IsNotEmpty()
-  @ApiProperty({
-    description: 'Auction Type',
-    required: false,
-  })
-  @IsOptional()
-  public listing?: ListingDto;
 
   @IsNotEmpty()
   @MaxLength(255)
@@ -41,16 +32,6 @@ export class UpdateAssetDto {
   })
   @IsOptional()
   public media?: MediaDto[];
-
-  @MaxLength(200)
-  @IsUrl()
-  @IsOptional()
-  @ApiProperty({
-    description: 'Link to partners asset page.  Must be less than 200 characters.',
-    required: false,
-    example: 'https://example.com/asset/1337',
-  })
-  public externalUrl?: string;
 
   @IsNotEmpty()
   @MaxLength(50)

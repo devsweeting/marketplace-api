@@ -1,9 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsOptional, IsUrl, MaxLength, ValidateNested } from 'class-validator';
-import { CollectionDto } from '.';
+import { IsNotEmpty, IsOptional, MaxLength, ValidateNested } from 'class-validator';
 import { AttributeDto } from './attribute.dto';
-import { ListingDto } from './listing.dto';
 import { MediaDto } from './media/media.dto';
 
 export class AssetDto {
@@ -15,13 +13,6 @@ export class AssetDto {
     example: '123456789',
   })
   public refId: string;
-
-  @IsNotEmpty()
-  @ApiProperty({
-    description: 'Auction Type',
-    required: true,
-  })
-  public listing: ListingDto;
 
   @IsNotEmpty()
   @MaxLength(255)
@@ -40,16 +31,6 @@ export class AssetDto {
   })
   @IsOptional()
   public media?: MediaDto[];
-
-  @MaxLength(200)
-  @IsUrl()
-  @IsOptional()
-  @ApiProperty({
-    description: 'Link to partners asset page.  Must be less than 200 characters.',
-    required: false,
-    example: 'https://example.com/asset/1337',
-  })
-  public externalUrl?: string;
 
   @IsNotEmpty()
   @MaxLength(50)
@@ -91,12 +72,4 @@ export class AssetDto {
   @ValidateNested({ each: true })
   @Type(() => AttributeDto)
   public attributes: AttributeDto[];
-
-  @ApiProperty({
-    description: 'Collection id or slug.',
-    required: true,
-    type: () => CollectionDto,
-  })
-  @IsOptional()
-  public collection?: CollectionDto;
 }

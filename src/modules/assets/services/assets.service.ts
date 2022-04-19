@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Partner } from 'modules/partners/entities';
-import { AssetsDuplicatedException } from 'modules/assets/exceptions/assets-duplicated.exception';
-import { Asset, Attribute, Label, Media, Token } from '../entities';
+import { Asset, Attribute, Label, Media, Token } from 'modules/assets/entities';
 import { TransferRequestDto } from 'modules/assets/dto';
 import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 import { IPaginationMeta, paginate, Pagination } from 'nestjs-typeorm-paginate';
@@ -10,8 +9,6 @@ import { UpdateAssetDto } from 'modules/assets/dto/update-asset.dto';
 import { RefAlreadyTakenException } from 'modules/common/exceptions/ref-already-taken.exception';
 import { StorageService } from 'modules/storage/storage.service';
 import { Not } from 'typeorm';
-import { Collection, CollectionAsset } from 'modules/collections/entities';
-import { CollectionNotFoundException } from 'modules/collections/exceptions/collection-not-found.exception';
 import { MediaService } from './media.service';
 
 @Injectable()
@@ -85,7 +82,7 @@ export class AssetsService {
       }
     }
 
-    const { attributes, listing, image, media, ...data } = dto;
+    const { attributes, image, media, ...data } = dto;
     if (Array.isArray(attributes)) {
       await asset.saveAttributes(attributes);
     }
@@ -96,10 +93,6 @@ export class AssetsService {
 
     if (media) {
       asset.medias = await this.mediaService.createBulkMedia(id, media);
-    }
-
-    if (listing) {
-      Object.assign(asset, listing);
     }
 
     Object.assign(asset, data);
@@ -126,15 +119,6 @@ export class AssetsService {
 
     Logger.log(`Partner ${partner.name} received transfer request`);
 
-    const duplicatedAssetsByRefIds = await Asset.findDuplicatedByRefIds(
-      partnerId,
-      dto.assets.map((asset) => asset.refId),
-    );
-
-    if (duplicatedAssetsByRefIds.length) {
-      throw new AssetsDuplicatedException(duplicatedAssetsByRefIds.map((asset) => asset.refId));
-    }
-
     await Promise.all(
       dto.assets.map(async (assetDto) => {
         const asset = await Asset.saveAssetForPartner(assetDto, partner);
@@ -144,19 +128,6 @@ export class AssetsService {
             `assets/${asset.id}`,
           );
           await asset.save();
-        }
-        if (assetDto.collection) {
-          const collection = assetDto.collection.id
-            ? await Collection.findOne(assetDto.collection.id)
-            : await Collection.findOne({ where: { slug: assetDto.collection.id } });
-          if (!collection) {
-            throw new CollectionNotFoundException();
-          }
-          const collectionAsset = CollectionAsset.create({
-            collectionId: collection.id,
-            assetId: asset.id,
-          });
-          await collectionAsset.save();
         }
         if (assetDto.media) {
           asset.medias = await this.mediaService.createBulkMedia(asset.id, assetDto.media);

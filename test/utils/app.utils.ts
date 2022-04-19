@@ -6,7 +6,7 @@ import { AppModule } from '@/src/app.module';
 import { AuthModule } from '@/src/modules/auth/auth.module';
 import validationPipe from '@/src/modules/common/pipes/validation.pipe';
 import { User } from 'modules/users/user.entity';
-import { Asset, Attribute, Label, Media } from 'modules/assets/entities';
+import { Asset, Attribute, Contract, Label, Media, Token } from 'modules/assets/entities';
 import { Event } from 'modules/events/entities';
 import { Partner, PartnerMemberUser } from 'modules/partners/entities';
 import { S3Provider } from 'modules/storage/providers/s3.provider';
@@ -67,7 +67,9 @@ export const clearAllData = async (): Promise<void> => {
   await Label.delete({});
   await Event.delete({});
   await Media.delete({});
+  await Token.delete({});
   await Asset.delete({});
+  await Contract.delete({});
   await PartnerMemberUser.delete({});
   await Partner.delete({});
   await User.delete({});

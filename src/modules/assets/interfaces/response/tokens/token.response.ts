@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { PartnerResponse } from '../partner.response';
 import { TraitsResponse } from './traits.response';
 
 export class TokenResponse {
@@ -14,9 +15,9 @@ export class TokenResponse {
   })
   public description: string;
 
-  @ApiProperty({ example: 'https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg' })
-  public externalUrl: string;
-
   @ApiProperty()
   public traits: TraitsResponse[];
+
+  @ApiProperty()
+  public partner: PartnerResponse;
 }

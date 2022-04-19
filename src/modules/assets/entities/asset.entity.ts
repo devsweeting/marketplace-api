@@ -4,7 +4,6 @@ import {
   Brackets,
   Column,
   Entity,
-  In,
   Index,
   JoinColumn,
   ManyToOne,
@@ -17,20 +16,30 @@ import { BaseEntityInterface } from 'modules/common/entities/base.entity.interfa
 import { BaseModel } from '../../common/entities/base.model';
 import { Attribute, Label } from './';
 import { generateSlug } from 'modules/common/helpers/slug.helper';
-import { InternalServerErrorException, Logger } from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
 import { Partner } from 'modules/partners/entities';
 import { AssetDto, AttributeDto } from 'modules/assets/dto';
 import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
-import { MarketplaceEnum } from 'modules/assets/enums/marketplace.enum';
-import { AuctionTypeEnum } from 'modules/assets/enums/auction-type.enum';
 import { Contract } from 'modules/assets/entities/contract.entity';
 import { Event } from 'modules/events/entities';
 import { Token } from './token.entity';
 import { File } from 'modules/storage/entities/file.entity';
 import { CollectionAsset } from 'modules/collections/entities';
 import { Media } from './media.entity';
+import { POSTGRES_DUPE_KEY_ERROR } from 'modules/common/constants';
+import { AssetsDuplicatedException } from '../exceptions/assets-duplicated.exception';
 
 @Entity('partner_assets')
+// This requires two partial indexes because Postgres treats all
+// null values as unique
+@Index('PARTNER_REF_UNIQUE', ['refId', 'partnerId'], {
+  unique: true,
+  where: '"deletedAt" IS NULL',
+})
+@Index('PARTNER_REF_UNIQUE_DEL', ['refId', 'partnerId', 'deletedAt'], {
+  unique: true,
+  where: '"deletedAt" IS NOT NULL',
+})
 export class Asset extends BaseModel implements BaseEntityInterface {
   @Index()
   @Column({ nullable: false, length: 100 })
@@ -46,24 +55,6 @@ export class Asset extends BaseModel implements BaseEntityInterface {
 
   @Column({ type: 'text', nullable: true })
   public description: string;
-
-  @Column({ nullable: true })
-  public externalUrl: string;
-
-  @Column({
-    type: 'enum',
-    enum: MarketplaceEnum,
-    nullable: false,
-    default: MarketplaceEnum.Jump,
-  })
-  public marketplace: MarketplaceEnum;
-
-  @Column({
-    type: 'enum',
-    enum: AuctionTypeEnum,
-    nullable: true,
-  })
-  public auctionType: AuctionTypeEnum;
 
   @ManyToOne(() => File, { nullable: true })
   @JoinColumn({ name: 'imageId' })
@@ -117,15 +108,6 @@ export class Asset extends BaseModel implements BaseEntityInterface {
     this.slug = generateSlug(this.name);
   }
 
-  public static findDuplicatedByRefIds(partnerId: string, refIds: string[]): Promise<Asset[]> {
-    return Asset.find({
-      where: {
-        refId: In(refIds),
-        partnerId,
-      },
-    });
-  }
-
   public async saveAttributes(attributes: AttributeDto[]): Promise<Attribute[]> {
     await Attribute.delete({ assetId: this.id });
     return Promise.all(
@@ -142,9 +124,6 @@ export class Asset extends BaseModel implements BaseEntityInterface {
         partner: partner,
         partnerId: partner.id,
         description: dto.description,
-        externalUrl: dto.externalUrl,
-        marketplace: dto.listing.marketplace,
-        auctionType: dto.listing.auctionType,
       });
 
       asset.partner = partner;
@@ -158,7 +137,9 @@ export class Asset extends BaseModel implements BaseEntityInterface {
         );
       }
     } catch (e) {
-      Logger.error(e);
+      if (e.code === POSTGRES_DUPE_KEY_ERROR && e.constraint == 'PARTNER_REF_UNIQUE') {
+        throw new AssetsDuplicatedException([dto.refId]);
+      }
       throw new InternalServerErrorException();
     }
     return newAsset;

@@ -53,7 +53,7 @@ const createAssetResource = (
       edit: {
         isAccessible: (context): boolean => forAdminGroup(context),
         after: [
-          getImage(serviceAccessor),
+          getImage(serviceAccessor, 'image'),
           getLabels,
           saveLabels,
           loadAttributes,
@@ -62,7 +62,7 @@ const createAssetResource = (
         ],
       },
       show: {
-        after: [getImage(serviceAccessor), getLabels, loadAttributes, loadEvents],
+        after: [getImage(serviceAccessor, 'image'), getLabels, loadAttributes, loadEvents],
         isAccessible: (context): boolean => forAdminGroup(context),
         component: ASSET_SHOW,
       },
@@ -118,15 +118,6 @@ const createAssetResource = (
       description: {
         position: 6,
         type: 'textarea',
-      },
-      externalUrl: {
-        position: 7,
-      },
-      marketplace: {
-        position: 8,
-      },
-      auctionType: {
-        position: 9,
       },
       image: {
         position: 10,

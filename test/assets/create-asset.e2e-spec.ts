@@ -7,7 +7,7 @@ import {
   mockS3Provider,
 } from '@/test/utils/app.utils';
 import { createPartner } from '@/test/utils/partner.utils';
-import { createAsset } from '@/test/utils/asset.utils';
+import { createAsset, softDeleteAsset } from '@/test/utils/asset.utils';
 import { Partner } from 'modules/partners/entities';
 import { Asset, Attribute } from 'modules/assets/entities';
 import { StorageEnum } from 'modules/storage/enums/storage.enum';
@@ -67,9 +67,6 @@ describe('AssetsController', () => {
             image: 'https://example.com/image.png',
             name: 'Example',
             description: 'test',
-            listing: {
-              marketplace: 'OpenSea',
-            },
           },
         ],
       };
@@ -89,9 +86,6 @@ describe('AssetsController', () => {
             image: 'https://example.com/image.png',
             name: 'Example',
             description: 'test',
-            listing: {
-              marketplace: 'OpenSea',
-            },
           },
         ],
       };
@@ -117,11 +111,6 @@ describe('AssetsController', () => {
             image: 'https://example.com/image.png',
             name: 'Example',
             description: 'test',
-            externalUrl: 'https://example.com/page-1',
-            listing: {
-              marketplace: 'OPEN_SEA',
-              auctionType: 'FIXED_PRICE',
-            },
             attributes: [
               {
                 trait: 'trait name',
@@ -150,9 +139,6 @@ describe('AssetsController', () => {
           expect(asset.image).toBeDefined();
           expect(asset.image.path).toEqual('test/example.jpeg');
           expect(asset.description).toEqual(transferRequest.assets[0].description);
-          expect(asset.externalUrl).toEqual(transferRequest.assets[0].externalUrl);
-          expect(asset.marketplace).toEqual(transferRequest.assets[0].listing.marketplace);
-          expect(asset.auctionType).toEqual(transferRequest.assets[0].listing.auctionType);
           expect(asset.attributes[0]).toBeDefined();
           expect(asset.attributes[0].trait).toEqual(transferRequest.assets[0].attributes[0].trait);
           expect(asset.attributes[0].value).toEqual(transferRequest.assets[0].attributes[0].value);
@@ -186,9 +172,6 @@ describe('AssetsController', () => {
             image: 'https://example.com/image.png',
             name: 'Example',
             description: 'test',
-            listing: {
-              marketplace: 'OPEN_SEA',
-            },
           },
         ],
       };
@@ -216,9 +199,76 @@ describe('AssetsController', () => {
             image: 'https://example.com/image.png',
             name: 'Example',
             description: 'test',
-            listing: {
-              marketplace: 'OPEN_SEA',
-            },
+          },
+        ],
+      };
+
+      return request(app.getHttpServer())
+        .post(`/assets`)
+        .set({
+          'x-api-key': partner.apiKey,
+        })
+        .send(transferRequest)
+        .expect(400)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            statusCode: 400,
+            message: 'Duplicated assets',
+            refIds: ['1232'],
+          });
+        });
+    });
+
+    it('should be able to recreate a deleted asset', async () => {
+      const anotherUser = await createUser({});
+      const partner2 = await createPartner({
+        apiKey: 'another-partner2-api-key',
+        accountOwner: anotherUser,
+      });
+      const asset = await createAsset({ refId: '1232', partner: partner2 });
+      softDeleteAsset(asset);
+      const transferRequest: any = {
+        user: {
+          refId: '1232',
+          email: 'steven@example.com',
+        },
+        assets: [
+          {
+            refId: '1232',
+            image: 'https://example.com/image.png',
+            name: 'Example',
+            description: 'test',
+          },
+        ],
+      };
+
+      return request(app.getHttpServer())
+        .post(`/assets`)
+        .set({
+          'x-api-key': partner.apiKey,
+        })
+        .send(transferRequest)
+        .expect(201);
+    });
+
+    it('should throw 400 exception if asset already exist by refId (same request)', async () => {
+      const transferRequest: any = {
+        user: {
+          refId: '1232',
+          email: 'steven@example.com',
+        },
+        assets: [
+          {
+            refId: '1232',
+            image: 'https://example.com/image.png',
+            name: 'Example',
+            description: 'test',
+          },
+          {
+            refId: '1232',
+            image: 'https://example.com/image.png',
+            name: 'Example',
+            description: 'test',
           },
         ],
       };
@@ -311,7 +361,6 @@ describe('AssetsController', () => {
           statusCode: 400,
           message: [
             'assets.0.refId must be shorter than or equal to 100 characters',
-            'assets.0.listing should not be empty',
             'assets.0.name must be shorter than or equal to 50 characters',
             'assets.0.name should not be empty',
             'assets.0.description should not be empty',
@@ -340,11 +389,6 @@ describe('AssetsController', () => {
             image: 'https://example.com/image.png',
             name: 'Example',
             description: 'test',
-            externalUrl: 'https://example.com/page-1',
-            listing: {
-              marketplace: 'OPEN_SEA',
-              auctionType: 'FIXED_PRICE',
-            },
             attributes: [
               {
                 trait: 'trait name',

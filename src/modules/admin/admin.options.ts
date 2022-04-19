@@ -50,7 +50,7 @@ export const getAdminJSOptions = (serviceAccessor: ServiceAccessor): AdminJSOpti
     resources: [
       createAssetResource(serviceAccessor),
       createAttributeResource(),
-      createPartnerResource(),
+      createPartnerResource(serviceAccessor),
       createContractResource(),
       createUserResource(),
       createFileResource(),

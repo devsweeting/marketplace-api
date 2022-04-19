@@ -11,7 +11,7 @@ import { MIME_TYPES } from '../file/mime-types';
 import { ServiceAccessor } from 'modules/admin/utils/service.accessor';
 import { softDeleteRelations } from './hooks/soft-delete-relations.hook';
 import { Collection } from 'modules/collections/entities';
-import { getBanner } from './hooks/get-banner.after';
+import { getImage } from 'modules/admin/hooks/get-image.after';
 
 const createCollectionResource = (
   serviceAccessor: ServiceAccessor,
@@ -29,7 +29,7 @@ const createCollectionResource = (
       list: {
         isAccessible: (context): boolean => forAdminGroup(context),
         before: [filterByIsDeleted],
-        after: [getBanner(serviceAccessor)],
+        after: [getImage(serviceAccessor, 'banner')],
       },
       new: {
         isAccessible: (context): boolean => forAdminGroup(context),
@@ -37,10 +37,13 @@ const createCollectionResource = (
       },
       edit: {
         isAccessible: (context): boolean => forAdminGroup(context),
-        after: [getBanner(serviceAccessor), uploadFile('banner', 'collections', serviceAccessor)],
+        after: [
+          getImage(serviceAccessor, 'banner'),
+          uploadFile('banner', 'collections', serviceAccessor),
+        ],
       },
       show: {
-        after: [getBanner(serviceAccessor)],
+        after: [getImage(serviceAccessor, 'banner')],
         isAccessible: (context): boolean => forAdminGroup(context),
       },
       delete: {
