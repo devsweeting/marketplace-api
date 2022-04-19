@@ -6,7 +6,6 @@ import { StorageModule } from 'modules/storage/storage.module';
 import { TokensService } from './services/token.service';
 import { TokensController } from './controllers/token.controller';
 import { TokensTransformer } from './transformers/tokens.transformer';
-import { AssetSubscriber } from './subscribers/after-insert';
 import { AttributeTransformer } from 'modules/assets/transformers/attribute.transformer';
 import { MediaService } from './services/media.service';
 import { MediaController } from './controllers/media.controller';
@@ -20,7 +19,6 @@ import { MediaTransformer } from './transformers/media.transformer';
     TokensService,
     TokensTransformer,
     AttributeTransformer,
-    AssetSubscriber,
     MediaService,
     MediaTransformer,
   ],
