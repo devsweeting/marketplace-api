@@ -1,4 +1,5 @@
 import {
+  AfterInsert,
   BeforeInsert,
   BeforeUpdate,
   Brackets,
@@ -26,8 +27,10 @@ import { Event } from 'modules/events/entities';
 import { Token } from './token.entity';
 import { File } from 'modules/storage/entities/file.entity';
 import { CollectionAsset } from 'modules/collections/entities';
+import { Media } from './media.entity';
 import { POSTGRES_DUPE_KEY_ERROR } from 'modules/common/constants';
 import { AssetsDuplicatedException } from '../exceptions/assets-duplicated.exception';
+import { AssetMaxMediaOverLimitException } from '../exceptions/asset-max-media-over-limit.exception';
 
 @Entity('partner_assets')
 // This requires two partial indexes because Postgres treats all
@@ -81,6 +84,9 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   @OneToOne(() => Token, (token) => token.asset, { nullable: true })
   public token: Token | null;
 
+  @OneToMany(() => Media, (media) => media.asset)
+  public medias: Media[];
+
   @ManyToOne(() => Contract, { nullable: true })
   @JoinColumn({ name: 'contractId', referencedColumnName: 'id' })
   public contract: Contract;
@@ -98,6 +104,14 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   @BeforeInsert()
   public beforeInsert(): void {
     this.slug = generateSlug(this.name);
+  }
+
+  @AfterInsert()
+  public afterInsert(): void {
+    Partner.findOne({ where: { id: this.partnerId } }).then((partner) => {
+      const assetEvent = new Event({ fromAccount: partner.accountOwnerId, asset: this });
+      assetEvent.save();
+    });
   }
 
   @BeforeUpdate()

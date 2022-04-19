@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Type } from 'class-transformer';
 import { IsNotEmpty, IsOptional, IsUrl, MaxLength, ValidateNested } from 'class-validator';
 import { AttributeDto } from './attribute.dto';
+import { MediaDto } from './media/media.dto';
 
 export class UpdateAssetDto {
   @IsNotEmpty()
@@ -23,6 +24,14 @@ export class UpdateAssetDto {
   })
   @IsOptional()
   public image?: string;
+
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Media for asset',
+    required: false,
+  })
+  @IsOptional()
+  public media?: MediaDto[];
 
   @IsNotEmpty()
   @MaxLength(50)

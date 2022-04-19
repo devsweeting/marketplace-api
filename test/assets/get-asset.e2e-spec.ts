@@ -11,6 +11,8 @@ import { createPartner } from '../utils/partner.utils';
 import { User } from 'modules/users/user.entity';
 import { createUser } from '../utils/fixtures/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
+import { createImageMedia } from '../utils/media.utils';
+import { MediaTransformer } from 'modules/assets/transformers/media.transformer';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -18,11 +20,13 @@ describe('AssetsController', () => {
   let partner: Partner;
   let user: User;
   let assetsTransformer: AssetsTransformer;
+  let mediaTransformer: MediaTransformer;
   const mockedFileUrl = 'http://example.com';
 
   beforeAll(async () => {
     app = await createApp();
     assetsTransformer = app.get(AssetsTransformer);
+    mediaTransformer = app.get(MediaTransformer);
     user = await createUser({ email: 'partner@test.com', role: RoleEnum.USER });
     partner = await createPartner({
       apiKey: 'test-api-key',
@@ -56,6 +60,27 @@ describe('AssetsController', () => {
         .expect(200)
         .expect(({ body }) => {
           expect(body).toEqual(assetsTransformer.transform(asset));
+        })
+        .then(() => {
+          expect(mockS3Provider.getUrl).toHaveBeenCalledWith(asset.image);
+        });
+    });
+
+    it('should return asset only with active media', async () => {
+      mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);
+      const media = await createImageMedia({ assetId: asset.id });
+      await createImageMedia({ assetId: asset.id, isDeleted: true, deletedAt: new Date() });
+      const response = {
+        ...assetsTransformer.transform(asset),
+        medias: mediaTransformer.transformAll([media]),
+      };
+      return request(app.getHttpServer())
+        .get(`/assets/${asset.id}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual(response);
+          expect(body.medias.length).toEqual(1);
         })
         .then(() => {
           expect(mockS3Provider.getUrl).toHaveBeenCalledWith(asset.image);

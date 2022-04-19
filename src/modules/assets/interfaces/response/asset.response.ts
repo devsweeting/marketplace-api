@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { AttributeResponse } from 'modules/assets/interfaces/response/attribute.response';
+import { MediaResponse } from './media/media.response';
 
 export class AssetResponse {
   @ApiProperty({ example: '1' })
@@ -13,6 +14,9 @@ export class AssetResponse {
 
   @ApiProperty({ example: 'https://picsum.photos/200/300' })
   public image: string;
+
+  @ApiProperty()
+  public medias: MediaResponse[];
 
   @ApiProperty({ example: 'test-asset-name' })
   public slug: string;

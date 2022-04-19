@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Partner } from 'modules/partners/entities';
-import { Asset, Attribute, Label, Token } from './entities';
+import { Asset, Attribute, Label, Media, Token } from 'modules/assets/entities';
 import { TransferRequestDto } from 'modules/assets/dto';
 import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 import { IPaginationMeta, paginate, Pagination } from 'nestjs-typeorm-paginate';
@@ -9,10 +9,14 @@ import { UpdateAssetDto } from 'modules/assets/dto/update-asset.dto';
 import { RefAlreadyTakenException } from 'modules/common/exceptions/ref-already-taken.exception';
 import { StorageService } from 'modules/storage/storage.service';
 import { Not } from 'typeorm';
+import { MediaService } from './media.service';
 
 @Injectable()
 export class AssetsService {
-  public constructor(private readonly storageService: StorageService) {}
+  public constructor(
+    private readonly storageService: StorageService,
+    private readonly mediaService: MediaService,
+  ) {}
 
   public async getList(params: ListAssetsDto): Promise<Pagination<Asset>> {
     const results = await paginate<Asset, IPaginationMeta>(Asset.list(params), {
@@ -24,7 +28,11 @@ export class AssetsService {
       await Promise.all(
         results.items.map(async (item: Asset) => {
           item.attributes = await Attribute.findAllByAssetId(item.id);
-
+          item.medias = await Media.find({
+            where: { assetId: item.id, isDeleted: false, deletedAt: null },
+            order: { sortOrder: 'ASC' },
+            take: 1,
+          });
           return item;
         }),
       ),
@@ -33,10 +41,21 @@ export class AssetsService {
   }
 
   public async getOne(id: string): Promise<Asset> {
-    const asset = await Asset.findOne({
-      where: { id, isDeleted: false },
-      relations: ['attributes', 'image'],
-    });
+    const asset = await Asset.createQueryBuilder('asset')
+      .leftJoinAndMapMany('asset.attributes', 'asset.attributes', 'attributes')
+      .leftJoinAndMapOne('asset.image', 'asset.image', 'image')
+      .leftJoinAndMapMany(
+        'asset.medias',
+        'asset.medias',
+        'medias',
+        'medias.isDeleted = FALSE AND medias.deletedAt IS NULL',
+      )
+      .where('asset.id = :id', { id })
+      .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
+      .andWhere('asset.deletedAt IS NULL')
+      .orderBy('medias.sortOrder', 'ASC')
+      .getOne();
+
     if (!asset) {
       throw new AssetNotFoundException();
     }
@@ -63,13 +82,17 @@ export class AssetsService {
       }
     }
 
-    const { attributes, image, ...data } = dto;
+    const { attributes, image, media, ...data } = dto;
     if (Array.isArray(attributes)) {
       await asset.saveAttributes(attributes);
     }
 
     if (image) {
       asset.image = await this.storageService.uploadFromUrl(image, `assets/${asset.id}`);
+    }
+
+    if (media) {
+      asset.medias = await this.mediaService.createBulkMedia(id, media);
     }
 
     Object.assign(asset, data);
@@ -88,6 +111,7 @@ export class AssetsService {
     await Token.update({ assetId: asset.id }, { isDeleted: true, deletedAt: new Date() });
     await Attribute.update({ assetId: asset.id }, { isDeleted: true, deletedAt: new Date() });
     await Label.update({ assetId: asset.id }, { isDeleted: true, deletedAt: new Date() });
+    await Media.update({ assetId: asset.id }, { isDeleted: true, deletedAt: new Date() });
   }
 
   public async recordTransferRequest(partnerId: string, dto: TransferRequestDto): Promise<void> {
@@ -104,6 +128,9 @@ export class AssetsService {
             `assets/${asset.id}`,
           );
           await asset.save();
+        }
+        if (assetDto.media) {
+          asset.medias = await this.mediaService.createBulkMedia(asset.id, assetDto.media);
         }
       }),
     );

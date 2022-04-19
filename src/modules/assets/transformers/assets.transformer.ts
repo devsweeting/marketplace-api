@@ -5,12 +5,14 @@ import { Pagination } from 'nestjs-typeorm-paginate';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
 import { StorageService } from 'modules/storage/storage.service';
 import { AttributeTransformer } from 'modules/assets/transformers/attribute.transformer';
+import { MediaTransformer } from './media.transformer';
 
 @Injectable()
 export class AssetsTransformer {
   public constructor(
     private readonly storageService: StorageService,
     private readonly attributeTransformer: AttributeTransformer,
+    private readonly mediaTransformer: MediaTransformer,
   ) {}
 
   public transform(asset: Asset): AssetResponse {
@@ -19,6 +21,7 @@ export class AssetsTransformer {
       name: asset.name,
       description: asset.description,
       image: asset.image ? this.storageService.getUrl(asset.image) : null,
+      medias: asset.medias?.length ? this.mediaTransformer.transformAll(asset.medias) : null,
       refId: asset.refId,
       slug: asset.slug,
       createdAt: asset.createdAt.toISOString(),

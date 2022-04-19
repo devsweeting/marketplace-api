@@ -1,6 +1,13 @@
 import { ActionContext, ActionRequest, RecordActionResponse } from 'adminjs';
 import { isGETMethod, isPOSTMethod } from 'modules/admin/admin.utils';
-import { Attribute, Label, Token } from 'modules/assets/entities';
+import { Attribute, Label, Media, Token } from 'modules/assets/entities';
+
+const updateRelation = async (record) => {
+  await Token.update({ assetId: record.params.id }, { isDeleted: true, deletedAt: new Date() });
+  await Attribute.update({ assetId: record.params.id }, { isDeleted: true, deletedAt: new Date() });
+  await Label.update({ assetId: record.params.id }, { isDeleted: true, deletedAt: new Date() });
+  await Media.update({ assetId: record.params.id }, { isDeleted: true, deletedAt: new Date() });
+};
 
 export const softDeleteRelations = async (
   response: RecordActionResponse,
@@ -13,18 +20,7 @@ export const softDeleteRelations = async (
     }
     await Promise.all(
       response.records.map(async (record) => {
-        await Token.update(
-          { assetId: record.params.id },
-          { isDeleted: true, deletedAt: new Date() },
-        );
-        await Attribute.update(
-          { assetId: record.params.id },
-          { isDeleted: true, deletedAt: new Date() },
-        );
-        await Label.update(
-          { assetId: record.params.id },
-          { isDeleted: true, deletedAt: new Date() },
-        );
+        await updateRelation(record);
       }),
     );
   } else {
@@ -32,12 +28,7 @@ export const softDeleteRelations = async (
       return response;
     }
     const { record } = context;
-    await Token.update({ assetId: record.params.id }, { isDeleted: true, deletedAt: new Date() });
-    await Attribute.update(
-      { assetId: record.params.id },
-      { isDeleted: true, deletedAt: new Date() },
-    );
-    await Label.update({ assetId: record.params.id }, { isDeleted: true, deletedAt: new Date() });
+    await updateRelation(record);
   }
 
   return response;

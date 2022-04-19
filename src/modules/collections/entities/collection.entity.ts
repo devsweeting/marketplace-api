@@ -50,11 +50,11 @@ export class Collection extends BaseModel implements BaseEntityInterface {
   @JoinTable({
     name: 'collections_assets',
     joinColumn: {
-      name: 'collection_id',
+      name: 'collectionId',
       referencedColumnName: 'id',
     },
     inverseJoinColumn: {
-      name: 'asset_id',
+      name: 'assetId',
       referencedColumnName: 'id',
     },
   })
