@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PartnerResponse } from '../partner.response';
 import { TraitsMetaResponse } from './traits-meta.response';
 
 // This endpoint must conform to the following interface:
@@ -19,7 +18,4 @@ export class TokenMetaResponse {
 
   @ApiProperty()
   public properties: TraitsMetaResponse[];
-
-  @ApiProperty()
-  public partner: PartnerResponse;
 }

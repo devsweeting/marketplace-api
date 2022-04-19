@@ -5,8 +5,6 @@ import { StorageService } from 'modules/storage/storage.service';
 import { TraitsResponse } from '../interfaces/response/tokens/traits.response';
 import { TokenResponse } from '../interfaces/response/tokens/token.response';
 import { TraitsMetaResponse } from '../interfaces/response/tokens/traits-meta.response';
-import { Partner } from 'modules/partners/entities';
-import { PartnerResponse } from '../interfaces/response/partner.response';
 
 @Injectable()
 export class TokensTransformer {
@@ -20,7 +18,6 @@ export class TokensTransformer {
       traits: token.asset.attributes
         ? this.traitsTransformAll<TraitsResponse>(token.asset.attributes)
         : [],
-      partner: this.partnerTransform(token.partner),
     };
   }
 
@@ -32,7 +29,6 @@ export class TokensTransformer {
       properties: token.asset.attributes
         ? this.traitsTransformAll<TraitsMetaResponse>(token.asset.attributes, true)
         : [],
-      partner: this.partnerTransform(token.partner),
     };
   }
 
@@ -56,14 +52,6 @@ export class TokensTransformer {
       display_type: attribute.display ? attribute.display : null,
       value: attribute.value,
       max_value: attribute.maxValue ? attribute.maxValue : null,
-    };
-  }
-
-  public partnerTransform(partner: Partner): PartnerResponse {
-    return {
-      avatar: partner.avatar ? this.storageService.getUrl(partner.avatar) : null,
-      logo: partner.logo ? this.storageService.getUrl(partner.logo) : null,
-      banner: partner.banner ? this.storageService.getUrl(partner.banner) : null,
     };
   }
 }
