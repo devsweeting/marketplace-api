@@ -361,7 +361,7 @@ describe('AssetsController', () => {
           statusCode: 400,
           message: [
             'assets.0.refId must be shorter than or equal to 100 characters',
-            'assets.0.name must be shorter than or equal to 50 characters',
+            'assets.0.name must be shorter than or equal to 200 characters',
             'assets.0.name should not be empty',
             'assets.0.description should not be empty',
           ],

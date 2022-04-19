@@ -6,9 +6,9 @@ import { UrlFormatValidator } from 'modules/assets/validators/url-format.validat
 
 export class MediaDto {
   @IsNotEmpty()
-  @MaxLength(50)
+  @MaxLength(200)
   @ApiProperty({
-    description: 'Name of the media. Must be less than 50 characters.',
+    description: 'Name of the media. Must be less than 200 characters.',
     required: true,
     example: 'My Awesome Media',
   })
@@ -23,11 +23,11 @@ export class MediaDto {
   })
   public description: string;
 
-  @MaxLength(200)
+  @MaxLength(1024)
   @IsUrl()
   @Validate(UrlFormatValidator)
   @ApiProperty({
-    description: 'Link to media url.  Must be less than 200 characters.',
+    description: 'Link to media url.  Must be less than 1024 characters.',
     required: true,
     example: 'https://picsum.photos/400/200',
   })

@@ -30,7 +30,6 @@ import { CollectionAsset } from 'modules/collections/entities';
 import { Media } from './media.entity';
 import { POSTGRES_DUPE_KEY_ERROR } from 'modules/common/constants';
 import { AssetsDuplicatedException } from '../exceptions/assets-duplicated.exception';
-import { AssetMaxMediaOverLimitException } from '../exceptions/asset-max-media-over-limit.exception';
 
 @Entity('partner_assets')
 // This requires two partial indexes because Postgres treats all
@@ -49,7 +48,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   public refId: string;
 
   @Index()
-  @Column({ length: 50, nullable: false })
+  @Column({ length: 200, nullable: false })
   public name: string;
 
   @Index()

@@ -3,9 +3,9 @@ import { IsNotEmpty, MaxLength } from 'class-validator';
 
 export class CollectionDto {
   @IsNotEmpty()
-  @MaxLength(50)
+  @MaxLength(200)
   @ApiProperty({
-    description: 'Name of the collection. Must be less than 50 characters.',
+    description: 'Name of the collection. Must be less than 200 characters.',
     required: true,
     example: 'My Awesome Collection',
   })

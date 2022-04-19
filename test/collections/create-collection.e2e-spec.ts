@@ -82,7 +82,7 @@ describe('CollectionController', () => {
         .expect({
           statusCode: 400,
           message: [
-            'name must be shorter than or equal to 50 characters',
+            'name must be shorter than or equal to 200 characters',
             'name should not be empty',
             'description should not be empty',
             'banner must be shorter than or equal to 255 characters',

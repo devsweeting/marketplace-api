@@ -15,9 +15,9 @@ export class AssetDto {
   public refId: string;
 
   @IsNotEmpty()
-  @MaxLength(255)
+  @MaxLength(1024)
   @ApiProperty({
-    description: 'URI pointing to asset image.  Must be less than 255 characters.',
+    description: 'URI pointing to asset image.  Must be less than 1024 characters.',
     required: false,
     example: 'https://picsum.photos/400/200',
   })
@@ -33,7 +33,7 @@ export class AssetDto {
   public media?: MediaDto[];
 
   @IsNotEmpty()
-  @MaxLength(50)
+  @MaxLength(200)
   @ApiProperty({
     description: 'Name of the asset. Must be less than 50 characters.',
     required: true,

@@ -22,10 +22,10 @@ export class UpdateMediaDto {
   @IsOptional()
   public description: string;
 
-  @MaxLength(200)
+  @MaxLength(1024)
   @IsUrl()
   @ApiProperty({
-    description: 'Link to media url.  Must be less than 200 characters.',
+    description: 'Link to media url.  Must be less than 1024 characters.',
     required: true,
     example: 'https://picsum.photos/400/200',
   })

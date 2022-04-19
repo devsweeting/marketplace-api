@@ -15,10 +15,11 @@ import { v4 } from 'uuid';
 import { User } from 'modules/users/user.entity';
 import { createUser } from '../utils/fixtures/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
-
+import crypto from 'crypto';
 import { createFile } from '../utils/file.utils';
 import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
 import { createImageMedia } from '../utils/media.utils';
+import { MediaDto } from 'modules/assets/dto/media/media.dto';
 
 describe('MediaController', () => {
   let app: INestApplication;
@@ -196,11 +197,48 @@ describe('MediaController', () => {
         });
     });
 
-    it('should create object with the same sortOrder for another asset', async () => {
-      const newAsset = await createAsset({ partner });
+    it('should support long urls', async () => {
+      const newAsset = await createAsset({ refId: '123', partner });
       await createImageMedia({ assetId: newAsset.id, sortOrder: 1 });
 
+      const bigurl = crypto.randomBytes((1024 - 15) / 2).toString('hex');
       const dtoRequest: any = {
+        url: `http://foo.com/${bigurl}`,
+        title: 'Example',
+        description: 'test',
+        type: MediaTypeEnum.Image,
+        sortOrder: 1,
+      };
+
+      const resp = request(app.getHttpServer())
+        .post(`/assets/${asset.id}/media`)
+        .set({
+          'x-api-key': partner.apiKey,
+        })
+        .send(dtoRequest);
+
+      return resp.expect(201).then(async () => {
+        const getAsset = await Asset.findOne({
+          where: { id: asset.id },
+          relations: ['medias'],
+        });
+        const getNewAsset = await Asset.findOne({
+          where: { id: newAsset.id },
+          relations: ['medias'],
+        });
+
+        expect(getAsset.medias).toBeDefined();
+        expect(getAsset.medias.length).toEqual(1);
+        expect(getNewAsset.medias).toBeDefined();
+        expect(getNewAsset.medias.length).toEqual(1);
+      });
+    });
+
+    it('should create object with the same sortOrder for another asset', async () => {
+      const newAsset = await createAsset({ refId: '2', partner });
+      await createImageMedia({ assetId: newAsset.id, sortOrder: 1 });
+
+      const dtoRequest: MediaDto = {
         url: 'https://example.com/image.png',
         title: 'Example',
         description: 'test',
@@ -245,10 +283,10 @@ describe('MediaController', () => {
         .expect({
           statusCode: 400,
           message: [
-            'title must be shorter than or equal to 50 characters',
+            'title must be shorter than or equal to 200 characters',
             'title should not be empty',
             'url must be an URL address',
-            'url must be shorter than or equal to 200 characters',
+            'url must be shorter than or equal to 1024 characters',
             'type must be a valid enum value',
             'type should not be empty',
             'sortOrder should not be empty',
