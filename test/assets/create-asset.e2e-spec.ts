@@ -67,9 +67,6 @@ describe('AssetsController', () => {
             image: 'https://example.com/image.png',
             name: 'Example',
             description: 'test',
-            listing: {
-              marketplace: 'OpenSea',
-            },
           },
         ],
       };
@@ -89,9 +86,6 @@ describe('AssetsController', () => {
             image: 'https://example.com/image.png',
             name: 'Example',
             description: 'test',
-            listing: {
-              marketplace: 'OpenSea',
-            },
           },
         ],
       };
@@ -117,11 +111,6 @@ describe('AssetsController', () => {
             image: 'https://example.com/image.png',
             name: 'Example',
             description: 'test',
-            externalUrl: 'https://example.com/page-1',
-            listing: {
-              marketplace: 'OPEN_SEA',
-              auctionType: 'FIXED_PRICE',
-            },
             attributes: [
               {
                 trait: 'trait name',
@@ -150,9 +139,6 @@ describe('AssetsController', () => {
           expect(asset.image).toBeDefined();
           expect(asset.image.path).toEqual('test/example.jpeg');
           expect(asset.description).toEqual(transferRequest.assets[0].description);
-          expect(asset.externalUrl).toEqual(transferRequest.assets[0].externalUrl);
-          expect(asset.marketplace).toEqual(transferRequest.assets[0].listing.marketplace);
-          expect(asset.auctionType).toEqual(transferRequest.assets[0].listing.auctionType);
           expect(asset.attributes[0]).toBeDefined();
           expect(asset.attributes[0].trait).toEqual(transferRequest.assets[0].attributes[0].trait);
           expect(asset.attributes[0].value).toEqual(transferRequest.assets[0].attributes[0].value);
@@ -186,9 +172,6 @@ describe('AssetsController', () => {
             image: 'https://example.com/image.png',
             name: 'Example',
             description: 'test',
-            listing: {
-              marketplace: 'OPEN_SEA',
-            },
           },
         ],
       };
@@ -216,9 +199,6 @@ describe('AssetsController', () => {
             image: 'https://example.com/image.png',
             name: 'Example',
             description: 'test',
-            listing: {
-              marketplace: 'OPEN_SEA',
-            },
           },
         ],
       };
@@ -258,9 +238,6 @@ describe('AssetsController', () => {
             image: 'https://example.com/image.png',
             name: 'Example',
             description: 'test',
-            listing: {
-              marketplace: 'OPEN_SEA',
-            },
           },
         ],
       };
@@ -286,18 +263,12 @@ describe('AssetsController', () => {
             image: 'https://example.com/image.png',
             name: 'Example',
             description: 'test',
-            listing: {
-              marketplace: 'OPEN_SEA',
-            },
           },
           {
             refId: '1232',
             image: 'https://example.com/image.png',
             name: 'Example',
             description: 'test',
-            listing: {
-              marketplace: 'OPEN_SEA',
-            },
           },
         ],
       };
@@ -390,7 +361,6 @@ describe('AssetsController', () => {
           statusCode: 400,
           message: [
             'assets.0.refId must be shorter than or equal to 100 characters',
-            'assets.0.listing should not be empty',
             'assets.0.image must be shorter than or equal to 255 characters',
             'assets.0.image should not be empty',
             'assets.0.name must be shorter than or equal to 50 characters',
@@ -421,11 +391,6 @@ describe('AssetsController', () => {
             image: 'https://example.com/image.png',
             name: 'Example',
             description: 'test',
-            externalUrl: 'https://example.com/page-1',
-            listing: {
-              marketplace: 'OPEN_SEA',
-              auctionType: 'FIXED_PRICE',
-            },
             attributes: [
               {
                 trait: 'trait name',

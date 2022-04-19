@@ -15,9 +15,6 @@ export class TokenResponse {
   })
   public description: string;
 
-  @ApiProperty({ example: 'https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg' })
-  public externalUrl: string;
-
   @ApiProperty()
   public traits: TraitsResponse[];
 
