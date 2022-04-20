@@ -1,5 +1,10 @@
 import { Asset } from 'modules/assets/entities';
 
+export const softDeleteAsset = (asset: Asset) => {
+  asset.deletedAt = new Date();
+  return asset.save();
+};
+
 export const createAsset = (data: Partial<Asset>): Promise<Asset> => {
   const asset = new Asset({
     refId: 'test',

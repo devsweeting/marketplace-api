@@ -15,9 +15,9 @@ const createTokenResource = (): CreateResourceResult<typeof Token> => ({
   features: [
     (options): object => ({
       ...options,
-      listProperties: ['tokenId', 'supply', 'assetId', 'partnerId', 'contractId', 'createdAt'],
-      showProperties: ['id', 'tokenId', 'supply', 'assetId', 'partnerId', 'contractId'],
-      editProperties: ['supply', 'assetId', 'partnerId', 'contractId'],
+      listProperties: ['tokenId', 'supply', 'assetId', 'contractId', 'createdAt'],
+      showProperties: ['id', 'tokenId', 'supply', 'assetId', 'contractId'],
+      editProperties: ['contractId', 'assetId', 'supply'],
       filterProperties: [],
     }),
   ],
@@ -56,18 +56,6 @@ const createTokenResource = (): CreateResourceResult<typeof Token> => ({
         custom: {
           searchProperty: 'name',
           resourceId: 'Asset',
-        },
-      },
-      partnerId: {
-        type: 'reference',
-        reference: 'Partner',
-        components: {
-          edit: REFERENCE_FIELD,
-          filter: FILTER_PROPERTY,
-        },
-        custom: {
-          searchProperty: 'name',
-          resourceId: 'Partner',
         },
       },
       contractId: {

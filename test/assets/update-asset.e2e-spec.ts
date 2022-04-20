@@ -14,8 +14,6 @@ import { v4 } from 'uuid';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
 import { generateSlug } from 'modules/common/helpers/slug.helper';
 import { createAttribute } from '@/test/utils/attribute.utils';
-import { MarketplaceEnum } from 'modules/assets/enums/marketplace.enum';
-import { AuctionTypeEnum } from 'modules/assets/enums/auction-type.enum';
 import { StorageEnum } from 'modules/storage/enums/storage.enum';
 import { User } from 'modules/users/user.entity';
 import { RoleEnum } from 'modules/users/enums/role.enum';
@@ -202,31 +200,6 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should update externalUrl', async () => {
-      const payload = {
-        externalUrl: 'https://cdn.pixabay.com/photo/2012/04/11/17/53/approved-29149_960_720.png',
-      };
-
-      return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(payload)
-        .expect(200)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            ...assetTransformer.transform(asset),
-            externalUrl: payload.externalUrl,
-            updatedAt: expect.any(String),
-          });
-        })
-        .then(async () => {
-          await asset.reload();
-          expect(asset.externalUrl).toEqual(payload.externalUrl);
-        });
-    });
-
     it('should update name', async () => {
       const payload = {
         name: 'Test name 2',
@@ -301,38 +274,6 @@ describe('AssetsController', () => {
         .then(async () => {
           await asset.reload();
           expect(asset.description).toEqual(payload.description);
-        });
-    });
-
-    it('should update listing properties', async () => {
-      const payload = {
-        listing: {
-          marketplace: MarketplaceEnum.OpenSea,
-          auctionType: AuctionTypeEnum.FixedPrice,
-        },
-      };
-
-      return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(payload)
-        .expect(200)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            ...assetTransformer.transform(asset),
-            listing: {
-              marketplace: MarketplaceEnum.OpenSea,
-              auctionType: AuctionTypeEnum.FixedPrice,
-            },
-            updatedAt: expect.any(String),
-          });
-        })
-        .then(async () => {
-          await asset.reload();
-          expect(asset.marketplace).toEqual(payload.listing.marketplace);
-          expect(asset.auctionType).toEqual(payload.listing.auctionType);
         });
     });
 

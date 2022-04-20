@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { useContainer } from 'class-validator';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import { setupSwagger } from './middleware/swagger';
@@ -18,7 +19,7 @@ async function bootstrap() {
 
   app.useGlobalPipes(new SanitizePipe());
   app.useGlobalPipes(validationPipe);
-
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
   // We may decide to make the swagger documentation public at some point,
   // but for now it's going to only be available in development mode.
   if (process.env.NODE_ENV === 'DEVELOP' || process.env.NODE_ENV === 'TEST') {

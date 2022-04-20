@@ -1,4 +1,14 @@
-import { BeforeInsert, Column, Entity, Index, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  RelationId,
+} from 'typeorm';
 
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
@@ -6,7 +16,7 @@ import { Asset } from 'modules/assets/entities';
 import { User } from 'modules/users/user.entity';
 import { PartnerMemberUser } from './partners-members-users';
 import { Token } from 'modules/assets/entities/token.entity';
-
+import { File } from 'modules/storage/entities/file.entity';
 @Entity('partners')
 export class Partner extends BaseModel implements BaseEntityInterface {
   @Index()
@@ -36,8 +46,32 @@ export class Partner extends BaseModel implements BaseEntityInterface {
   @OneToMany(() => Asset, (asset) => asset.partnerId)
   public assets: Asset[];
 
-  @OneToMany(() => Token, (token) => token.partner)
+  @OneToMany(() => Token, (token) => token.asset.partner)
   public tokens: Token[];
+
+  @ManyToOne(() => File, { nullable: true })
+  @JoinColumn({ name: 'bannerId' })
+  public banner?: File;
+
+  @Column({ type: 'string', nullable: true })
+  @RelationId((partner: Partner) => partner.banner)
+  public bannerId?: string;
+
+  @ManyToOne(() => File, { nullable: true })
+  @JoinColumn({ name: 'logoId' })
+  public logo?: File;
+
+  @Column({ type: 'string', nullable: true })
+  @RelationId((partner: Partner) => partner.logo)
+  public logoId?: string;
+
+  @ManyToOne(() => File, { nullable: true })
+  @JoinColumn({ name: 'avatarId' })
+  public avatar?: File;
+
+  @Column({ type: 'string', nullable: true })
+  @RelationId((partner: Partner) => partner.avatar)
+  public avatarId?: string;
 
   @BeforeInsert()
   public beforeInsert(): void {

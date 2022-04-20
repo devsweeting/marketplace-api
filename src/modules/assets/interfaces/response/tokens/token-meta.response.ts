@@ -1,8 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { TraitsMetaResponse } from './traits-meta.response';
 
+// This endpoint must conform to the following interface:
+// https://eips.ethereum.org/EIPS/eip-1155
 export class TokenMetaResponse {
-  @ApiProperty({ example: 'https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg' })
+  @ApiProperty({ example: 'https://picsum.photos/400/200' })
   public image: string;
 
   @ApiProperty({ example: 'Test asset name' })
@@ -14,9 +16,6 @@ export class TokenMetaResponse {
   })
   public description: string;
 
-  @ApiProperty({ example: 'https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg' })
-  public external_link: string;
-
   @ApiProperty()
-  public traits: TraitsMetaResponse[];
+  public properties: TraitsMetaResponse[];
 }
