@@ -41,22 +41,6 @@ export class Token extends BaseModel {
     return this.supply == 1;
   }
 
-  @BeforeInsert()
-  public async beforeInsert(): Promise<void> {
-    await this.populateRelations();
-  }
-
-  @BeforeUpdate()
-  public async beforeUpdate(): Promise<void> {
-    await this.populateRelations();
-  }
-
-  private async populateRelations(): Promise<void> {
-    const asset = await Asset.findOne(this.assetId, { relations: ['partner', 'contract'] });
-    this.contractId = asset.contractId;
-    this.contract = asset.contract;
-  }
-
   public constructor(partial: Partial<Token>) {
     super();
     Object.assign(this, partial);

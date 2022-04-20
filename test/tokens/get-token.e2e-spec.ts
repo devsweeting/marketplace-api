@@ -39,9 +39,8 @@ describe('TokensController', () => {
       slug: 'egg',
       description: 'test-egg',
       partner,
-      contract,
     });
-    token = await createToken({ assetId: asset.id, asset });
+    token = await createToken({ assetId: asset.id, asset, contract, contractId: contract.id });
   });
 
   afterEach(async () => {
