@@ -27,10 +27,10 @@ export class ListAssetsDto extends ListDto {
   @ApiPropertyOptional()
   @IsNotEmpty()
   @IsOptional()
-  public attr_gte?: number;
+  public attr_gte?: any;
 
   @ApiPropertyOptional()
   @IsNotEmpty()
   @IsOptional()
-  public attr_lte?: number[];
+  public attr_lte?: any;
 }

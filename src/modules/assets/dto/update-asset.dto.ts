@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Type } from 'class-transformer';
-import { IsNotEmpty, IsOptional, IsUrl, MaxLength, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsNotEmpty, IsOptional, MaxLength, ValidateNested } from 'class-validator';
 import { AttributeDto } from './attribute.dto';
 import { MediaDto } from './media/media.dto';
 

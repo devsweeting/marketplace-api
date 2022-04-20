@@ -46,10 +46,15 @@ export class AssetsService {
     }
 
     if (
-      params.attr_eq &&
-      Object.keys(params.attr_eq).filter(
-        (item, index) => Object.keys(params.attr_eq).indexOf(item) !== index,
-      ).length > 0
+      params.attr_gte &&
+      Object.values(params.attr_gte).filter((item: []) => Array.isArray(item)).length > 0
+    ) {
+      throw new AttributeDuplicatedException();
+    }
+
+    if (
+      params.attr_lte &&
+      Object.values(params.attr_lte).filter((item: []) => Array.isArray(item)).length > 0
     ) {
       throw new AttributeDuplicatedException();
     }
