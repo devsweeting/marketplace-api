@@ -1,11 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { MediaResponse } from '../media/media.response';
 import { TraitsMetaResponse } from './traits-meta.response';
 
 // This endpoint must conform to the following interface:
 // https://eips.ethereum.org/EIPS/eip-1155
 export class TokenMetaResponse {
-  @ApiProperty({ example: 'https://picsum.photos/400/200' })
-  public image: string;
+  @ApiProperty({ type: [MediaResponse] })
+  public media: MediaResponse[];
 
   @ApiProperty({ example: 'Test asset name' })
   public name: string;
@@ -16,6 +17,6 @@ export class TokenMetaResponse {
   })
   public description: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: TraitsMetaResponse })
   public properties: TraitsMetaResponse[];
 }

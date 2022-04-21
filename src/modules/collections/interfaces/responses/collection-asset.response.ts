@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { MediaResponse } from 'modules/assets/interfaces/response/media/media.response';
 
 export class CollectionAssetResponse {
   @ApiProperty({ example: '1' })
@@ -10,8 +11,8 @@ export class CollectionAssetResponse {
   @ApiProperty({ example: 'Test asset name' })
   public name: string;
 
-  @ApiProperty({ example: 'https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg' })
-  public image: string;
+  @ApiProperty({ type: [MediaResponse] })
+  public media: MediaResponse[];
 
   @ApiProperty({ example: 'test-asset-name' })
   public slug: string;

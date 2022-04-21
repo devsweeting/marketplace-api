@@ -12,9 +12,6 @@ export class AssetResponse {
   @ApiProperty({ example: 'Test asset name' })
   public name: string;
 
-  @ApiProperty({ example: 'https://picsum.photos/200/300' })
-  public image: string;
-
   @ApiProperty()
   public medias: MediaResponse[];
 

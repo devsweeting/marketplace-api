@@ -10,6 +10,8 @@ import { RefAlreadyTakenException } from 'modules/common/exceptions/ref-already-
 import { StorageService } from 'modules/storage/storage.service';
 import { Not } from 'typeorm';
 import { MediaService } from './media.service';
+import { Collection, CollectionAsset } from 'modules/collections/entities';
+import { CollectionNotFoundException } from 'modules/collections/exceptions/collection-not-found.exception';
 
 @Injectable()
 export class AssetsService {
@@ -43,13 +45,13 @@ export class AssetsService {
   public async getOne(id: string): Promise<Asset> {
     const asset = await Asset.createQueryBuilder('asset')
       .leftJoinAndMapMany('asset.attributes', 'asset.attributes', 'attributes')
-      .leftJoinAndMapOne('asset.image', 'asset.image', 'image')
       .leftJoinAndMapMany(
         'asset.medias',
         'asset.medias',
         'medias',
         'medias.isDeleted = FALSE AND medias.deletedAt IS NULL',
       )
+      .leftJoinAndMapOne('medias.file', 'medias.file', 'file')
       .where('asset.id = :id', { id })
       .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
       .andWhere('asset.deletedAt IS NULL')
@@ -63,7 +65,9 @@ export class AssetsService {
   }
 
   public async updateAsset(partner: Partner, id: string, dto: UpdateAssetDto): Promise<Asset> {
-    const asset = await Asset.findOne({ where: { id, partnerId: partner.id } });
+    const asset = await Asset.findOne({
+      where: { id, partnerId: partner.id },
+    });
     if (!asset) {
       throw new AssetNotFoundException();
     }
@@ -82,13 +86,9 @@ export class AssetsService {
       }
     }
 
-    const { attributes, image, media, ...data } = dto;
+    const { attributes, media, ...data } = dto;
     if (Array.isArray(attributes)) {
       await asset.saveAttributes(attributes);
-    }
-
-    if (image) {
-      asset.image = await this.storageService.uploadFromUrl(image, `assets/${asset.id}`);
     }
 
     if (media) {
@@ -122,15 +122,22 @@ export class AssetsService {
     await Promise.all(
       dto.assets.map(async (assetDto) => {
         const asset = await Asset.saveAssetForPartner(assetDto, partner);
-        if (assetDto.image) {
-          asset.image = await this.storageService.uploadFromUrl(
-            assetDto.image,
-            `assets/${asset.id}`,
-          );
-          await asset.save();
-        }
+
         if (assetDto.media) {
           asset.medias = await this.mediaService.createBulkMedia(asset.id, assetDto.media);
+        }
+        if (assetDto.collection) {
+          const collection = assetDto.collection.id
+            ? await Collection.findOne(assetDto.collection.id)
+            : await Collection.findOne({ where: { slug: assetDto.collection.id } });
+          if (!collection) {
+            throw new CollectionNotFoundException();
+          }
+          const collectionAsset = CollectionAsset.create({
+            collectionId: collection.id,
+            assetId: asset.id,
+          });
+          await collectionAsset.save();
         }
       }),
     );

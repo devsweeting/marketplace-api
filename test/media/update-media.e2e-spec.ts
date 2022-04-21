@@ -10,15 +10,16 @@ import { createPartner } from '@/test/utils/partner.utils';
 import { createAsset } from '@/test/utils/asset.utils';
 import { Partner } from 'modules/partners/entities';
 import { Asset, Media } from 'modules/assets/entities';
+import { File } from 'modules/storage/entities/file.entity';
 import { StorageEnum } from 'modules/storage/enums/storage.enum';
 import { v4 } from 'uuid';
 import { User } from 'modules/users/user.entity';
 import { createUser } from '../utils/fixtures/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 
-import { createFile } from '../utils/file.utils';
 import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
 import { createImageMedia } from '../utils/media.utils';
+import { createFile } from '../utils/file.utils';
 
 describe('MediaController', () => {
   let app: INestApplication;
@@ -26,6 +27,7 @@ describe('MediaController', () => {
   let user: User;
   let asset: Asset;
   let imageMedia: Media;
+  let file: File;
   const mockedUrl = 'https://example.com';
   const mockTmpFilePath = '/tmp/temp-file.jpeg';
 
@@ -39,7 +41,6 @@ describe('MediaController', () => {
     asset = await createAsset({
       refId: '1',
       name: 'Egg',
-      image: await createFile(),
       slug: 'egg',
       description: 'test-egg',
       partner,
@@ -56,12 +57,14 @@ describe('MediaController', () => {
     });
   });
   beforeEach(async () => {
-    imageMedia = await createImageMedia({ assetId: asset.id, sortOrder: 1 });
+    file = await createFile({});
+    imageMedia = await createImageMedia({ assetId: asset.id, sortOrder: 1, file, fileId: file.id });
   });
 
   afterEach(async () => {
     jest.clearAllMocks();
     await Media.delete({});
+    await File.delete({});
   });
 
   afterAll(async () => {
@@ -248,6 +251,7 @@ describe('MediaController', () => {
           expect(body).toEqual({
             assetId: imageMedia.assetId,
             description: dtoRequest.description,
+            file: null,
             fileId: imageMedia.fileId,
             sortOrder: dtoRequest.sortOrder,
             title: dtoRequest.title,

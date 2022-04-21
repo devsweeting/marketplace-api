@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Type } from 'class-transformer';
-import { IsNotEmpty, IsOptional, IsUrl, MaxLength, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsNotEmpty, IsOptional, MaxLength, ValidateNested } from 'class-validator';
 import { AttributeDto } from './attribute.dto';
 import { MediaDto } from './media/media.dto';
 
@@ -14,16 +14,6 @@ export class UpdateAssetDto {
   })
   @IsOptional()
   public refId?: string;
-
-  @IsNotEmpty()
-  @MaxLength(255)
-  @ApiProperty({
-    description: 'URI pointing to asset image.  Must be less than 255 characters.',
-    required: false,
-    example: 'https://picsum.photos/400/200',
-  })
-  @IsOptional()
-  public image?: string;
 
   @IsNotEmpty()
   @ApiProperty({
