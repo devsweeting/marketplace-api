@@ -21,7 +21,7 @@ export class AssetsTransformer {
       name: asset.name,
       description: asset.description,
       image: asset.image ? this.storageService.getUrl(asset.image) : null,
-      medias: asset.medias?.length ? this.mediaTransformer.transformAll(asset.medias) : null,
+      media: asset.media?.length ? this.mediaTransformer.transformAll(asset.media) : null,
       refId: asset.refId,
       slug: asset.slug,
       createdAt: asset.createdAt.toISOString(),

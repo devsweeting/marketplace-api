@@ -28,7 +28,7 @@ export class AssetsService {
       await Promise.all(
         results.items.map(async (item: Asset) => {
           item.attributes = await Attribute.findAllByAssetId(item.id);
-          item.medias = await Media.find({
+          item.media = await Media.find({
             where: { assetId: item.id, isDeleted: false, deletedAt: null },
             order: { sortOrder: 'ASC' },
             take: 1,
@@ -45,15 +45,15 @@ export class AssetsService {
       .leftJoinAndMapMany('asset.attributes', 'asset.attributes', 'attributes')
       .leftJoinAndMapOne('asset.image', 'asset.image', 'image')
       .leftJoinAndMapMany(
-        'asset.medias',
-        'asset.medias',
-        'medias',
-        'medias.isDeleted = FALSE AND medias.deletedAt IS NULL',
+        'asset.media',
+        'asset.media',
+        'media',
+        'media.isDeleted = FALSE AND media.deletedAt IS NULL',
       )
       .where('asset.id = :id', { id })
       .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
       .andWhere('asset.deletedAt IS NULL')
-      .orderBy('medias.sortOrder', 'ASC')
+      .orderBy('media.sortOrder', 'ASC')
       .getOne();
 
     if (!asset) {
@@ -92,7 +92,7 @@ export class AssetsService {
     }
 
     if (media) {
-      asset.medias = await this.mediaService.createBulkMedia(id, media);
+      asset.media = await this.mediaService.createBulkMedia(id, media);
     }
 
     Object.assign(asset, data);
@@ -130,7 +130,7 @@ export class AssetsService {
           await asset.save();
         }
         if (assetDto.media) {
-          asset.medias = await this.mediaService.createBulkMedia(asset.id, assetDto.media);
+          asset.media = await this.mediaService.createBulkMedia(asset.id, assetDto.media);
         }
       }),
     );

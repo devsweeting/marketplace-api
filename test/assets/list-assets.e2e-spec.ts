@@ -379,13 +379,13 @@ describe('AssetsController', () => {
     await createImageMedia({ asset: asset1, sortOrder: 3 });
     const videoMedia = await createVideoMedia({ asset: asset2, sortOrder: 1 });
 
-    const assetWithMedia1 = await Asset.findOne(asset1.id, { relations: ['medias'] });
-    const assetWithMedia2 = await Asset.findOne(asset2.id, { relations: ['medias'] });
-    const assetWithMedia3 = await Asset.findOne(asset3.id, { relations: ['medias'] });
+    const assetWithMedia1 = await Asset.findOne(asset1.id, { relations: ['media'] });
+    const assetWithMedia2 = await Asset.findOne(asset2.id, { relations: ['media'] });
+    const assetWithMedia3 = await Asset.findOne(asset3.id, { relations: ['media'] });
 
-    const medias3 = mediaTransformer.transformAll(assetWithMedia3.medias);
-    const medias2 = mediaTransformer.transformAll([videoMedia]);
-    const medias1 = mediaTransformer.transformAll([imageMedia]);
+    const media3 = mediaTransformer.transformAll(assetWithMedia3.media);
+    const media2 = mediaTransformer.transformAll([videoMedia]);
+    const media1 = mediaTransformer.transformAll([imageMedia]);
 
     return request(app.getHttpServer())
       .get(`/assets`)
@@ -401,9 +401,9 @@ describe('AssetsController', () => {
             currentPage: 1,
           },
           items: assetsTransformer.transformAll([
-            Object.assign(assetWithMedia3, { medias: medias3 }),
-            Object.assign(assetWithMedia2, { medias: medias2 }),
-            Object.assign(assetWithMedia1, { medias: medias1 }),
+            Object.assign(assetWithMedia3, { media: media3 }),
+            Object.assign(assetWithMedia2, { media: media2 }),
+            Object.assign(assetWithMedia1, { media: media1 }),
           ]),
         });
       });
