@@ -1,3 +1,4 @@
+import './tracing';
 import { NestFactory } from '@nestjs/core';
 import { useContainer } from 'class-validator';
 import { ConfigService } from '@nestjs/config';
@@ -9,16 +10,20 @@ import { SanitizePipe } from 'modules/common/pipes/sanitize.pipe';
 import path from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import setUpAdminJS from 'modules/admin/admin.config';
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: true,
+    bufferLogs: true,
   });
 
   const configService = app.get(ConfigService);
 
   app.useGlobalPipes(new SanitizePipe());
   app.useGlobalPipes(validationPipe);
+  app.useLogger(app.get(Logger));
+
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   // We may decide to make the swagger documentation public at some point,
   // but for now it's going to only be available in development mode.
