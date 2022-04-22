@@ -86,14 +86,6 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   @OneToMany(() => Media, (media) => media.asset)
   public media: Media[];
 
-  @ManyToOne(() => Contract, { nullable: true })
-  @JoinColumn({ name: 'contractId', referencedColumnName: 'id' })
-  public contract: Contract;
-
-  @Column({ type: 'string', nullable: true })
-  @RelationId((asset: Asset) => asset.contract)
-  public contractId: string;
-
   @OneToMany(() => Event, (event) => event.asset)
   public events: Event[];
 

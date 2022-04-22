@@ -17,7 +17,7 @@ const createTokenResource = (): CreateResourceResult<typeof Token> => ({
       ...options,
       listProperties: ['tokenId', 'supply', 'assetId', 'contractId', 'createdAt'],
       showProperties: ['id', 'tokenId', 'supply', 'assetId', 'contractId'],
-      editProperties: ['contractId', 'assetId', 'supply'],
+      editProperties: ['assetId', 'contractId', 'supply'],
       filterProperties: [],
     }),
   ],
@@ -56,6 +56,9 @@ const createTokenResource = (): CreateResourceResult<typeof Token> => ({
         custom: {
           searchProperty: 'name',
           resourceId: 'Asset',
+          searchExclude: {
+            'filters.isDeleted': false,
+          },
         },
       },
       contractId: {
@@ -68,6 +71,9 @@ const createTokenResource = (): CreateResourceResult<typeof Token> => ({
         custom: {
           searchProperty: 'name',
           resourceId: 'Contract',
+          searchExclude: {
+            'filters.isDeleted': false,
+          },
         },
       },
       deletedAt: {

@@ -13,6 +13,7 @@ const SingleReferenceEdit = (props) => {
     searchProperty = 'name',
     resourceId = property.reference,
     excludeOptions,
+    searchExclude,
     searchAction = 'list',
   } = custom;
 
@@ -35,6 +36,7 @@ const SingleReferenceEdit = (props) => {
     selectedIds,
     currentResource: resource.id,
     searchAction,
+    searchExclude,
   });
 
   const handleChange = (type) => {
