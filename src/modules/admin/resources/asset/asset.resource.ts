@@ -2,11 +2,10 @@ import {
   ASSET_SHOW,
   ATTRIBUTE_COMPONENT,
   FILTER_PROPERTY,
-  IMAGE_UPLOAD,
   LABELS_COMPONENT,
-  PHOTO_PROPERTY,
   REFERENCE_FIELD,
   SHOW_DELETED_AT,
+  MEDIA_BOX_COMPONENT,
 } from 'modules/admin/components.bundler';
 import { Asset } from 'modules/assets/entities';
 import { CreateResourceResult } from '../create-resource-result.type';
@@ -18,15 +17,17 @@ import { forAdminGroup } from 'modules/admin/resources/user/user-permissions';
 import { filterByIsDeleted } from 'modules/admin/hooks/filter-is-deleted-records';
 import bulkSoftDeleteHandler from 'modules/admin/hooks/bulk-soft-delete.handler';
 import { softDeleteHandler } from 'modules/admin/hooks/soft-delete.handler';
-import uploadFile from 'modules/admin/resources/asset/hooks/upload-file.after';
 import { marketNavigation } from 'modules/admin/admin.navigation';
 import { MIME_TYPES } from '../file/mime-types';
-import { getImage } from 'modules/admin/hooks/get-image.after';
+
 import { loadEvents } from './hooks/load-events.hook';
 import { ServiceAccessor } from 'modules/admin/utils/service.accessor';
 import { softDeleteRelations } from './hooks/soft-delete-relations.hook';
 import loggerFeature from '@adminjs/logger';
 import loggerConfig from '@/src/config/logger.config';
+import { loadMedia } from './hooks/load-media.hook';
+import saveMedia from 'modules/admin/resources/asset/hooks/save-media.after';
+import { validate } from './hooks/validate';
 
 const createAssetResource = (
   serviceAccessor: ServiceAccessor,
@@ -48,21 +49,23 @@ const createAssetResource = (
       },
       new: {
         isAccessible: (context): boolean => forAdminGroup(context),
-        after: [saveLabels, saveAttributes, uploadFile('image', 'assets', serviceAccessor)],
+        after: [saveLabels, saveAttributes, saveMedia(serviceAccessor)],
+        before: [validate(serviceAccessor)],
       },
       edit: {
         isAccessible: (context): boolean => forAdminGroup(context),
         after: [
-          getImage(serviceAccessor, 'image'),
+          loadMedia(serviceAccessor),
           getLabels,
           saveLabels,
           loadAttributes,
           saveAttributes,
-          uploadFile('image', 'assets', serviceAccessor),
+          saveMedia(serviceAccessor),
         ],
+        before: [validate(serviceAccessor)],
       },
       show: {
-        after: [getImage(serviceAccessor, 'image'), getLabels, loadAttributes, loadEvents],
+        after: [loadMedia(serviceAccessor), getLabels, loadAttributes, loadEvents],
         isAccessible: (context): boolean => forAdminGroup(context),
         component: ASSET_SHOW,
       },
@@ -109,7 +112,7 @@ const createAssetResource = (
         position: 6,
         type: 'textarea',
       },
-      image: {
+      assetMedia: {
         position: 10,
         props: {
           validation: {
@@ -117,9 +120,8 @@ const createAssetResource = (
           },
         },
         components: {
-          edit: IMAGE_UPLOAD,
-          show: PHOTO_PROPERTY,
-          list: PHOTO_PROPERTY,
+          edit: MEDIA_BOX_COMPONENT,
+          show: MEDIA_BOX_COMPONENT,
         },
       },
       assetAttributes: {
@@ -154,9 +156,6 @@ const createAssetResource = (
         position: 53,
       },
       events: {
-        isVisible: false,
-      },
-      imageId: {
         isVisible: false,
       },
     },

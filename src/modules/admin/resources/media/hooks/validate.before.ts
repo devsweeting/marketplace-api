@@ -30,7 +30,7 @@ export const validate =
     }
 
     if (!payload.assetId) {
-      errors.type = { message: 'Asset is required' };
+      errors.assetId = { message: 'Asset is required' };
     }
 
     if (Object.keys(errors).length) {

@@ -9,7 +9,8 @@ const propertyToFiles = (propertyValue) => {
   return [propertyValue];
 };
 
-function ImageUpload(props) {
+const ImageUpload = (props) => {
+  if (!props) return null;
   const { property, onChange, record, where } = props;
   const { custom = {} } = property;
   const { isMultiUpload = false } = custom;
@@ -85,7 +86,7 @@ function ImageUpload(props) {
       {error && <FormMessage color="error">{error.message}</FormMessage>}
     </FormGroup>
   );
-}
+};
 
 export default memo(
   ImageUpload,

@@ -48,11 +48,14 @@ export class Media extends BaseModel implements BaseEntityInterface {
     Object.assign(this, partial);
   }
 
-  public static bulkSoftDelete(assetId: string) {
-    return Media.createQueryBuilder('media')
+  public static bulkSoftDelete(assetId: string, ids: string[] = []) {
+    const query = Media.createQueryBuilder('media')
       .update()
       .set({ isDeleted: true, deletedAt: new Date() })
-      .where(`assetId = :assetId`, { assetId })
-      .execute();
+      .where(`assetId = :assetId`, { assetId });
+    if (ids.length) {
+      query.andWhereInIds(ids);
+    }
+    return query.execute();
   }
 }
