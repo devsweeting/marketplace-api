@@ -47,14 +47,14 @@ describe('AssetsController', () => {
     await clearAllData();
   });
 
-  describe(`PATCH /assets/:id`, () => {
+  describe(`PATCH V1 /assets/:id`, () => {
     it('should throw 401 exception if auth token is missing', () => {
-      return request(app.getHttpServer()).patch(`/assets/${asset.id}`).send({}).expect(401);
+      return request(app.getHttpServer()).patch(`/v1/assets/${asset.id}`).send({}).expect(401);
     });
 
     it('should throw 401 exception if token is invalid', () => {
       return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
+        .patch(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': 'invalid key',
         })
@@ -64,7 +64,7 @@ describe('AssetsController', () => {
 
     it('should throw 404 exception if asset does not exist', async () => {
       return request(app.getHttpServer())
-        .patch(`/assets/${v4()}`)
+        .patch(`/v1/assets/${v4()}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -81,7 +81,7 @@ describe('AssetsController', () => {
       const anotherAsset = await createAsset({ partner: anotherPartner });
 
       return request(app.getHttpServer())
-        .patch(`/assets/${anotherAsset.id}`)
+        .patch(`/v1/assets/${anotherAsset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -95,7 +95,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
+        .patch(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -120,7 +120,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
+        .patch(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -144,7 +144,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
+        .patch(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -182,7 +182,7 @@ describe('AssetsController', () => {
       mockFileDownloadService.download.mockReturnValue('downloaded-path');
 
       return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
+        .patch(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -209,7 +209,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
+        .patch(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -240,7 +240,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
+        .patch(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -261,7 +261,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
+        .patch(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -285,7 +285,7 @@ describe('AssetsController', () => {
       const attribute = await createAttribute({ asset });
 
       return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
+        .patch(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -310,7 +310,7 @@ describe('AssetsController', () => {
       const attribute = await createAttribute({ asset });
 
       return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
+        .patch(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -341,7 +341,7 @@ describe('AssetsController', () => {
       const attribute = await createAttribute({ asset });
 
       return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
+        .patch(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })

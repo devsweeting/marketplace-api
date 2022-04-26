@@ -49,7 +49,7 @@ describe('AssetsController', () => {
     await clearAllData();
   });
 
-  describe(`GET /assets/:id`, () => {
+  describe(`GET V1 /assets/:id`, () => {
     it('should return asset', async () => {
       mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);
       const media = await createImageMedia({ assetId: asset.id, file: await createFile({}) });
@@ -58,7 +58,7 @@ describe('AssetsController', () => {
         media: mediaTransformer.transformAll([media]),
       };
       return request(app.getHttpServer())
-        .get(`/assets/${asset.id}`)
+        .get(`/v1/assets/${asset.id}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -80,7 +80,7 @@ describe('AssetsController', () => {
         media: mediaTransformer.transformAll([media]),
       };
       return request(app.getHttpServer())
-        .get(`/assets/${asset.id}`)
+        .get(`/v1/assets/${asset.id}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -94,7 +94,7 @@ describe('AssetsController', () => {
 
     it('should 400 exception id is invalid', () => {
       return request(app.getHttpServer())
-        .get(`/assets/123`)
+        .get(`/v1/assets/123`)
         .send()
         .expect(400)
         .expect(({ body }) => {
@@ -108,7 +108,7 @@ describe('AssetsController', () => {
 
     it('should 404 exception if file does not exist', () => {
       return request(app.getHttpServer())
-        .get(`/assets/${v4()}`)
+        .get(`/v1/assets/${v4()}`)
         .send()
         .expect(404)
         .expect(({ body }) => {

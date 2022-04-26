@@ -71,11 +71,11 @@ describe('MediaController', () => {
     await clearAllData();
   });
 
-  describe(`PATCH /media/:id`, () => {
+  describe(`PATCH V1 /media/:id`, () => {
     it('should throw 401 exception if auth token is missing', () => {
       const dtoRequest = { title: 'title' };
       return request(app.getHttpServer())
-        .patch(`/media/${imageMedia.id}`)
+        .patch(`/v1/media/${imageMedia.id}`)
         .send(dtoRequest)
         .expect(401);
     });
@@ -83,7 +83,7 @@ describe('MediaController', () => {
     it('should throw 401 exception if token is invalid', () => {
       const dtoRequest = { title: 'title' };
       return request(app.getHttpServer())
-        .patch(`/media/${imageMedia.id}`)
+        .patch(`/v1/media/${imageMedia.id}`)
         .set({
           'x-api-key': 'invalid key',
         })
@@ -100,7 +100,7 @@ describe('MediaController', () => {
       });
 
       return request(app.getHttpServer())
-        .patch(`/media/${imageMedia.id}`)
+        .patch(`/v1/media/${imageMedia.id}`)
         .set({
           'x-api-key': notOwnerPartner.apiKey,
         })
@@ -117,7 +117,7 @@ describe('MediaController', () => {
         sortOrder: 1,
       };
       return request(app.getHttpServer())
-        .patch(`/media/${imageMedia.id}`)
+        .patch(`/v1/media/${imageMedia.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -140,7 +140,7 @@ describe('MediaController', () => {
         sortOrder: 1,
       };
       return request(app.getHttpServer())
-        .patch(`/media/${imageMedia.id}`)
+        .patch(`/v1/media/${imageMedia.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -163,7 +163,7 @@ describe('MediaController', () => {
         type: MediaTypeEnum.Image,
       };
       return request(app.getHttpServer())
-        .patch(`/media/${imageMedia.id}`)
+        .patch(`/v1/media/${imageMedia.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -192,7 +192,7 @@ describe('MediaController', () => {
         type: MediaTypeEnum.Youtube,
       };
       return request(app.getHttpServer())
-        .patch(`/media/${imageMedia.id}`)
+        .patch(`/v1/media/${imageMedia.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -217,7 +217,7 @@ describe('MediaController', () => {
         sortOrder: 100,
       };
       return request(app.getHttpServer())
-        .patch(`/media/${imageMedia.id}`)
+        .patch(`/v1/media/${imageMedia.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -241,7 +241,7 @@ describe('MediaController', () => {
       };
 
       return request(app.getHttpServer())
-        .patch(`/media/${imageMedia.id}`)
+        .patch(`/v1/media/${imageMedia.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -264,7 +264,7 @@ describe('MediaController', () => {
       const dtoRequest: any = {};
 
       return request(app.getHttpServer())
-        .patch(`/media/${imageMedia.id}`)
+        .patch(`/v1/media/${imageMedia.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -290,7 +290,7 @@ describe('MediaController', () => {
       };
 
       return request(app.getHttpServer())
-        .patch(`/media/${imageMedia}.id`)
+        .patch(`/v1/media/${imageMedia}.id`)
         .set({
           'x-api-key': deletedPartner.apiKey,
         })

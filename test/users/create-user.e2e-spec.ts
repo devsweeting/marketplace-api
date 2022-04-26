@@ -19,7 +19,7 @@ describe('UsersController', () => {
     await app.close();
   });
 
-  describe(`POST /users`, () => {
+  describe(`POST V1 /users`, () => {
     beforeEach(async () => {
       admin = await createUser({ role: RoleEnum.SUPER_ADMIN });
     });
@@ -31,7 +31,7 @@ describe('UsersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/users`)
+        .post(`/v1/users`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
         .expect(201);
@@ -41,7 +41,7 @@ describe('UsersController', () => {
       const userRequest: any = {};
 
       return request(app.getHttpServer())
-        .post(`/users`)
+        .post(`/v1/users`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
         .expect(400)
@@ -65,7 +65,7 @@ describe('UsersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/users`)
+        .post(`/v1/users`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
         .expect(400)
@@ -82,7 +82,7 @@ describe('UsersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/users`)
+        .post(`/v1/users`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
         .expect(400)

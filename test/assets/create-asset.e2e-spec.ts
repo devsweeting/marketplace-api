@@ -52,7 +52,7 @@ describe('AssetsController', () => {
     await clearAllData();
   });
 
-  describe(`POST /assets`, () => {
+  describe(`POST V1 /assets`, () => {
     it('should throw 401 exception if auth token is missing', () => {
       const transferRequest: any = {
         user: {
@@ -68,7 +68,7 @@ describe('AssetsController', () => {
         ],
       };
 
-      return request(app.getHttpServer()).post(`/assets`).send(transferRequest).expect(401);
+      return request(app.getHttpServer()).post(`/v1/assets`).send(transferRequest).expect(401);
     });
 
     it('should throw 401 exception if token is invalid', () => {
@@ -87,7 +87,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets`)
+        .post(`/v1/assets`)
         .set({
           'x-api-key': 'invalid key',
         })
@@ -128,7 +128,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets`)
+        .post(`/v1/assets`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -186,7 +186,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets`)
+        .post(`/v1/assets`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -218,7 +218,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets`)
+        .post(`/v1/assets`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -253,7 +253,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets`)
+        .post(`/v1/assets`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -277,7 +277,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets`)
+        .post(`/v1/assets`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -303,7 +303,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets`)
+        .post(`/v1/assets`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -330,7 +330,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets`)
+        .post(`/v1/assets`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -379,7 +379,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets`)
+        .post(`/v1/assets`)
         .set({
           'x-api-key': deletedPartner.apiKey,
         })

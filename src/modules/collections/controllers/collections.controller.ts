@@ -22,7 +22,10 @@ import { CollectionsTransformer } from '../transformers/collections.transformer'
 import { UpdateCollectionDto } from '../dto/update-collection.dto';
 
 @ApiTags('collections')
-@Controller('collections')
+@Controller({
+  path: 'collections',
+  version: '1',
+})
 export class CollectionsController {
   constructor(
     private readonly collectionsService: CollectionsService,

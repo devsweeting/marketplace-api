@@ -21,7 +21,7 @@ describe('UsersController', () => {
     await app.close();
   });
 
-  describe(`PATCH /users/:id as SUPER_ADMIN`, () => {
+  describe(`PATCH V1 /users/:id as SUPER_ADMIN`, () => {
     beforeEach(async () => {
       admin = await createUser({ role: RoleEnum.SUPER_ADMIN });
     });
@@ -30,7 +30,7 @@ describe('UsersController', () => {
         email: 'changed@mail.com',
       };
       return request(app.getHttpServer())
-        .patch(`/users/${user.id}`)
+        .patch(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
         .expect(200)
@@ -57,7 +57,7 @@ describe('UsersController', () => {
       };
 
       return request(app.getHttpServer())
-        .patch(`/users/${user.id}`)
+        .patch(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
         .expect(400)
@@ -73,7 +73,7 @@ describe('UsersController', () => {
       };
 
       return request(app.getHttpServer())
-        .patch(`/users/${user.id}`)
+        .patch(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
         .expect(400)
@@ -93,7 +93,7 @@ describe('UsersController', () => {
         email: 'updated@mail.com',
       };
       return request(app.getHttpServer())
-        .patch(`/users/${user.id}`)
+        .patch(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
         .expect(200)
@@ -120,7 +120,7 @@ describe('UsersController', () => {
       };
 
       return request(app.getHttpServer())
-        .patch(`/users/${user.id}`)
+        .patch(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
         .expect(400)
@@ -136,7 +136,7 @@ describe('UsersController', () => {
       };
 
       return request(app.getHttpServer())
-        .patch(`/users/${user.id}`)
+        .patch(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
         .expect(400)

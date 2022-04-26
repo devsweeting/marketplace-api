@@ -33,7 +33,10 @@ import { AssetIdDto } from 'modules/assets/dto/asset-id.dto';
 import { UpdateAssetDto } from 'modules/assets/dto/update-asset.dto';
 
 @ApiTags('assets')
-@Controller('assets')
+@Controller({
+  path: 'assets',
+  version: '1',
+})
 export class AssetsController {
   constructor(
     private readonly assetsService: AssetsService,
