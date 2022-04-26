@@ -47,14 +47,14 @@ describe('AssetsController', () => {
     await clearAllData();
   });
 
-  describe(`DELETE /assets/:id`, () => {
+  describe(`DELETE V1 /assets/:id`, () => {
     it('should throw 401 exception if auth token is missing', () => {
-      return request(app.getHttpServer()).delete(`/assets/${asset.id}`).send().expect(401);
+      return request(app.getHttpServer()).delete(`/v1/assets/${asset.id}`).send().expect(401);
     });
 
     it('should throw 401 exception if auth token is invalid', () => {
       return request(app.getHttpServer())
-        .delete(`/assets/${asset.id}`)
+        .delete(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': 'invalid key',
         })
@@ -64,7 +64,7 @@ describe('AssetsController', () => {
 
     it('should throw 404 exception if id is not uuid', () => {
       return request(app.getHttpServer())
-        .delete(`/assets/123`)
+        .delete(`/v1/assets/123`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -81,7 +81,7 @@ describe('AssetsController', () => {
 
     it('should throw 404 exception if asset does not exist', () => {
       return request(app.getHttpServer())
-        .delete(`/assets/${v4()}`)
+        .delete(`/v1/assets/${v4()}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -98,7 +98,7 @@ describe('AssetsController', () => {
       const otherAsset = await createAsset({ partner: otherPartner });
 
       return request(app.getHttpServer())
-        .delete(`/assets/${otherAsset.id}`)
+        .delete(`/v1/assets/${otherAsset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -108,7 +108,7 @@ describe('AssetsController', () => {
 
     it('should remove asset', async () => {
       return request(app.getHttpServer())
-        .delete(`/assets/${asset.id}`)
+        .delete(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })

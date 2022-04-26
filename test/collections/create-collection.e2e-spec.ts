@@ -41,7 +41,7 @@ describe('CollectionController', () => {
     await clearAllData();
   });
 
-  describe(`POST /collections`, () => {
+  describe(`POST V1 /collections`, () => {
     it('should create a new collection object in the db', () => {
       const collectionDto: CollectionDto = {
         name: 'test',
@@ -50,7 +50,7 @@ describe('CollectionController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/collections`)
+        .post(`/v1/collections`)
         .send(collectionDto)
         .expect(201)
         .then(async () => {
@@ -76,7 +76,7 @@ describe('CollectionController', () => {
       const collectionDto: any = {};
 
       return request(app.getHttpServer())
-        .post(`/collections`)
+        .post(`/v1/collections`)
         .send(collectionDto)
         .expect(400)
         .expect({
@@ -100,7 +100,7 @@ describe('CollectionController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/collections`)
+        .post(`/v1/collections`)
         .send(collectionDto)
         .expect(400)
         .expect({

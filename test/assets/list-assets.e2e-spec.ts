@@ -63,14 +63,14 @@ describe('AssetsController', () => {
     await clearAllData();
   });
 
-  describe(`GET /assets`, () => {
+  describe(`GET V1 /assets`, () => {
     it('should return 1 element', () => {
       const params = new URLSearchParams({
         limit: '1',
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -94,7 +94,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -117,7 +117,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -141,7 +141,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -165,7 +165,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -189,7 +189,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -213,7 +213,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -236,7 +236,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -259,7 +259,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -282,7 +282,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -308,7 +308,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(400)
         .expect(({ body }) => {
@@ -343,7 +343,7 @@ describe('AssetsController', () => {
       const assetWithAttributes3 = await Asset.findOne(asset3.id, { relations: ['attributes'] });
 
       return request(app.getHttpServer())
-        .get(`/assets`)
+        .get(`/v1/assets`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -388,7 +388,7 @@ describe('AssetsController', () => {
     const media1 = mediaTransformer.transformAll([imageMedia]);
 
     return request(app.getHttpServer())
-      .get(`/assets`)
+      .get(`/v1/assets`)
       .send()
       .expect(200)
       .expect(({ body }) => {

@@ -11,6 +11,7 @@ import path from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import setUpAdminJS from 'modules/admin/admin.config';
 import { Logger } from 'nestjs-pino';
+import { VersioningType } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -20,6 +21,9 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
+  app.enableVersioning({
+    type: VersioningType.URI,
+  });
   app.useGlobalPipes(new SanitizePipe());
   app.useGlobalPipes(validationPipe);
   app.useLogger(app.get(Logger));

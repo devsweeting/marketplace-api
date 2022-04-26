@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, VersioningType } from '@nestjs/common';
 import { Injectable } from '@nestjs/common/interfaces';
 
 import { AppModule } from '@/src/app.module';
@@ -35,6 +35,9 @@ export const configureTestApp = (
 ): INestApplication => {
   // eslint-disable-next-line no-param-reassign
   appInstance = moduleFixture.createNestApplication();
+  appInstance.enableVersioning({
+    type: VersioningType.URI,
+  });
   appInstance.useGlobalPipes(validationPipe);
 
   return appInstance;

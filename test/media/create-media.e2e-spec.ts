@@ -72,17 +72,17 @@ describe('MediaController', () => {
     await clearAllData();
   });
 
-  describe(`POST /assets/:assetId/media`, () => {
+  describe(`POST V1 /assets/:assetId/media`, () => {
     it('should throw 401 exception if auth token is missing', () => {
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}/media`)
+        .post(`/v1/assets/${asset.id}/media`)
         .send(dtoRequest)
         .expect(401);
     });
 
     it('should throw 401 exception if token is invalid', () => {
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}/media`)
+        .post(`/v1/assets/${asset.id}/media`)
         .set({
           'x-api-key': 'invalid key',
         })
@@ -98,7 +98,7 @@ describe('MediaController', () => {
       });
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}/media`)
+        .post(`/v1/assets/${asset.id}/media`)
         .set({
           'x-api-key': notOwnerPartner.apiKey,
         })
@@ -115,7 +115,7 @@ describe('MediaController', () => {
         sortOrder: 1,
       };
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}/media`)
+        .post(`/v1/assets/${asset.id}/media`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -153,7 +153,7 @@ describe('MediaController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}/media`)
+        .post(`/v1/assets/${asset.id}/media`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -180,7 +180,7 @@ describe('MediaController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}/media`)
+        .post(`/v1/assets/${asset.id}/media`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -211,7 +211,7 @@ describe('MediaController', () => {
       };
 
       const resp = request(app.getHttpServer())
-        .post(`/assets/${asset.id}/media`)
+        .post(`/v1/assets/${asset.id}/media`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -247,7 +247,7 @@ describe('MediaController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}/media`)
+        .post(`/v1/assets/${asset.id}/media`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -274,7 +274,7 @@ describe('MediaController', () => {
       const dtoRequest: any = {};
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}/media`)
+        .post(`/v1/assets/${asset.id}/media`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -313,7 +313,7 @@ describe('MediaController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}/media`)
+        .post(`/v1/assets/${asset.id}/media`)
         .set({
           'x-api-key': deletedPartner.apiKey,
         })

@@ -11,7 +11,7 @@ import { createUser } from '../utils/fixtures/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { TokensTransformer } from 'modules/assets/transformers/tokens.transformer';
 import { createContract } from '../utils/contract.utils';
-import { createToken, deleteToken } from '../utils/token.utils';
+import { createToken } from '../utils/token.utils';
 
 describe('TokensController', () => {
   let app: INestApplication;
@@ -56,12 +56,12 @@ describe('TokensController', () => {
     await clearAllData();
   });
 
-  describe(`GET /token/meta/:contractAddress/:tokenId`, () => {
+  describe(`GET V1 /token/meta/:contractAddress/:tokenId`, () => {
     it('should return meta token', async () => {
       mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);
 
       return request(app.getHttpServer())
-        .get(`/token/meta/${contract.address}/${token.tokenId}`)
+        .get(`/v1/token/meta/${contract.address}/${token.tokenId}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -73,7 +73,7 @@ describe('TokensController', () => {
       mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);
 
       return request(app.getHttpServer())
-        .get(`/token/meta/${contract.address}/${token.tokenId}.json`)
+        .get(`/v1/token/meta/${contract.address}/${token.tokenId}.json`)
         .send()
         .expect(200)
         .expect(({ text }) => {
@@ -83,7 +83,7 @@ describe('TokensController', () => {
 
     it('should 400 exception tokenId is invalid', () => {
       return request(app.getHttpServer())
-        .get(`/token/meta/${contract.address}/123`)
+        .get(`/v1/token/meta/${contract.address}/123`)
         .send()
         .expect(400)
         .expect(({ body }) => {
@@ -97,7 +97,7 @@ describe('TokensController', () => {
 
     it('should 404 error if address is wrong', () => {
       return request(app.getHttpServer())
-        .get(`/token/meta/wrongAddress/${token.tokenId}`)
+        .get(`/v1/token/meta/wrongAddress/${token.tokenId}`)
         .send()
         .expect(404)
         .expect(({ body }) => {

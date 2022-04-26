@@ -29,7 +29,9 @@ import { MediaService } from '../services/media.service';
 import { MediaTransformer } from '../transformers/media.transformer';
 
 @ApiTags('media')
-@Controller('')
+@Controller({
+  version: '1',
+})
 export class MediaController {
   constructor(
     private readonly mediaService: MediaService,

@@ -23,21 +23,21 @@ describe('UserController (e2e)', () => {
     await app.close();
   });
 
-  describe('GET /users AS SUPER_ADMIN', () => {
+  describe('GET V1 /users AS SUPER_ADMIN', () => {
     it('return status 200 for authorized user', async () => {
       return request(app.getHttpServer())
-        .get(`/users`)
+        .get(`/v1/users`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .expect(200);
     });
 
     it('return status 401 for unauthorized user', async () => {
-      return request(app.getHttpServer()).get(`/users`).expect(401);
+      return request(app.getHttpServer()).get(`/v1/users`).expect(401);
     });
 
     it('should list all users', async () => {
       await request(app.getHttpServer())
-        .get('/users')
+        .get('/v1/users')
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .expect(200)
         .expect(({ body }) => {
