@@ -9,6 +9,7 @@ import {
 import { createPartner } from '@/test/utils/partner.utils';
 import { createAsset } from '@/test/utils/asset.utils';
 import { Partner } from 'modules/partners/entities';
+import { File } from 'modules/storage/entities/file.entity';
 import { Asset, Media } from 'modules/assets/entities';
 import { StorageEnum } from 'modules/storage/enums/storage.enum';
 import { v4 } from 'uuid';
@@ -16,7 +17,6 @@ import { User } from 'modules/users/user.entity';
 import { createUser } from '../utils/fixtures/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import crypto from 'crypto';
-import { createFile } from '../utils/file.utils';
 import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
 import { createImageMedia } from '../utils/media.utils';
 import { MediaDto } from 'modules/assets/dto/media/media.dto';
@@ -46,7 +46,6 @@ describe('MediaController', () => {
     asset = await createAsset({
       refId: '1',
       name: 'Egg',
-      image: await createFile(),
       slug: 'egg',
       description: 'test-egg',
       partner,
@@ -66,6 +65,7 @@ describe('MediaController', () => {
   afterEach(async () => {
     jest.clearAllMocks();
     await Media.delete({});
+    await File.delete({});
   });
 
   afterAll(async () => {

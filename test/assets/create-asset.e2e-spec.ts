@@ -9,13 +9,14 @@ import {
 import { createPartner } from '@/test/utils/partner.utils';
 import { createAsset, softDeleteAsset } from '@/test/utils/asset.utils';
 import { Partner } from 'modules/partners/entities';
-import { Asset, Attribute } from 'modules/assets/entities';
+import { Asset, Attribute, Media } from 'modules/assets/entities';
 import { StorageEnum } from 'modules/storage/enums/storage.enum';
 import { v4 } from 'uuid';
 import { User } from 'modules/users/user.entity';
 import { createUser } from '../utils/fixtures/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { Event } from 'modules/events/entities';
+import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -45,9 +46,6 @@ describe('AssetsController', () => {
 
   afterEach(async () => {
     jest.clearAllMocks();
-    await Attribute.delete({});
-    await Event.delete({});
-    await Asset.delete({});
   });
 
   afterAll(async () => {
@@ -64,7 +62,6 @@ describe('AssetsController', () => {
         assets: [
           {
             refId: '1232',
-            image: 'https://example.com/image.png',
             name: 'Example',
             description: 'test',
           },
@@ -83,7 +80,6 @@ describe('AssetsController', () => {
         assets: [
           {
             refId: '1232',
-            image: 'https://example.com/image.png',
             name: 'Example',
             description: 'test',
           },
@@ -100,6 +96,15 @@ describe('AssetsController', () => {
     });
 
     it('should create a new asset transfer object in the db', () => {
+      const media = [
+        {
+          title: 'test',
+          description: 'description',
+          url: 'https://example.com/image.png',
+          type: MediaTypeEnum.Image,
+          sortOrder: 1,
+        },
+      ];
       const transferRequest: any = {
         user: {
           refId: '1232',
@@ -108,7 +113,7 @@ describe('AssetsController', () => {
         assets: [
           {
             refId: '1232',
-            image: 'https://example.com/image.png',
+            media,
             name: 'Example',
             description: 'test',
             attributes: [
@@ -132,12 +137,11 @@ describe('AssetsController', () => {
         .then(async () => {
           const asset = await Asset.findOne({
             where: { refId: '1232' },
-            relations: ['attributes', 'image'],
+            relations: ['attributes', 'media', 'media.file'],
           });
           expect(asset).toBeDefined();
           expect(asset.name).toEqual(transferRequest.assets[0].name);
-          expect(asset.image).toBeDefined();
-          expect(asset.image.path).toEqual('test/example.jpeg');
+          expect(asset.media).toBeDefined();
           expect(asset.description).toEqual(transferRequest.assets[0].description);
           expect(asset.attributes[0]).toBeDefined();
           expect(asset.attributes[0].trait).toEqual(transferRequest.assets[0].attributes[0].trait);
@@ -146,9 +150,12 @@ describe('AssetsController', () => {
             transferRequest.assets[0].attributes[0].display,
           );
           expect(mockFileDownloadService.download).toHaveBeenCalledWith(
-            transferRequest.assets[0].image,
+            transferRequest.assets[0].media[0].url,
           );
-          expect(mockS3Provider.upload).toHaveBeenCalledWith(mockTmpFilePath, `assets/${asset.id}`);
+          expect(mockS3Provider.upload).toHaveBeenCalledWith(
+            mockTmpFilePath,
+            `assets/media/${asset.id}`,
+          );
         });
     });
 
@@ -158,6 +165,9 @@ describe('AssetsController', () => {
         apiKey: 'another-partner2-api-key',
         accountOwner: anotherUser,
       });
+      await Event.delete({});
+      await Media.delete({});
+      await Attribute.delete({});
       await Asset.delete({});
       await createAsset({ refId: '1232', partner: partner2 });
 
@@ -169,7 +179,6 @@ describe('AssetsController', () => {
         assets: [
           {
             refId: '1232',
-            image: 'https://example.com/image.png',
             name: 'Example',
             description: 'test',
           },
@@ -185,9 +194,15 @@ describe('AssetsController', () => {
         .expect(201);
     });
 
-    it('should throw 400 exception if asset already exist by refId', async () => {
-      await createAsset({ refId: '1232', partner });
-
+    it('should be able to recreate a deleted asset', async () => {
+      await Event.delete({});
+      const anotherUser = await createUser({});
+      const partner2 = await createPartner({
+        apiKey: 'another-partner2-api-key',
+        accountOwner: anotherUser,
+      });
+      const asset = await createAsset({ refId: '1232', partner: partner2 });
+      await softDeleteAsset(asset);
       const transferRequest: any = {
         user: {
           refId: '1232',
@@ -196,7 +211,6 @@ describe('AssetsController', () => {
         assets: [
           {
             refId: '1232',
-            image: 'https://example.com/image.png',
             name: 'Example',
             description: 'test',
           },
@@ -210,45 +224,12 @@ describe('AssetsController', () => {
         })
         .send(transferRequest)
         .expect(400)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            statusCode: 400,
-            message: 'Duplicated assets',
-            refIds: ['1232'],
+        .then(async () => {
+          const asset = await Asset.findOne({
+            where: { refId: '1232' },
           });
+          expect(asset).toBeDefined();
         });
-    });
-
-    it('should be able to recreate a deleted asset', async () => {
-      const anotherUser = await createUser({});
-      const partner2 = await createPartner({
-        apiKey: 'another-partner2-api-key',
-        accountOwner: anotherUser,
-      });
-      const asset = await createAsset({ refId: '1232', partner: partner2 });
-      softDeleteAsset(asset);
-      const transferRequest: any = {
-        user: {
-          refId: '1232',
-          email: 'steven@example.com',
-        },
-        assets: [
-          {
-            refId: '1232',
-            image: 'https://example.com/image.png',
-            name: 'Example',
-            description: 'test',
-          },
-        ],
-      };
-
-      return request(app.getHttpServer())
-        .post(`/v1/assets`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(transferRequest)
-        .expect(201);
     });
 
     it('should throw 400 exception if asset already exist by refId (same request)', async () => {
@@ -260,13 +241,11 @@ describe('AssetsController', () => {
         assets: [
           {
             refId: '1232',
-            image: 'https://example.com/image.png',
             name: 'Example',
             description: 'test',
           },
           {
             refId: '1232',
-            image: 'https://example.com/image.png',
             name: 'Example',
             description: 'test',
           },
@@ -386,7 +365,6 @@ describe('AssetsController', () => {
         assets: [
           {
             refId: '1236',
-            image: 'https://example.com/image.png',
             name: 'Example',
             description: 'test',
             attributes: [

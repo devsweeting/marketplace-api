@@ -4,7 +4,6 @@ import { clearAllData, createApp, mockS3Provider } from '@/test/utils/app.utils'
 import { Asset, Attribute, Media } from 'modules/assets/entities';
 import { createAsset } from '@/test/utils/asset.utils';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
-import { createFile } from '@/test/utils/file.utils';
 
 import { Partner } from 'modules/partners/entities';
 import { RoleEnum } from 'modules/users/enums/role.enum';
@@ -38,7 +37,6 @@ describe('AssetsController', () => {
       await createAsset({
         refId: '1',
         name: 'Egg',
-        image: await createFile(),
         slug: 'egg',
         description: 'test-egg',
         partner,
@@ -46,7 +44,6 @@ describe('AssetsController', () => {
       await createAsset({
         refId: '2',
         name: 'Pumpkin',
-        image: await createFile(),
         slug: 'pumpkin',
         description: 'test-pumpkin',
         partner,

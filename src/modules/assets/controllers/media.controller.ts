@@ -73,7 +73,7 @@ export class MediaController {
     @GetPartner() partner: Partner,
     @Param() params: MediaIdDto,
     @Body() dto: UpdateMediaDto,
-  ) {
+  ): Promise<MediaResponse> {
     const media = await this.mediaService.updateMedia(partner, params.id, dto);
 
     return this.mediaTransformer.transform(media);

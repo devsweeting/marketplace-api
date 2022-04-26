@@ -2,6 +2,7 @@ import { Asset } from 'modules/assets/entities';
 
 export const softDeleteAsset = (asset: Asset) => {
   asset.deletedAt = new Date();
+  asset.isDeleted = true;
   return asset.save();
 };
 

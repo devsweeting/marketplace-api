@@ -19,6 +19,12 @@ export class MediaResponse {
   @ApiProperty({ example: '5c2481c4-c622-48a3-ae6d-657097c3d5e7' })
   public fileId: string | null;
 
+  @ApiProperty({
+    example: 'https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg',
+    description: 'file url from the storage',
+  })
+  public file: string | null;
+
   @ApiProperty({ example: 1 })
   public sortOrder: number;
 }

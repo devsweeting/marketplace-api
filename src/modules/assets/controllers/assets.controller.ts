@@ -119,8 +119,11 @@ export class AssetsController {
     description: 'Transfer request accepted, processing.',
   })
   public async transfer(@GetPartner() partner: Partner, @Body() dto: TransferRequestDto) {
-    await this.assetsService.recordTransferRequest(partner.id, dto);
-
+    try {
+      await this.assetsService.recordTransferRequest(partner.id, dto);
+    } catch (e) {
+      throw e;
+    }
     return {
       status: 201,
       description: 'Transfer request accepted, processing.',
