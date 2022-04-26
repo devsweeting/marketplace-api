@@ -1,10 +1,9 @@
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { clearAllData, createApp, mockS3Provider } from '@/test/utils/app.utils';
-import { Asset } from 'modules/assets/entities';
+import { Asset, Media } from 'modules/assets/entities';
 import { createAsset } from '@/test/utils/asset.utils';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
-import { createFile } from '@/test/utils/file.utils';
 import { v4 } from 'uuid';
 import { Partner } from 'modules/partners/entities';
 import { createPartner } from '../utils/partner.utils';
@@ -13,6 +12,7 @@ import { createUser } from '../utils/fixtures/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { createImageMedia } from '../utils/media.utils';
 import { MediaTransformer } from 'modules/assets/transformers/media.transformer';
+import { createFile } from '../utils/file.utils';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -35,7 +35,6 @@ describe('AssetsController', () => {
     asset = await createAsset({
       refId: '1',
       name: 'Egg',
-      image: await createFile(),
       slug: 'egg',
       description: 'test-egg',
       partner,
@@ -51,24 +50,30 @@ describe('AssetsController', () => {
   });
 
   describe(`GET /assets/:id`, () => {
-    it('should return asset', () => {
+    it('should return asset', async () => {
       mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);
-
+      const media = await createImageMedia({ assetId: asset.id, file: await createFile({}) });
+      const response = {
+        ...assetsTransformer.transform(asset),
+        media: mediaTransformer.transformAll([media]),
+      };
       return request(app.getHttpServer())
         .get(`/assets/${asset.id}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
-          expect(body).toEqual(assetsTransformer.transform(asset));
+          expect(body).toEqual(response);
         })
         .then(() => {
-          expect(mockS3Provider.getUrl).toHaveBeenCalledWith(asset.image);
+          expect(mockS3Provider.getUrl).toHaveBeenCalledWith(media.file);
         });
     });
 
     it('should return asset only with active media', async () => {
+      await Media.delete({});
       mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);
-      const media = await createImageMedia({ assetId: asset.id });
+      const file = await createFile({});
+      const media = await createImageMedia({ assetId: asset.id, file, fileId: file.id });
       await createImageMedia({ assetId: asset.id, isDeleted: true, deletedAt: new Date() });
       const response = {
         ...assetsTransformer.transform(asset),
@@ -83,7 +88,7 @@ describe('AssetsController', () => {
           expect(body.media.length).toEqual(1);
         })
         .then(() => {
-          expect(mockS3Provider.getUrl).toHaveBeenCalledWith(asset.image);
+          expect(mockS3Provider.getUrl).toHaveBeenCalledWith(media.file);
         });
     });
 

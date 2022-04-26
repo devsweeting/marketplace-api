@@ -1,15 +1,5 @@
 import { BaseModel } from '../../common/entities/base.model';
-import {
-  BeforeInsert,
-  BeforeUpdate,
-  Column,
-  Entity,
-  Generated,
-  JoinColumn,
-  ManyToOne,
-  OneToOne,
-  RelationId,
-} from 'typeorm';
+import { Column, Entity, Generated, JoinColumn, ManyToOne, OneToOne, RelationId } from 'typeorm';
 import { Asset, Contract } from './';
 
 @Entity('tokens')

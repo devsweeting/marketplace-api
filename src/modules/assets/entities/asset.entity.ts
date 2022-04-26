@@ -22,10 +22,8 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { Partner } from 'modules/partners/entities';
 import { AssetDto, AttributeDto } from 'modules/assets/dto';
 import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
-import { Contract } from 'modules/assets/entities/contract.entity';
 import { Event } from 'modules/events/entities';
 import { Token } from './token.entity';
-import { File } from 'modules/storage/entities/file.entity';
 import { CollectionAsset } from 'modules/collections/entities';
 import { Media } from './media.entity';
 import { POSTGRES_DUPE_KEY_ERROR } from 'modules/common/constants';
@@ -57,14 +55,6 @@ export class Asset extends BaseModel implements BaseEntityInterface {
 
   @Column({ type: 'text', nullable: true })
   public description: string;
-
-  @ManyToOne(() => File, { nullable: true })
-  @JoinColumn({ name: 'imageId' })
-  public image?: File;
-
-  @Column({ type: 'string', nullable: true })
-  @RelationId((asset: Asset) => asset.image)
-  public imageId?: string;
 
   @ManyToOne(() => Partner, (partner) => partner.assets)
   @JoinColumn({ name: 'partnerId' })
@@ -149,7 +139,6 @@ export class Asset extends BaseModel implements BaseEntityInterface {
 
   public static list(params: ListAssetsDto): SelectQueryBuilder<Asset> {
     const query = Asset.createQueryBuilder('asset')
-      .leftJoinAndMapOne('asset.image', 'asset.image', 'image')
       .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
       .andWhere('asset.deletedAt IS NULL')
       .addOrderBy(params.sort, params.order);

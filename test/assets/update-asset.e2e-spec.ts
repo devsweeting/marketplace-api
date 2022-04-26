@@ -9,7 +9,7 @@ import {
 import { createPartner } from '@/test/utils/partner.utils';
 import { createAsset } from '@/test/utils/asset.utils';
 import { Partner } from 'modules/partners/entities';
-import { Asset, Attribute } from 'modules/assets/entities';
+import { Asset, Attribute, Media } from 'modules/assets/entities';
 import { v4 } from 'uuid';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
 import { generateSlug } from 'modules/common/helpers/slug.helper';
@@ -18,6 +18,7 @@ import { StorageEnum } from 'modules/storage/enums/storage.enum';
 import { User } from 'modules/users/user.entity';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { createUser } from '../utils/fixtures/create-user';
+import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -38,6 +39,7 @@ describe('AssetsController', () => {
   });
 
   afterEach(async () => {
+    await Media.delete({});
     jest.clearAllMocks();
   });
 
@@ -157,9 +159,16 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should update image', async () => {
+    it('should update media', async () => {
       const payload = {
-        image: 'https://cdn.pixabay.com/photo/2012/04/11/17/53/approved-29149_960_720.png',
+        media: [
+          {
+            title: 'UPDATED',
+            description: 'description',
+            url: 'https://example.com/image.png',
+            type: MediaTypeEnum.Image,
+          },
+        ],
       };
       mockS3Provider.upload.mockReturnValue({
         id: v4(),
@@ -179,23 +188,17 @@ describe('AssetsController', () => {
         })
         .send(payload)
         .expect(200)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            ...assetTransformer.transform(asset),
-            image: 'mocked-url',
-            updatedAt: expect.any(String),
-          });
-        })
         .then(async () => {
           const updatedAsset = await Asset.findOne({
             where: { id: asset.id },
-            relations: ['image'],
+            relations: ['media', 'media.file'],
           });
-          expect(updatedAsset.image).toBeDefined();
-          expect(updatedAsset.image.path).toEqual('test/example.jpeg');
+          expect(updatedAsset.media[0]).toBeDefined();
+          expect(updatedAsset.media[0].title).toEqual(payload.media[0].title);
+          expect(updatedAsset.media[0].file.path).toEqual('test/example.jpeg');
           expect(mockS3Provider.upload).toHaveBeenCalledWith(
             'downloaded-path',
-            `assets/${updatedAsset.id}`,
+            `assets/media/${updatedAsset.id}`,
           );
         });
     });

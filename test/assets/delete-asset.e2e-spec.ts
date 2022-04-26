@@ -7,10 +7,10 @@ import { Partner } from 'modules/partners/entities';
 import { Asset, Attribute } from 'modules/assets/entities';
 import { createAttribute } from '@/test/utils/attribute.utils';
 import { v4 } from 'uuid';
-import { createFile } from '@/test/utils/file.utils';
 import { User } from 'modules/users/user.entity';
 import { createUser } from '../utils/fixtures/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
+import { createImageMedia } from '../utils/media.utils';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -29,7 +29,6 @@ describe('AssetsController', () => {
     asset = await createAsset({
       refId: '1',
       name: 'Egg',
-      image: await createFile(),
       slug: 'egg',
       description: 'test-egg',
       partner,
@@ -37,6 +36,7 @@ describe('AssetsController', () => {
     attribute = await createAttribute({
       asset,
     });
+    await createImageMedia({ assetId: asset.id });
   });
 
   afterEach(async () => {
