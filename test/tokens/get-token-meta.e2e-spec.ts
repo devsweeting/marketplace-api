@@ -45,11 +45,15 @@ describe('TokensController', () => {
       slug: 'egg',
       description: 'test-egg',
       partner,
+    });
+    token = await createToken({
+      assetId: asset.id,
+      asset,
+      contractId: contract.id,
       contract,
     });
     file = await createFile({});
     media = await createImageMedia({ assetId: asset.id, file, fileId: file.id });
-    token = await createToken({ assetId: asset.id, asset });
   });
 
   afterEach(async () => {

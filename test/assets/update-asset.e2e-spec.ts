@@ -191,11 +191,11 @@ describe('AssetsController', () => {
         .then(async () => {
           const updatedAsset = await Asset.findOne({
             where: { id: asset.id },
-            relations: ['medias', 'medias.file'],
+            relations: ['media', 'media.file'],
           });
-          expect(updatedAsset.medias[0]).toBeDefined();
-          expect(updatedAsset.medias[0].title).toEqual(payload.media[0].title);
-          expect(updatedAsset.medias[0].file.path).toEqual('test/example.jpeg');
+          expect(updatedAsset.media[0]).toBeDefined();
+          expect(updatedAsset.media[0].title).toEqual(payload.media[0].title);
+          expect(updatedAsset.media[0].file.path).toEqual('test/example.jpeg');
           expect(mockS3Provider.upload).toHaveBeenCalledWith(
             'downloaded-path',
             `assets/media/${updatedAsset.id}`,

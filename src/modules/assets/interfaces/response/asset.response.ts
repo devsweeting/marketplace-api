@@ -12,8 +12,11 @@ export class AssetResponse {
   @ApiProperty({ example: 'Test asset name' })
   public name: string;
 
-  @ApiProperty()
-  public medias: MediaResponse[];
+  @ApiProperty({
+    type: [MediaResponse],
+    description: 'Media for asset',
+  })
+  public media: MediaResponse[];
 
   @ApiProperty({ example: 'test-asset-name' })
   public slug: string;
@@ -30,6 +33,6 @@ export class AssetResponse {
   @ApiProperty({ example: '2022-03-09T09:05:34.176Z' })
   public createdAt: string;
 
-  @ApiProperty({ isArray: true })
+  @ApiProperty({ isArray: true, type: [AttributeResponse] })
   public attributes: AttributeResponse[];
 }

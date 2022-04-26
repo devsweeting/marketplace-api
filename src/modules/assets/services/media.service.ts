@@ -31,7 +31,7 @@ export class MediaService {
   public async getAsset(partner: Partner, id: string): Promise<Asset> {
     const asset = await Asset.findOne(id, {
       where: { partnerId: partner.id },
-      relations: ['medias'],
+      relations: ['media'],
     });
     if (!asset) {
       throw new AssetNotFoundException();
@@ -45,7 +45,7 @@ export class MediaService {
     const isOrderExists = await Media.findOne({
       where: { assetId: asset.id, sortOrder: dto.sortOrder, isDeleted: false, deletedAt: null },
     });
-    if (asset.medias.length > this.configService.get('asset.default.maxMediaNumber')) {
+    if (asset.media.length > this.configService.get('asset.default.maxMediaNumber')) {
       throw new AssetMaxMediaOverLimitException();
     }
     if (isOrderExists) {
@@ -76,7 +76,7 @@ export class MediaService {
         deletedAt: null,
       },
     });
-    if (asset.medias.length > this.configService.get('asset.default.maxMediaNumber')) {
+    if (asset.media.length > this.configService.get('asset.default.maxMediaNumber')) {
       throw new AssetMaxMediaOverLimitException();
     }
     if (isOrderExists && media.id !== isOrderExists.id) {

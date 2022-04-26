@@ -19,7 +19,7 @@ export class MediaTransformer {
     };
   }
 
-  public transformAll(medias: Media[]): MediaResponse[] {
-    return medias.map((media) => this.transform(media));
+  public transformAll(media: Media[]): MediaResponse[] {
+    return media.map((media) => this.transform(media));
   }
 }

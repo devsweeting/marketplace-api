@@ -124,9 +124,9 @@ describe('MediaController', () => {
         .then(async () => {
           const getAsset = await Asset.findOne({
             where: { id: asset.id },
-            relations: ['medias'],
+            relations: ['media'],
           });
-          const media = getAsset.medias[0];
+          const media = getAsset.media[0];
           expect(media).toBeDefined();
           expect(media.title).toEqual(dto.title);
           expect(media.fileId).toBeDefined();
@@ -189,9 +189,9 @@ describe('MediaController', () => {
         .then(async () => {
           const getAsset = await Asset.findOne({
             where: { id: asset.id },
-            relations: ['medias'],
+            relations: ['media'],
           });
-          const media = getAsset.medias;
+          const media = getAsset.media;
           expect(media).toBeDefined();
           expect(media.length).toEqual(2);
         });
@@ -220,17 +220,17 @@ describe('MediaController', () => {
       return resp.expect(201).then(async () => {
         const getAsset = await Asset.findOne({
           where: { id: asset.id },
-          relations: ['medias'],
+          relations: ['media'],
         });
         const getNewAsset = await Asset.findOne({
           where: { id: newAsset.id },
-          relations: ['medias'],
+          relations: ['media'],
         });
 
-        expect(getAsset.medias).toBeDefined();
-        expect(getAsset.medias.length).toEqual(1);
-        expect(getNewAsset.medias).toBeDefined();
-        expect(getNewAsset.medias.length).toEqual(1);
+        expect(getAsset.media).toBeDefined();
+        expect(getAsset.media.length).toEqual(1);
+        expect(getNewAsset.media).toBeDefined();
+        expect(getNewAsset.media.length).toEqual(1);
       });
     });
 
@@ -256,17 +256,17 @@ describe('MediaController', () => {
         .then(async () => {
           const getAsset = await Asset.findOne({
             where: { id: asset.id },
-            relations: ['medias'],
+            relations: ['media'],
           });
           const getNewAsset = await Asset.findOne({
             where: { id: newAsset.id },
-            relations: ['medias'],
+            relations: ['media'],
           });
 
-          expect(getAsset.medias).toBeDefined();
-          expect(getAsset.medias.length).toEqual(1);
-          expect(getNewAsset.medias).toBeDefined();
-          expect(getNewAsset.medias.length).toEqual(1);
+          expect(getAsset.media).toBeDefined();
+          expect(getAsset.media.length).toEqual(1);
+          expect(getNewAsset.media).toBeDefined();
+          expect(getNewAsset.media.length).toEqual(1);
         });
     });
 

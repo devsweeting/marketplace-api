@@ -32,7 +32,7 @@ const createAssetResource = (
   features: [
     (options): object => ({
       ...options,
-      listProperties: ['name', 'refId', 'partnerId', 'contractId', 'createdAt'],
+      listProperties: ['name', 'refId', 'partnerId', 'createdAt'],
     }),
     loggerFeature(loggerConfig),
   ],
@@ -88,19 +88,9 @@ const createAssetResource = (
         custom: {
           searchProperty: 'name',
           resourceId: 'Partner',
-        },
-      },
-      contractId: {
-        position: 2,
-        type: 'reference',
-        reference: 'Contract',
-        components: {
-          edit: REFERENCE_FIELD,
-          filter: FILTER_PROPERTY,
-        },
-        custom: {
-          searchProperty: 'name',
-          resourceId: 'Contract',
+          searchExclude: {
+            'filters.isDeleted': false,
+          },
         },
       },
       name: {

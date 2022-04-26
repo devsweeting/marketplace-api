@@ -55,7 +55,7 @@ describe('AssetsController', () => {
       const media = await createImageMedia({ assetId: asset.id, file: await createFile({}) });
       const response = {
         ...assetsTransformer.transform(asset),
-        medias: mediaTransformer.transformAll([media]),
+        media: mediaTransformer.transformAll([media]),
       };
       return request(app.getHttpServer())
         .get(`/assets/${asset.id}`)
@@ -77,7 +77,7 @@ describe('AssetsController', () => {
       await createImageMedia({ assetId: asset.id, isDeleted: true, deletedAt: new Date() });
       const response = {
         ...assetsTransformer.transform(asset),
-        medias: mediaTransformer.transformAll([media]),
+        media: mediaTransformer.transformAll([media]),
       };
       return request(app.getHttpServer())
         .get(`/assets/${asset.id}`)
@@ -85,7 +85,7 @@ describe('AssetsController', () => {
         .expect(200)
         .expect(({ body }) => {
           expect(body).toEqual(response);
-          expect(body.medias.length).toEqual(1);
+          expect(body.media.length).toEqual(1);
         })
         .then(() => {
           expect(mockS3Provider.getUrl).toHaveBeenCalledWith(media.file);

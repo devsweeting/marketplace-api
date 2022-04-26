@@ -22,7 +22,6 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { Partner } from 'modules/partners/entities';
 import { AssetDto, AttributeDto } from 'modules/assets/dto';
 import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
-import { Contract } from 'modules/assets/entities/contract.entity';
 import { Event } from 'modules/events/entities';
 import { Token } from './token.entity';
 import { CollectionAsset } from 'modules/collections/entities';
@@ -75,15 +74,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   public token: Token | null;
 
   @OneToMany(() => Media, (media) => media.asset)
-  public medias: Media[];
-
-  @ManyToOne(() => Contract, { nullable: true })
-  @JoinColumn({ name: 'contractId', referencedColumnName: 'id' })
-  public contract: Contract;
-
-  @Column({ type: 'string', nullable: true })
-  @RelationId((asset: Asset) => asset.contract)
-  public contractId: string;
+  public media: Media[];
 
   @OneToMany(() => Event, (event) => event.asset)
   public events: Event[];

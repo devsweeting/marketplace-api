@@ -18,7 +18,7 @@ export class AssetsTransformer {
       id: asset.id,
       name: asset.name,
       description: asset.description,
-      medias: asset.medias?.length ? this.mediaTransformer.transformAll(asset.medias) : null,
+      media: asset.media?.length ? this.mediaTransformer.transformAll(asset.media) : null,
       refId: asset.refId,
       slug: asset.slug,
       createdAt: asset.createdAt.toISOString(),

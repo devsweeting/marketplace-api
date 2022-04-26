@@ -46,10 +46,6 @@ describe('AssetsController', () => {
 
   afterEach(async () => {
     jest.clearAllMocks();
-    // await Attribute.delete({});
-    // await Event.delete({});
-    // await Media.delete({});
-    // await Asset.delete({});
   });
 
   afterAll(async () => {
@@ -141,11 +137,11 @@ describe('AssetsController', () => {
         .then(async () => {
           const asset = await Asset.findOne({
             where: { refId: '1232' },
-            relations: ['attributes', 'medias', 'medias.file'],
+            relations: ['attributes', 'media', 'media.file'],
           });
           expect(asset).toBeDefined();
           expect(asset.name).toEqual(transferRequest.assets[0].name);
-          expect(asset.medias).toBeDefined();
+          expect(asset.media).toBeDefined();
           expect(asset.description).toEqual(transferRequest.assets[0].description);
           expect(asset.attributes[0]).toBeDefined();
           expect(asset.attributes[0].trait).toEqual(transferRequest.assets[0].attributes[0].trait);

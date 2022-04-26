@@ -16,12 +16,12 @@ export class S3Provider implements ProviderInterface {
 
   public async upload(filePath: string, directory: string): Promise<UploadResponseDto> {
     const stats = fs.statSync(filePath);
-    const key =
-      directory
-        .split('/')
-        .filter((d) => !!d)
-        .join('/') + path.basename(filePath);
-
+    // const key =
+    //   directory
+    //     .split('/')
+    //     .filter((d) => !!d)
+    //     .join('/') + path.basename(filePath);
+    const key = [...directory.split('/').filter((l) => !!l), path.basename(filePath)].join('/');
     const response = await this.s3Upload(filePath, key);
 
     return {

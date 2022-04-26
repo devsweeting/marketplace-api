@@ -77,7 +77,7 @@ describe('MediaController', () => {
 
     it('should throw 404 exception if media does not exist', () => {
       return request(app.getHttpServer())
-        .delete(`/medias/${v4()}`)
+        .delete(`/media/${v4()}`)
         .set({
           'x-api-key': partner.apiKey,
         })

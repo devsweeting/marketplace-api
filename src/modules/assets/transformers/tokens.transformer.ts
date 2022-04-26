@@ -12,8 +12,8 @@ export class TokensTransformer {
 
   public transform(token: Token): TokenResponse {
     return {
-      media: token.asset.medias?.length
-        ? this.mediaTransformer.transformAll(token.asset.medias)
+      media: token.asset.media?.length
+        ? this.mediaTransformer.transformAll(token.asset.media)
         : null,
       name: token.asset.name,
       description: token.asset.description,
@@ -25,8 +25,8 @@ export class TokensTransformer {
 
   public transformMeta(token: Token): TokenMetaResponse {
     return {
-      media: token.asset.medias?.length
-        ? this.mediaTransformer.transformAll([token.asset.medias[0]])
+      media: token.asset.media?.length
+        ? this.mediaTransformer.transformAll([token.asset.media[0]])
         : null,
       name: token.asset.name,
       description: token.asset.description,
