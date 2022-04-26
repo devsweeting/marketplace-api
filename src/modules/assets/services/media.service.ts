@@ -155,15 +155,15 @@ export class MediaService {
     const mediaData = await Promise.all(
       mediaToAdd.map(async (el) => {
         let file;
-        if (el.file) {
+        if (el.file[0]) {
           file = await this.storageService.uploadAndSave(
             `assets/${assetId}/`,
-            el.file as unknown as UploadedFile,
+            el.file[0] as unknown as UploadedFile,
           );
         } else {
           file =
             el.type === MediaTypeEnum.Image
-              ? await this.storageService.uploadFromUrl(el.url, `assets/${assetId}/`)
+              ? await this.storageService.uploadFromUrl(el.url, `assets/${assetId}`)
               : null;
         }
         return { ...el, assetId: assetId, file, fileId: file?.id };

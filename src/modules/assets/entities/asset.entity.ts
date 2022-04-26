@@ -22,7 +22,6 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { Partner } from 'modules/partners/entities';
 import { AssetDto, AttributeDto } from 'modules/assets/dto';
 import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
-import { Contract } from 'modules/assets/entities/contract.entity';
 import { Event } from 'modules/events/entities';
 import { Token } from './token.entity';
 import { File } from 'modules/storage/entities/file.entity';

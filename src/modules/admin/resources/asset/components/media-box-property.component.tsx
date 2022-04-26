@@ -3,9 +3,7 @@ import {
   Button,
   FormGroup,
   Label,
-  DropZone,
-  Icon,
-  Input,
+  FormMessage,
   Table,
   TableBody,
   TableCell,
@@ -13,9 +11,8 @@ import {
   TableRow,
 } from '@adminjs/design-system';
 import { EditPropertyProps, flat } from 'adminjs';
-import Select from 'react-select';
-import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
-import MediaComponent from './media.component';
+
+import MediaRowComponent from './media-row.component';
 
 const MediaBoxComponent: React.FC<EditPropertyProps> = (props) => {
   const { property, onChange, record, where } = props;
@@ -27,7 +24,7 @@ const MediaBoxComponent: React.FC<EditPropertyProps> = (props) => {
   const [media, setMedia] = useState(value || []);
 
   const addNewMedia = useCallback(() => {
-    setMedia((media) => [...media, { title: '', type: '', url: '', sortOrder: '', file: null }]);
+    setMedia((media) => [...media, { title: '', type: '', url: '', sortOrder: '', file: [] }]);
   }, [media, setMedia]);
 
   const onDelete = useCallback(
@@ -37,17 +34,15 @@ const MediaBoxComponent: React.FC<EditPropertyProps> = (props) => {
     [media, setMedia],
   );
 
-  const onUpdate = useCallback((index, partial) => {
-    const updated = { ...media[index], ...partial };
-    setMedia((media) => media.map((m, i) => (i === index ? updated : m)));
-  }, []);
-
-  const options: { value: string; label: string }[] = Object.values(MediaTypeEnum).map((el) => {
-    return { value: el, label: el.toUpperCase() };
-  });
-
-  const selectedOption = (v) =>
-    options.find((opt) => opt.value === v) ?? { value: null, label: '' };
+  const onUpdate = useCallback(
+    (index) => (partial) => {
+      setMedia((media) => {
+        const updated = { ...media[index], ...partial };
+        return media.map((m, i) => (i === index ? updated : m));
+      });
+    },
+    [],
+  );
 
   if (where === 'edit') {
     useEffect(() => {
@@ -57,7 +52,7 @@ const MediaBoxComponent: React.FC<EditPropertyProps> = (props) => {
   const validation = custom.validation || property.props.validation || null;
 
   return (
-    <FormGroup error={!!error} style={{ marginTop: '16px' }}>
+    <FormGroup error={Boolean(error)}>
       <Label property={property}>{property.label}</Label>
       <Table style={{ width: '100%' }}>
         <TableHead>
@@ -78,69 +73,17 @@ const MediaBoxComponent: React.FC<EditPropertyProps> = (props) => {
           )}
           {media.length > 0 &&
             media.map((media, index) => (
-              <TableRow key={index}>
-                <TableCell>
-                  {where === 'edit' && (
-                    <Select
-                      options={options}
-                      value={selectedOption(media.type)}
-                      onChange={(event) => onUpdate(index, { type: event?.value ?? null })}
-                      isClearable={true}
-                    />
-                  )}
-                  {where === 'show' && media.type}
-                </TableCell>
-                <TableCell>
-                  {where === 'edit' && (
-                    <Input
-                      style={{ width: '100%' }}
-                      value={media.title}
-                      onChange={(event) => onUpdate(index, { title: event.target.value })}
-                    />
-                  )}
-                  {where === 'show' && media.title}
-                </TableCell>
-                <TableCell>
-                  {where === 'edit' && (
-                    <Input
-                      style={{ width: '100%' }}
-                      value={media.url}
-                      disabled={!!media.id}
-                      onChange={(event) => onUpdate(index, { url: event.target.value })}
-                    />
-                  )}
-                  {where === 'show' && media.url}
-                </TableCell>
-                <TableCell>
-                  {where === 'edit' && !media.id && (
-                    <>
-                      <DropZone
-                        validate={validation}
-                        files={[media.file]}
-                        onChange={(f) => onUpdate(index, { file: f[0] })}
-                      />
-                    </>
-                  )}
-                  {where === 'edit' && media.id && <MediaComponent media={media} />}
-                  {where === 'show' && <MediaComponent media={media} />}
-                </TableCell>
-                <TableCell>
-                  {where === 'edit' && (
-                    <Input
-                      type="number"
-                      style={{ width: '100%' }}
-                      value={media.sortOrder}
-                      onChange={(event) => onUpdate(index, { sortOrder: event.target.value })}
-                    />
-                  )}
-                  {where === 'show' && media.sortOrder}
-                </TableCell>
-                {where === 'edit' && (
-                  <TableCell>
-                    <Icon icon="TrashCan" onClick={() => onDelete(index)} />
-                  </TableCell>
-                )}
-              </TableRow>
+              <>
+                <MediaRowComponent
+                  media={media}
+                  where={where}
+                  validation={validation}
+                  onDelete={() => onDelete(index)}
+                  onUpdate={onUpdate(index)}
+                  key={index}
+                ></MediaRowComponent>
+                <FormMessage>{error?.message}</FormMessage>
+              </>
             ))}
         </TableBody>
       </Table>

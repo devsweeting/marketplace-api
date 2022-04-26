@@ -27,15 +27,25 @@ export const validate =
           errors.assetMedia = { message: 'Title is required' };
         }
 
-        if (el.sortOrder && el.sortOrder.trim() !== '' && !/^[0-9]+$/.test(payload.sortOrder)) {
+        if (
+          !el.sortOrder ||
+          (el.sortOrder && el.sortOrder.trim() !== '' && !/^[0-9]+$/.test(el.sortOrder))
+        ) {
           errors.assetMedia = { message: 'Order is invalid' };
+        }
+        if (
+          el.sortOrder &&
+          payload.assetMedia.filter((media) => Number(media.sortOrder) === Number(el.sortOrder))
+            .length > 1
+        ) {
+          errors.assetMedia = { message: 'Order must be unique' };
         }
 
         if (!el.type) {
           errors.assetMedia = { message: 'Type is required' };
         }
 
-        if (!el.url && !el.file) {
+        if (!el.url || (!el.url && !el.file.length)) {
           errors.assetMedia = { message: 'File is required' };
         }
       });
