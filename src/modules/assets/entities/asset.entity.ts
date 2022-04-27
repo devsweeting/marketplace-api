@@ -143,7 +143,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
       .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
       .andWhere('asset.deletedAt IS NULL')
       .addOrderBy(params.sort, params.order)
-      .addGroupBy('asset.id, image.id');
+      .addGroupBy('asset.id');
 
     if (params.query) {
       query.andWhere(

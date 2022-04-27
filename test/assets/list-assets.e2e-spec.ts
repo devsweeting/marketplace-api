@@ -260,7 +260,6 @@ describe('AssetsController', () => {
         await createAsset({
           refId: '1',
           name: 'Pumpkin',
-          image: await createFile(),
           slug: 'pumpkin',
           description: 'test-orange',
           partner,
@@ -268,7 +267,6 @@ describe('AssetsController', () => {
         await createAsset({
           refId: '2',
           name: 'Orange',
-          image: await createFile(),
           slug: 'orange',
           description: 'test-orange',
           partner,
@@ -279,7 +277,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -303,7 +301,6 @@ describe('AssetsController', () => {
         await createAsset({
           refId: '1',
           name: 'Pumpkin',
-          image: await createFile(),
           slug: 'pumpkin',
           description: 'test-orange',
           partner,
@@ -311,7 +308,6 @@ describe('AssetsController', () => {
         await createAsset({
           refId: '2',
           name: 'Orange',
-          image: await createFile(),
           slug: 'orange',
           description: 'test-orange',
           partner,
@@ -322,7 +318,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -347,7 +343,6 @@ describe('AssetsController', () => {
         await createAsset({
           refId: '2',
           name: 'Orange',
-          image: await createFile(),
           slug: 'orange',
           description: 'test-orange',
           partner,
@@ -365,7 +360,7 @@ describe('AssetsController', () => {
       });
       const result = Object.assign(assets[0], { attributes });
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -389,7 +384,6 @@ describe('AssetsController', () => {
         await createAsset({
           refId: '1',
           name: 'Orange',
-          image: await createFile(),
           slug: 'orange',
           description: 'test-orange',
           partner,
@@ -397,7 +391,6 @@ describe('AssetsController', () => {
         await createAsset({
           refId: '2',
           name: 'Orange',
-          image: await createFile(),
           slug: 'orange',
           description: 'test-orange',
           partner,
@@ -423,7 +416,7 @@ describe('AssetsController', () => {
         Object.assign(assets[0], { attributes: [attributes[0]] }),
       ];
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -447,7 +440,6 @@ describe('AssetsController', () => {
         await createAsset({
           refId: '1',
           name: 'Orange',
-          image: await createFile(),
           slug: 'orange',
           description: 'test-orange',
           partner,
@@ -455,7 +447,6 @@ describe('AssetsController', () => {
         await createAsset({
           refId: '2',
           name: 'Orange',
-          image: await createFile(),
           slug: 'orange',
           description: 'test-orange',
           partner,
@@ -482,7 +473,7 @@ describe('AssetsController', () => {
         Object.assign(assets[0], { attributes: [attributes[0]], labels: [labels[0]] }),
       ];
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -505,7 +496,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -528,7 +519,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -552,7 +543,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -572,7 +563,7 @@ describe('AssetsController', () => {
     it('should throw exception if attr_eq and attr_gte the same', async () => {
       const params = new URLSearchParams('attr_eq[year]=2018&attr_gte[year]=2014');
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(400)
         .expect(({ body }) => {
@@ -587,7 +578,7 @@ describe('AssetsController', () => {
     it('should throw exception if attr_eq and attr_lte the same', async () => {
       const params = new URLSearchParams('attr_eq[year]=2018&attr_lte[year]=2014');
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(400)
         .expect(({ body }) => {
@@ -602,7 +593,7 @@ describe('AssetsController', () => {
     it('should throw exception if attr_gte the same', async () => {
       const params = new URLSearchParams('attr_gte[year]=2018&attr_gte[year]=2014');
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(400)
         .expect(({ body }) => {
@@ -617,7 +608,7 @@ describe('AssetsController', () => {
     it('should return empty list if attr_lte is different and not found records', async () => {
       const params = new URLSearchParams('attr_lte[year]=2018&attr_lte[cat]=2014');
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -637,7 +628,7 @@ describe('AssetsController', () => {
     it('should throw exception if attr_lte the same', async () => {
       const params = new URLSearchParams('attr_lte[year]=2018&attr_lte[year]=2014');
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(400)
         .expect(({ body }) => {
@@ -652,7 +643,7 @@ describe('AssetsController', () => {
     it('should return empty list if attr_lte is different and not found records', async () => {
       const params = new URLSearchParams('attr_lte[year]=2018&attr_lte[cat]=2014');
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -672,7 +663,7 @@ describe('AssetsController', () => {
     it('should throw exception if attr_gte is greater than attr_lte', async () => {
       const params = new URLSearchParams('attr_gte[year]=2018&attr_lte[year]=2014');
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(400)
         .expect(({ body }) => {
@@ -695,7 +686,7 @@ describe('AssetsController', () => {
       const params = new URLSearchParams('attr_gte[year]=2014&attr_lte[year]=2018');
       const result = [Object.assign(assets[0], { attributes: [attributes[0]] })];
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -741,7 +732,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
