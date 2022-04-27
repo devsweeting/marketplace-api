@@ -43,14 +43,14 @@ describe('CollectionController', () => {
     await clearAllData();
   });
 
-  describe(`GET /collections`, () => {
+  describe(`GET V1 /collections`, () => {
     it('should return 1 element', () => {
       const params = new URLSearchParams({
         limit: '1',
       });
 
       return request(app.getHttpServer())
-        .get(`/collections?${params.toString()}`)
+        .get(`/v1/collections?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -74,7 +74,7 @@ describe('CollectionController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/collections?${params.toString()}`)
+        .get(`/v1/collections?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -97,7 +97,7 @@ describe('CollectionController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/collections?${params.toString()}`)
+        .get(`/v1/collections?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -124,7 +124,7 @@ describe('CollectionController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/collections?${params.toString()}`)
+        .get(`/v1/collections?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -151,7 +151,7 @@ describe('CollectionController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/collections?${params.toString()}`)
+        .get(`/v1/collections?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -178,7 +178,7 @@ describe('CollectionController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/collections?${params.toString()}`)
+        .get(`/v1/collections?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -205,7 +205,7 @@ describe('CollectionController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/collections?${params.toString()}`)
+        .get(`/v1/collections?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -231,7 +231,7 @@ describe('CollectionController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/collections?${params.toString()}`)
+        .get(`/v1/collections?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -254,7 +254,7 @@ describe('CollectionController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/collections?${params.toString()}`)
+        .get(`/v1/collections?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -277,7 +277,7 @@ describe('CollectionController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/collections?${params.toString()}`)
+        .get(`/v1/collections?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -303,7 +303,7 @@ describe('CollectionController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/collections?${params.toString()}`)
+        .get(`/v1/collections?${params.toString()}`)
         .send()
         .expect(400)
         .expect(({ body }) => {

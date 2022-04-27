@@ -35,14 +35,14 @@ describe('PartnerController', () => {
     await clearAllData();
   });
 
-  describe(`PATCH /partners`, () => {
+  describe(`PATCH V1 /partners`, () => {
     it('should throw 401 exception if auth token is missing', () => {
-      return request(app.getHttpServer()).patch(`/partners`).send({}).expect(401);
+      return request(app.getHttpServer()).patch(`/v1/partners`).send({}).expect(401);
     });
 
     it('should throw 401 exception if token is invalid', () => {
       return request(app.getHttpServer())
-        .patch(`/partners`)
+        .patch(`/v1/partners`)
         .set({
           'x-api-key': 'invalid key',
         })
@@ -56,7 +56,7 @@ describe('PartnerController', () => {
       };
 
       return request(app.getHttpServer())
-        .patch(`/partners`)
+        .patch(`/v1/partners`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -85,7 +85,7 @@ describe('PartnerController', () => {
       };
 
       return request(app.getHttpServer())
-        .patch(`/partners`)
+        .patch(`/v1/partners`)
         .set({
           'x-api-key': partner.apiKey,
         })

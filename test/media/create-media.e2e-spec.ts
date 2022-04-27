@@ -9,6 +9,7 @@ import {
 import { createPartner } from '@/test/utils/partner.utils';
 import { createAsset } from '@/test/utils/asset.utils';
 import { Partner } from 'modules/partners/entities';
+import { File } from 'modules/storage/entities/file.entity';
 import { Asset, Media } from 'modules/assets/entities';
 import { StorageEnum } from 'modules/storage/enums/storage.enum';
 import { v4 } from 'uuid';
@@ -16,7 +17,6 @@ import { User } from 'modules/users/user.entity';
 import { createUser } from '../utils/fixtures/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import crypto from 'crypto';
-import { createFile } from '../utils/file.utils';
 import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
 import { createImageMedia } from '../utils/media.utils';
 import { MediaDto } from 'modules/assets/dto/media/media.dto';
@@ -46,7 +46,6 @@ describe('MediaController', () => {
     asset = await createAsset({
       refId: '1',
       name: 'Egg',
-      image: await createFile(),
       slug: 'egg',
       description: 'test-egg',
       partner,
@@ -66,23 +65,24 @@ describe('MediaController', () => {
   afterEach(async () => {
     jest.clearAllMocks();
     await Media.delete({});
+    await File.delete({});
   });
 
   afterAll(async () => {
     await clearAllData();
   });
 
-  describe(`POST /assets/:assetId/media`, () => {
+  describe(`POST V1 /assets/:assetId/media`, () => {
     it('should throw 401 exception if auth token is missing', () => {
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}/media`)
+        .post(`/v1/assets/${asset.id}/media`)
         .send(dtoRequest)
         .expect(401);
     });
 
     it('should throw 401 exception if token is invalid', () => {
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}/media`)
+        .post(`/v1/assets/${asset.id}/media`)
         .set({
           'x-api-key': 'invalid key',
         })
@@ -98,7 +98,7 @@ describe('MediaController', () => {
       });
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}/media`)
+        .post(`/v1/assets/${asset.id}/media`)
         .set({
           'x-api-key': notOwnerPartner.apiKey,
         })
@@ -115,7 +115,7 @@ describe('MediaController', () => {
         sortOrder: 1,
       };
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}/media`)
+        .post(`/v1/assets/${asset.id}/media`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -124,9 +124,9 @@ describe('MediaController', () => {
         .then(async () => {
           const getAsset = await Asset.findOne({
             where: { id: asset.id },
-            relations: ['medias'],
+            relations: ['media'],
           });
-          const media = getAsset.medias[0];
+          const media = getAsset.media[0];
           expect(media).toBeDefined();
           expect(media.title).toEqual(dto.title);
           expect(media.fileId).toBeDefined();
@@ -153,7 +153,7 @@ describe('MediaController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}/media`)
+        .post(`/v1/assets/${asset.id}/media`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -180,7 +180,7 @@ describe('MediaController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}/media`)
+        .post(`/v1/assets/${asset.id}/media`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -189,9 +189,9 @@ describe('MediaController', () => {
         .then(async () => {
           const getAsset = await Asset.findOne({
             where: { id: asset.id },
-            relations: ['medias'],
+            relations: ['media'],
           });
-          const media = getAsset.medias;
+          const media = getAsset.media;
           expect(media).toBeDefined();
           expect(media.length).toEqual(2);
         });
@@ -211,7 +211,7 @@ describe('MediaController', () => {
       };
 
       const resp = request(app.getHttpServer())
-        .post(`/assets/${asset.id}/media`)
+        .post(`/v1/assets/${asset.id}/media`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -220,17 +220,17 @@ describe('MediaController', () => {
       return resp.expect(201).then(async () => {
         const getAsset = await Asset.findOne({
           where: { id: asset.id },
-          relations: ['medias'],
+          relations: ['media'],
         });
         const getNewAsset = await Asset.findOne({
           where: { id: newAsset.id },
-          relations: ['medias'],
+          relations: ['media'],
         });
 
-        expect(getAsset.medias).toBeDefined();
-        expect(getAsset.medias.length).toEqual(1);
-        expect(getNewAsset.medias).toBeDefined();
-        expect(getNewAsset.medias.length).toEqual(1);
+        expect(getAsset.media).toBeDefined();
+        expect(getAsset.media.length).toEqual(1);
+        expect(getNewAsset.media).toBeDefined();
+        expect(getNewAsset.media.length).toEqual(1);
       });
     });
 
@@ -247,7 +247,7 @@ describe('MediaController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}/media`)
+        .post(`/v1/assets/${asset.id}/media`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -256,17 +256,17 @@ describe('MediaController', () => {
         .then(async () => {
           const getAsset = await Asset.findOne({
             where: { id: asset.id },
-            relations: ['medias'],
+            relations: ['media'],
           });
           const getNewAsset = await Asset.findOne({
             where: { id: newAsset.id },
-            relations: ['medias'],
+            relations: ['media'],
           });
 
-          expect(getAsset.medias).toBeDefined();
-          expect(getAsset.medias.length).toEqual(1);
-          expect(getNewAsset.medias).toBeDefined();
-          expect(getNewAsset.medias.length).toEqual(1);
+          expect(getAsset.media).toBeDefined();
+          expect(getAsset.media.length).toEqual(1);
+          expect(getNewAsset.media).toBeDefined();
+          expect(getNewAsset.media.length).toEqual(1);
         });
     });
 
@@ -274,7 +274,7 @@ describe('MediaController', () => {
       const dtoRequest: any = {};
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}/media`)
+        .post(`/v1/assets/${asset.id}/media`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -313,7 +313,7 @@ describe('MediaController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/assets/${asset.id}/media`)
+        .post(`/v1/assets/${asset.id}/media`)
         .set({
           'x-api-key': deletedPartner.apiKey,
         })

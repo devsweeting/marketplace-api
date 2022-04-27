@@ -34,12 +34,12 @@ describe('CollectionsController', () => {
     await clearAllData();
   });
 
-  describe(`GET /collections/:id`, () => {
+  describe(`GET V1 /collections/:id`, () => {
     it('should return collection', () => {
       mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);
 
       return request(app.getHttpServer())
-        .get(`/collections/${collection.id}`)
+        .get(`/v1/collections/${collection.id}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -52,7 +52,7 @@ describe('CollectionsController', () => {
 
     it('should 400 exception id is invalid', () => {
       return request(app.getHttpServer())
-        .get(`/collections/123`)
+        .get(`/v1/collections/123`)
         .send()
         .expect(400)
         .expect(({ body }) => {
@@ -66,7 +66,7 @@ describe('CollectionsController', () => {
 
     it('should 404 exception if collection does not exist', () => {
       return request(app.getHttpServer())
-        .get(`/collections/${v4()}`)
+        .get(`/v1/collections/${v4()}`)
         .send()
         .expect(404)
         .expect(({ body }) => {

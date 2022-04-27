@@ -1,12 +1,24 @@
+import { IsUUID } from 'class-validator';
 import { Asset } from 'modules/assets/entities';
-import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
-import { BaseModel } from 'modules/common/entities/base.model';
 
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Collection } from '.';
 
 @Entity({ name: 'collections_assets' })
-export class CollectionAsset extends BaseModel implements BaseEntityInterface {
+export class CollectionAsset extends BaseEntity {
+  @PrimaryGeneratedColumn('uuid')
+  @IsUUID()
+  public id: string;
+
   @Column({ primary: true })
   public collectionId: string;
 
@@ -20,6 +32,18 @@ export class CollectionAsset extends BaseModel implements BaseEntityInterface {
   @ManyToOne(() => Asset)
   @JoinColumn({ name: 'assetId' })
   public asset: Asset;
+
+  @UpdateDateColumn()
+  public updatedAt: Date;
+
+  @CreateDateColumn()
+  public createdAt: Date;
+
+  @Column({ nullable: true, type: 'timestamp' })
+  public deletedAt: Date | null;
+
+  @Column({ default: false })
+  public isDeleted: boolean | false;
 
   public constructor(partial: Partial<CollectionAsset>) {
     super();

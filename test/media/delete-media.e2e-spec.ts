@@ -43,14 +43,14 @@ describe('MediaController', () => {
     await clearAllData();
   });
 
-  describe(`DELETE /media/:id`, () => {
+  describe(`DELETE V1 /media/:id`, () => {
     it('should throw 401 exception if auth token is missing', () => {
-      return request(app.getHttpServer()).delete(`/media/${media.id}`).send().expect(401);
+      return request(app.getHttpServer()).delete(`/v1/media/${media.id}`).send().expect(401);
     });
 
     it('should throw 401 exception if token is invalid', () => {
       return request(app.getHttpServer())
-        .delete(`/media/${media.id}`)
+        .delete(`/v1/media/${media.id}`)
         .set({
           'x-api-key': 'invalid key',
         })
@@ -60,7 +60,7 @@ describe('MediaController', () => {
 
     it('should throw 400 exception if id is not uuid', () => {
       return request(app.getHttpServer())
-        .delete(`/media/123`)
+        .delete(`/v1/media/123`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -77,7 +77,7 @@ describe('MediaController', () => {
 
     it('should throw 404 exception if media does not exist', () => {
       return request(app.getHttpServer())
-        .delete(`/medias/${v4()}`)
+        .delete(`/v1/media/${v4()}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -94,7 +94,7 @@ describe('MediaController', () => {
       });
 
       return request(app.getHttpServer())
-        .delete(`/media/${media.id}`)
+        .delete(`/v1/media/${media.id}`)
         .set({
           'x-api-key': notOwnerPartner.apiKey,
         })
@@ -104,7 +104,7 @@ describe('MediaController', () => {
 
     it('should remove media', async () => {
       return request(app.getHttpServer())
-        .delete(`/media/${media.id}`)
+        .delete(`/v1/media/${media.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })

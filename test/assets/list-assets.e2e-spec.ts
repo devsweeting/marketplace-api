@@ -4,7 +4,6 @@ import { clearAllData, createApp, mockS3Provider } from '@/test/utils/app.utils'
 import { Asset, Attribute, Label, Media } from 'modules/assets/entities';
 import { createAsset } from '@/test/utils/asset.utils';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
-import { createFile } from '@/test/utils/file.utils';
 
 import { Partner } from 'modules/partners/entities';
 import { RoleEnum } from 'modules/users/enums/role.enum';
@@ -39,7 +38,6 @@ describe('AssetsController', () => {
       await createAsset({
         refId: '1',
         name: 'Egg',
-        image: await createFile(),
         slug: 'egg',
         description: 'test-egg',
         partner,
@@ -47,7 +45,6 @@ describe('AssetsController', () => {
       await createAsset({
         refId: '2',
         name: 'Pumpkin',
-        image: await createFile(),
         slug: 'pumpkin',
         description: 'test-pumpkin',
         partner,
@@ -66,14 +63,14 @@ describe('AssetsController', () => {
     await clearAllData();
   });
 
-  describe(`GET /assets`, () => {
+  describe(`GET V1 /assets`, () => {
     it('should return 1 element', () => {
       const params = new URLSearchParams({
         limit: '1',
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -97,7 +94,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -120,7 +117,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -144,7 +141,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -168,7 +165,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -192,7 +189,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -216,7 +213,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -239,7 +236,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -721,7 +718,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -767,7 +764,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -793,7 +790,7 @@ describe('AssetsController', () => {
       });
 
       return request(app.getHttpServer())
-        .get(`/assets?${params.toString()}`)
+        .get(`/v1/assets?${params.toString()}`)
         .send()
         .expect(400)
         .expect(({ body }) => {
@@ -828,7 +825,7 @@ describe('AssetsController', () => {
       const assetWithAttributes3 = await Asset.findOne(asset3.id, { relations: ['attributes'] });
 
       return request(app.getHttpServer())
-        .get(`/assets`)
+        .get(`/v1/assets`)
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -864,16 +861,16 @@ describe('AssetsController', () => {
     await createImageMedia({ asset: asset1, sortOrder: 3 });
     const videoMedia = await createVideoMedia({ asset: asset2, sortOrder: 1 });
 
-    const assetWithMedia1 = await Asset.findOne(asset1.id, { relations: ['medias'] });
-    const assetWithMedia2 = await Asset.findOne(asset2.id, { relations: ['medias'] });
-    const assetWithMedia3 = await Asset.findOne(asset3.id, { relations: ['medias'] });
+    const assetWithMedia1 = await Asset.findOne(asset1.id, { relations: ['media'] });
+    const assetWithMedia2 = await Asset.findOne(asset2.id, { relations: ['media'] });
+    const assetWithMedia3 = await Asset.findOne(asset3.id, { relations: ['media'] });
 
-    const medias3 = mediaTransformer.transformAll(assetWithMedia3.medias);
-    const medias2 = mediaTransformer.transformAll([videoMedia]);
-    const medias1 = mediaTransformer.transformAll([imageMedia]);
+    const media3 = mediaTransformer.transformAll(assetWithMedia3.media);
+    const media2 = mediaTransformer.transformAll([videoMedia]);
+    const media1 = mediaTransformer.transformAll([imageMedia]);
 
     return request(app.getHttpServer())
-      .get(`/assets`)
+      .get(`/v1/assets`)
       .send()
       .expect(200)
       .expect(({ body }) => {
@@ -886,9 +883,9 @@ describe('AssetsController', () => {
             currentPage: 1,
           },
           items: assetsTransformer.transformAll([
-            Object.assign(assetWithMedia3, { medias: medias3 }),
-            Object.assign(assetWithMedia2, { medias: medias2 }),
-            Object.assign(assetWithMedia1, { medias: medias1 }),
+            Object.assign(assetWithMedia3, { media: media3 }),
+            Object.assign(assetWithMedia2, { media: media2 }),
+            Object.assign(assetWithMedia1, { media: media1 }),
           ]),
         });
       });

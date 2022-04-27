@@ -2,9 +2,7 @@ import {
   ASSET_SHOW,
   ATTRIBUTE_COMPONENT,
   FILTER_PROPERTY,
-  IMAGE_UPLOAD,
   LABELS_COMPONENT,
-  PHOTO_PROPERTY,
   REFERENCE_FIELD,
   SHOW_DELETED_AT,
 } from 'modules/admin/components.bundler';
@@ -20,7 +18,6 @@ import bulkSoftDeleteHandler from 'modules/admin/hooks/bulk-soft-delete.handler'
 import { softDeleteHandler } from 'modules/admin/hooks/soft-delete.handler';
 import uploadFile from 'modules/admin/resources/asset/hooks/upload-file.after';
 import { marketNavigation } from 'modules/admin/admin.navigation';
-import { MIME_TYPES } from '../file/mime-types';
 import { getImage } from 'modules/admin/hooks/get-image.after';
 import { loadEvents } from './hooks/load-events.hook';
 import { ServiceAccessor } from 'modules/admin/utils/service.accessor';
@@ -35,7 +32,7 @@ const createAssetResource = (
   features: [
     (options): object => ({
       ...options,
-      listProperties: ['name', 'refId', 'partnerId', 'contractId', 'createdAt'],
+      listProperties: ['name', 'refId', 'partnerId', 'createdAt'],
     }),
     loggerFeature(loggerConfig),
   ],
@@ -91,19 +88,9 @@ const createAssetResource = (
         custom: {
           searchProperty: 'name',
           resourceId: 'Partner',
-        },
-      },
-      contractId: {
-        position: 2,
-        type: 'reference',
-        reference: 'Contract',
-        components: {
-          edit: REFERENCE_FIELD,
-          filter: FILTER_PROPERTY,
-        },
-        custom: {
-          searchProperty: 'name',
-          resourceId: 'Contract',
+          searchExclude: {
+            'filters.isDeleted': false,
+          },
         },
       },
       name: {
@@ -118,19 +105,6 @@ const createAssetResource = (
       description: {
         position: 6,
         type: 'textarea',
-      },
-      image: {
-        position: 10,
-        props: {
-          validation: {
-            mimeTypes: MIME_TYPES,
-          },
-        },
-        components: {
-          edit: IMAGE_UPLOAD,
-          show: PHOTO_PROPERTY,
-          list: PHOTO_PROPERTY,
-        },
       },
       assetAttributes: {
         position: 11,
@@ -164,9 +138,6 @@ const createAssetResource = (
         position: 53,
       },
       events: {
-        isVisible: false,
-      },
-      imageId: {
         isVisible: false,
       },
     },

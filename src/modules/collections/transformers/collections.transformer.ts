@@ -7,10 +7,14 @@ import { StorageService } from 'modules/storage/storage.service';
 import { CollectionResponse } from '../interfaces/responses/collection.response';
 import { Asset } from 'modules/assets/entities/asset.entity';
 import { CollectionAssetResponse } from '../interfaces/responses/collection-asset.response';
+import { MediaTransformer } from 'modules/assets/transformers/media.transformer';
 
 @Injectable()
 export class CollectionsTransformer {
-  public constructor(private readonly storageService: StorageService) {}
+  public constructor(
+    private readonly storageService: StorageService,
+    private readonly mediaTransformer: MediaTransformer,
+  ) {}
 
   public transform(collection: Collection): CollectionResponse {
     return {
@@ -34,7 +38,7 @@ export class CollectionsTransformer {
       id: asset.id,
       name: asset.name,
       description: asset.description,
-      image: asset.image ? this.storageService.getUrl(asset.image) : null,
+      media: asset.media?.length ? this.mediaTransformer.transformAll(asset.media) : null,
       refId: asset.refId,
       slug: asset.slug,
       createdAt: asset.createdAt.toISOString(),

@@ -10,7 +10,10 @@ import { EventResponse } from './interfaces/response/event.response';
 import { EventIdDto } from './dto/event-id.dto';
 
 @ApiTags('events')
-@Controller('events')
+@Controller({
+  path: 'events',
+  version: '1',
+})
 export class EventsController {
   constructor(
     private readonly eventsService: EventsService,
