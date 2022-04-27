@@ -6,7 +6,11 @@ import { Asset } from '.';
 import { MediaTypeEnum } from '../enums/media-type.enum';
 import { File } from 'modules/storage/entities/file.entity';
 
-@Entity('asset_media')
+@Entity('asset_media', {
+  orderBy: {
+    sortOrder: 'ASC',
+  },
+})
 export class Media extends BaseModel implements BaseEntityInterface {
   @Column({
     type: 'enum',

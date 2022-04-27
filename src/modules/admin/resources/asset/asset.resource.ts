@@ -19,7 +19,6 @@ import bulkSoftDeleteHandler from 'modules/admin/hooks/bulk-soft-delete.handler'
 import { softDeleteHandler } from 'modules/admin/hooks/soft-delete.handler';
 import { marketNavigation } from 'modules/admin/admin.navigation';
 import { MIME_TYPES } from '../file/mime-types';
-
 import { loadEvents } from './hooks/load-events.hook';
 import { ServiceAccessor } from 'modules/admin/utils/service.accessor';
 import { softDeleteRelations } from './hooks/soft-delete-relations.hook';

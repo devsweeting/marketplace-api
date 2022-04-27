@@ -38,10 +38,16 @@ export class MediaService {
   }
 
   public async getAsset(partner: Partner, id: string): Promise<Asset> {
-    const asset = await Asset.findOne(id, {
-      where: { partnerId: partner.id, media: { isDeleted: false, deletedAt: null } },
-      relations: ['media'],
-    });
+    const asset = await Asset.createQueryBuilder('asset')
+      .leftJoinAndMapMany(
+        'asset.media',
+        'asset.media',
+        'media',
+        'media.isDeleted = FALSE AND media.deletedAt IS NULL',
+      )
+      .where('asset.id = :id', { id: id })
+      .andWhere('asset.partnerId = :partnerId', { partnerId: partner.id })
+      .getOne();
     if (!asset) {
       throw new AssetNotFoundException();
     }
@@ -65,7 +71,7 @@ export class MediaService {
     await newMedia.save();
     if (dto.type === MediaTypeEnum.Image) {
       const getMedia = await this.getMedia(newMedia.id);
-      const file = await this.storageService.uploadFromUrl(dto.url, `assets/media/${asset.id}`);
+      const file = await this.storageService.uploadFromUrl(dto.url, `assets/${asset.id}`);
 
       Object.assign(getMedia, { fileId: file.id });
       return getMedia.save();

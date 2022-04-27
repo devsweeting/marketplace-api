@@ -13,7 +13,10 @@ import { PartnersService } from '../services/partners.service';
 import { UpdatePartnerMembersDto } from '../dto';
 
 @ApiTags('partners')
-@Controller('partners')
+@Controller({
+  path: 'partners',
+  version: '1',
+})
 @ApiBasicAuth('api-key')
 @UseGuards(AuthGuard('headerapikey'))
 export class PartnersController {

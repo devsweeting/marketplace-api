@@ -28,10 +28,10 @@ describe('CollectionsController', () => {
     await clearAllData();
   });
 
-  describe(`DELETE /collections/:id`, () => {
+  describe(`DELETE V1 /collections/:id`, () => {
     it('should throw 400 exception if id is not uuid', () => {
       return request(app.getHttpServer())
-        .delete(`/collections/123`)
+        .delete(`/v1/collections/123`)
         .send()
         .expect(400)
         .expect(({ body }) => {
@@ -44,12 +44,12 @@ describe('CollectionsController', () => {
     });
 
     it('should throw 404 exception if collection does not exist', () => {
-      return request(app.getHttpServer()).delete(`/collections/${v4()}`).send().expect(404);
+      return request(app.getHttpServer()).delete(`/v1/collections/${v4()}`).send().expect(404);
     });
 
     it('should remove collection', async () => {
       return request(app.getHttpServer())
-        .delete(`/collections/${collection.id}`)
+        .delete(`/v1/collections/${collection.id}`)
         .send()
         .expect(200)
         .then(async () => {

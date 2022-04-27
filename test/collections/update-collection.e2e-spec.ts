@@ -42,9 +42,9 @@ describe('CollectionsController', () => {
     await clearAllData();
   });
 
-  describe(`PATCH /collections/:id`, () => {
+  describe(`PATCH V1 /collections/:id`, () => {
     it('should throw 404 exception if collection does not exist', async () => {
-      return request(app.getHttpServer()).patch(`/collections/${v4()}`).send({}).expect(404);
+      return request(app.getHttpServer()).patch(`/v1/collections/${v4()}`).send({}).expect(404);
     });
 
     it('should update banner', async () => {
@@ -63,7 +63,7 @@ describe('CollectionsController', () => {
       mockFileDownloadService.download.mockReturnValue('downloaded-path');
 
       return request(app.getHttpServer())
-        .patch(`/collections/${collection.id}`)
+        .patch(`/v1/collections/${collection.id}`)
         .send(payload)
         .expect(200)
         .expect(({ body }) => {
@@ -93,7 +93,7 @@ describe('CollectionsController', () => {
       };
 
       return request(app.getHttpServer())
-        .patch(`/collections/${collection.id}`)
+        .patch(`/v1/collections/${collection.id}`)
 
         .send(payload)
         .expect(200)
@@ -118,7 +118,7 @@ describe('CollectionsController', () => {
       };
 
       return request(app.getHttpServer())
-        .patch(`/collections/${collection.id}`)
+        .patch(`/v1/collections/${collection.id}`)
         .send(payload)
         .expect(200)
         .expect(({ body }) => {

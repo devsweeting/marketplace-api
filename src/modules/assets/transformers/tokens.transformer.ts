@@ -1,18 +1,20 @@
 import { Attribute, Token } from '../entities';
 import { Injectable } from '@nestjs/common';
 import { TokenMetaResponse } from '../interfaces/response/tokens/token-meta.response';
-import { StorageService } from 'modules/storage/storage.service';
 import { TraitsResponse } from '../interfaces/response/tokens/traits.response';
 import { TokenResponse } from '../interfaces/response/tokens/token.response';
 import { TraitsMetaResponse } from '../interfaces/response/tokens/traits-meta.response';
+import { MediaTransformer } from './media.transformer';
 
 @Injectable()
 export class TokensTransformer {
-  public constructor(private readonly storageService: StorageService) {}
+  public constructor(private readonly mediaTransformer: MediaTransformer) {}
 
   public transform(token: Token): TokenResponse {
     return {
-      image: token.asset.image ? this.storageService.getUrl(token.asset.image) : null,
+      media: token.asset.media?.length
+        ? this.mediaTransformer.transformAll(token.asset.media)
+        : null,
       name: token.asset.name,
       description: token.asset.description,
       traits: token.asset.attributes
@@ -23,7 +25,9 @@ export class TokensTransformer {
 
   public transformMeta(token: Token): TokenMetaResponse {
     return {
-      image: token.asset.image ? this.storageService.getUrl(token.asset.image) : null,
+      media: token.asset.media?.length
+        ? this.mediaTransformer.transformAll([token.asset.media[0]])
+        : null,
       name: token.asset.name,
       description: token.asset.description,
       properties: token.asset.attributes
