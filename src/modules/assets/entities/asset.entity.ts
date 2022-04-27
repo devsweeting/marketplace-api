@@ -175,7 +175,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
       query.andWhere(
         new Brackets((b) => {
           b.andWhere(
-            'LOWER(asset.name) @@ to_tsquery(:searchQuery) OR LOWER(asset.description) @@ to_tsquery(:searchQuery)',
+            'asset.name @@ websearch_to_tsquery(:searchQuery) OR asset.description @@ websearch_to_tsquery(:searchQuery)',
             { searchQuery: params.search },
           );
         }),
@@ -189,16 +189,16 @@ export class Asset extends BaseModel implements BaseEntityInterface {
         'attributes.isDeleted = FALSE AND attributes.deletedAt IS NULL',
       );
     }
-    let values;
+    let traitValues;
     if (params.attr_eq && Object.keys(params.attr_eq).length) {
       query.andWhere(
         new Brackets((b) => {
           return Object.entries(params.attr_eq).map((attr) => {
-            values = Array.isArray(attr[1]) ? attr[1] : [attr[1]];
+            traitValues = Array.isArray(attr[1]) ? attr[1] : [attr[1]];
 
             return b.orWhere(
-              'LOWER(attributes.trait) = LOWER(:trait) AND LOWER(attributes.value) IN (:...values) ',
-              { trait: attr[0], values },
+              'attributes.trait ILIKE :trait AND LOWER(attributes.value) IN (:...traitValues) ',
+              { trait: `%${attr[0]}%%`, traitValues },
             );
           });
         }),
@@ -211,20 +211,21 @@ export class Asset extends BaseModel implements BaseEntityInterface {
         'labels',
         'labels.isDeleted = FALSE AND labels.deletedAt IS NULL',
       );
-
-      Object.entries(params.label_eq).map((label) => {
-        return query.andWhere(
-          new Brackets((b) => {
-            b.andWhere(
-              'LOWER(labels.name) = LOWER(:name) AND LOWER(labels.value) = LOWER(:value)',
+      let labelValues;
+      query.andWhere(
+        new Brackets((b) => {
+          return Object.entries(params.label_eq).map((label) => {
+            labelValues = Array.isArray(label[1]) ? label[1] : [label[1]];
+            return b.orWhere(
+              'labels.name ILIKE :name AND LOWER(labels.value) IN (:...labelValues) ',
               {
-                name: label[0],
-                value: label[1],
+                name: `%${label[0]}%%`,
+                labelValues,
               },
             );
-          }),
-        );
-      });
+          });
+        }),
+      );
     }
 
     if (params.attr_lte || params.attr_gte) {
@@ -251,9 +252,9 @@ export class Asset extends BaseModel implements BaseEntityInterface {
           return query.andWhere(
             new Brackets((b) => {
               b.andWhere(
-                'LOWER(attributes.trait) = LOWER(:trait) AND attributes.value::integer >= :fromValue AND attributes.value::integer <= :toValue',
+                'attributes.trait ILIKE :commonTrait AND attributes.value::integer >= :fromValue AND attributes.value::integer <= :toValue',
                 {
-                  trait: attr,
+                  commonTrait: `%${attr}%%`,
                   fromValue: params.attr_gte[attr],
                   toValue: params.attr_lte[attr],
                 },
@@ -267,9 +268,9 @@ export class Asset extends BaseModel implements BaseEntityInterface {
           return query.andWhere(
             new Brackets((b) => {
               b.andWhere(
-                'LOWER(attributes.trait) = LOWER(:trait) AND attributes.value::integer >= :from',
+                'attributes.trait ILIKE :fromTrait AND attributes.value::integer >= :from',
                 {
-                  trait: attr,
+                  fromTrait: `%${attr}%%`,
                   from: params.attr_gte[attr],
                 },
               );
@@ -281,19 +282,15 @@ export class Asset extends BaseModel implements BaseEntityInterface {
         toArr.map((attr) => {
           return query.andWhere(
             new Brackets((b) => {
-              b.andWhere(
-                'LOWER(attributes.trait) = LOWER(:trait) AND attributes.value::integer <= :to',
-                {
-                  trait: attr,
-                  to: params.attr_lte[attr],
-                },
-              );
+              b.andWhere('attributes.trait ILIKE :toTrait AND attributes.value::integer <= :to', {
+                toTrait: `%${attr}%%`,
+                to: params.attr_lte[attr],
+              });
             }),
           );
         });
       }
     }
-
     return query;
   }
 

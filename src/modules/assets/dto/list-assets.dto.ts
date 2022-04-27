@@ -17,7 +17,7 @@ export class ListAssetsDto extends ListDto {
   @ApiPropertyOptional()
   @IsNotEmpty()
   @IsOptional()
-  public label_eq?: string;
+  public label_eq?: string[];
 
   @ApiPropertyOptional()
   @IsNotEmpty()
