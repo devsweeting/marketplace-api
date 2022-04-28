@@ -7,6 +7,8 @@ import { Session } from 'modules/auth/session/session.entity';
 import { Event } from 'modules/events/entities';
 import { Log } from 'modules/log/entities/log.entity';
 import { Collection, CollectionAsset } from 'modules/collections/entities';
+import { Watchlist } from 'modules/watchlists/entities/watchlist.entity';
+import { WatchlistAsset } from 'modules/watchlists/entities/watchlist-asset.entity';
 
 export default registerAs('database', () => {
   return {
@@ -38,6 +40,8 @@ export default registerAs('database', () => {
         CollectionAsset,
         Log,
         Media,
+        Watchlist,
+        WatchlistAsset,
       ],
     },
   };
