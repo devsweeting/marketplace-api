@@ -4,11 +4,18 @@ import { Asset, Attribute, Label, Media, Token } from 'modules/assets/entities';
 import { TransferRequestDto } from 'modules/assets/dto';
 import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 import { IPaginationMeta, paginate, Pagination } from 'nestjs-typeorm-paginate';
-import { AssetNotFoundException } from 'modules/assets/exceptions/asset-not-found.exception';
 import { UpdateAssetDto } from 'modules/assets/dto/update-asset.dto';
 import { RefAlreadyTakenException } from 'modules/common/exceptions/ref-already-taken.exception';
 import { StorageService } from 'modules/storage/storage.service';
 import { Not } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
+import {
+  AssetNotFoundException,
+  AttributeDuplicatedException,
+  AssetFilterAttributeOverLimitException,
+  AssetFilterLabelOverLimitException,
+  AssetSearchOverLimitException,
+} from 'modules/assets/exceptions';
 import { MediaService } from './media.service';
 import { Collection, CollectionAsset } from 'modules/collections/entities';
 import { CollectionNotFoundException } from 'modules/collections/exceptions/collection-not-found.exception';
@@ -17,10 +24,61 @@ import { CollectionNotFoundException } from 'modules/collections/exceptions/coll
 export class AssetsService {
   public constructor(
     private readonly storageService: StorageService,
+    private readonly configService: ConfigService,
     private readonly mediaService: MediaService,
   ) {}
 
   public async getList(params: ListAssetsDto): Promise<Pagination<Asset>> {
+    if (params?.search?.length > this.configService.get('asset.default.searchMaxNumber')) {
+      throw new AssetSearchOverLimitException();
+    }
+    if (
+      params.label_eq &&
+      Object.keys(params.label_eq).length >
+        this.configService.get('asset.default.filterLabelMaxNumber')
+    ) {
+      throw new AssetFilterLabelOverLimitException();
+    }
+    if (
+      params.attr_eq &&
+      Object.keys(params.attr_eq).length >
+        this.configService.get('asset.default.filterAttributeMaxNumber')
+    ) {
+      throw new AssetFilterAttributeOverLimitException();
+    }
+
+    if (
+      params.attr_gte &&
+      Object.values(params.attr_gte).filter((item: []) => Array.isArray(item)).length > 0
+    ) {
+      throw new AttributeDuplicatedException();
+    }
+
+    if (
+      params.attr_lte &&
+      Object.values(params.attr_lte).filter((item: []) => Array.isArray(item)).length > 0
+    ) {
+      throw new AttributeDuplicatedException();
+    }
+
+    if (
+      params.attr_eq &&
+      params.attr_gte &&
+      Object.keys(params.attr_eq).filter((value) => Object.keys(params.attr_gte).includes(value))
+        .length > 0
+    ) {
+      throw new AttributeDuplicatedException();
+    }
+
+    if (
+      params.attr_eq &&
+      params.attr_lte &&
+      Object.keys(params.attr_eq).filter((value) => Object.keys(params.attr_lte).includes(value))
+        .length > 0
+    ) {
+      throw new AttributeDuplicatedException();
+    }
+
     const results = await paginate<Asset, IPaginationMeta>(Asset.list(params), {
       page: params.page,
       limit: params.limit,
@@ -30,6 +88,7 @@ export class AssetsService {
       await Promise.all(
         results.items.map(async (item: Asset) => {
           item.attributes = await Attribute.findAllByAssetId(item.id);
+          item.labels = await Label.findAllByAssetId(item.id);
           item.media = await Media.find({
             where: { assetId: item.id, isDeleted: false, deletedAt: null },
             order: { sortOrder: 'ASC' },

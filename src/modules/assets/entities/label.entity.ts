@@ -1,4 +1,4 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, RelationId } from 'typeorm';
+import { Column, Entity, Index, IsNull, JoinColumn, ManyToOne, RelationId } from 'typeorm';
 
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from '../../common/entities/base.model';
@@ -21,6 +21,16 @@ export class Label extends BaseModel implements BaseEntityInterface {
   @Column({ type: 'string', nullable: false })
   @RelationId((label: Label) => label.asset)
   public assetId: string;
+
+  public static findAllByAssetId(assetId: string): Promise<Label[]> {
+    return Label.find({
+      where: {
+        assetId,
+        isDeleted: false,
+        deletedAt: IsNull(),
+      },
+    });
+  }
 
   public constructor(partial: Partial<Label>) {
     super();
