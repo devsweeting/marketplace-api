@@ -7,13 +7,18 @@ import softDeleteHandler from 'modules/admin/hooks/soft-delete.handler';
 import { IMAGE_UPLOAD, PHOTO_PROPERTY, SHOW_DELETED_AT } from 'modules/admin/components.bundler';
 import { MIME_TYPES } from '../file/mime-types';
 import { validate } from './hooks/validate.before';
+import uploadFile from './hooks/upload-file.after';
+import { ServiceAccessor } from 'modules/admin/utils/service.accessor';
+import { getImage } from 'modules/admin/hooks/get-image.after';
 
-const createMediaResource = (): CreateResourceResult<typeof Media> => ({
+const createMediaResource = (
+  serviceAccessor: ServiceAccessor,
+): CreateResourceResult<typeof Media> => ({
   resource: Media,
   features: [
     (options): object => ({
       ...options,
-      listProperties: ['title', 'type', 'assetId', 'sortOrder'],
+      listProperties: ['file', 'title', 'type', 'assetId', 'sortOrder'],
       showProperties: [],
       editProperties: ['assetId', 'type', 'title', 'description', 'file', 'url', 'sortOrder'],
       filterProperties: [],
@@ -21,20 +26,28 @@ const createMediaResource = (): CreateResourceResult<typeof Media> => ({
   ],
   options: {
     navigation: marketNavigation,
+    sort: {
+      direction: 'asc',
+      sortBy: 'sortOrder',
+    },
     actions: {
       list: {
         isAccessible: (context): boolean => forAdminGroup(context),
+        after: [getImage(serviceAccessor, 'file')],
       },
       show: {
         isAccessible: (context): boolean => forAdminGroup(context),
+        after: [getImage(serviceAccessor, 'file')],
       },
       edit: {
         isAccessible: (context): boolean => forAdminGroup(context),
         before: [validate()],
+        after: [getImage(serviceAccessor, 'file'), uploadFile('file', 'assets/', serviceAccessor)],
       },
       new: {
         isAccessible: (context): boolean => forAdminGroup(context),
         before: [validate()],
+        after: [uploadFile('file', 'assets/', serviceAccessor)],
       },
       delete: {
         isAccessible: (context): boolean => forAdminGroup(context),

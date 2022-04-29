@@ -20,7 +20,7 @@ const MediaBoxComponent: React.FC<EditPropertyProps> = (props) => {
   const { custom = {} } = property;
   const value = (params && params[property.path]) || [];
   const error = record.errors && record.errors[property.path];
-
+  const mediaError = error?.message && JSON.parse(error.message);
   const [media, setMedia] = useState(value || []);
 
   const addNewMedia = useCallback(() => {
@@ -52,7 +52,7 @@ const MediaBoxComponent: React.FC<EditPropertyProps> = (props) => {
   const validation = custom.validation || property.props.validation || null;
 
   return (
-    <FormGroup error={Boolean(error)}>
+    <FormGroup>
       <Label property={property}>{property.label}</Label>
       <Table style={{ width: '100%' }}>
         <TableHead>
@@ -73,17 +73,16 @@ const MediaBoxComponent: React.FC<EditPropertyProps> = (props) => {
           )}
           {media.length > 0 &&
             media.map((media, index) => (
-              <>
                 <MediaRowComponent
                   media={media}
                   where={where}
                   validation={validation}
                   onDelete={() => onDelete(index)}
                   onUpdate={onUpdate(index)}
+                  index={index}
+                  errors={mediaError}
                   key={index}
                 ></MediaRowComponent>
-                <FormMessage>{error?.message}</FormMessage>
-              </>
             ))}
         </TableBody>
       </Table>

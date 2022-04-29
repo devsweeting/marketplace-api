@@ -43,7 +43,7 @@ const ImageUpload = (props) => {
     const isSure = window.confirm(tm('areYouSureToRemove'));
     if (!isSure) return;
 
-    const newItems = [...files];
+    const newItems = Array.isArray(files) ? [...files] : [files];
     newItems.splice(index, 1);
 
     if (isMultiUpload) {

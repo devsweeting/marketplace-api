@@ -7,9 +7,12 @@ import { ServiceAccessor } from 'modules/admin/utils/service.accessor';
 const getFile = async (serviceAccessor: ServiceAccessor, property: string, record) => {
   const storageService = serviceAccessor.getService(StorageService);
   const params = flat.unflatten(record.params);
-  params[property] = await File.findOne(params[`${property}Id`]);
-  if (params[property]) {
-    params[property].path = storageService.getUrl(params[property]);
+  if (params[`${property}Id`]) {
+    params[property] = await File.findOne(params[`${property}Id`]);
+
+    if (params[property]) {
+      params[property].path = storageService.getUrl(params[property]);
+    }
   }
   record.params = flat.flatten(params);
   return record;

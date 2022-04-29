@@ -84,6 +84,7 @@ const createAssetResource = (
     properties: {
       partnerId: {
         position: 1,
+        isRequired: true,
         type: 'reference',
         reference: 'Partner',
         components: {
@@ -100,9 +101,11 @@ const createAssetResource = (
       },
       name: {
         position: 3,
+        isRequired: true,
       },
       refId: {
         position: 4,
+        isRequired: true,
       },
       slug: {
         position: 5,

@@ -1,8 +1,17 @@
 import { ConfigService } from '@nestjs/config';
 import { ActionRequest, flat, PropertyErrors, ValidationError } from 'adminjs';
 import { ServiceAccessor } from 'modules/admin/utils/service.accessor';
+import { Asset } from 'modules/assets/entities';
+import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
 
 import { isPOSTMethod } from '../../../admin.utils';
+
+const initIndexArray = (mediaErrors, index) => {
+  if (!mediaErrors[index]) {
+    mediaErrors[index] = [];
+  }
+  return mediaErrors;
+};
 
 export const validate =
   (serviceAccessor: ServiceAccessor) =>
@@ -15,40 +24,72 @@ export const validate =
 
     const errors: PropertyErrors = {};
 
+    const VIDEO_REGEX =
+      /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+(?:&|&#38;);v=))((?:\w|-|_){11})$/;
+
     if (payload.assetMedia.length > configService.get('asset.default.maxMediaNumber')) {
       errors.assetMedia = {
         message: `MAX_MEDIA_PER_ASSET is ${configService.get('asset.default.maxMediaNumber')}`,
       };
     }
-
+    const mediaErrors = {};
     if (payload.assetMedia) {
-      payload.assetMedia.map((el) => {
+      payload.assetMedia.map((el, index) => {
         if (!el.title) {
-          errors.assetMedia = { message: 'Title is required' };
+          initIndexArray(mediaErrors, index);
+          mediaErrors[index].push({ field: 'title', message: 'Title is required' });
         }
 
         if (
           !el.sortOrder ||
           (el.sortOrder && el.sortOrder.trim() !== '' && !/^[0-9]+$/.test(el.sortOrder))
         ) {
-          errors.assetMedia = { message: 'Order is invalid' };
+          initIndexArray(mediaErrors, index);
+          mediaErrors[index].push({ field: 'sortOrder', message: 'Order is invalid' });
         }
+
         if (
           el.sortOrder &&
           payload.assetMedia.filter((media) => Number(media.sortOrder) === Number(el.sortOrder))
             .length > 1
         ) {
-          errors.assetMedia = { message: 'Order must be unique' };
+          initIndexArray(mediaErrors, index);
+          mediaErrors[index].push({ field: 'sortOrder', message: 'Order must be unique' });
         }
 
         if (!el.type) {
-          errors.assetMedia = { message: 'Type is required' };
+          initIndexArray(mediaErrors, index);
+          mediaErrors[index].push({ field: 'type', message: 'Type is required' });
         }
 
-        if (!el.url || (!el.url && !el.file.length)) {
-          errors.assetMedia = { message: 'File is required' };
+        if (el.type === MediaTypeEnum.Youtube) {
+          console.log('el type', el.type, el.file);
+          if (el.file.length > 0) {
+            initIndexArray(mediaErrors, index);
+            mediaErrors[index].push({ field: 'type', message: 'Wrong type' });
+          }
+
+          if (!el.url.length || !(el.url && VIDEO_REGEX.test(el.url))) {
+            initIndexArray(mediaErrors, index);
+            mediaErrors[index].push({ field: 'url', message: 'Url format is invalid' });
+          }
+        }
+
+        if (!el.url.length || (!el.url.length && !el.file.length)) {
+          initIndexArray(mediaErrors, index);
+          mediaErrors[index].push({ field: 'file', message: 'File is required' });
         }
       });
+    }
+    console.log('val error', mediaErrors);
+    if (Object.keys(mediaErrors).length > 0) {
+      errors.assetMedia = { message: JSON.stringify(mediaErrors) };
+    }
+    if (payload.refId) {
+      const getAsset = await Asset.findOne({ where: { refId: payload.refId } });
+      if (getAsset.id !== payload?.id) {
+        errors.refId = { message: 'Asset already exist with this refId' };
+      }
     }
 
     if (Object.keys(errors).length) {

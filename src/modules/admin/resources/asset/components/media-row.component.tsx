@@ -1,11 +1,11 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Icon, Input, TableCell, TableRow } from '@adminjs/design-system';
+import { Icon, Input, TableCell, TableRow, FormMessage } from '@adminjs/design-system';
 import Select from 'react-select';
 import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
 import MediaComponent from './media.component';
 import MediaDropZone from './media-drop-zone.component';
 
-const MediaRowComponent = ({ media, where, validation, onDelete, onUpdate }) => {
+const MediaRowComponent = ({ media, where, validation, onDelete, onUpdate, index, errors }) => {
   const [state, setState] = useState({
     type: '',
     url: '',
@@ -54,6 +54,8 @@ const MediaRowComponent = ({ media, where, validation, onDelete, onUpdate }) => 
     onUpdate(state);
   }, [state]);
 
+  const rowError = errors && errors[index];
+
   const options: { value: string; label: string }[] = Object.values(MediaTypeEnum).map((el) => {
     return { value: el, label: el.toUpperCase() };
   });
@@ -62,32 +64,47 @@ const MediaRowComponent = ({ media, where, validation, onDelete, onUpdate }) => 
     options.find((opt) => opt.value === v) ?? { value: null, label: '' };
 
   return (
-    <TableRow>
+    <TableRow key={index} style={{ paddingBottom: '16px' }}>
       <TableCell>
         {where === 'edit' && (
-          <Select
-            options={options}
-            value={selectedOption(state.type)}
-            onChange={onUpdateType}
-            isClearable={true}
-          />
+          <>
+            <Select
+              options={options}
+              value={selectedOption(state.type)}
+              onChange={onUpdateType}
+              isClearable={true}
+            />
+            <FormMessage color="error">
+              {rowError?.map((el) => (el.field === 'type' ? el.message : null))}
+            </FormMessage>
+          </>
         )}
         {where === 'show' && state.type}
       </TableCell>
       <TableCell>
         {where === 'edit' && (
-          <Input style={{ width: '100%' }} value={state.title} onChange={onUpdateTitle} />
+          <>
+            <Input style={{ width: '100%' }} value={state.title} onChange={onUpdateTitle} />
+            <FormMessage color="error">
+              {rowError?.map((el) => (el.field === 'title' ? el.message : null))}
+            </FormMessage>
+          </>
         )}
         {where === 'show' && state.title}
       </TableCell>
       <TableCell>
         {where === 'edit' && (
-          <Input
-            style={{ width: '100%' }}
-            value={state.url}
-            disabled={!!state.id}
-            onChange={onUpdateUrl}
-          />
+          <>
+            <Input
+              style={{ width: '100%' }}
+              value={state.url}
+              disabled={!!state.id}
+              onChange={onUpdateUrl}
+            />
+            <FormMessage color="error">
+              {rowError?.map((el) => (el.field === 'url' ? el.message : null))}
+            </FormMessage>
+          </>
         )}
         {where === 'show' && state.url}
       </TableCell>
@@ -99,6 +116,9 @@ const MediaRowComponent = ({ media, where, validation, onDelete, onUpdate }) => 
               files={state.file}
               onUpdateImage={onUpdateImage}
             ></MediaDropZone>
+            <FormMessage color="error">
+              {rowError?.map((el) => (el.field === 'file' ? el.message : null))}
+            </FormMessage>
           </>
         )}
         {where === 'edit' && state.id && <MediaComponent media={state} />}
@@ -106,12 +126,17 @@ const MediaRowComponent = ({ media, where, validation, onDelete, onUpdate }) => 
       </TableCell>
       <TableCell>
         {where === 'edit' && (
-          <Input
-            type="number"
-            style={{ width: '100%' }}
-            value={state.sortOrder}
-            onChange={onUpdateOrder}
-          />
+          <>
+            <Input
+              type="number"
+              style={{ width: '100%' }}
+              value={state.sortOrder}
+              onChange={onUpdateOrder}
+            />
+            <FormMessage color="error">
+              {rowError?.map((el) => (el.field === 'sortOrder' ? el.message : null))}
+            </FormMessage>
+          </>
         )}
         {where === 'show' && state.sortOrder}
       </TableCell>
