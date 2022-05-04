@@ -1,4 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   HealthCheckService,
   HealthCheck,
@@ -9,6 +10,7 @@ import {
 @Controller('health')
 export class HealthController {
   constructor(
+    private readonly configService: ConfigService,
     private healthCheckService: HealthCheckService,
     private typeOrmHealthIndicator: TypeOrmHealthIndicator,
     private memoryHealthIndicator: MemoryHealthIndicator,
@@ -17,12 +19,13 @@ export class HealthController {
   @Get()
   @HealthCheck()
   check() {
+    const maxRSS = this.configService.get('health.default.maxRSSMB');
+    const maxHeap = this.configService.get('health.default.maxHeapMB');
+
     return this.healthCheckService.check([
       () => this.typeOrmHealthIndicator.pingCheck('database'),
-      // the process should not use more than 300MB memory
-      () => this.memoryHealthIndicator.checkHeap('memory heap', 300 * 1024 * 1024),
-      // The process should not have more than 300MB RSS memory allocated
-      () => this.memoryHealthIndicator.checkRSS('memory RSS', 300 * 1024 * 1024),
+      () => this.memoryHealthIndicator.checkHeap('memory heap', maxHeap * 1024 * 1024),
+      () => this.memoryHealthIndicator.checkRSS('memory RSS', maxRSS * 1024 * 1024),
     ]);
   }
 }
