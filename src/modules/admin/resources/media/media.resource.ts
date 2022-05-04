@@ -41,12 +41,12 @@ const createMediaResource = (
       },
       edit: {
         isAccessible: (context): boolean => forAdminGroup(context),
-        before: [validate()],
+        before: [validate(serviceAccessor)],
         after: [getImage(serviceAccessor, 'file'), uploadFile('file', 'assets/', serviceAccessor)],
       },
       new: {
         isAccessible: (context): boolean => forAdminGroup(context),
-        before: [validate()],
+        before: [validate(serviceAccessor)],
         after: [uploadFile('file', 'assets/', serviceAccessor)],
       },
       delete: {
@@ -63,7 +63,6 @@ const createMediaResource = (
       title: { isRequired: true },
       sortOrder: { isRequired: true },
       type: { isRequired: true },
-      url: { isRequired: true },
       file: {
         position: 10,
         props: {

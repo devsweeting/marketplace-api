@@ -63,7 +63,6 @@ export const validate =
         }
 
         if (el.type === MediaTypeEnum.Youtube) {
-          console.log('el type', el.type, el.file);
           if (el.file.length > 0) {
             initIndexArray(mediaErrors, index);
             mediaErrors[index].push({ field: 'type', message: 'Wrong type' });
@@ -74,20 +73,21 @@ export const validate =
             mediaErrors[index].push({ field: 'url', message: 'Url format is invalid' });
           }
         }
-
-        if (!el.url.length || (!el.url.length && !el.file.length)) {
-          initIndexArray(mediaErrors, index);
-          mediaErrors[index].push({ field: 'file', message: 'File is required' });
+        if (el.type === MediaTypeEnum.Image) {
+          if (!el.url.length && !el.file.length) {
+            initIndexArray(mediaErrors, index);
+            mediaErrors[index].push({ field: 'file', message: 'Url or File is required' });
+            mediaErrors[index].push({ field: 'url', message: 'Url or File is required' });
+          }
         }
       });
     }
-    console.log('val error', mediaErrors);
     if (Object.keys(mediaErrors).length > 0) {
       errors.assetMedia = { message: JSON.stringify(mediaErrors) };
     }
     if (payload.refId) {
       const getAsset = await Asset.findOne({ where: { refId: payload.refId } });
-      if (getAsset.id !== payload?.id) {
+      if (getAsset && getAsset.id !== payload?.id) {
         errors.refId = { message: 'Asset already exist with this refId' };
       }
     }

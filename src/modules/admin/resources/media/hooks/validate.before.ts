@@ -1,11 +1,13 @@
+import { ConfigService } from '@nestjs/config';
 import { ActionRequest, flat, PropertyErrors, ValidationError } from 'adminjs';
-import { Media } from 'modules/assets/entities';
+import { ServiceAccessor } from 'modules/admin/utils/service.accessor';
+import { Asset, Media } from 'modules/assets/entities';
 import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
 
 import { isPOSTMethod } from '../../../admin.utils';
 
 export const validate =
-  () =>
+  (serviceAccessor: ServiceAccessor) =>
   async (request: ActionRequest): Promise<ActionRequest> => {
     if (!isPOSTMethod(request)) {
       return request;
@@ -14,7 +16,7 @@ export const validate =
     const payload = flat.unflatten(request.payload);
 
     const errors: PropertyErrors = {};
-
+    const configService = serviceAccessor.getService(ConfigService);
     const VIDEO_REGEX =
       /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+(?:&|&#38;);v=))((?:\w|-|_){11})$/;
 
@@ -43,9 +45,22 @@ export const validate =
         errors.url = { message: 'Url format is invalid' };
       }
     }
-
     if (!payload.assetId) {
       errors.assetId = { message: 'Asset is required' };
+    }
+
+    if (payload.type === MediaTypeEnum.Image) {
+      if (!payload.url?.length && !payload.file) {
+        errors.url = { message: 'Url or File is required' };
+        errors.file = { message: 'Url or File is required' };
+      }
+      const getAsset = await Asset.findOne(payload.assetId, { relations: ['media'] });
+
+      if (getAsset.media.length > configService.get('asset.default.maxMediaNumber')) {
+        errors.assetId = {
+          message: `MAX_MEDIA_PER_ASSET is ${configService.get('asset.default.maxMediaNumber')}`,
+        };
+      }
     }
 
     if (payload.sortOrder) {

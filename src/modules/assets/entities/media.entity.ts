@@ -25,7 +25,7 @@ export class Media extends BaseModel implements BaseEntityInterface {
   @Column({ nullable: true })
   public description: string;
 
-  @Column({ nullable: false, length: 1024 })
+  @Column({ nullable: false, default: '', length: 1024 })
   public url: string;
 
   @Column({ nullable: false })
