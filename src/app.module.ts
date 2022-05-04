@@ -14,6 +14,7 @@ import { AssetsModule } from 'modules/assets/assets.module';
 import { join } from 'path';
 import { StorageModule } from 'modules/storage/storage.module';
 import { CollectionsModule } from './modules/collections/collections.module';
+import { HealthModule } from './modules/health/health.module';
 
 import { LoggerModule as PinoLogger } from 'nestjs-pino';
 import { DatadogTraceModule } from 'nestjs-ddtrace';
@@ -70,6 +71,7 @@ if (process.env.NODE_ENV === 'STAGING' || process.env.NODE_ENV === 'PRODUCTION')
     AssetsModule,
     UsersModule,
     CollectionsModule,
+    HealthModule,
     ...modules,
   ],
   controllers: [AppController],
