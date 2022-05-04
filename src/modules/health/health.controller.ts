@@ -19,8 +19,8 @@ export class HealthController {
   @Get()
   @HealthCheck()
   check() {
-    const maxRSS = this.configService.get('health.default.maxRSSMB');
-    const maxHeap = this.configService.get('health.default.maxHeapMB');
+    const maxRSS = Number(this.configService.get('health.default.maxRSSMB'));
+    const maxHeap = Number(this.configService.get('health.default.maxHeapMB'));
 
     return this.healthCheckService.check([
       () => this.typeOrmHealthIndicator.pingCheck('database'),
