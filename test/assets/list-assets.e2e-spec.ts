@@ -7,7 +7,7 @@ import { AssetsTransformer } from 'modules/assets/transformers/assets.transforme
 
 import { Partner } from 'modules/partners/entities';
 import { RoleEnum } from 'modules/users/enums/role.enum';
-import { createUser } from '../utils/fixtures/create-user';
+import { createUser } from '../utils/create-user';
 import { createPartner } from '../utils/partner.utils';
 import { User } from 'modules/users/user.entity';
 import { createAttribute } from '@/test/utils/attribute.utils';

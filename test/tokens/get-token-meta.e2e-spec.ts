@@ -6,7 +6,7 @@ import { createAsset } from '@/test/utils/asset.utils';
 import { Partner } from 'modules/partners/entities';
 import { createPartner } from '../utils/partner.utils';
 import { User } from 'modules/users/user.entity';
-import { createUser } from '../utils/fixtures/create-user';
+import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { TokensTransformer } from 'modules/assets/transformers/tokens.transformer';
 import { createContract } from '../utils/contract.utils';

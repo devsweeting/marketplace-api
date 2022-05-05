@@ -8,7 +8,6 @@ import {
   Param,
   Patch,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 
@@ -20,10 +19,10 @@ import { CreateUserDto, UpdateUserDto } from './dto';
 import { UserTransformer } from './transformers/user.transformer';
 import { LocalAuthGuard } from 'modules/auth/guards/local-auth.guard';
 import { AuthService } from 'modules/auth/auth.service';
-import RequestWithUser from 'modules/auth/interfaces/request-with-user.interface';
 import JwtAuthGuard from 'modules/auth/guards/jwt-auth.guard';
 import RoleGuard from 'modules/auth/guards/role.guard';
 import { RoleEnum } from './enums/role.enum';
+import { GetUser } from 'modules/auth/decorators/get-user.decorator';
 
 @ApiTags('users')
 @Controller({
@@ -40,8 +39,14 @@ export class UsersController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  public async login(@Req() request: RequestWithUser): Promise<string> {
-    return this.authService.generateToken(request.user);
+  public async login(@GetUser() user: User): Promise<string> {
+    return this.authService.generateToken(user);
+  }
+
+  @Get(':address/nonce')
+  public async getUserNonce(@Param('address') address): Promise<string> {
+    const user = await this.usersService.getByAddress(address);
+    return user.nonce ? user.nonce : await this.usersService.updateNonce(user);
   }
 
   @Get()

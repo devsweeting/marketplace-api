@@ -11,6 +11,7 @@ import { createAsset } from '../utils/asset.utils';
 import { Asset } from 'modules/assets/entities';
 import { createPartner } from '../utils/partner.utils';
 import { Partner } from 'modules/partners/entities';
+import { generateNonce, generateToken } from '../utils/jwt.utils';
 
 describe('WatchlistController', () => {
   let app: INestApplication;
@@ -24,7 +25,7 @@ describe('WatchlistController', () => {
   beforeAll(async () => {
     app = await createApp();
     watchlistTransformer = app.get(WatchlistTransformer);
-    user = await createUser({});
+    user = await createUser({ nonce: generateNonce() });
     partner = await createPartner({
       apiKey: 'test-api-key',
       accountOwner: user,
@@ -54,6 +55,18 @@ describe('WatchlistController', () => {
   });
 
   describe(`GET V1 /watchlist`, () => {
+    it('should throw 401 exception if auth token is missing', () => {
+      return request(app.getHttpServer()).get(`/v1/watchlist/`).send({}).expect(401);
+    });
+
+    it('should throw 401 exception if token is invalid', () => {
+      return request(app.getHttpServer())
+        .get(`/v1/watchlist/`)
+        .set({ Authorization: `Bearer wrong` })
+        .send({})
+        .expect(401);
+    });
+
     it('should return watchlist assets ids', async () => {
       watchlistAssets = [
         await createWatchlistAsset({
@@ -64,6 +77,7 @@ describe('WatchlistController', () => {
       const response = Object.assign(watchlist, { watchlistAssets });
       return request(app.getHttpServer())
         .get(`/v1/watchlist`)
+        .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -75,6 +89,7 @@ describe('WatchlistController', () => {
       const response = Object.assign(watchlist, { watchlistAssets: [] });
       return request(app.getHttpServer())
         .get(`/v1/watchlist`)
+        .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -87,6 +102,7 @@ describe('WatchlistController', () => {
 
       return request(app.getHttpServer())
         .get(`/v1/watchlist`)
+        .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
         .expect(200)
         .expect(({ body }) => {

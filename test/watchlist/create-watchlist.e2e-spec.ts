@@ -11,6 +11,7 @@ import { Asset } from 'modules/assets/entities';
 import { createPartner } from '../utils/partner.utils';
 import { Partner } from 'modules/partners/entities';
 import { v4 } from 'uuid';
+import { generateNonce, generateToken } from '../utils/jwt.utils';
 
 describe('WatchlistController', () => {
   let app: INestApplication;
@@ -23,7 +24,7 @@ describe('WatchlistController', () => {
   beforeAll(async () => {
     app = await createApp();
 
-    user = await createUser({});
+    user = await createUser({ nonce: generateNonce() });
     partner = await createPartner({
       apiKey: 'test-api-key',
       accountOwner: user,
@@ -51,11 +52,23 @@ describe('WatchlistController', () => {
   });
 
   describe(`POST V1 /watchlist`, () => {
-    it('should add new asset to watchlist if watchlist does not exists', async () => {
-      const dtoRequest = { assetId: asset.id };
+    it('should throw 401 exception if auth token is missing', () => {
+      return request(app.getHttpServer()).post(`/v1/watchlist`).send({}).expect(401);
+    });
 
+    it('should throw 401 exception if token is invalid', () => {
       return request(app.getHttpServer())
         .post(`/v1/watchlist`)
+        .set({ Authorization: `Bearer wrong` })
+        .send({})
+        .expect(401);
+    });
+
+    it('should add new asset to watchlist if watchlist does not exists', async () => {
+      const dtoRequest = { assetId: asset.id };
+      return request(app.getHttpServer())
+        .post(`/v1/watchlist`)
+        .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send(dtoRequest)
         .expect(201)
         .expect(({ body }) => {
@@ -81,6 +94,7 @@ describe('WatchlistController', () => {
     });
     return request(app.getHttpServer())
       .post(`/v1/watchlist`)
+      .set({ Authorization: `Bearer ${generateToken(user)}` })
       .send(dtoRequest)
       .expect(201)
       .expect(({ body }) => {
@@ -107,6 +121,7 @@ describe('WatchlistController', () => {
 
     return request(app.getHttpServer())
       .post(`/v1/watchlist`)
+      .set({ Authorization: `Bearer ${generateToken(user)}` })
       .send(dtoRequest)
       .expect(201)
       .expect(({ body }) => {
@@ -141,6 +156,7 @@ describe('WatchlistController', () => {
 
     return request(app.getHttpServer())
       .post(`/v1/watchlist`)
+      .set({ Authorization: `Bearer ${generateToken(user)}` })
       .send(dtoRequest)
       .expect(201)
       .expect(({ body }) => {
@@ -176,6 +192,7 @@ describe('WatchlistController', () => {
 
     return request(app.getHttpServer())
       .post(`/v1/watchlist`)
+      .set({ Authorization: `Bearer ${generateToken(user)}` })
       .send(dtoRequest)
       .expect(409)
       .expect(({ body }) => {
@@ -203,6 +220,7 @@ describe('WatchlistController', () => {
 
     return request(app.getHttpServer())
       .post(`/v1/watchlist`)
+      .set({ Authorization: `Bearer ${generateToken(user)}` })
       .send(dtoRequest)
       .expect(404)
       .expect(({ body }) => {
@@ -235,6 +253,7 @@ describe('WatchlistController', () => {
 
     return request(app.getHttpServer())
       .post(`/v1/watchlist`)
+      .set({ Authorization: `Bearer ${generateToken(user)}` })
       .send(dtoRequest)
       .expect(404)
       .expect(({ body }) => {
@@ -279,6 +298,7 @@ describe('WatchlistController', () => {
 
     return request(app.getHttpServer())
       .post(`/v1/watchlist`)
+      .set({ Authorization: `Bearer ${generateToken(user)}` })
       .send(dtoRequest)
       .expect(409)
       .expect(({ body }) => {

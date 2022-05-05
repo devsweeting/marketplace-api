@@ -40,6 +40,12 @@ export class User extends BaseModel implements BaseEntityInterface {
   public address: string;
 
   @Column({
+    length: 150,
+    nullable: true,
+  })
+  public nonce: string;
+
+  @Column({
     type: 'enum',
     enum: RoleEnum,
     nullable: false,
