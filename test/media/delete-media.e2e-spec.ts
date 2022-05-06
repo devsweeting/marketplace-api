@@ -9,7 +9,7 @@ import { Partner } from 'modules/partners/entities';
 import { createAsset } from '../utils/asset.utils';
 import { createPartner } from '../utils/partner.utils';
 import { User } from 'modules/users/user.entity';
-import { createUser } from '../utils/fixtures/create-user';
+import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 
 describe('MediaController', () => {

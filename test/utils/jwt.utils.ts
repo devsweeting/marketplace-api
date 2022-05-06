@@ -7,7 +7,9 @@ const jwtService = new JwtService({
 
 export const generateToken = (user: User): string =>
   jwtService.sign({
-    subId: user.id,
-    email: user.email,
+    id: user.id,
+    address: user.address,
     role: user.role,
   });
+
+export const generateNonce = (): string => String(Math.floor(Math.random() * 1000000));

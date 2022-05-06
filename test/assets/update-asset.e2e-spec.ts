@@ -17,7 +17,7 @@ import { createAttribute } from '@/test/utils/attribute.utils';
 import { StorageEnum } from 'modules/storage/enums/storage.enum';
 import { User } from 'modules/users/user.entity';
 import { RoleEnum } from 'modules/users/enums/role.enum';
-import { createUser } from '../utils/fixtures/create-user';
+import { createUser } from '../utils/create-user';
 import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
 
 describe('AssetsController', () => {

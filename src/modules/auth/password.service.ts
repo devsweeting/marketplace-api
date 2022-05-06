@@ -8,6 +8,10 @@ export const saltRounds = 10;
 
 @Injectable()
 export class PasswordService {
+  public generateNonce(): string {
+    return String(Math.floor(Math.random() * 1000000));
+  }
+
   public encode(password: string): Promise<string> {
     return bcrypt.hash(password, saltRounds) as Promise<string>;
   }

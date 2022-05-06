@@ -18,6 +18,7 @@ import { HealthModule } from './modules/health/health.module';
 
 import { LoggerModule as PinoLogger } from 'nestjs-pino';
 import { DatadogTraceModule } from 'nestjs-ddtrace';
+import { WatchlistsModule } from './modules/watchlists/watchlists.module';
 
 const modules = [];
 
@@ -71,6 +72,7 @@ if (process.env.NODE_ENV === 'STAGING' || process.env.NODE_ENV === 'PRODUCTION')
     AssetsModule,
     UsersModule,
     CollectionsModule,
+    WatchlistsModule,
     HealthModule,
     ...modules,
   ],

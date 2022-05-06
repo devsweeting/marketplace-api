@@ -4,7 +4,7 @@ import { RoleEnum } from 'modules/users/enums/role.enum';
 import request from 'supertest';
 
 import { createApp } from '../utils/app.utils';
-import { createUser } from '../utils/fixtures/create-user';
+import { createUser } from '../utils/create-user';
 import { generateToken } from '../utils/jwt.utils';
 
 describe('UserController (e2e)', () => {
