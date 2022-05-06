@@ -38,14 +38,12 @@ describe('AssetsController', () => {
       await createAsset({
         refId: '1',
         name: 'Egg',
-        slug: 'egg',
         description: 'test-egg',
         partner,
       }),
       await createAsset({
         refId: '2',
         name: 'Pumpkin',
-        slug: 'pumpkin',
         description: 'test-pumpkin',
         partner,
       }),
@@ -260,14 +258,12 @@ describe('AssetsController', () => {
         await createAsset({
           refId: '1',
           name: 'Pumpkin',
-          slug: 'pumpkin',
           description: 'test-orange',
           partner,
         }),
         await createAsset({
           refId: '2',
           name: 'Orange',
-          slug: 'orange',
           description: 'test-orange',
           partner,
         }),
@@ -301,14 +297,12 @@ describe('AssetsController', () => {
         await createAsset({
           refId: '1',
           name: 'Pumpkin',
-          slug: 'pumpkin',
           description: 'test-orange',
           partner,
         }),
         await createAsset({
           refId: '2',
           name: 'Orange',
-          slug: 'orange',
           description: 'test-orange',
           partner,
         }),
@@ -343,7 +337,6 @@ describe('AssetsController', () => {
         await createAsset({
           refId: '2',
           name: 'Orange',
-          slug: 'orange',
           description: 'test-orange',
           partner,
         }),
@@ -383,15 +376,13 @@ describe('AssetsController', () => {
       assets = [
         await createAsset({
           refId: '1',
-          name: 'Orange',
-          slug: 'orange',
+          name: 'Orange 1',
           description: 'test-orange',
           partner,
         }),
         await createAsset({
           refId: '2',
-          name: 'Orange',
-          slug: 'orange',
+          name: 'Orange 2',
           description: 'test-orange',
           partner,
         }),
@@ -439,15 +430,13 @@ describe('AssetsController', () => {
       assets = [
         await createAsset({
           refId: '1',
-          name: 'Orange',
-          slug: 'orange',
+          name: 'Orange 1',
           description: 'test-orange',
           partner,
         }),
         await createAsset({
           refId: '2',
-          name: 'Orange',
-          slug: 'orange',
+          name: 'Orange 2',
           description: 'test-orange',
           partner,
         }),

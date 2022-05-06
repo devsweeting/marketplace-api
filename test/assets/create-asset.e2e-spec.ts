@@ -211,7 +211,7 @@ describe('AssetsController', () => {
         assets: [
           {
             refId: '1232',
-            name: 'Example',
+            name: 'Example 1232',
             description: 'test',
           },
         ],
@@ -232,6 +232,64 @@ describe('AssetsController', () => {
         });
     });
 
+    it('should pass if name is used for another asset for the same partner', async () => {
+      await createAsset({ refId: '1', name: 'New Asset', partner: partner });
+
+      const transferRequest: any = {
+        user: {
+          refId: '1',
+          email: 'steven@example.com',
+        },
+        assets: [
+          {
+            refId: '2',
+            name: 'New Asset',
+            description: 'test',
+          },
+        ],
+      };
+
+      return request(app.getHttpServer())
+        .post(`/v1/assets`)
+        .set({
+          'x-api-key': partner.apiKey,
+        })
+        .send(transferRequest)
+        .expect(201);
+    });
+
+    it('should pass if name is used for another asset for the different partner', async () => {
+      const anotherUser = await createUser({});
+      const partner2 = await createPartner({
+        apiKey: 'another-partner2-api-key',
+        accountOwner: anotherUser,
+      });
+
+      await createAsset({ refId: '3', name: 'NewAssetDifferentPartner', partner: partner2 });
+
+      const transferRequest: any = {
+        user: {
+          refId: '1233',
+          email: 'steven@example.com',
+        },
+        assets: [
+          {
+            refId: '4',
+            name: 'NewAssetDifferentPartner',
+            description: 'test',
+          },
+        ],
+      };
+
+      return request(app.getHttpServer())
+        .post(`/v1/assets`)
+        .set({
+          'x-api-key': partner.apiKey,
+        })
+        .send(transferRequest)
+        .expect(201);
+    });
+
     it('should throw 400 exception if asset already exist by refId (same request)', async () => {
       const transferRequest: any = {
         user: {
@@ -241,12 +299,12 @@ describe('AssetsController', () => {
         assets: [
           {
             refId: '1232',
-            name: 'Example',
+            name: 'Example 1',
             description: 'test',
           },
           {
             refId: '1232',
-            name: 'Example',
+            name: 'Example 2',
             description: 'test',
           },
         ],

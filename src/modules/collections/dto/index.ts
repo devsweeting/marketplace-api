@@ -1,5 +1,4 @@
-import { ListCollectionsDto } from './list-collections.dto';
-import { CollectionDto } from './collection.dto';
-import { CollectionIdDto } from './collection-id.dto';
-
-export { ListCollectionsDto, CollectionDto, CollectionIdDto };
+export { ListCollectionsDto } from './list-collections.dto';
+export { CollectionDto } from './collection.dto';
+export { CollectionIdDto } from './collection-id.dto';
+export { CollectionIdOrSlugDto } from './collection-id-or-slug.dto';

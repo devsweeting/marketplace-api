@@ -123,6 +123,34 @@ export class AssetsService {
     return asset;
   }
 
+  public async getOneByParams({ id, slug }: { id: string; slug: string }): Promise<Asset> {
+    const query = Asset.createQueryBuilder('asset')
+      .leftJoinAndMapMany('asset.attributes', 'asset.attributes', 'attributes')
+      .leftJoinAndMapMany(
+        'asset.media',
+        'asset.media',
+        'media',
+        'media.isDeleted = FALSE AND media.deletedAt IS NULL',
+      )
+      .leftJoinAndMapOne('media.file', 'media.file', 'file')
+
+      .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
+      .andWhere('asset.deletedAt IS NULL')
+      .orderBy('media.sortOrder', 'ASC');
+
+    if (id) {
+      query.where('asset.id = :id', { id });
+    }
+    if (slug) {
+      query.where('asset.slug = :slug', { slug });
+    }
+    const asset = await query.getOne();
+    if (!asset) {
+      throw new AssetNotFoundException();
+    }
+    return asset;
+  }
+
   public async updateAsset(partner: Partner, id: string, dto: UpdateAssetDto): Promise<Asset> {
     const asset = await Asset.findOne({
       where: { id, partnerId: partner.id },
