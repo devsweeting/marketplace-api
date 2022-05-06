@@ -6,3 +6,4 @@ export { default as mailer } from './mailer.config';
 export { default as aws } from './aws.config';
 export { default as rollbar } from './rollbar.config';
 export { default as asset } from './asset.config';
+export { default as health } from './health.config';

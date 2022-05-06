@@ -38,6 +38,7 @@
     "@nestjs/platform-express": "^8.0.0",
     "@nestjs/serve-static": "^2.2.2",
     "@nestjs/swagger": "^5.1.5",
+    "@nestjs/terminus": "^8.0.6",
     "@nestjs/typeorm": "^8.0.2",
     "adminjs": "^5.7.5",
     "aws-sdk": "^2.1095.0",
