@@ -15,9 +15,10 @@ export class StorageService {
   ) {}
 
   public onModuleInit() {
-    // TODO only perform in test/dev envs
-    this.provider.ensureBucket();
-    console.log(`S3 buckets have been initialized.`);
+    if (process.env.NODE_ENV === 'DEVELOP' || process.env.NODE_ENV === 'TEST') {
+      this.provider.ensureBucket();
+      console.log(`S3 buckets have been initialized.`);
+    }
   }
 
   public async uploadFromUrl(url: string, directory: string): Promise<File> {

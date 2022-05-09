@@ -74,7 +74,7 @@ export const validate =
           }
         }
         if (el.type === MediaTypeEnum.Image) {
-          if (!el.url.length && !el.file.length) {
+          if (!el.id && !el.url.length && !el.file.length) {
             initIndexArray(mediaErrors, index);
             mediaErrors[index].push({ field: 'file', message: 'Url or File is required' });
             mediaErrors[index].push({ field: 'url', message: 'Url or File is required' });

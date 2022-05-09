@@ -83,7 +83,7 @@ export class S3Provider implements ProviderInterface {
       accessKeyId: this.configService.get('aws.default.accessKey'),
       secretAccessKey: this.configService.get('aws.default.secretKey'),
       endpoint: this.configService.get('aws.default.endpoint'),
-      s3ForcePathStyle: true, // TODO: this should only be true in test/dev envs
+      s3ForcePathStyle: this.configService.get('aws.default.s3ForcePathStyle'),
     });
   }
 }
