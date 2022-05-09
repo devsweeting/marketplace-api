@@ -41,6 +41,7 @@ if (process.env.NODE_ENV === 'STAGING' || process.env.NODE_ENV === 'PRODUCTION')
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      expandVariables: true,
       envFilePath: [
         `.env.${process.env.NODE_ENV}.local`,
         `.env.${process.env.NODE_ENV}`,

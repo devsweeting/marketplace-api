@@ -8,6 +8,7 @@ export default registerAs('aws', () => {
       s3Bucket: process.env.AWS_S3_BUCKET,
       region: process.env.AWS_REGION,
       cloudFrontDomain: process.env.CLOUDFRONT_DOMAIN,
+      endpoint: 'http://localhost:4566', // TODO proper config
     },
   };
 });

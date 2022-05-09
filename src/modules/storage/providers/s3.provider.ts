@@ -51,6 +51,18 @@ export class S3Provider implements ProviderInterface {
     return `${this.configService.get('aws.default.cloudFrontDomain')}/${file.path}`;
   }
 
+  public async ensureBucket() {
+    const s3 = await this.getS3();
+    const bucket: string = this.configService.get('aws.default.s3Bucket');
+    const foo = await s3.listBuckets().promise();
+    if (!foo.Buckets.map((b) => b.Name).includes(bucket)) {
+      const params = {
+        Bucket: bucket,
+      };
+      await s3.createBucket(params).promise();
+    }
+  }
+
   private async s3Upload(filePath: string, key: string): Promise<AwsUploadResponseInterface> {
     const bucket: string = this.configService.get('aws.default.s3Bucket');
     const s3 = await this.getS3();
@@ -70,6 +82,8 @@ export class S3Provider implements ProviderInterface {
       region: this.configService.get('aws.default.region'),
       accessKeyId: this.configService.get('aws.default.accessKey'),
       secretAccessKey: this.configService.get('aws.default.secretKey'),
+      endpoint: this.configService.get('aws.default.endpoint'),
+      s3ForcePathStyle: true, // TODO: this should only be true in test/dev envs
     });
   }
 }
