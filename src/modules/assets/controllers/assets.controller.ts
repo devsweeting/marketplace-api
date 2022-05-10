@@ -24,7 +24,7 @@ import { AssetsService } from 'modules/assets/services/assets.service';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
 import { GetPartner } from 'modules/auth/decorators/get-partner.decorator';
 import { Partner } from 'modules/partners/entities';
-import { TransferRequestDto } from 'modules/assets/dto';
+import { AssetIdOrSlugDto, TransferRequestDto } from 'modules/assets/dto';
 import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 import { AssetResponse } from 'modules/assets/interfaces/response/asset.response';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
@@ -36,6 +36,7 @@ import { MediaResponse } from '../interfaces/response/media/media.response';
 import { MediaService } from '../services/media.service';
 import { MediaTransformer } from '../transformers/media.transformer';
 
+import { validate as isValidUUID } from 'uuid';
 @ApiTags('assets')
 @Controller({
   path: 'assets',
@@ -62,16 +63,20 @@ export class AssetsController {
     return this.assetsTransformer.transformPaginated(list);
   }
 
-  @Get(':id')
+  @Get(':assetParams')
   @ApiOperation({ summary: 'Returns single asset' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'An assets',
     type: AssetResponse,
   })
-  public async getOne(@Param() params: AssetIdDto): Promise<AssetResponse> {
-    const asset = await this.assetsService.getOne(params.id);
-
+  public async getOne(@Param() params: AssetIdOrSlugDto): Promise<AssetResponse> {
+    let asset;
+    if (isValidUUID(params.assetParams)) {
+      asset = await this.assetsService.getOneByParams({ id: params.assetParams, slug: null });
+    } else {
+      asset = await this.assetsService.getOneByParams({ id: null, slug: params.assetParams });
+    }
     return this.assetsTransformer.transform(asset);
   }
 

@@ -7,9 +7,11 @@ import {
   Entity,
   Index,
   JoinColumn,
+  Like,
   ManyToOne,
   OneToMany,
   OneToOne,
+  Raw,
   RelationId,
   SelectQueryBuilder,
 } from 'typeorm';
@@ -51,7 +53,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   public name: string;
 
   @Index()
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   public slug: string;
 
   @Column({ type: 'text', nullable: true })
@@ -84,8 +86,17 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   public collectionAssets: CollectionAsset[];
 
   @BeforeInsert()
-  public beforeInsert(): void {
-    this.slug = generateSlug(this.name);
+  public async beforeInsert(): Promise<void> {
+    const assetsCount = await Asset.count({
+      where: {
+        slug: Raw((alias) => `${alias} ILIKE '%${generateSlug(this.name)}%'`),
+        isDeleted: false,
+        deletedAt: null,
+      },
+    });
+
+    const name = assetsCount > 0 ? `${this.name} ${Date.now()}` : this.name;
+    this.slug = generateSlug(name);
   }
 
   @AfterInsert()
@@ -97,8 +108,9 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   }
 
   @BeforeUpdate()
-  public beforeUpdate(): void {
-    this.slug = generateSlug(this.name);
+  public async beforeUpdate(): Promise<void> {
+    const name = await this.findSlugDuplicate(this.id);
+    this.slug = generateSlug(name);
   }
 
   public async saveAttributes(attributes: AttributeDto[]): Promise<Attribute[]> {
@@ -110,6 +122,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
 
   public static async saveAssetForPartner(dto: AssetDto, partner: Partner): Promise<Asset> {
     let newAsset = null;
+
     try {
       const asset = new Asset({
         refId: dto.refId,
@@ -273,6 +286,18 @@ export class Asset extends BaseModel implements BaseEntityInterface {
       }
     }
     return query;
+  }
+
+  private async findSlugDuplicate(id: string = null): Promise<string> {
+    const assets = await Asset.find({
+      where: { slug: Like(`%${this.name}%`), isDeleted: false, deletedAt: null },
+    });
+    const asset = assets.find((el) => el.id === id);
+    if (asset) {
+      return asset.name !== this.name ? `${this.name}-${Date.now()}` : asset.slug;
+    } else {
+      return this.name;
+    }
   }
 
   public constructor(partial: Partial<Asset>) {

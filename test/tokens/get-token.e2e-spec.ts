@@ -79,8 +79,7 @@ describe('TokensController', () => {
     it('should return token for youtube media', async () => {
       const assetWithVideo = await createAsset({
         refId: '2',
-        name: 'Egg',
-        slug: 'egg',
+        name: 'Egg-1',
         description: 'test-egg',
         partner,
       });
@@ -93,9 +92,10 @@ describe('TokensController', () => {
       });
 
       const response = {
-        ...tokensTransformer.transform(token),
+        ...tokensTransformer.transform(videoToken),
         media: mediaTransformer.transformAll([videoMedia]),
       };
+
       return request(app.getHttpServer())
         .get(`/v1/token/${contract.address}/${videoToken.tokenId}`)
         .send()

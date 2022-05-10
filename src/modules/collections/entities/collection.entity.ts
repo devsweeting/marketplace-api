@@ -7,6 +7,7 @@ import {
   Index,
   JoinColumn,
   JoinTable,
+  Like,
   ManyToMany,
   ManyToOne,
   OneToMany,
@@ -29,7 +30,7 @@ export class Collection extends BaseModel implements BaseEntityInterface {
   public name: string;
 
   @Index()
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   public slug: string;
 
   @Column({ type: 'text', nullable: true })
@@ -61,13 +62,18 @@ export class Collection extends BaseModel implements BaseEntityInterface {
   public assets: Asset[];
 
   @BeforeInsert()
-  public beforeInsert(): void {
-    this.slug = generateSlug(this.name);
+  public async beforeInsert(): Promise<void> {
+    const collectionsCount = await Asset.count({
+      where: { slug: Like(`%${this.name}%`), isDeleted: false, deletedAt: null },
+    });
+    const name = collectionsCount > 0 ? `${this.name}-${Date.now()}` : this.name;
+    this.slug = generateSlug(name);
   }
 
   @BeforeUpdate()
-  public beforeUpdate(): void {
-    this.slug = generateSlug(this.name);
+  public async beforeUpdate(): Promise<void> {
+    const name = await this.findSlugDuplicate(this.id);
+    this.slug = generateSlug(name);
   }
 
   public static list(params: ListCollectionsDto): SelectQueryBuilder<Collection> {
@@ -87,6 +93,18 @@ export class Collection extends BaseModel implements BaseEntityInterface {
     }
 
     return query;
+  }
+
+  private async findSlugDuplicate(id: string = null): Promise<string> {
+    const collections = await Collection.find({
+      where: { slug: Like(`%${this.name}%`), isDeleted: false, deletedAt: null },
+    });
+    const collection = collections.find((el) => el.id === id);
+    if (collection) {
+      return collection.name !== this.name ? `${this.name}-${Date.now()}` : collection.slug;
+    } else {
+      return this.name;
+    }
   }
 
   public constructor(partial: Partial<Collection>) {

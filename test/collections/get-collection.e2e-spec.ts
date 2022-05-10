@@ -50,16 +50,16 @@ describe('CollectionsController', () => {
         });
     });
 
-    it('should 400 exception id is invalid', () => {
+    it('should 404 exception id is invalid', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections/123`)
         .send()
-        .expect(400)
+        .expect(404)
         .expect(({ body }) => {
           expect(body).toEqual({
-            error: 'Bad Request',
-            message: ['id must be a UUID'],
-            statusCode: 400,
+            error: 'Not Found',
+            message: 'COLLECTION_NOT_FOUND',
+            statusCode: 404,
           });
         });
     });

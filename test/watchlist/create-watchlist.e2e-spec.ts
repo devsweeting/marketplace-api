@@ -32,7 +32,6 @@ describe('WatchlistController', () => {
     asset = await createAsset({
       refId: '1',
       name: 'Egg',
-      slug: 'egg',
       description: 'test-egg',
       partner,
     });
@@ -105,7 +104,6 @@ describe('WatchlistController', () => {
     const newAsset = await createAsset({
       refId: '2',
       name: 'New',
-      slug: 'egg',
       description: 'test-egg',
       partner,
     });
@@ -285,8 +283,7 @@ describe('WatchlistController', () => {
     for (let index = 3; index < 8; index++) {
       asset = await createAsset({
         refId: `${index}`,
-        name: 'Egg',
-        slug: 'egg',
+        name: `Egg ${index}`,
         description: 'test-egg',
         partner,
       });

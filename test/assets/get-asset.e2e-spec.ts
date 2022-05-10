@@ -35,7 +35,7 @@ describe('AssetsController', () => {
     asset = await createAsset({
       refId: '1',
       name: 'Egg',
-      slug: 'egg',
+      slug: `egg-${Date.now()}`,
       description: 'test-egg',
       partner,
     });
@@ -92,16 +92,16 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should 400 exception id is invalid', () => {
+    it('should 404 exception id is invalid', () => {
       return request(app.getHttpServer())
         .get(`/v1/assets/123`)
         .send()
-        .expect(400)
+        .expect(404)
         .expect(({ body }) => {
           expect(body).toEqual({
-            error: 'Bad Request',
-            message: ['id must be a UUID'],
-            statusCode: 400,
+            error: 'Not Found',
+            message: 'ASSET_NOT_FOUND',
+            statusCode: 404,
           });
         });
     });

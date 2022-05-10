@@ -33,7 +33,6 @@ describe('WatchlistController', () => {
     asset = await createAsset({
       refId: '1',
       name: 'Egg',
-      slug: 'egg',
       description: 'test-egg',
       partner,
     });
