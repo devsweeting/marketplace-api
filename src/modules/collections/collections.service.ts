@@ -17,11 +17,21 @@ export class CollectionsService {
     });
   }
 
-  public async getOne(id: string): Promise<Collection> {
-    const collection = await Collection.findOne({
-      where: { id, isDeleted: false },
-      relations: ['assets', 'banner'],
-    });
+  public async getOne({ id, slug }: { id: string; slug: string }): Promise<Collection> {
+    const query = Collection.createQueryBuilder('collection')
+      .leftJoinAndMapMany('collection.assets', 'collection.assets', 'assets')
+      .leftJoinAndMapOne('collection.banner', 'collection.banner', 'banner')
+      .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
+      .andWhere('asset.deletedAt IS NULL');
+
+    if (id) {
+      query.where('collection.id = :id', { id });
+    }
+    if (slug) {
+      query.where('collection.slug = :slug', { slug });
+    }
+    const collection = await query.getOne();
+
     if (!collection) {
       throw new CollectionNotFoundException();
     }

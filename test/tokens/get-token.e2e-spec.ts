@@ -7,7 +7,7 @@ import { File } from 'modules/storage/entities/file.entity';
 import { Partner } from 'modules/partners/entities';
 import { createPartner } from '../utils/partner.utils';
 import { User } from 'modules/users/user.entity';
-import { createUser } from '../utils/fixtures/create-user';
+import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { TokensTransformer } from 'modules/assets/transformers/tokens.transformer';
 import { createContract } from '../utils/contract.utils';
@@ -79,8 +79,7 @@ describe('TokensController', () => {
     it('should return token for youtube media', async () => {
       const assetWithVideo = await createAsset({
         refId: '2',
-        name: 'Egg',
-        slug: 'egg',
+        name: 'Egg-1',
         description: 'test-egg',
         partner,
       });
@@ -93,9 +92,10 @@ describe('TokensController', () => {
       });
 
       const response = {
-        ...tokensTransformer.transform(token),
+        ...tokensTransformer.transform(videoToken),
         media: mediaTransformer.transformAll([videoMedia]),
       };
+
       return request(app.getHttpServer())
         .get(`/v1/token/${contract.address}/${videoToken.tokenId}`)
         .send()
@@ -113,7 +113,7 @@ describe('TokensController', () => {
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Bad Request',
-            message: ['tokenId must be a UUID'],
+            message: 'MUST_BE_UUID',
             statusCode: 400,
           });
         });

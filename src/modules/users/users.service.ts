@@ -30,6 +30,12 @@ export class UsersService extends BaseService {
     throw new UserNotFoundException();
   }
 
+  async getByAddress(address: string): Promise<User> {
+    const user = await User.findOne({ where: { address, isDeleted: false, deletedAt: null } });
+    if (user) return user;
+    throw new UserNotFoundException();
+  }
+
   async checkByEmail(email: string): Promise<User> {
     const user = await User.findOne({ where: { email, isDeleted: false } });
     if (user) return user;
@@ -38,8 +44,8 @@ export class UsersService extends BaseService {
   }
 
   async create(userData: CreateUserDto): Promise<User> {
-    const hashedPassword = await this.passwordService.encode(userData.password);
-    const newUser = new User({ ...userData, password: hashedPassword });
+    const nonce = this.passwordService.generateNonce();
+    const newUser = new User({ ...userData, nonce });
     await newUser.save();
     return newUser;
   }
@@ -48,6 +54,14 @@ export class UsersService extends BaseService {
     await User.update(id, userData);
     const updatedUser = await this.findOne(id);
     return updatedUser;
+  }
+
+  public async updateNonce(user: User): Promise<string> {
+    const nonce = this.passwordService.generateNonce();
+    user.nonce = nonce;
+    const updatedUser = await user.save();
+
+    return updatedUser.nonce;
   }
 
   public async softDelete(id: string): Promise<void> {

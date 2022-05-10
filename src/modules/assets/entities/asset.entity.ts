@@ -7,9 +7,11 @@ import {
   Entity,
   Index,
   JoinColumn,
+  Like,
   ManyToOne,
   OneToMany,
   OneToOne,
+  Raw,
   RelationId,
   SelectQueryBuilder,
 } from 'typeorm';
@@ -25,6 +27,7 @@ import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 import { Event } from 'modules/events/entities';
 import { Token } from './token.entity';
 import { CollectionAsset } from 'modules/collections/entities';
+import { AttributeLteMustBeGreaterThanGteException } from '../exceptions/attribute-lte-greater-than-gte.exception';
 import { Media } from './media.entity';
 import { POSTGRES_DUPE_KEY_ERROR } from 'modules/common/constants';
 import { AssetsDuplicatedException } from '../exceptions/assets-duplicated.exception';
@@ -50,7 +53,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   public name: string;
 
   @Index()
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   public slug: string;
 
   @Column({ type: 'text', nullable: true })
@@ -83,8 +86,17 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   public collectionAssets: CollectionAsset[];
 
   @BeforeInsert()
-  public beforeInsert(): void {
-    this.slug = generateSlug(this.name);
+  public async beforeInsert(): Promise<void> {
+    const assetsCount = await Asset.count({
+      where: {
+        slug: Raw((alias) => `${alias} ILIKE '%${generateSlug(this.name)}%'`),
+        isDeleted: false,
+        deletedAt: null,
+      },
+    });
+
+    const name = assetsCount > 0 ? `${this.name} ${Date.now()}` : this.name;
+    this.slug = generateSlug(name);
   }
 
   @AfterInsert()
@@ -96,8 +108,9 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   }
 
   @BeforeUpdate()
-  public beforeUpdate(): void {
-    this.slug = generateSlug(this.name);
+  public async beforeUpdate(): Promise<void> {
+    const name = await this.findSlugDuplicate(this.id);
+    this.slug = generateSlug(name);
   }
 
   public async saveAttributes(attributes: AttributeDto[]): Promise<Attribute[]> {
@@ -109,6 +122,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
 
   public static async saveAssetForPartner(dto: AssetDto, partner: Partner): Promise<Asset> {
     let newAsset = null;
+
     try {
       const asset = new Asset({
         refId: dto.refId,
@@ -141,7 +155,8 @@ export class Asset extends BaseModel implements BaseEntityInterface {
     const query = Asset.createQueryBuilder('asset')
       .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
       .andWhere('asset.deletedAt IS NULL')
-      .addOrderBy(params.sort, params.order);
+      .addOrderBy(params.sort, params.order)
+      .addGroupBy('asset.id');
 
     if (params.query) {
       query.andWhere(
@@ -150,7 +165,139 @@ export class Asset extends BaseModel implements BaseEntityInterface {
         }),
       );
     }
+    if (params.search) {
+      query.andWhere(
+        new Brackets((b) => {
+          b.andWhere(
+            'asset.name @@ websearch_to_tsquery(:searchQuery) OR asset.description @@ websearch_to_tsquery(:searchQuery)',
+            { searchQuery: params.search },
+          );
+        }),
+      );
+    }
+
+    if (params.attr_eq || params.attr_gte || params.attr_lte) {
+      query.innerJoin(
+        'asset.attributes',
+        'attributes',
+        'attributes.isDeleted = FALSE AND attributes.deletedAt IS NULL',
+      );
+    }
+    let traitValues;
+    if (params.attr_eq && Object.keys(params.attr_eq).length) {
+      query.andWhere(
+        new Brackets((b) => {
+          return Object.entries(params.attr_eq).map((attr) => {
+            traitValues = Array.isArray(attr[1]) ? attr[1] : [attr[1]];
+
+            return b.orWhere(
+              'attributes.trait ILIKE :trait AND LOWER(attributes.value) IN (:...traitValues) ',
+              { trait: `%${attr[0]}%%`, traitValues },
+            );
+          });
+        }),
+      );
+    }
+
+    if (params.label_eq && Object.keys(params.label_eq).length) {
+      query.innerJoin(
+        'asset.labels',
+        'labels',
+        'labels.isDeleted = FALSE AND labels.deletedAt IS NULL',
+      );
+      let labelValues;
+      query.andWhere(
+        new Brackets((b) => {
+          return Object.entries(params.label_eq).map((label) => {
+            labelValues = Array.isArray(label[1]) ? label[1] : [label[1]];
+            return b.orWhere(
+              'labels.name ILIKE :name AND LOWER(labels.value) IN (:...labelValues) ',
+              {
+                name: `%${label[0]}%%`,
+                labelValues,
+              },
+            );
+          });
+        }),
+      );
+    }
+
+    if (params.attr_lte || params.attr_gte) {
+      const fromAttr = params.attr_gte ? Object.keys(params.attr_gte) : [];
+      const toAttr = params.attr_lte ? Object.keys(params.attr_lte) : [];
+      const arr = fromAttr.length
+        ? fromAttr.filter((value) => toAttr.includes(value))
+        : toAttr.filter((value) => fromAttr.includes(value));
+      const fromArr = fromAttr.filter((el) => {
+        return !arr.some((s) => {
+          return s === el;
+        });
+      });
+      const toArr = toAttr.filter((el) => {
+        return !arr.some((s) => {
+          return s === el;
+        });
+      });
+      if (arr.length) {
+        arr.map((attr) => {
+          if (params.attr_gte[attr] >= params.attr_lte[attr]) {
+            throw new AttributeLteMustBeGreaterThanGteException();
+          }
+          return query.andWhere(
+            new Brackets((b) => {
+              b.andWhere(
+                'attributes.trait ILIKE :commonTrait AND attributes.value::integer >= :fromValue AND attributes.value::integer <= :toValue',
+                {
+                  commonTrait: `%${attr}%%`,
+                  fromValue: params.attr_gte[attr],
+                  toValue: params.attr_lte[attr],
+                },
+              );
+            }),
+          );
+        });
+      }
+      if (fromArr) {
+        fromArr.map((attr) => {
+          return query.andWhere(
+            new Brackets((b) => {
+              b.andWhere(
+                'attributes.trait ILIKE :fromTrait AND attributes.value::integer >= :from',
+                {
+                  fromTrait: `%${attr}%%`,
+                  from: params.attr_gte[attr],
+                },
+              );
+            }),
+          );
+        });
+      }
+      if (toArr) {
+        toArr.map((attr) => {
+          return query.andWhere(
+            new Brackets((b) => {
+              b.andWhere('attributes.trait ILIKE :toTrait AND attributes.value::integer <= :to', {
+                toTrait: `%${attr}%%`,
+                to: params.attr_lte[attr],
+              });
+            }),
+          );
+        });
+      }
+    }
     return query;
+  }
+
+  private async findSlugDuplicate(id: string = null): Promise<string> {
+    const assets = await Asset.find({
+      where: { slug: Like(`%${this.name}%`), isDeleted: false, deletedAt: null },
+    });
+    const asset = assets.find((el) => el.id === id);
+    if (asset) {
+      return asset.name !== this.name ? `${this.name}-${Date.now()}` : asset.slug;
+    } else {
+      return this.name;
+    }
   }
 
   public constructor(partial: Partial<Asset>) {

@@ -8,7 +8,7 @@ import { v4 } from 'uuid';
 import { Partner } from 'modules/partners/entities';
 import { createPartner } from '../utils/partner.utils';
 import { User } from 'modules/users/user.entity';
-import { createUser } from '../utils/fixtures/create-user';
+import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { createImageMedia } from '../utils/media.utils';
 import { MediaTransformer } from 'modules/assets/transformers/media.transformer';
@@ -35,7 +35,7 @@ describe('AssetsController', () => {
     asset = await createAsset({
       refId: '1',
       name: 'Egg',
-      slug: 'egg',
+      slug: `egg-${Date.now()}`,
       description: 'test-egg',
       partner,
     });
@@ -92,16 +92,16 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should 400 exception id is invalid', () => {
+    it('should 404 exception id is invalid', () => {
       return request(app.getHttpServer())
         .get(`/v1/assets/123`)
         .send()
-        .expect(400)
+        .expect(404)
         .expect(({ body }) => {
           expect(body).toEqual({
-            error: 'Bad Request',
-            message: ['id must be a UUID'],
-            statusCode: 400,
+            error: 'Not Found',
+            message: 'ASSET_NOT_FOUND',
+            statusCode: 404,
           });
         });
     });

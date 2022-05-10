@@ -17,9 +17,10 @@ import { CollectionDto } from '../dto/collection.dto';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
 import { generateSwaggerPaginatedSchema } from 'modules/common/helpers/generate-swagger-paginated-schema';
 import { CollectionResponse } from '../interfaces/responses/collection.response';
-import { CollectionIdDto, ListCollectionsDto } from '../dto';
+import { CollectionIdDto, CollectionIdOrSlugDto, ListCollectionsDto } from '../dto';
 import { CollectionsTransformer } from '../transformers/collections.transformer';
 import { UpdateCollectionDto } from '../dto/update-collection.dto';
+import { validate as isValidUUID } from 'uuid';
 
 @ApiTags('collections')
 @Controller({
@@ -46,17 +47,21 @@ export class CollectionsController {
     return this.collectionsTransformer.transformPaginated(list);
   }
 
-  @Get(':id')
+  @Get(':collectionParams')
   @ApiOperation({ summary: 'Returns single collection' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'A collection',
     type: CollectionResponse,
   })
-  public async getOne(@Param() params: CollectionIdDto): Promise<CollectionResponse> {
-    const collection = await this.collectionsService.getOne(params.id);
-
-    return this.collectionsTransformer.transform(collection);
+  public async getOne(@Param() params: CollectionIdOrSlugDto): Promise<CollectionResponse> {
+    let asset;
+    if (isValidUUID(params.collectionParams)) {
+      asset = await this.collectionsService.getOne({ id: params.collectionParams, slug: null });
+    } else {
+      asset = await this.collectionsService.getOne({ id: null, slug: params.collectionParams });
+    }
+    return this.collectionsTransformer.transform(asset);
   }
 
   @Post()

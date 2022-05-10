@@ -13,6 +13,7 @@ import { File } from 'modules/storage/entities/file.entity';
 import { S3Provider } from 'modules/storage/providers/s3.provider';
 import { FileDownloadService } from 'modules/storage/file-download.service';
 import { Collection, CollectionAsset } from 'modules/collections/entities';
+import { Watchlist, WatchlistAsset } from 'modules/watchlists/entities';
 
 let app: INestApplication;
 
@@ -72,6 +73,8 @@ export const clearAllData = async (): Promise<void> => {
   await Event.delete({});
   await Media.delete({});
   await Token.delete({});
+  await WatchlistAsset.delete({});
+  await Watchlist.delete({});
   await Asset.delete({});
   await Contract.delete({});
   await PartnerMemberUser.delete({});
