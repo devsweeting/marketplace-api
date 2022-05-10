@@ -17,7 +17,7 @@ export class TokensController {
     private readonly tokensTransformer: TokensTransformer,
   ) {}
 
-  @Get('meta/:contractAddress/:tokenId.:ext?')
+  @Get('meta/:contractAddress/:tokenId')
   @ApiOperation({ summary: 'Returns meta single token for address' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -27,7 +27,7 @@ export class TokensController {
   public async getTokenMeta(@Param() params: TokenDto): Promise<string | TokenMetaResponse> {
     const token = await this.tokensService.getToken(params);
     const res = this.tokensTransformer.transformMeta(token);
-    return params.ext === 'json' ? JSON.stringify(res) : res;
+    return params.tokenId.split('.').pop() === 'json' ? JSON.stringify(res) : res;
   }
 
   @Get(':contractAddress/:tokenId')

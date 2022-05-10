@@ -31,6 +31,10 @@ import { PaginatedResponse } from 'modules/common/dto/paginated.response';
 import { generateSwaggerPaginatedSchema } from 'modules/common/helpers/generate-swagger-paginated-schema';
 import { AssetIdDto } from 'modules/assets/dto/asset-id.dto';
 import { UpdateAssetDto } from 'modules/assets/dto/update-asset.dto';
+import { MediaDto } from '../dto/media/media.dto';
+import { MediaResponse } from '../interfaces/response/media/media.response';
+import { MediaService } from '../services/media.service';
+import { MediaTransformer } from '../transformers/media.transformer';
 
 @ApiTags('assets')
 @Controller({
@@ -41,6 +45,8 @@ export class AssetsController {
   constructor(
     private readonly assetsService: AssetsService,
     private readonly assetsTransformer: AssetsTransformer,
+    private readonly mediaService: MediaService,
+    private readonly mediaTransformer: MediaTransformer,
   ) {}
 
   @Get()
@@ -128,5 +134,24 @@ export class AssetsController {
       status: 201,
       description: 'Transfer request accepted, processing.',
     };
+  }
+
+  @Post(':id/media')
+  @ApiBasicAuth('api-key')
+  @UseGuards(AuthGuard('headerapikey'))
+  @ApiOperation({ summary: 'Create a media' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Media created',
+  })
+  @HttpCode(HttpStatus.CREATED)
+  public async create(
+    @GetPartner() partner: Partner,
+    @Param() params: AssetIdDto,
+    @Body() dto: MediaDto,
+  ): Promise<MediaResponse> {
+    const media = await this.mediaService.createMedia(partner, params.id, dto);
+
+    return this.mediaTransformer.transform(media);
   }
 }

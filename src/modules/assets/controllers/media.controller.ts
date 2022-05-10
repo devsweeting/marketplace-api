@@ -6,7 +6,6 @@ import {
   HttpStatus,
   Param,
   Patch,
-  Post,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -19,18 +18,16 @@ import {
 } from '@nestjs/swagger';
 import { GetPartner } from 'modules/auth/decorators/get-partner.decorator';
 import { Partner } from 'modules/partners/entities';
-import { AssetIdDto } from '../dto/media/asset-id.dto';
 import { MediaIdDto } from '../dto/media/media-id.dto';
-import { MediaDto } from '../dto/media/media.dto';
 import { UpdateMediaDto } from '../dto/media/update-media.dto';
 import { MediaResponse } from '../interfaces/response/media/media.response';
-
 import { MediaService } from '../services/media.service';
 import { MediaTransformer } from '../transformers/media.transformer';
 
 @ApiTags('media')
 @Controller({
   version: '1',
+  path: 'media',
 })
 export class MediaController {
   constructor(
@@ -38,26 +35,7 @@ export class MediaController {
     private readonly mediaTransformer: MediaTransformer,
   ) {}
 
-  @Post('assets/:assetId/media')
-  @ApiBasicAuth('api-key')
-  @UseGuards(AuthGuard('headerapikey'))
-  @ApiOperation({ summary: 'Create a media' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Media created',
-  })
-  @HttpCode(HttpStatus.CREATED)
-  public async create(
-    @GetPartner() partner: Partner,
-    @Param() params: AssetIdDto,
-    @Body() dto: MediaDto,
-  ): Promise<MediaResponse> {
-    const media = await this.mediaService.createMedia(partner, params.assetId, dto);
-
-    return this.mediaTransformer.transform(media);
-  }
-
-  @Patch('media/:id')
+  @Patch(':id')
   @ApiBasicAuth('api-key')
   @UseGuards(AuthGuard('headerapikey'))
   @ApiOperation({ summary: 'Update a media' })
@@ -79,7 +57,7 @@ export class MediaController {
     return this.mediaTransformer.transform(media);
   }
 
-  @Delete('media/:id')
+  @Delete(':id')
   @ApiBasicAuth('api-key')
   @UseGuards(AuthGuard('headerapikey'))
   @ApiOperation({ summary: 'Delete a media' })

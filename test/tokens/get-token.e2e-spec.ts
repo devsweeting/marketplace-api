@@ -113,7 +113,7 @@ describe('TokensController', () => {
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Bad Request',
-            message: ['tokenId must be a UUID'],
+            message: 'MUST_BE_UUID',
             statusCode: 400,
           });
         });
