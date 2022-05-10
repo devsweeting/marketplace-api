@@ -134,10 +134,7 @@ describe('MediaController', () => {
           expect(media.description).toEqual(dto.description);
 
           expect(mockFileDownloadService.download).toHaveBeenCalledWith(dto.url);
-          expect(mockS3Provider.upload).toHaveBeenCalledWith(
-            mockTmpFilePath,
-            `assets/media/${asset.id}`,
-          );
+          expect(mockS3Provider.upload).toHaveBeenCalledWith(mockTmpFilePath, `assets/${asset.id}`);
         });
     });
 

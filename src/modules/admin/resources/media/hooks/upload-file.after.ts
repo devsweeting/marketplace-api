@@ -1,7 +1,7 @@
 import { StorageService } from 'modules/storage/storage.service';
 import { ServiceAccessor } from 'modules/admin/utils/service.accessor';
 
-import { Asset } from 'modules/assets/entities';
+import { Media } from 'modules/assets/entities';
 
 const uploadFile =
   (uploadProperty, storagePath: string, serviceAccessor: ServiceAccessor) =>
@@ -11,23 +11,19 @@ const uploadFile =
     const { record } = context;
     const file = request.payload[uploadProperty];
 
-    if (!record.isValid()) {
+    if (!record.isValid() || !file || file.id) {
       return response;
     }
 
-    if (!file) {
-      const asset: Asset = await Asset.findOne(record.params.id);
-      Object.assign(asset, { imageId: null });
-      await asset.save();
-      return response;
-    }
     const storageService = serviceAccessor.getService(StorageService);
 
     const image = await storageService.uploadAndSave(`${storagePath}/${record.id()}/`, file);
+    const media: Media = await Media.findOne(record.params.id);
 
-    const asset: Asset = await Asset.findOne(record.params.id);
-    Object.assign(asset, { imageId: image.id });
-    await asset.save();
+    const data = {};
+    data[`${uploadProperty}Id`] = image.id;
+    Object.assign(media, data);
+    await media.save();
 
     return response;
   };

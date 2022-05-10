@@ -152,10 +152,7 @@ describe('AssetsController', () => {
           expect(mockFileDownloadService.download).toHaveBeenCalledWith(
             transferRequest.assets[0].media[0].url,
           );
-          expect(mockS3Provider.upload).toHaveBeenCalledWith(
-            mockTmpFilePath,
-            `assets/media/${asset.id}`,
-          );
+          expect(mockS3Provider.upload).toHaveBeenCalledWith(mockTmpFilePath, `assets/${asset.id}`);
         });
     });
 

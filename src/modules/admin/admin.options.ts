@@ -57,7 +57,7 @@ export const getAdminJSOptions = (serviceAccessor: ServiceAccessor): AdminJSOpti
       createEventResource(),
       createCollectionResource(serviceAccessor),
       createTokenResource(),
-      createMediaResource(),
+      createMediaResource(serviceAccessor),
       merge(createLoggerResource({ resource: Log, featureOptions: loggerConfig }), {
         options: {
           navigation: adminUtilitiesNavigation,

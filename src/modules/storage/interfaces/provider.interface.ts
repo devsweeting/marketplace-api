@@ -6,4 +6,6 @@ export interface ProviderInterface {
   upload(filePath: string, directory: string): Promise<UploadResponseDto>;
   uploadFromAdmin(path: string, file: UploadedFile): Promise<UploadResponseDto>;
   getUrl(file: File): string;
+
+  ensureBucket(): void;
 }

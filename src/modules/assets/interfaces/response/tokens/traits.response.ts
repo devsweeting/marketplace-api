@@ -10,7 +10,6 @@ export class TraitsResponse {
   @ApiProperty({ example: '1' })
   public value: string;
 
-  //TODO
-  // @ApiProperty({ example: '1' })
-  // public maxValue: string;
+  @ApiProperty({ example: '1' })
+  public maxValue: string;
 }

@@ -180,10 +180,7 @@ describe('MediaController', () => {
           expect(media.url).toEqual(dto.url);
 
           expect(mockFileDownloadService.download).toHaveBeenCalledWith(dto.url);
-          expect(mockS3Provider.upload).toHaveBeenCalledWith(
-            mockTmpFilePath,
-            `assets/media/${asset.id}`,
-          );
+          expect(mockS3Provider.upload).toHaveBeenCalledWith(mockTmpFilePath, `assets/${asset.id}`);
         });
     });
     it('should update file to null if type is youtube', () => {

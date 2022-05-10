@@ -47,6 +47,7 @@ export class TokensTransformer {
       trait: attribute.trait,
       display: attribute.display,
       value: attribute.value,
+      maxValue: attribute.maxValue,
     };
   }
 

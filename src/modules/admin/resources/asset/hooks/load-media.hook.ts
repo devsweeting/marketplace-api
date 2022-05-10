@@ -1,38 +1,40 @@
 import { ActionRequest, flat, RecordActionResponse } from 'adminjs';
+import { Media } from 'modules/assets/entities';
 import { isGETMethod } from 'modules/admin/admin.utils';
-import { StorageService } from 'modules/storage/storage.service';
-import { File } from 'modules/storage/entities/file.entity';
 import { ServiceAccessor } from 'modules/admin/utils/service.accessor';
+import { StorageService } from 'modules/storage/storage.service';
 
-const getFile = async (serviceAccessor: ServiceAccessor, property: string, record) => {
+const getMedia = async (serviceAccessor: ServiceAccessor, record) => {
   const storageService = serviceAccessor.getService(StorageService);
   const params = flat.unflatten(record.params);
-  if (params[`${property}Id`]) {
-    params[property] = await File.findOne(params[`${property}Id`]);
-
-    if (params[property]) {
-      params[property].path = storageService.getUrl(params[property]);
+  params.assetMedia = await Media.find({
+    where: { assetId: params.id, isDeleted: false, deletedAt: null },
+    relations: ['file'],
+  });
+  params.assetMedia.map((el) => {
+    if (el.file) {
+      el.file.path = storageService.getUrl(el.file);
     }
-  }
+    return el;
+  });
   record.params = flat.flatten(params);
   return record;
 };
 
-export const getImage =
-  (serviceAccessor: ServiceAccessor, property: string) =>
+export const loadMedia =
+  (serviceAccessor: ServiceAccessor) =>
   async (response: RecordActionResponse, request: ActionRequest): Promise<RecordActionResponse> => {
     if (!isGETMethod(request)) {
       return response;
     }
-
     if (response.records) {
       await Promise.all(
         response.records.map(async (record) => {
-          return await getFile(serviceAccessor, property, record);
+          return await getMedia(serviceAccessor, record);
         }),
       );
     } else {
-      await getFile(serviceAccessor, property, response.record);
+      await getMedia(serviceAccessor, response.record);
     }
 
     return response;

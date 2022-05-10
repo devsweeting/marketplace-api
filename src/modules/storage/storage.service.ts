@@ -14,6 +14,13 @@ export class StorageService {
     private readonly fileDownloadService: FileDownloadService,
   ) {}
 
+  public onModuleInit() {
+    if (process.env.NODE_ENV === 'DEVELOP' || process.env.NODE_ENV === 'TEST') {
+      this.provider.ensureBucket();
+      console.log(`S3 buckets have been initialized.`);
+    }
+  }
+
   public async uploadFromUrl(url: string, directory: string): Promise<File> {
     const path = await this.fileDownloadService.download(url);
     const object = await this.provider.upload(path, directory);
