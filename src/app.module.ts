@@ -16,8 +16,6 @@ import { StorageModule } from 'modules/storage/storage.module';
 import { CollectionsModule } from './modules/collections/collections.module';
 import { HealthModule } from './modules/health/health.module';
 
-import { LoggerModule as PinoLogger } from 'nestjs-pino';
-import { DatadogTraceModule } from 'nestjs-ddtrace';
 import { WatchlistsModule } from './modules/watchlists/watchlists.module';
 
 const modules = [];
@@ -53,12 +51,6 @@ if (process.env.NODE_ENV === 'STAGING' || process.env.NODE_ENV === 'PRODUCTION')
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       load: Object.values(require('./config')),
     }),
-    PinoLogger.forRoot({
-      pinoHttp: {
-        level: process.env.ENV !== 'prod' ? 'trace' : 'info',
-      },
-    }),
-    DatadogTraceModule.forRoot(),
     AuthModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
