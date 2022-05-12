@@ -10,6 +10,7 @@
 # compiled output
 /dist
 /node_modules
+/.parcel-cache
 
 # Logs
 logs
@@ -59,3 +60,5 @@ google_key.json
 
 # Admin
 .adminjs
+
+.localstack

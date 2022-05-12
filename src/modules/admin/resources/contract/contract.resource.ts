@@ -6,14 +6,18 @@ import softDeleteHandler from 'modules/admin/hooks/soft-delete.handler';
 import bulkSoftDeleteHandler from 'modules/admin/hooks/bulk-soft-delete.handler';
 import { filterByIsDeleted } from 'modules/admin/hooks/filter-is-deleted-records';
 import { marketNavigation } from 'modules/admin/admin.navigation';
+import loggerFeature from '@adminjs/logger';
+
+import loggerConfig from '@/src/config/logger.config';
 
 const createContractResource = (): CreateResourceResult<typeof Contract> => ({
   resource: Contract,
   features: [
     (options): object => ({
       ...options,
-      listProperties: ['address', 'name', 'symbol', 'externalLink'],
+      listProperties: ['address', 'name', 'symbol', 'chain', 'externalLink'],
     }),
+    loggerFeature(loggerConfig),
   ],
   options: {
     navigation: marketNavigation,

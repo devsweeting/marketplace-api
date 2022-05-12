@@ -1,6 +1,6 @@
 import React from 'react';
 import { BasePropertyProps, flat } from 'adminjs';
-import { Label, Box } from '@adminjs/design-system';
+import { Box, Label } from '@adminjs/design-system';
 import PhotoImgComponent from './photo-img';
 
 const PhotoProperty: React.FC<BasePropertyProps> = ({ property, record, where }) => {

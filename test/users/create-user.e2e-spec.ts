@@ -2,9 +2,9 @@ import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { createApp } from '@/test/utils/app.utils';
 import { User } from '@/src/modules/users/user.entity';
-import { createUser } from '../utils/fixtures/create-user';
+import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
-import { generateToken } from '../utils/jwt.utils';
+import { generateNonce, generateToken } from '../utils/jwt.utils';
 
 describe('UsersController', () => {
   let app: INestApplication;
@@ -19,9 +19,9 @@ describe('UsersController', () => {
     await app.close();
   });
 
-  describe(`POST /users`, () => {
+  describe(`POST V1 /users`, () => {
     beforeEach(async () => {
-      admin = await createUser({ role: RoleEnum.SUPER_ADMIN });
+      admin = await createUser({ role: RoleEnum.SUPER_ADMIN, nonce: generateNonce() });
     });
 
     it('should create a new user record in the db', () => {
@@ -31,7 +31,7 @@ describe('UsersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/users`)
+        .post(`/v1/users`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
         .expect(201);
@@ -41,7 +41,7 @@ describe('UsersController', () => {
       const userRequest: any = {};
 
       return request(app.getHttpServer())
-        .post(`/users`)
+        .post(`/v1/users`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
         .expect(400)
@@ -65,7 +65,7 @@ describe('UsersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/users`)
+        .post(`/v1/users`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
         .expect(400)
@@ -82,7 +82,7 @@ describe('UsersController', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/users`)
+        .post(`/v1/users`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
         .expect(400)

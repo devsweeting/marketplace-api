@@ -7,6 +7,10 @@ export default registerAs('aws', () => {
       secretKey: process.env.AWS_SECRET_KEY,
       s3Bucket: process.env.AWS_S3_BUCKET,
       region: process.env.AWS_REGION,
+      cloudFrontDomain: process.env.CLOUDFRONT_DOMAIN,
+      endpoint: process.env.AWS_ENDPOINT,
+      s3ForcePathStyle:
+        process.env.NODE_ENV === 'DEVELOP' || process.env.NODE_ENV === 'TEST' ? true : false,
     },
   };
 });

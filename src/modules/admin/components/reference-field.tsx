@@ -13,6 +13,7 @@ const SingleReferenceEdit = (props) => {
     searchProperty = 'name',
     resourceId = property.reference,
     excludeOptions,
+    searchExclude,
     searchAction = 'list',
   } = custom;
 
@@ -22,7 +23,7 @@ const SingleReferenceEdit = (props) => {
     );
   }
 
-  const isMulti = property.isArray;
+  const isMulti = property.isArray || property.custom.isArray;
   const selectedRaw = flat.get(record.params, property.path);
   const selectedIds = Array.isArray(selectedRaw) ? selectedRaw : [selectedRaw].filter(Boolean);
 
@@ -35,6 +36,7 @@ const SingleReferenceEdit = (props) => {
     selectedIds,
     currentResource: resource.id,
     searchAction,
+    searchExclude,
   });
 
   const handleChange = (type) => {

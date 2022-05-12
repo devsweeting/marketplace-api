@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MailService } from './mail.service';
-import { MailerModule } from '@nestjs-modules/mailer';
+import { MailerModule, MailerOptions } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
 import { getMailerTransport } from './mail.options';
 
@@ -8,7 +8,7 @@ import { getMailerTransport } from './mail.options';
   imports: [
     MailerModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService): Promise<any> =>
+      useFactory: async (configService: ConfigService): Promise<MailerOptions> =>
         getMailerTransport(configService),
     }),
   ],

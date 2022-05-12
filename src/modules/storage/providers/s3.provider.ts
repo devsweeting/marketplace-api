@@ -7,7 +7,7 @@ import mime from 'mime-types';
 import { StorageEnum } from 'modules/storage/enums/storage.enum';
 import { UploadResponseDto } from 'modules/storage/dto/upload-response.dto';
 import { AwsUploadResponseInterface } from 'modules/storage/interfaces/aws-upload-response.interface';
-import { File } from 'modules/storage/file.entity';
+import { File } from 'modules/storage/entities/file.entity';
 import { ProviderInterface } from 'modules/storage/interfaces/provider.interface';
 
 @Injectable()
@@ -16,12 +16,12 @@ export class S3Provider implements ProviderInterface {
 
   public async upload(filePath: string, directory: string): Promise<UploadResponseDto> {
     const stats = fs.statSync(filePath);
-    const key =
-      directory
-        .split('/')
-        .filter((d) => !!d)
-        .join('/') + path.basename(filePath);
-
+    // const key =
+    //   directory
+    //     .split('/')
+    //     .filter((d) => !!d)
+    //     .join('/') + path.basename(filePath);
+    const key = [...directory.split('/').filter((l) => !!l), path.basename(filePath)].join('/');
     const response = await this.s3Upload(filePath, key);
 
     return {
@@ -48,11 +48,19 @@ export class S3Provider implements ProviderInterface {
   }
 
   public getUrl(file: File): string {
-    return this.getS3().getSignedUrl('getObject', {
-      Key: file.path,
-      Bucket: this.configService.get('aws.default.s3Bucket'),
-      Expires: 30,
-    });
+    return `${this.configService.get('aws.default.cloudFrontDomain')}/${file.path}`;
+  }
+
+  public async ensureBucket() {
+    const s3 = await this.getS3();
+    const bucket: string = this.configService.get('aws.default.s3Bucket');
+    const foo = await s3.listBuckets().promise();
+    if (!foo.Buckets.map((b) => b.Name).includes(bucket)) {
+      const params = {
+        Bucket: bucket,
+      };
+      await s3.createBucket(params).promise();
+    }
   }
 
   private async s3Upload(filePath: string, key: string): Promise<AwsUploadResponseInterface> {
@@ -74,6 +82,8 @@ export class S3Provider implements ProviderInterface {
       region: this.configService.get('aws.default.region'),
       accessKeyId: this.configService.get('aws.default.accessKey'),
       secretAccessKey: this.configService.get('aws.default.secretKey'),
+      endpoint: this.configService.get('aws.default.endpoint'),
+      s3ForcePathStyle: this.configService.get('aws.default.s3ForcePathStyle'),
     });
   }
 }

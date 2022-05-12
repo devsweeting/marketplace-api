@@ -9,31 +9,37 @@ import {
 import { createPartner } from '@/test/utils/partner.utils';
 import { createAsset } from '@/test/utils/asset.utils';
 import { Partner } from 'modules/partners/entities';
-import { Asset, Attribute } from 'modules/assets/entities';
+import { Asset, Attribute, Media } from 'modules/assets/entities';
 import { v4 } from 'uuid';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
 import { generateSlug } from 'modules/common/helpers/slug.helper';
 import { createAttribute } from '@/test/utils/attribute.utils';
-import { MarketplaceEnum } from 'modules/assets/enums/marketplace.enum';
-import { AuctionTypeEnum } from 'modules/assets/enums/auction-type.enum';
 import { StorageEnum } from 'modules/storage/enums/storage.enum';
+import { User } from 'modules/users/user.entity';
+import { RoleEnum } from 'modules/users/enums/role.enum';
+import { createUser } from '../utils/create-user';
+import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
 
 describe('AssetsController', () => {
   let app: INestApplication;
   let partner: Partner;
+  let user: User;
   let asset: Asset;
   let assetTransformer: AssetsTransformer;
 
   beforeAll(async () => {
     app = await createApp();
+    user = await createUser({ email: 'partner@test.com', role: RoleEnum.USER });
     partner = await createPartner({
       apiKey: 'test-api-key',
+      accountOwner: user,
     });
     asset = await createAsset({ partner });
     assetTransformer = app.get(AssetsTransformer);
   });
 
   afterEach(async () => {
+    await Media.delete({});
     jest.clearAllMocks();
   });
 
@@ -41,14 +47,14 @@ describe('AssetsController', () => {
     await clearAllData();
   });
 
-  describe(`PATCH /assets/:id`, () => {
+  describe(`PATCH V1 /assets/:id`, () => {
     it('should throw 401 exception if auth token is missing', () => {
-      return request(app.getHttpServer()).patch(`/assets/${asset.id}`).send({}).expect(401);
+      return request(app.getHttpServer()).patch(`/v1/assets/${asset.id}`).send({}).expect(401);
     });
 
     it('should throw 401 exception if token is invalid', () => {
       return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
+        .patch(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': 'invalid key',
         })
@@ -58,7 +64,7 @@ describe('AssetsController', () => {
 
     it('should throw 404 exception if asset does not exist', async () => {
       return request(app.getHttpServer())
-        .patch(`/assets/${v4()}`)
+        .patch(`/v1/assets/${v4()}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -67,13 +73,15 @@ describe('AssetsController', () => {
     });
 
     it('should throw 404 exception if assets belongs to another partner', async () => {
+      const anotherUser = await createUser({});
       const anotherPartner = await createPartner({
         apiKey: 'another-api-key',
+        accountOwner: anotherUser,
       });
       const anotherAsset = await createAsset({ partner: anotherPartner });
 
       return request(app.getHttpServer())
-        .patch(`/assets/${anotherAsset.id}`)
+        .patch(`/v1/assets/${anotherAsset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -87,7 +95,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
+        .patch(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -112,7 +120,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
+        .patch(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -136,7 +144,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
+        .patch(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -151,9 +159,16 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should update image', async () => {
+    it('should update media', async () => {
       const payload = {
-        image: 'https://cdn.pixabay.com/photo/2012/04/11/17/53/approved-29149_960_720.png',
+        media: [
+          {
+            title: 'UPDATED',
+            description: 'description',
+            url: 'https://example.com/image.png',
+            type: MediaTypeEnum.Image,
+          },
+        ],
       };
       mockS3Provider.upload.mockReturnValue({
         id: v4(),
@@ -167,55 +182,24 @@ describe('AssetsController', () => {
       mockFileDownloadService.download.mockReturnValue('downloaded-path');
 
       return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
+        .patch(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
         .send(payload)
         .expect(200)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            ...assetTransformer.transform(asset),
-            image: 'mocked-url',
-            updatedAt: expect.any(String),
-          });
-        })
         .then(async () => {
           const updatedAsset = await Asset.findOne({
             where: { id: asset.id },
-            relations: ['image'],
+            relations: ['media', 'media.file'],
           });
-          expect(updatedAsset.image).toBeDefined();
-          expect(updatedAsset.image.path).toEqual('test/example.jpeg');
+          expect(updatedAsset.media[0]).toBeDefined();
+          expect(updatedAsset.media[0].title).toEqual(payload.media[0].title);
+          expect(updatedAsset.media[0].file.path).toEqual('test/example.jpeg');
           expect(mockS3Provider.upload).toHaveBeenCalledWith(
             'downloaded-path',
-            `images/assets/${updatedAsset.id}`,
+            `assets/${updatedAsset.id}`,
           );
-        });
-    });
-
-    it('should update externalUrl', async () => {
-      const payload = {
-        externalUrl: 'https://cdn.pixabay.com/photo/2012/04/11/17/53/approved-29149_960_720.png',
-      };
-
-      return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(payload)
-        .expect(200)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            ...assetTransformer.transform(asset),
-            externalUrl: payload.externalUrl,
-            updatedAt: expect.any(String),
-          });
-        })
-        .then(async () => {
-          await asset.reload();
-          expect(asset.externalUrl).toEqual(payload.externalUrl);
         });
     });
 
@@ -225,7 +209,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
+        .patch(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -256,7 +240,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
+        .patch(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -277,7 +261,7 @@ describe('AssetsController', () => {
       };
 
       return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
+        .patch(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -296,44 +280,12 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should update listing properties', async () => {
-      const payload = {
-        listing: {
-          marketplace: MarketplaceEnum.OpenSea,
-          auctionType: AuctionTypeEnum.FixedPrice,
-        },
-      };
-
-      return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(payload)
-        .expect(200)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            ...assetTransformer.transform(asset),
-            listing: {
-              marketplace: MarketplaceEnum.OpenSea,
-              auctionType: AuctionTypeEnum.FixedPrice,
-            },
-            updatedAt: expect.any(String),
-          });
-        })
-        .then(async () => {
-          await asset.reload();
-          expect(asset.marketplace).toEqual(payload.listing.marketplace);
-          expect(asset.auctionType).toEqual(payload.listing.auctionType);
-        });
-    });
-
     it('should not remove attributes', async () => {
       const payload = {};
       const attribute = await createAttribute({ asset });
 
       return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
+        .patch(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -358,7 +310,7 @@ describe('AssetsController', () => {
       const attribute = await createAttribute({ asset });
 
       return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
+        .patch(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
@@ -389,7 +341,7 @@ describe('AssetsController', () => {
       const attribute = await createAttribute({ asset });
 
       return request(app.getHttpServer())
-        .patch(`/assets/${asset.id}`)
+        .patch(`/v1/assets/${asset.id}`)
         .set({
           'x-api-key': partner.apiKey,
         })
