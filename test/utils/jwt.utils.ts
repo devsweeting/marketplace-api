@@ -1,5 +1,5 @@
 import { JwtService } from '@nestjs/jwt';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 
 const jwtService = new JwtService({
   privateKey: process.env.JWT_SECRET,

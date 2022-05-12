@@ -3,7 +3,7 @@ import { BaseModel } from 'modules/common/entities/base.model';
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 import { StorageEnum } from 'modules/storage/enums/storage.enum';
 
-@Entity({ name: 'files' })
+@Entity('files')
 export class File extends BaseModel implements BaseEntityInterface {
   @Column()
   public name: string;

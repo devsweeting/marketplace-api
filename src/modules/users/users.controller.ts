@@ -14,7 +14,7 @@ import {
 import { ApiNotFoundResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { UserResponse } from './interfaces/user.interface';
-import { User } from './user.entity';
+import { User } from './entities/user.entity';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { UserTransformer } from './transformers/user.transformer';
 import { LocalAuthGuard } from 'modules/auth/guards/local-auth.guard';

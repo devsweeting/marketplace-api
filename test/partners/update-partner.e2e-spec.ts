@@ -3,7 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { createPartner } from '@/test/utils/partner.utils';
 import { Partner, PartnerMemberUser } from 'modules/partners/entities';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 

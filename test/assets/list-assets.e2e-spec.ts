@@ -9,7 +9,7 @@ import { Partner } from 'modules/partners/entities';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { createUser } from '../utils/create-user';
 import { createPartner } from '../utils/partner.utils';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 import { createAttribute } from '@/test/utils/attribute.utils';
 import { Event } from 'modules/events/entities';
 import { createImageMedia, createVideoMedia } from '../utils/media.utils';
