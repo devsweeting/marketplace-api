@@ -479,6 +479,123 @@ describe('AssetsController', () => {
         });
     });
 
+    it('should filter by attr_eq and attr_gte, return 2 records', async () => {
+      await Event.delete({});
+      await Asset.delete({});
+      assets = [
+        await createAsset({
+          refId: '1',
+          name: 'Orange 1',
+          description: 'test-orange',
+          partner,
+        }),
+        await createAsset({
+          refId: '2',
+          name: 'Orange 2',
+          description: 'test-orange',
+          partner,
+        }),
+      ];
+      const attributes = [
+        await createAttribute({
+          trait: 'category',
+          value: 'test',
+          assetId: assets[0].id,
+        }),
+        await createAttribute({
+          trait: 'year',
+          value: '2019',
+          assetId: assets[1].id,
+        }),
+        await createAttribute({
+          trait: 'category',
+          value: 'test',
+          assetId: assets[1].id,
+        }),
+      ];
+      const params = new URLSearchParams({
+        'attr_eq[category]': 'test',
+        'attr_gte[year]': '2019',
+      });
+      const result = [
+        Object.assign(assets[1], { attributes: [attributes[1], attributes[2]] }),
+        Object.assign(assets[0], { attributes: [attributes[0]] }),
+      ];
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 2,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: assetsTransformer.transformAll(result),
+          });
+        });
+    });
+
+    it('should filter by attr_eq and attr_gte, return 1 records', async () => {
+      await Event.delete({});
+      await Asset.delete({});
+      assets = [
+        await createAsset({
+          refId: '1',
+          name: 'Orange 1',
+          description: 'test-orange',
+          partner,
+        }),
+        await createAsset({
+          refId: '2',
+          name: 'Orange 2',
+          description: 'test-orange',
+          partner,
+        }),
+      ];
+      const attributes = [
+        await createAttribute({
+          trait: 'category',
+          value: 'another',
+          assetId: assets[0].id,
+        }),
+        await createAttribute({
+          trait: 'year',
+          value: '2019',
+          assetId: assets[1].id,
+        }),
+        await createAttribute({
+          trait: 'category',
+          value: 'test',
+          assetId: assets[1].id,
+        }),
+      ];
+      const params = new URLSearchParams({
+        'attr_eq[category]': 'test',
+        'attr_gte[year]': '2020',
+      });
+      const result = [Object.assign(assets[1], { attributes: [attributes[1], attributes[2]] })];
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 1,
+              itemCount: 1,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: assetsTransformer.transformAll(result),
+          });
+        });
+    });
+
     it('should not found by attribute, return 0 records', async () => {
       const params = new URLSearchParams({
         'attr_eq[category]': 'test',
