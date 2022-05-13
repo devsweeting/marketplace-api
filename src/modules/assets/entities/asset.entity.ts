@@ -183,15 +183,15 @@ export class Asset extends BaseModel implements BaseEntityInterface {
         'attributes.isDeleted = FALSE AND attributes.deletedAt IS NULL',
       );
     }
-    let traitValues;
+
     if (params.attr_eq && Object.keys(params.attr_eq).length) {
+      let traitValues;
       query.andWhere(
         new Brackets((b) => {
           return Object.entries(params.attr_eq).map((attr) => {
             traitValues = Array.isArray(attr[1]) ? attr[1] : [attr[1]];
-
             return b.orWhere(
-              'attributes.trait ILIKE :trait AND LOWER(attributes.value) IN (:...traitValues) ',
+              'attributes.trait ILIKE :trait AND attributes.value IN (:...traitValues) ',
               { trait: `%${attr[0]}%%`, traitValues },
             );
           });
@@ -243,7 +243,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
           if (params.attr_gte[attr] >= params.attr_lte[attr]) {
             throw new AttributeLteMustBeGreaterThanGteException();
           }
-          return query.andWhere(
+          return query.orWhere(
             new Brackets((b) => {
               b.andWhere(
                 'attributes.trait ILIKE :commonTrait AND attributes.value::integer >= :fromValue AND attributes.value::integer <= :toValue',
@@ -259,7 +259,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
       }
       if (fromArr) {
         fromArr.map((attr) => {
-          return query.andWhere(
+          return query.orWhere(
             new Brackets((b) => {
               b.andWhere(
                 'attributes.trait ILIKE :fromTrait AND attributes.value::integer >= :from',
@@ -274,7 +274,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
       }
       if (toArr) {
         toArr.map((attr) => {
-          return query.andWhere(
+          return query.orWhere(
             new Brackets((b) => {
               b.andWhere('attributes.trait ILIKE :toTrait AND attributes.value::integer <= :to', {
                 toTrait: `%${attr}%%`,
