@@ -33,7 +33,7 @@ describe('AssetsController', () => {
       accountOwner: user,
     });
     mockS3Provider.getUrl.mockReturnValue(mockedUrl);
-    mockFileDownloadService.download.mockReturnValue(mockTmpFilePath);
+    mockFileDownloadService.downloadAll.mockReturnValue([mockTmpFilePath]);
     mockS3Provider.upload.mockReturnValue({
       id: v4(),
       name: 'example.jpeg',
@@ -149,9 +149,9 @@ describe('AssetsController', () => {
           expect(asset.attributes[0].display).toEqual(
             transferRequest.assets[0].attributes[0].display,
           );
-          expect(mockFileDownloadService.download).toHaveBeenCalledWith(
-            transferRequest.assets[0].media[0].url,
-          );
+          expect(mockFileDownloadService.downloadAll).toHaveBeenCalledWith([
+            { ...transferRequest.assets[0].media[0] },
+          ]);
           expect(mockS3Provider.upload).toHaveBeenCalledWith(mockTmpFilePath, `assets/${asset.id}`);
         });
     });

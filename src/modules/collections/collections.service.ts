@@ -50,10 +50,9 @@ export class CollectionsService {
     const { banner, ...data } = dto;
 
     if (banner) {
-      collection.banner = await this.storageService.uploadFromUrl(
-        banner,
-        `collections/${collection.id}`,
-      );
+      collection.banner = (
+        await this.storageService.uploadFromUrl([{ url: banner }], `collections/${collection.id}`)
+      )[0];
     }
 
     Object.assign(collection, data);
@@ -85,11 +84,11 @@ export class CollectionsService {
     if (banner) {
       const getCollection = await Collection.findOne(collection.id);
       const collectionBanner = await this.storageService.uploadFromUrl(
-        dto.banner,
+        [{ url: banner }],
         `collections/${collection.id}`,
       );
 
-      Object.assign(getCollection, { bannerId: collectionBanner.id });
+      Object.assign(getCollection, { bannerId: collectionBanner[0].id });
       await getCollection.save();
     }
   }

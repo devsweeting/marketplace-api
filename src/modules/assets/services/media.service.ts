@@ -71,8 +71,7 @@ export class MediaService {
     await newMedia.save();
     if (dto.type === MediaTypeEnum.Image) {
       const getMedia = await this.getMedia(newMedia.id);
-      const file = await this.storageService.uploadFromUrl(dto.url, `assets/${asset.id}`);
-
+      const [file] = await this.storageService.uploadFromUrl([{ ...dto }], `assets/${asset.id}`);
       Object.assign(getMedia, { fileId: file.id });
       return getMedia.save();
     }
@@ -101,7 +100,10 @@ export class MediaService {
 
     const data = { ...dto };
     if (dto.type === MediaTypeEnum.Image && dto.url) {
-      const file = await this.storageService.uploadFromUrl(dto.url, `assets/${media.assetId}`);
+      const [file] = await this.storageService.uploadFromUrl(
+        [{ url: dto.url }],
+        `assets/${media.assetId}`,
+      );
 
       data['fileId'] = file.id;
     }
@@ -123,15 +125,19 @@ export class MediaService {
 
   public async createBulkMedia(assetId: string, data: MediaDto[]): Promise<Media[]> {
     await Media.bulkSoftDelete(assetId);
-    const mediaData = await Promise.all(
-      data.map(async (el, index) => {
-        const file =
-          el.type === MediaTypeEnum.Image
-            ? await this.storageService.uploadFromUrl(el.url, `assets/${assetId}`)
-            : null;
-        return { ...el, sortOrder: index, assetId: assetId, file, fileId: file?.id };
-      }),
-    );
+    const urls = data.filter((el) => el.type === MediaTypeEnum.Image);
+    const files = await this.storageService.uploadFromUrl(urls, `assets/${assetId}`);
+
+    const mediaData = data.map((el, index) => {
+      return {
+        ...el,
+        sortOrder: index,
+        assetId: assetId,
+        file: files[index] ? files[index] : null,
+        fileId: files[index]?.id,
+      };
+    });
+
     await Media.createQueryBuilder('media').insert().into(Media).values(mediaData).execute();
     return Media.find({ where: { assetId, isDeleted: false } });
   }
@@ -169,7 +175,7 @@ export class MediaService {
         } else {
           file =
             el.type === MediaTypeEnum.Image
-              ? await this.storageService.uploadFromUrl(el.url, `assets/${assetId}`)
+              ? await this.storageService.uploadFromUrl([{ url: el.url }], `assets/${assetId}`)
               : null;
         }
         return { ...el, assetId: assetId, file, fileId: file?.id };

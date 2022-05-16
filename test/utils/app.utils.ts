@@ -28,7 +28,7 @@ export const mockS3Provider = {
 };
 
 export const mockFileDownloadService = {
-  download: jest.fn(),
+  downloadAll: jest.fn(),
 };
 
 export const configureTestApp = (
