@@ -1,6 +1,18 @@
 version: '3.7'
 
 services:
+  api:
+    container_name: jump-api
+    build: .
+    env_file: .env
+    ports:
+      - 3001:3001
+    command: /bin/bash -c "/srv/app/entrypoint.sh"
+    depends_on:
+      - db
+      - mailhog
+      - localstack
+
   db:
     container_name: jump-marketplace-database
     image: postgres
