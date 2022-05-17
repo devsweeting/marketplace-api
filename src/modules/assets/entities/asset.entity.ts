@@ -31,6 +31,7 @@ import { AttributeLteMustBeGreaterThanGteException } from '../exceptions/attribu
 import { Media } from './media.entity';
 import { POSTGRES_DUPE_KEY_ERROR } from 'modules/common/constants';
 import { AssetsDuplicatedException } from '../exceptions/assets-duplicated.exception';
+import { decodeHashId } from 'modules/common/helpers/hash-id.helper';
 
 @Entity('partner_assets')
 // This requires two partial indexes because Postgres treats all
@@ -153,10 +154,15 @@ export class Asset extends BaseModel implements BaseEntityInterface {
 
   public static list(params: ListAssetsDto): SelectQueryBuilder<Asset> {
     const query = Asset.createQueryBuilder('asset')
+      .leftJoinAndMapOne('asset.partner', 'asset.partner', 'partner')
       .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
       .andWhere('asset.deletedAt IS NULL')
       .addOrderBy(params.sort, params.order)
-      .addGroupBy('asset.id');
+      .addGroupBy('asset.id, partner.id');
+
+    if (params.partner) {
+      query.andWhere('partner.opaqueId = :opaqueId', { opaqueId: decodeHashId(params.partner) });
+    }
 
     if (params.query) {
       query.andWhere(

@@ -106,6 +106,7 @@ describe('AssetsController', () => {
             ...assetTransformer.transform(asset),
             refId: payload.refId,
             updatedAt: expect.any(String),
+            partner: null,
           });
         })
         .then(async () => {
@@ -130,6 +131,7 @@ describe('AssetsController', () => {
           expect(body).toEqual({
             ...assetTransformer.transform(asset),
             updatedAt: expect.any(String),
+            partner: null,
           });
         });
     });
@@ -221,6 +223,7 @@ describe('AssetsController', () => {
             name: payload.name,
             slug: generateSlug(payload.name),
             updatedAt: expect.any(String),
+            partner: null,
           });
         })
         .then(async () => {
@@ -272,6 +275,7 @@ describe('AssetsController', () => {
             ...assetTransformer.transform(asset),
             description: payload.description,
             updatedAt: expect.any(String),
+            partner: null,
           });
         })
         .then(async () => {
@@ -295,6 +299,7 @@ describe('AssetsController', () => {
           expect(body).toEqual({
             ...assetTransformer.transform(asset),
             updatedAt: expect.any(String),
+            partner: null,
           });
         })
         .then(async () => {
@@ -320,6 +325,7 @@ describe('AssetsController', () => {
           expect(body).toEqual({
             ...assetTransformer.transform(asset),
             updatedAt: expect.any(String),
+            partner: null,
           });
         })
         .then(async () => {
@@ -351,6 +357,7 @@ describe('AssetsController', () => {
           expect(body).toEqual({
             ...assetTransformer.transform(asset),
             updatedAt: expect.any(String),
+            partner: null,
           });
         })
         .then(async () => {

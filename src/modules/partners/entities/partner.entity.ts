@@ -2,6 +2,7 @@ import {
   BeforeInsert,
   Column,
   Entity,
+  Generated,
   Index,
   JoinColumn,
   ManyToOne,
@@ -17,6 +18,7 @@ import { User } from 'modules/users/user.entity';
 import { PartnerMemberUser } from './partners-members-users';
 import { Token } from 'modules/assets/entities/token.entity';
 import { File } from 'modules/storage/entities/file.entity';
+
 @Entity('partners')
 export class Partner extends BaseModel implements BaseEntityInterface {
   @Index()
@@ -72,6 +74,10 @@ export class Partner extends BaseModel implements BaseEntityInterface {
   @Column({ type: 'string', nullable: true })
   @RelationId((partner: Partner) => partner.avatar)
   public avatarId?: string;
+
+  @Generated('increment')
+  @Column({ type: 'smallint', nullable: false })
+  public opaqueId: number;
 
   @BeforeInsert()
   public beforeInsert(): void {
