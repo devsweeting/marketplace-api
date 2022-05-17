@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { v4 } from 'uuid';
 import os from 'os';
 import path from 'path';
@@ -43,7 +43,9 @@ export class FileDownloadService {
       .then((res) => {
         return res;
       })
-      .catch((error) => console.log(error));
+      .catch((error) => {
+        throw new HttpException(`Error: ${error}`, HttpStatus.BAD_REQUEST);
+      });
     return r;
   }
 }

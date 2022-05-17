@@ -156,6 +156,248 @@ describe('AssetsController', () => {
         });
     });
 
+    it('should create a new asset transfer object in the db with multiple assets', () => {
+      mockFileDownloadService.downloadAll.mockReturnValue([mockTmpFilePath, mockTmpFilePath]);
+      const media = [
+        {
+          title: 'test',
+          description: 'description',
+          url: 'https://example.com/image.png',
+          type: MediaTypeEnum.Image,
+        },
+        {
+          title: 'test',
+          description: 'description',
+          url: 'https://example.com/image2.png',
+          type: MediaTypeEnum.Image,
+        },
+      ];
+      const transferRequest: any = {
+        user: {
+          refId: '1232',
+          email: 'steven@example.com',
+        },
+        assets: [
+          {
+            refId: '12',
+            media,
+            name: 'Example',
+            description: 'test',
+            attributes: [
+              {
+                trait: 'trait name',
+                value: 'some value',
+                display: 'text',
+              },
+            ],
+          },
+        ],
+      };
+
+      return request(app.getHttpServer())
+        .post(`/v1/assets`)
+        .set({
+          'x-api-key': partner.apiKey,
+        })
+        .send(transferRequest)
+        .expect(201)
+        .then(async () => {
+          const asset = await Asset.findOne({
+            where: { refId: '12' },
+            relations: ['attributes', 'media', 'media.file'],
+          });
+          expect(asset).toBeDefined();
+          expect(asset.name).toEqual(transferRequest.assets[0].name);
+          expect(asset.media).toBeDefined();
+          expect(asset.media.length).toEqual(2);
+          expect(asset.media[0].fileId).toBeDefined();
+          expect(asset.media[1].fileId).toBeDefined();
+          expect(asset.description).toEqual(transferRequest.assets[0].description);
+          expect(asset.attributes[0]).toBeDefined();
+          expect(asset.attributes[0].trait).toEqual(transferRequest.assets[0].attributes[0].trait);
+          expect(asset.attributes[0].value).toEqual(transferRequest.assets[0].attributes[0].value);
+          expect(asset.attributes[0].display).toEqual(
+            transferRequest.assets[0].attributes[0].display,
+          );
+          expect(mockFileDownloadService.downloadAll).toHaveBeenCalledWith([
+            { ...transferRequest.assets[0].media[0] },
+            { ...transferRequest.assets[0].media[1] },
+          ]);
+          expect(mockS3Provider.upload).toHaveBeenCalledWith(mockTmpFilePath, `assets/${asset.id}`);
+        });
+    });
+
+    it('should upload only media with type IMAGE', () => {
+      mockFileDownloadService.downloadAll.mockReturnValue([mockTmpFilePath]);
+      const media = [
+        {
+          title: 'test',
+          description: 'description',
+          url: 'https://example.com/image.png',
+          type: MediaTypeEnum.Image,
+        },
+        {
+          title: 'test',
+          description: 'description',
+          url: 'https:',
+          type: MediaTypeEnum.Youtube,
+        },
+      ];
+      const transferRequest: any = {
+        user: {
+          refId: '1232',
+          email: 'steven@example.com',
+        },
+        assets: [
+          {
+            refId: '13',
+            media,
+            name: 'Example',
+            description: 'test',
+          },
+        ],
+      };
+
+      return request(app.getHttpServer())
+        .post(`/v1/assets`)
+        .set({
+          'x-api-key': partner.apiKey,
+        })
+        .send(transferRequest)
+        .expect(201)
+        .then(async () => {
+          const asset = await Asset.findOne({
+            where: { refId: '13' },
+            relations: ['media', 'media.file'],
+          });
+          expect(asset).toBeDefined();
+          expect(asset.name).toEqual(transferRequest.assets[0].name);
+          expect(asset.media).toBeDefined();
+          expect(asset.media.length).toEqual(2);
+          expect(asset.media[0].fileId).toBeDefined();
+          expect(asset.media[1]).toBeDefined();
+          expect(asset.media[1].file).toEqual(null);
+          expect(asset.description).toEqual(transferRequest.assets[0].description);
+
+          expect(mockFileDownloadService.downloadAll).toHaveBeenCalledWith([
+            { ...transferRequest.assets[0].media[0] },
+          ]);
+          expect(mockS3Provider.upload).toHaveBeenCalledWith(mockTmpFilePath, `assets/${asset.id}`);
+        });
+    });
+
+    it('should throw an error when url is wrong', () => {
+      mockFileDownloadService.downloadAll.mockRejectedValue(
+        'Error: TypeError [ERR_INVALID_URL]: Invalid URL',
+      );
+
+      const media = [
+        {
+          title: 'test',
+          description: 'description',
+          url: 'https:',
+          type: MediaTypeEnum.Image,
+        },
+      ];
+      const transferRequest: any = {
+        user: {
+          refId: '1232',
+          email: 'steven@example.com',
+        },
+        assets: [
+          {
+            refId: '14',
+            media,
+            name: 'Example',
+            description: 'test',
+          },
+        ],
+      };
+
+      return request(app.getHttpServer())
+        .post(`/v1/assets`)
+        .set({
+          'x-api-key': partner.apiKey,
+        })
+        .send(transferRequest)
+        .expect(400)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            message: 'Error: Error: TypeError [ERR_INVALID_URL]: Invalid URL',
+            statusCode: 400,
+          });
+        })
+        .then(async () => {
+          const asset = await Asset.findOne({
+            where: { refId: '14' },
+            relations: ['media', 'media.file'],
+          });
+          expect(asset).toBeDefined();
+          expect(asset.name).toEqual(transferRequest.assets[0].name);
+          expect(asset.media.length).toEqual(0);
+          expect(asset.description).toEqual(transferRequest.assets[0].description);
+        });
+    });
+
+    it('should throw an error when the one of the url is fails ', () => {
+      mockFileDownloadService.downloadAll.mockRejectedValue(
+        'Error: TypeError [ERR_INVALID_URL]: Invalid URL',
+      );
+
+      const media = [
+        {
+          title: 'test',
+          description: 'description',
+          url: 'https://example.com/image.png',
+          type: MediaTypeEnum.Image,
+        },
+        {
+          title: 'test',
+          description: 'description',
+          url: 'https://example.com/image.png',
+          type: MediaTypeEnum.Image,
+        },
+      ];
+      const transferRequest: any = {
+        user: {
+          refId: '1232',
+          email: 'steven@example.com',
+        },
+        assets: [
+          {
+            refId: '15',
+            media,
+            name: 'Example',
+            description: 'test',
+          },
+        ],
+      };
+
+      return request(app.getHttpServer())
+        .post(`/v1/assets`)
+        .set({
+          'x-api-key': partner.apiKey,
+        })
+        .send(transferRequest)
+        .expect(400)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            message: 'Error: Error: TypeError [ERR_INVALID_URL]: Invalid URL',
+            statusCode: 400,
+          });
+        })
+        .then(async () => {
+          const asset = await Asset.findOne({
+            where: { refId: '15' },
+            relations: ['media', 'media.file'],
+          });
+          expect(asset).toBeDefined();
+          expect(asset.name).toEqual(transferRequest.assets[0].name);
+          expect(asset.media.length).toEqual(0);
+          expect(asset.description).toEqual(transferRequest.assets[0].description);
+        });
+    });
+
     it('should pass if refId is taken by another partner', async () => {
       const anotherUser = await createUser({});
       const partner2 = await createPartner({
