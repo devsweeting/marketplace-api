@@ -9,5 +9,7 @@ RUN apt update && \
 WORKDIR /srv/app
 COPY . .
 COPY docker/entrypoint.sh /srv/app
-RUN yarn install --frozen-lockfile --ignore-platform && yarn build && yarn bundle
+RUN yarn install --frozen-lockfile --ignore-platform
+RUN yarn build
+RUN yarn bundle
 EXPOSE 3000
