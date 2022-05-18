@@ -2,7 +2,6 @@ import {
   BeforeInsert,
   Column,
   Entity,
-  Generated,
   Index,
   JoinColumn,
   ManyToOne,
@@ -74,10 +73,6 @@ export class Partner extends BaseModel implements BaseEntityInterface {
   @Column({ type: 'string', nullable: true })
   @RelationId((partner: Partner) => partner.avatar)
   public avatarId?: string;
-
-  @Generated('increment')
-  @Column({ type: 'smallint', nullable: false })
-  public opaqueId: number;
 
   @BeforeInsert()
   public beforeInsert(): void {

@@ -17,6 +17,8 @@ import { MediaTransformer } from 'modules/assets/transformers/media.transformer'
 import { createLabel } from '../utils/label.utils';
 import { encodeHashId } from 'modules/common/helpers/hash-id.helper';
 
+import { v4 } from 'uuid';
+
 describe('AssetsController', () => {
   let app: INestApplication;
   let assets: Asset[];
@@ -329,7 +331,7 @@ describe('AssetsController', () => {
           });
         });
     });
-    it('should search by name or description and partner hashed opaque id, return 2 records', async () => {
+    it('should search by name or description and partner hashed id, return 2 records', async () => {
       await Event.delete({});
       await Asset.delete({});
       assets = [
@@ -348,7 +350,7 @@ describe('AssetsController', () => {
       ];
       const params = new URLSearchParams({
         search: 'orange',
-        partner: encodeHashId(partner.opaqueId),
+        partner: encodeHashId(partner.id, process.env.PARTNER_HASH_SALT),
       });
 
       return request(app.getHttpServer())
@@ -872,9 +874,45 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should return empty list if there is no results for wrong partner opaque id', () => {
+    it('should throw a 400 status if there is no results for the wrong format partner hash id ', () => {
       const params = new URLSearchParams({
-        partner: encodeHashId(111),
+        partner: encodeHashId('wrong-hash', process.env.PARTNER_HASH_SALT),
+      });
+
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(400)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            error: 'Bad Request',
+            message: ['partner should not be empty'],
+            statusCode: 400,
+          });
+        });
+    });
+
+    it('should throw a 400 status if there is no results for the partner hash id not uuid after decode', () => {
+      const params = new URLSearchParams({
+        partner: encodeHashId('wronghash', process.env.PARTNER_HASH_SALT),
+      });
+
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(400)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            error: 'Bad Request',
+            message: ['partner should not be empty'],
+            statusCode: 400,
+          });
+        });
+    });
+
+    it('should return empty list if there is no results for partner hash id', () => {
+      const params = new URLSearchParams({
+        partner: encodeHashId(v4(), process.env.PARTNER_HASH_SALT),
       });
 
       return request(app.getHttpServer())

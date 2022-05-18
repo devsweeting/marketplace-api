@@ -6,18 +6,19 @@ import { PaginatedResponse } from 'modules/common/dto/paginated.response';
 import { AttributeTransformer } from 'modules/assets/transformers/attribute.transformer';
 import { MediaTransformer } from './media.transformer';
 import { encodeHashId } from 'modules/common/helpers/hash-id.helper';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AssetsTransformer {
   public constructor(
     private readonly attributeTransformer: AttributeTransformer,
     private readonly mediaTransformer: MediaTransformer,
+    private readonly configService: ConfigService,
   ) {}
 
   public transform(asset: Asset): AssetResponse {
     return {
       id: asset.id,
-      partner: asset.partner?.opaqueId ? encodeHashId(asset.partner.opaqueId) : null,
       name: asset.name,
       description: asset.description,
       media: asset.media?.length ? this.mediaTransformer.transformAll(asset.media) : null,
@@ -26,6 +27,10 @@ export class AssetsTransformer {
       createdAt: asset.createdAt.toISOString(),
       updatedAt: asset.updatedAt.toISOString(),
       attributes: this.attributeTransformer.transformAll(asset.attributes || []),
+      partner: encodeHashId(
+        asset.partnerId,
+        this.configService.get('common.default.partnerHashSalt'),
+      ),
     };
   }
 

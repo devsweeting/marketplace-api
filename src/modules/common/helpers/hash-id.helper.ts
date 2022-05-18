@@ -1,11 +1,11 @@
 import Hashids from 'hashids';
 
-export const encodeHashId = (id: number): string => {
-  const hashids = new Hashids();
-  return hashids.encode(id);
+export const encodeHashId = (id: string, salt = null): string => {
+  const hashids = salt ? new Hashids(salt) : new Hashids();
+  return hashids.encodeHex(id.replace(/-/g, ''));
 };
 
-export const decodeHashId = (hash): number => {
-  const hashids = new Hashids();
-  return Number(hashids.decode(hash)[0]);
+export const decodeHashId = (hash, salt = null): string => {
+  const hashids = salt ? new Hashids(salt) : new Hashids();
+  return hashids.decodeHex(hash).replace(/(.{8})(.{4})(.{4})(.{4})(.{12})/, '$1-$2-$3-$4-$5');
 };

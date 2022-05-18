@@ -9,3 +9,4 @@ export { AttributeLteMustBeGreaterThanGteException } from './attribute-lte-great
 export { MediaNotFoundException } from './media-not-found.exception';
 export { OrderIsNotUniqueException } from './order-is-not-unique.exception';
 export { TokenNotFoundException } from './token-not-found.exception';
+export { PartnerHashIsInvalidException } from './partner-hash-is-invalid.exception';
