@@ -350,7 +350,7 @@ describe('AssetsController', () => {
       ];
       const params = new URLSearchParams({
         search: 'orange',
-        partner: encodeHashId(partner.id, process.env.PARTNER_HASH_SALT),
+        partner: encodeHashId(partner.id, process.env.HASHID_SALT),
       });
 
       return request(app.getHttpServer())
@@ -876,7 +876,7 @@ describe('AssetsController', () => {
 
     it('should throw a 400 status if there is no results for the wrong format partner hash id ', () => {
       const params = new URLSearchParams({
-        partner: encodeHashId('wrong-hash', process.env.PARTNER_HASH_SALT),
+        partner: encodeHashId('wrong-hash', process.env.HASHID_SALT),
       });
 
       return request(app.getHttpServer())
@@ -894,7 +894,7 @@ describe('AssetsController', () => {
 
     it('should throw a 400 status if there is no results for the partner hash id not uuid after decode', () => {
       const params = new URLSearchParams({
-        partner: encodeHashId('wronghash', process.env.PARTNER_HASH_SALT),
+        partner: encodeHashId('wronghash', process.env.HASHID_SALT),
       });
 
       return request(app.getHttpServer())
@@ -912,7 +912,7 @@ describe('AssetsController', () => {
 
     it('should return empty list if there is no results for partner hash id', () => {
       const params = new URLSearchParams({
-        partner: encodeHashId(v4(), process.env.PARTNER_HASH_SALT),
+        partner: encodeHashId(v4(), process.env.HASHID_SALT),
       });
 
       return request(app.getHttpServer())

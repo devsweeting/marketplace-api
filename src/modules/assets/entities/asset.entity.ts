@@ -165,10 +165,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
 
     if (params.partner) {
       query.andWhere('asset.partnerId = :partnerId', {
-        partnerId: decodeHashId(
-          params.partner,
-          configService.get('common.default.partnerHashSalt'),
-        ),
+        partnerId: decodeHashId(params.partner, configService.get('common.default.hashIdSalt')),
       });
     }
 

@@ -35,7 +35,7 @@ export class AssetsService {
     if (params.partner) {
       const decodedHash = decodeHashId(
         params.partner,
-        this.configService.get('common.default.partnerHashSalt'),
+        this.configService.get('common.default.hashIdSalt'),
       );
       if (!isValidUUID(decodedHash)) {
         throw new PartnerHashIsInvalidException();

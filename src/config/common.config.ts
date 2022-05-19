@@ -4,7 +4,7 @@ export default registerAs('common', () => {
   return {
     default: {
       redirectRootUrl: process.env.REDIRECT_ROOT_URL,
-      partnerHashSalt: process.env.PARTNER_HASH_SALT,
+      hashIdSalt: process.env.HASHID_SALT,
     },
   };
 });

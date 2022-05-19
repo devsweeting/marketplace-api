@@ -27,10 +27,7 @@ export class AssetsTransformer {
       createdAt: asset.createdAt.toISOString(),
       updatedAt: asset.updatedAt.toISOString(),
       attributes: this.attributeTransformer.transformAll(asset.attributes || []),
-      partner: encodeHashId(
-        asset.partnerId,
-        this.configService.get('common.default.partnerHashSalt'),
-      ),
+      partner: encodeHashId(asset.partnerId, this.configService.get('common.default.hashIdSalt')),
     };
   }
 
