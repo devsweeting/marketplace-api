@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { File } from 'modules/storage/entities/file.entity';
 import { ProviderInterface } from 'modules/storage/interfaces/provider.interface';
 import { S3Provider } from 'modules/storage/providers/s3.provider';
@@ -21,10 +21,18 @@ export class StorageService {
     }
   }
 
-  public async uploadFromUrl(url: string, directory: string): Promise<File> {
-    const path = await this.fileDownloadService.download(url);
-    const object = await this.provider.upload(path, directory);
-    return new File({ ...object, id: v4() }).save();
+  public async uploadFromUrls(records: { url: string }[], directory: string): Promise<File[]> {
+    try {
+      const pathList: any = await this.fileDownloadService.downloadAll(records);
+
+      const files = pathList.map(async (el) => {
+        const object = await this.provider.upload(el, directory);
+        return new File({ ...object, id: v4() }).save();
+      });
+      return Promise.all(files);
+    } catch (error) {
+      throw new HttpException(`Error: ${error}`, HttpStatus.BAD_REQUEST);
+    }
   }
 
   public async uploadAndSave(directory: string, rawFile: UploadedFile): Promise<File> {

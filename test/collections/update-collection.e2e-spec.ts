@@ -60,7 +60,7 @@ describe('CollectionsController', () => {
         size: 100,
       });
       mockS3Provider.getUrl.mockReturnValue('mocked-url');
-      mockFileDownloadService.download.mockReturnValue('downloaded-path');
+      mockFileDownloadService.downloadAll.mockReturnValue(['downloaded-path']);
 
       return request(app.getHttpServer())
         .patch(`/v1/collections/${collection.id}`)
@@ -80,6 +80,9 @@ describe('CollectionsController', () => {
           });
           expect(updatedCollection.banner).toBeDefined();
           expect(updatedCollection.banner.path).toEqual('test/example.jpeg');
+          expect(mockFileDownloadService.downloadAll).toHaveBeenCalledWith([
+            { url: payload.banner },
+          ]);
           expect(mockS3Provider.upload).toHaveBeenCalledWith(
             'downloaded-path',
             `collections/${updatedCollection.id}`,
