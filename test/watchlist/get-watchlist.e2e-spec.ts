@@ -5,7 +5,7 @@ import { WatchlistTransformer } from 'modules/watchlists/transformers/watchlist.
 
 import { createWatchlist, createWatchlistAsset } from '../utils/watchlist.utils';
 import { Watchlist, WatchlistAsset } from 'modules/watchlists/entities';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
 import { createAsset } from '../utils/asset.utils';
 import { Asset } from 'modules/assets/entities';

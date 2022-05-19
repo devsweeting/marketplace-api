@@ -59,6 +59,7 @@ jobs:
       - name: 'Run e2e Tests'
         run: yarn test:e2e
         env:
+          NODE_ENV: test
           TYPEORM_HOST: localhost
           TYPEORM_PORT: ${{ job.services.postgres.ports['5432'] }}
 

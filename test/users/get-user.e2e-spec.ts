@@ -1,4 +1,4 @@
-import { User } from '@/src/modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 import { INestApplication } from '@nestjs/common';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import request from 'supertest';

@@ -12,7 +12,7 @@ import { Partner } from 'modules/partners/entities';
 import { Asset, Attribute, Media } from 'modules/assets/entities';
 import { StorageEnum } from 'modules/storage/enums/storage.enum';
 import { v4 } from 'uuid';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { Event } from 'modules/events/entities';

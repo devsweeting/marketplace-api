@@ -7,7 +7,7 @@ import { AssetsTransformer } from 'modules/assets/transformers/assets.transforme
 import { v4 } from 'uuid';
 import { Partner } from 'modules/partners/entities';
 import { createPartner } from '../utils/partner.utils';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { createImageMedia } from '../utils/media.utils';

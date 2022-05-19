@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { User } from './user.entity';
+import { User } from './entities/user.entity';
 import { CreateUserDto, UpdateUserDto } from './dto';
 
 import { BaseService } from '../common/services';

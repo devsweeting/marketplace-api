@@ -13,7 +13,7 @@ import { File } from 'modules/storage/entities/file.entity';
 import { Asset, Media } from 'modules/assets/entities';
 import { StorageEnum } from 'modules/storage/enums/storage.enum';
 import { v4 } from 'uuid';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import crypto from 'crypto';

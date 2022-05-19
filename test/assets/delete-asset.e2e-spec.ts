@@ -7,7 +7,7 @@ import { Partner } from 'modules/partners/entities';
 import { Asset, Attribute } from 'modules/assets/entities';
 import { createAttribute } from '@/test/utils/attribute.utils';
 import { v4 } from 'uuid';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { createImageMedia } from '../utils/media.utils';

@@ -15,7 +15,7 @@ import { AssetsTransformer } from 'modules/assets/transformers/assets.transforme
 import { generateSlug } from 'modules/common/helpers/slug.helper';
 import { createAttribute } from '@/test/utils/attribute.utils';
 import { StorageEnum } from 'modules/storage/enums/storage.enum';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { createUser } from '../utils/create-user';
 import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
