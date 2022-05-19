@@ -179,7 +179,7 @@ describe('AssetsController', () => {
         size: 100,
       });
       mockS3Provider.getUrl.mockReturnValue('mocked-url');
-      mockFileDownloadService.download.mockReturnValue('downloaded-path');
+      mockFileDownloadService.downloadAll.mockReturnValue(['downloaded-path']);
 
       return request(app.getHttpServer())
         .patch(`/v1/assets/${asset.id}`)

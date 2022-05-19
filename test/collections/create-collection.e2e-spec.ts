@@ -29,7 +29,7 @@ describe('CollectionController', () => {
       storage: StorageEnum.S3,
       size: 100,
     });
-    mockFileDownloadService.download.mockReturnValue(mockTmpFilePath);
+    mockFileDownloadService.downloadAll.mockReturnValue([mockTmpFilePath]);
   });
 
   afterEach(async () => {
@@ -64,7 +64,9 @@ describe('CollectionController', () => {
           expect(collection.banner.path).toEqual('test/example.jpeg');
           expect(collection.description).toEqual(collectionDto.description);
 
-          expect(mockFileDownloadService.download).toHaveBeenCalledWith(collectionDto.banner);
+          expect(mockFileDownloadService.downloadAll).toHaveBeenCalledWith([
+            { url: collectionDto.banner },
+          ]);
           expect(mockS3Provider.upload).toHaveBeenCalledWith(
             mockTmpFilePath,
             `collections/${collection.id}`,

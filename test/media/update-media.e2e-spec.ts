@@ -46,7 +46,7 @@ describe('MediaController', () => {
       partner,
     });
     mockS3Provider.getUrl.mockReturnValue(mockedUrl);
-    mockFileDownloadService.download.mockReturnValue(mockTmpFilePath);
+    mockFileDownloadService.downloadAll.mockReturnValue([mockTmpFilePath]);
     mockS3Provider.upload.mockReturnValue({
       id: v4(),
       name: 'example.jpeg',
@@ -179,7 +179,7 @@ describe('MediaController', () => {
           expect(media.fileId).toBeDefined();
           expect(media.url).toEqual(dto.url);
 
-          expect(mockFileDownloadService.download).toHaveBeenCalledWith(dto.url);
+          expect(mockFileDownloadService.downloadAll).toHaveBeenCalledWith([{ url: dto.url }]);
           expect(mockS3Provider.upload).toHaveBeenCalledWith(mockTmpFilePath, `assets/${asset.id}`);
         });
     });
@@ -205,7 +205,7 @@ describe('MediaController', () => {
           expect(media.fileId).toEqual(null);
           expect(media.url).toEqual(dto.url);
 
-          expect(mockFileDownloadService.download).not.toHaveBeenCalled();
+          expect(mockFileDownloadService.downloadAll).not.toHaveBeenCalled();
           expect(mockS3Provider.upload).not.toHaveBeenCalledWith();
         });
     });
