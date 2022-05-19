@@ -5,6 +5,7 @@ import { CreateUserDto, UpdateUserDto } from './dto';
 import { BaseService } from '../common/services';
 import { PasswordService } from '../auth/password.service';
 import { UserNotFoundException } from '../common/exceptions/user-not-found.exception';
+import { CreateUserOtpDto } from './dto/create-user-otp.dto';
 
 @Injectable()
 export class UsersService extends BaseService {
@@ -48,6 +49,15 @@ export class UsersService extends BaseService {
     const newUser = new User({ ...userData, nonce });
     await newUser.save();
     return newUser;
+  }
+
+  async createOrUpdateFromOtp(userData: CreateUserOtpDto): Promise<User> {
+    let user = await User.findOne({ where: { email: userData.email } });
+    if (!user) {
+      user = await User.create(userData);
+      await user.save();
+    }
+    return user;
   }
 
   public async update(id: string, userData: UpdateUserDto): Promise<User> {

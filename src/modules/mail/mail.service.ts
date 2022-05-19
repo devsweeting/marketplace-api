@@ -16,6 +16,8 @@ export class MailService {
         context: { content: content },
       });
     } catch (e) {
+      // TODO: Logger.error does not show the error stack
+      console.log(e);
       Logger.log(`MailService.send(${emailTo})`);
       throw new BadGatewayException('Email send failed');
     }

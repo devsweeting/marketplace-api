@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { MailService } from './mail.service';
 import { MailerModule, MailerOptions } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
 import { getMailerTransport } from './mail.options';
 
+@Global()
 @Module({
   imports: [
     MailerModule.forRootAsync({
