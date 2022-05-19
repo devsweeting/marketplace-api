@@ -1,7 +1,6 @@
 import { createApp } from './utils/app.utils';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { quotes } from '@/src/app.service';
 
 describe('AppController', () => {
   let app: INestApplication;
@@ -10,11 +9,13 @@ describe('AppController', () => {
     app = await createApp();
   });
 
-  it('should return a random quote', () =>
-    request(app.getHttpServer())
+  it('should redirect to url', () => {
+    return request(app.getHttpServer())
       .get('/')
-      .expect(200)
-      .expect(({ text }) => {
-        expect(quotes).toContain(text);
-      }));
+      .expect(302)
+      .expect(({ redirect, header }) => {
+        expect(redirect).toBeTruthy();
+        expect(header.location).toContain(`${process.env.REDIRECT_ROOT_URL}`);
+      });
+  });
 });
