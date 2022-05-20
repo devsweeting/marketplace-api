@@ -1,5 +1,5 @@
 import { CreateResourceResult } from '../create-resource-result.type';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 import { forAdminGroup, forSuperAdmins } from './user-permissions';
 import { restoreHandler } from '../../hooks/restore.handler';
 import { deleteHandler } from './handlers/delete.handler';

@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, RelationId } from 'typeorm';
 
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from '../../common/entities/base.model';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 
 @Entity('logs')
 export class Log extends BaseModel implements BaseEntityInterface {

@@ -2,7 +2,7 @@ import { registerAs } from '@nestjs/config';
 import { Asset, Attribute, Contract, Label, Media, Token } from 'modules/assets/entities';
 import { File } from 'modules/storage/entities/file.entity';
 import { Partner, PartnerMemberUser } from 'modules/partners/entities';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 import { Session } from 'modules/auth/session/session.entity';
 import { Event } from 'modules/events/entities';
 import { Log } from 'modules/log/entities/log.entity';
@@ -20,10 +20,12 @@ export default registerAs('database', () => {
       password: process.env.TYPEORM_PASSWORD,
       database: process.env.TYPEORM_DATABASE,
       dropSchema: process.env.NODE_ENV === 'test',
-      synchronize: process.env.TYPEORM_SYNCHRONIZE,
+      synchronize: process.env.TYPEORM_SYNCHRONIZE === 'true',
       logging: process.env.TYPEORM_LOGGING,
-      migrationsRun: false,
+      migrationsRun: process.env.TYPEORM_AUTOMIGRATION === 'true',
+      autoLoadEntities: false,
       keepConnectionAlive: true,
+      migrations: [process.env.TYPEORM_MIGRATIONS],
       entities: [
         Asset,
         Attribute,

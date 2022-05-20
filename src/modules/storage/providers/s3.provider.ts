@@ -16,12 +16,9 @@ export class S3Provider implements ProviderInterface {
 
   public async upload(filePath: string, directory: string): Promise<UploadResponseDto> {
     const stats = fs.statSync(filePath);
-    // const key =
-    //   directory
-    //     .split('/')
-    //     .filter((d) => !!d)
-    //     .join('/') + path.basename(filePath);
+
     const key = [...directory.split('/').filter((l) => !!l), path.basename(filePath)].join('/');
+
     const response = await this.s3Upload(filePath, key);
 
     return {
@@ -78,12 +75,16 @@ export class S3Provider implements ProviderInterface {
   }
 
   private getS3(): S3 {
-    return new S3({
+    const options = {
       region: this.configService.get('aws.default.region'),
       accessKeyId: this.configService.get('aws.default.accessKey'),
       secretAccessKey: this.configService.get('aws.default.secretKey'),
-      endpoint: this.configService.get('aws.default.endpoint'),
       s3ForcePathStyle: this.configService.get('aws.default.s3ForcePathStyle'),
-    });
+    };
+    const endpoint = this.configService.get('aws.default.endpoint');
+    if (endpoint) {
+      options['endpoint'] = endpoint;
+    }
+    return new S3(options);
   }
 }

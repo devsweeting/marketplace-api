@@ -1,6 +1,6 @@
 import faker from '@faker-js/faker';
 import { RoleEnum } from 'modules/users/enums/role.enum';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 import { generateNonce } from './jwt.utils';
 
 export const createUser = (data: Partial<User>): Promise<User> => {
