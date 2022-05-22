@@ -1,7 +1,5 @@
 # Common
 *.md
-CHANGELOG.md
-CONTRIBUTING.md
 docker-compose.yml
 Dockerfile
 
