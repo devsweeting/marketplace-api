@@ -53,11 +53,6 @@ lerna-debug.log*
 # Credentials
 google_key.json
 
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
-
 # Admin
 .adminjs
 
