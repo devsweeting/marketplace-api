@@ -24,7 +24,7 @@
     "bundle": "rimraf public/*.{js,map} && parcel build src/modules/admin/pages/*.html --dist-dir public",
     "bundle:dev": "parcel src/modules/admin/pages/*.html --dist-dir public",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js -f dist/config/ormconfig",
-    "migration:create": "yarn typeorm migration:create -n $NAME",
+    "migration:create": "yarn typeorm migration:create -d src/config/database/migrations -n $NAME",
     "migration:generate": "yarn typeorm migration:generate -d src/config/database/migrations -n $NAME",
     "migration:up": "yarn typeorm migration:run",
     "migration:down": "yarn typeorm  migration:revert",

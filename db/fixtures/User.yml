@@ -1,0 +1,14 @@
+entity: users
+items:
+  user1:
+    email: '{{internet.email}}'
+    firstName: '{{name.firstName}}'
+    lastName: '{{name.lastName}}'
+    address: '{{lorem.word}}'
+    role: 'SUPER_ADMIN'
+  user{2..10}:
+    email: '{{internet.email}}'
+    firstName: '{{name.firstName}}'
+    lastName: '{{name.lastName}}'
+    address: '{{lorem.word}}'
+    role: 'USER'

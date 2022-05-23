@@ -6,12 +6,12 @@ items:
     name: 'Master Sword'
     description: '{{lorem.sentence}}'
     externalUrl: '{{internet.url}}'
-    image: '@image1'
     contract: '@contract1'
   asset{2..20}:
     partner: '@partner{2..5}'
     refId: '{{random.alphaNumeric(8)}}'
     name: '{{lorem.words(4)}}'
     description: '{{lorem.sentence}}'
-    image: '@image($current)'
     contract: '@contract($current)'
+    media: 
+      - '@mediaImage1'
