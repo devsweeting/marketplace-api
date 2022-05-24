@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, OneToOne, RelationId, OneToMany } from 'typ
 
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 import { WatchlistAsset } from './watchlist-asset.entity';
 
 @Entity('watchlist')

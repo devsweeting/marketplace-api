@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { BaseService } from 'modules/common/services';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 import { UpdatePartnerMembersDto } from '../dto';
 import { Partner, PartnerMemberUser } from '../entities';
 import { EmailNotFoundException } from '../exceptions/email-not-found.exception';

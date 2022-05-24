@@ -13,16 +13,16 @@ import {
 } from 'typeorm';
 import { Collection } from '.';
 
-@Entity({ name: 'collections_assets' })
+@Entity('collections_assets')
 export class CollectionAsset extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   @IsUUID()
   public id: string;
 
-  @Column({ primary: true })
+  @Column({ primary: true, type: 'uuid' })
   public collectionId: string;
 
-  @Column({ primary: true })
+  @Column({ primary: true, type: 'uuid' })
   public assetId: string;
 
   @ManyToOne(() => Collection)
