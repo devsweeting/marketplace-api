@@ -33,4 +33,9 @@ export class ListAssetsDto extends ListDto {
   @IsNotEmpty()
   @IsOptional()
   public attr_lte?: any;
+
+  @ApiPropertyOptional()
+  @IsNotEmpty()
+  @IsOptional()
+  public partner: string;
 }

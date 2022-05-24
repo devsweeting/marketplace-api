@@ -17,6 +17,7 @@ import { User } from 'modules/users/entities/user.entity';
 import { PartnerMemberUser } from 'modules/partners/entities';
 import { Token } from 'modules/assets/entities/token.entity';
 import { File } from 'modules/storage/entities/file.entity';
+
 @Entity('partners')
 export class Partner extends BaseModel implements BaseEntityInterface {
   @Index()

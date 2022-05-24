@@ -31,6 +31,8 @@ import { AttributeLteMustBeGreaterThanGteException } from '../exceptions/attribu
 import { Media } from './media.entity';
 import { POSTGRES_DUPE_KEY_ERROR } from 'modules/common/constants';
 import { AssetsDuplicatedException } from '../exceptions/assets-duplicated.exception';
+import { decodeHashId } from 'modules/common/helpers/hash-id.helper';
+import { ConfigService } from '@nestjs/config';
 
 @Entity('partner_assets')
 // This requires two partial indexes because Postgres treats all
@@ -151,12 +153,21 @@ export class Asset extends BaseModel implements BaseEntityInterface {
     return newAsset;
   }
 
-  public static list(params: ListAssetsDto): SelectQueryBuilder<Asset> {
+  public static list(
+    params: ListAssetsDto,
+    configService: ConfigService,
+  ): SelectQueryBuilder<Asset> {
     const query = Asset.createQueryBuilder('asset')
       .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
       .andWhere('asset.deletedAt IS NULL')
       .addOrderBy(params.sort, params.order)
       .addGroupBy('asset.id');
+
+    if (params.partner) {
+      query.andWhere('asset.partnerId = :partnerId', {
+        partnerId: decodeHashId(params.partner, configService.get('common.default.hashIdSalt')),
+      });
+    }
 
     if (params.query) {
       query.andWhere(

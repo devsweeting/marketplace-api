@@ -15,10 +15,13 @@ import {
   AssetFilterAttributeOverLimitException,
   AssetFilterLabelOverLimitException,
   AssetSearchOverLimitException,
+  PartnerHashIsInvalidException,
 } from 'modules/assets/exceptions';
 import { MediaService } from './media.service';
 import { Collection, CollectionAsset } from 'modules/collections/entities';
 import { CollectionNotFoundException } from 'modules/collections/exceptions/collection-not-found.exception';
+import { decodeHashId } from 'modules/common/helpers/hash-id.helper';
+import { validate as isValidUUID } from 'uuid';
 
 @Injectable()
 export class AssetsService {
@@ -29,6 +32,16 @@ export class AssetsService {
   ) {}
 
   public async getList(params: ListAssetsDto): Promise<Pagination<Asset>> {
+    if (params.partner) {
+      const decodedHash = decodeHashId(
+        params.partner,
+        this.configService.get('common.default.hashIdSalt'),
+      );
+      if (!isValidUUID(decodedHash)) {
+        throw new PartnerHashIsInvalidException();
+      }
+    }
+
     if (params?.search?.length > this.configService.get('asset.default.searchMaxNumber')) {
       throw new AssetSearchOverLimitException();
     }
@@ -79,7 +92,7 @@ export class AssetsService {
       throw new AttributeDuplicatedException();
     }
 
-    const results = await paginate<Asset, IPaginationMeta>(Asset.list(params), {
+    const results = await paginate<Asset, IPaginationMeta>(Asset.list(params, this.configService), {
       page: params.page,
       limit: params.limit,
     });
