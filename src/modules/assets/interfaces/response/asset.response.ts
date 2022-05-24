@@ -35,4 +35,7 @@ export class AssetResponse {
 
   @ApiProperty({ isArray: true, type: [AttributeResponse] })
   public attributes: AttributeResponse[];
+
+  @ApiProperty({ example: ' A6t1tQ', description: 'Hashed id for partner' })
+  public partner: string;
 }

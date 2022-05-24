@@ -23,3 +23,4 @@ export const ASSET_SHOW = bundle('components/asset-show.component');
 export const MEDIA_BOX_COMPONENT = bundle(
   'resources/asset/components/media-box-property.component',
 );
+export const HASHED_ID_PROPERTY = bundle('resources/partner/components/hashed-id.property');
