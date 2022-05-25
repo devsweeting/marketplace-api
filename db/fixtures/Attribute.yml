@@ -1,0 +1,17 @@
+entity: asset_attributes
+items:
+  attributes11:
+    trait: GRADE
+    value: 10
+    display: '{{random.word}}'
+    asset: '@asset1'
+  attributes12:
+    trait: YEAR
+    value: 2019
+    display: '{{random.word}}'
+    asset: '@asset1'
+  attributes13:
+    trait: GRADING SERVICE
+    value: PSA
+    display: '{{random.word}}'
+    asset: '@asset1'

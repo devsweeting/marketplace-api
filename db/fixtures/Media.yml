@@ -1,0 +1,9 @@
+entity: asset_media
+items:
+  mediaImage{1..20}:
+    type: 'IMAGE'
+    title: '{{lorem.words(4)}}'
+    description: '{{lorem.words(4)}}'
+    url: '{{image.imageUrl}}'
+    sortOrder: '($current)'
+    file: '@image($current)'
