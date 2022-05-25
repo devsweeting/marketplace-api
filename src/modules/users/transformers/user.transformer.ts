@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserResponse } from '../interfaces/user.interface';
-import { User } from '../user.entity';
+import { User } from '../entities/user.entity';
 
 @Injectable()
 export class UserTransformer {

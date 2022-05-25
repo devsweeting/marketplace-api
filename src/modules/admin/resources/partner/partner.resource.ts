@@ -6,6 +6,7 @@ import {
   PHOTO_PROPERTY,
   REFERENCE_FIELD,
   SHOW_DELETED_AT,
+  HASHED_ID_PROPERTY,
 } from 'modules/admin/components.bundler';
 import { forAdminGroup } from '../user/user-permissions';
 import bulkSoftDeleteHandler from 'modules/admin/hooks/bulk-soft-delete.handler';
@@ -19,6 +20,20 @@ import { MIME_TYPES } from '../file/mime-types';
 import { ServiceAccessor } from 'modules/admin/utils/service.accessor';
 import { getImage } from './hooks/get-image.after';
 import uploadFile from './hooks/upload-file.after';
+import { getHashedId } from './hooks/get-hashed-id.after';
+
+const imageProperty = {
+  props: {
+    validation: {
+      mimeTypes: MIME_TYPES,
+    },
+  },
+  components: {
+    edit: IMAGE_UPLOAD,
+    show: PHOTO_PROPERTY,
+    list: PHOTO_PROPERTY,
+  },
+};
 
 const createPartnerResource = (
   serviceAccessor: ServiceAccessor,
@@ -27,10 +42,23 @@ const createPartnerResource = (
   features: [
     (options): object => ({
       ...options,
-      //   listProperties: ['name', 'updatedAt', 'createdAt'],
-      //   editProperties: ['name', 'assets'],
-      //   showProperties: ['id', 'name', 'updatedAt', 'createdAt'],
-      //   filterProperties: ['name', 'updatedAt', 'createdAt'],
+      listProperties: ['id', 'name', 'hashedId', 'apiKey', 'updatedAt', 'createdAt'],
+      editProperties: ['name', 'accountOwnerId', 'avatar', 'logo', 'banner'],
+      showProperties: [
+        'id',
+        'hashedId',
+        'name',
+        'apiKey',
+        'accountOwnerId',
+        'avatar',
+        'logo',
+        'banner',
+        'updatedAt',
+        'createdAt',
+        'deletedAt',
+        'isDeleted',
+      ],
+      filterProperties: ['name', 'hashedId', 'updatedAt', 'createdAt', 'deletedAt', 'isDeleted'],
     }),
     loggerFeature(loggerConfig),
   ],
@@ -38,11 +66,12 @@ const createPartnerResource = (
     actions: {
       list: {
         isAccessible: forAdminGroup,
+        after: [getHashedId(serviceAccessor)],
         before: [filterByIsDeleted],
       },
       show: {
         isAccessible: forAdminGroup,
-        after: [getImage(serviceAccessor)],
+        after: [getHashedId(serviceAccessor), getImage(serviceAccessor)],
       },
       new: {
         isAccessible: forAdminGroup,
@@ -82,18 +111,12 @@ const createPartnerResource = (
       },
     },
     properties: {
-      id: {
-        position: 1,
-      },
-      name: {
-        position: 2,
-      },
-      apiKey: {
-        position: 3,
-        isVisible: { edit: false, show: true },
+      hashedId: {
+        components: {
+          show: HASHED_ID_PROPERTY,
+        },
       },
       accountOwnerId: {
-        position: 4,
         type: 'reference',
         reference: 'User',
         components: {
@@ -106,63 +129,18 @@ const createPartnerResource = (
         },
       },
       avatar: {
-        position: 5,
-        isVisible: { edit: true, show: true, list: false, filter: false },
-        props: {
-          validation: {
-            mimeTypes: MIME_TYPES,
-          },
-        },
-        components: {
-          edit: IMAGE_UPLOAD,
-          show: PHOTO_PROPERTY,
-          list: PHOTO_PROPERTY,
-        },
+        ...imageProperty,
       },
       logo: {
-        position: 6,
-        isVisible: { edit: true, show: true, list: false, filter: false },
-        props: {
-          validation: {
-            mimeTypes: MIME_TYPES,
-          },
-        },
-        components: {
-          edit: IMAGE_UPLOAD,
-          show: PHOTO_PROPERTY,
-          list: PHOTO_PROPERTY,
-        },
+        ...imageProperty,
       },
       banner: {
-        position: 7,
-        isVisible: { edit: true, show: true, list: false, filter: false },
-        props: {
-          validation: {
-            mimeTypes: MIME_TYPES,
-          },
-        },
-        components: {
-          edit: IMAGE_UPLOAD,
-          show: PHOTO_PROPERTY,
-          list: PHOTO_PROPERTY,
-        },
+        ...imageProperty,
       },
       deletedAt: {
-        position: 8,
-        isVisible: { edit: false, show: true, filter: true },
         components: {
           show: SHOW_DELETED_AT,
         },
-      },
-      isDeleted: {
-        position: 9,
-        isVisible: { edit: false, show: true, filter: true },
-      },
-      createdAt: {
-        position: 10,
-      },
-      updatedAt: {
-        position: 11,
       },
       avatarId: {
         isVisible: false,

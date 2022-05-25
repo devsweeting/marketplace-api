@@ -13,7 +13,7 @@ import { File } from 'modules/storage/entities/file.entity';
 import { Asset, Media } from 'modules/assets/entities';
 import { StorageEnum } from 'modules/storage/enums/storage.enum';
 import { v4 } from 'uuid';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import crypto from 'crypto';
@@ -51,7 +51,7 @@ describe('MediaController', () => {
       partner,
     });
     mockS3Provider.getUrl.mockReturnValue(mockedUrl);
-    mockFileDownloadService.download.mockReturnValue(mockTmpFilePath);
+    mockFileDownloadService.downloadAll.mockReturnValue([mockTmpFilePath]);
     mockS3Provider.upload.mockReturnValue({
       id: v4(),
       name: 'example.jpeg',
@@ -133,7 +133,7 @@ describe('MediaController', () => {
           expect(media.url).toEqual(dto.url);
           expect(media.description).toEqual(dto.description);
 
-          expect(mockFileDownloadService.download).toHaveBeenCalledWith(dto.url);
+          expect(mockFileDownloadService.downloadAll).toHaveBeenCalledWith([{ ...dto }]);
           expect(mockS3Provider.upload).toHaveBeenCalledWith(mockTmpFilePath, `assets/${asset.id}`);
         });
     });

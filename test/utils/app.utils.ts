@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common/interfaces';
 import { AppModule } from '@/src/app.module';
 import { AuthModule } from '@/src/modules/auth/auth.module';
 import validationPipe from '@/src/modules/common/pipes/validation.pipe';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 import { Asset, Attribute, Contract, Label, Media, Token } from 'modules/assets/entities';
 import { Event } from 'modules/events/entities';
 import { Partner, PartnerMemberUser } from 'modules/partners/entities';
@@ -28,7 +28,7 @@ export const mockS3Provider = {
 };
 
 export const mockFileDownloadService = {
-  download: jest.fn(),
+  downloadAll: jest.fn(),
 };
 
 export const configureTestApp = (

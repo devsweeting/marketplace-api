@@ -13,10 +13,11 @@ import {
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
 import { Asset } from 'modules/assets/entities';
-import { User } from 'modules/users/user.entity';
-import { PartnerMemberUser } from './partners-members-users';
+import { User } from 'modules/users/entities/user.entity';
+import { PartnerMemberUser } from 'modules/partners/entities';
 import { Token } from 'modules/assets/entities/token.entity';
 import { File } from 'modules/storage/entities/file.entity';
+
 @Entity('partners')
 export class Partner extends BaseModel implements BaseEntityInterface {
   @Index()

@@ -21,8 +21,8 @@ import {
 } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { UserResponse } from './interfaces/user.interface';
-import { User } from './user.entity';
 import { CreateUserDto, LoginConfirmDto, LoginRequestDto, UpdateUserDto } from './dto';
+import { User } from './entities/user.entity';
 import { UserTransformer } from './transformers/user.transformer';
 import { LocalAuthGuard } from 'modules/auth/guards/local-auth.guard';
 import { AuthService } from 'modules/auth/auth.service';

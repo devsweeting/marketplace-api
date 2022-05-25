@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { ConfigService } from '@nestjs/config';
 import { RoleEnum } from 'modules/users/enums/role.enum';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 import createAssetResource from './resources/asset/asset.resource';
 import createAttributeResource from './resources/attribute/attribute.resource';
 import createPartnerResource from './resources/partner/partner.resource';

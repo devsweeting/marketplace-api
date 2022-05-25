@@ -31,6 +31,8 @@ import { AttributeLteMustBeGreaterThanGteException } from '../exceptions/attribu
 import { Media } from './media.entity';
 import { POSTGRES_DUPE_KEY_ERROR } from 'modules/common/constants';
 import { AssetsDuplicatedException } from '../exceptions/assets-duplicated.exception';
+import { decodeHashId } from 'modules/common/helpers/hash-id.helper';
+import { ConfigService } from '@nestjs/config';
 
 @Entity('partner_assets')
 // This requires two partial indexes because Postgres treats all
@@ -151,12 +153,21 @@ export class Asset extends BaseModel implements BaseEntityInterface {
     return newAsset;
   }
 
-  public static list(params: ListAssetsDto): SelectQueryBuilder<Asset> {
+  public static list(
+    params: ListAssetsDto,
+    configService: ConfigService,
+  ): SelectQueryBuilder<Asset> {
     const query = Asset.createQueryBuilder('asset')
       .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
       .andWhere('asset.deletedAt IS NULL')
       .addOrderBy(params.sort, params.order)
       .addGroupBy('asset.id');
+
+    if (params.partner) {
+      query.andWhere('asset.partnerId = :partnerId', {
+        partnerId: decodeHashId(params.partner, configService.get('common.default.hashIdSalt')),
+      });
+    }
 
     if (params.query) {
       query.andWhere(
@@ -169,7 +180,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
       query.andWhere(
         new Brackets((b) => {
           b.andWhere(
-            'asset.name @@ websearch_to_tsquery(:searchQuery) OR asset.description @@ websearch_to_tsquery(:searchQuery)',
+            `asset.ts_name @@ websearch_to_tsquery('english', :searchQuery) OR asset.ts_description @@ websearch_to_tsquery('english', :searchQuery)`,
             { searchQuery: params.search },
           );
         }),
@@ -183,15 +194,15 @@ export class Asset extends BaseModel implements BaseEntityInterface {
         'attributes.isDeleted = FALSE AND attributes.deletedAt IS NULL',
       );
     }
-    let traitValues;
+
     if (params.attr_eq && Object.keys(params.attr_eq).length) {
+      let traitValues;
       query.andWhere(
         new Brackets((b) => {
           return Object.entries(params.attr_eq).map((attr) => {
             traitValues = Array.isArray(attr[1]) ? attr[1] : [attr[1]];
-
             return b.orWhere(
-              'attributes.trait ILIKE :trait AND LOWER(attributes.value) IN (:...traitValues) ',
+              'attributes.trait ILIKE :trait AND attributes.value IN (:...traitValues) ',
               { trait: `%${attr[0]}%%`, traitValues },
             );
           });
@@ -243,7 +254,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
           if (params.attr_gte[attr] >= params.attr_lte[attr]) {
             throw new AttributeLteMustBeGreaterThanGteException();
           }
-          return query.andWhere(
+          return query.orWhere(
             new Brackets((b) => {
               b.andWhere(
                 'attributes.trait ILIKE :commonTrait AND attributes.value::integer >= :fromValue AND attributes.value::integer <= :toValue',
@@ -259,7 +270,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
       }
       if (fromArr) {
         fromArr.map((attr) => {
-          return query.andWhere(
+          return query.orWhere(
             new Brackets((b) => {
               b.andWhere(
                 'attributes.trait ILIKE :fromTrait AND attributes.value::integer >= :from',
@@ -274,7 +285,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
       }
       if (toArr) {
         toArr.map((attr) => {
-          return query.andWhere(
+          return query.orWhere(
             new Brackets((b) => {
               b.andWhere('attributes.trait ILIKE :toTrait AND attributes.value::integer <= :to', {
                 toTrait: `%${attr}%%`,

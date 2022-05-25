@@ -15,7 +15,7 @@ import { ApiNotFoundResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs
 
 import { GetUser } from 'modules/auth/decorators/get-user.decorator';
 import JwtAuthGuard from 'modules/auth/guards/jwt-auth.guard';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 import { WatchlistDto, WatchlistIdDto } from './dto';
 import { WatchlistResponse } from './interfaces/watchlist.interface';
 

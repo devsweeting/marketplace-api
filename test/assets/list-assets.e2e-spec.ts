@@ -9,12 +9,15 @@ import { Partner } from 'modules/partners/entities';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { createUser } from '../utils/create-user';
 import { createPartner } from '../utils/partner.utils';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 import { createAttribute } from '@/test/utils/attribute.utils';
 import { Event } from 'modules/events/entities';
 import { createImageMedia, createVideoMedia } from '../utils/media.utils';
 import { MediaTransformer } from 'modules/assets/transformers/media.transformer';
 import { createLabel } from '../utils/label.utils';
+import { encodeHashId } from 'modules/common/helpers/hash-id.helper';
+
+import { v4 } from 'uuid';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -328,6 +331,45 @@ describe('AssetsController', () => {
           });
         });
     });
+    it('should search by name or description and partner hashed id, return 2 records', async () => {
+      await Event.delete({});
+      await Asset.delete({});
+      assets = [
+        await createAsset({
+          refId: '1',
+          name: 'Pumpkin',
+          description: 'test-orange',
+          partner,
+        }),
+        await createAsset({
+          refId: '2',
+          name: 'Orange',
+          description: 'test-orange',
+          partner,
+        }),
+      ];
+      const params = new URLSearchParams({
+        search: 'orange',
+        partner: encodeHashId(partner.id, process.env.HASHID_SALT),
+      });
+
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 2,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: [assetsTransformer.transform(assets[1]), assetsTransformer.transform(assets[0])],
+          });
+        });
+    });
 
     it('should filter by attribute, return 1 record', async () => {
       await Event.delete({});
@@ -461,6 +503,123 @@ describe('AssetsController', () => {
       const result = [
         Object.assign(assets[0], { attributes: [attributes[0]], labels: [labels[0]] }),
       ];
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 1,
+              itemCount: 1,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: assetsTransformer.transformAll(result),
+          });
+        });
+    });
+
+    it('should filter by attr_eq and attr_gte, return 2 records', async () => {
+      await Event.delete({});
+      await Asset.delete({});
+      assets = [
+        await createAsset({
+          refId: '1',
+          name: 'Orange 1',
+          description: 'test-orange',
+          partner,
+        }),
+        await createAsset({
+          refId: '2',
+          name: 'Orange 2',
+          description: 'test-orange',
+          partner,
+        }),
+      ];
+      const attributes = [
+        await createAttribute({
+          trait: 'category',
+          value: 'test',
+          assetId: assets[0].id,
+        }),
+        await createAttribute({
+          trait: 'year',
+          value: '2019',
+          assetId: assets[1].id,
+        }),
+        await createAttribute({
+          trait: 'category',
+          value: 'test',
+          assetId: assets[1].id,
+        }),
+      ];
+      const params = new URLSearchParams({
+        'attr_eq[category]': 'test',
+        'attr_gte[year]': '2019',
+      });
+      const result = [
+        Object.assign(assets[1], { attributes: [attributes[1], attributes[2]] }),
+        Object.assign(assets[0], { attributes: [attributes[0]] }),
+      ];
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 2,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: assetsTransformer.transformAll(result),
+          });
+        });
+    });
+
+    it('should filter by attr_eq and attr_gte, return 1 records', async () => {
+      await Event.delete({});
+      await Asset.delete({});
+      assets = [
+        await createAsset({
+          refId: '1',
+          name: 'Orange 1',
+          description: 'test-orange',
+          partner,
+        }),
+        await createAsset({
+          refId: '2',
+          name: 'Orange 2',
+          description: 'test-orange',
+          partner,
+        }),
+      ];
+      const attributes = [
+        await createAttribute({
+          trait: 'category',
+          value: 'another',
+          assetId: assets[0].id,
+        }),
+        await createAttribute({
+          trait: 'year',
+          value: '2019',
+          assetId: assets[1].id,
+        }),
+        await createAttribute({
+          trait: 'category',
+          value: 'test',
+          assetId: assets[1].id,
+        }),
+      ];
+      const params = new URLSearchParams({
+        'attr_eq[category]': 'test',
+        'attr_gte[year]': '2020',
+      });
+      const result = [Object.assign(assets[1], { attributes: [attributes[1], attributes[2]] })];
       return request(app.getHttpServer())
         .get(`/v1/assets?${params.toString()}`)
         .send()
@@ -692,9 +851,68 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should empty list if there is no results', () => {
+    it('should return empty list if there is no results', () => {
       const params = new URLSearchParams({
         query: 'carrot',
+      });
+
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 0,
+              itemCount: 0,
+              itemsPerPage: 25,
+              totalPages: 0,
+              currentPage: 1,
+            },
+            items: [],
+          });
+        });
+    });
+
+    it('should throw a 400 status if there is no results for the wrong format partner hash id ', () => {
+      const params = new URLSearchParams({
+        partner: encodeHashId('wrong-hash', process.env.HASHID_SALT),
+      });
+
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(400)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            error: 'Bad Request',
+            message: ['partner should not be empty'],
+            statusCode: 400,
+          });
+        });
+    });
+
+    it('should throw a 400 status if there is no results for the partner hash id not uuid after decode', () => {
+      const params = new URLSearchParams({
+        partner: encodeHashId('wronghash', process.env.HASHID_SALT),
+      });
+
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(400)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            error: 'Bad Request',
+            message: ['partner should not be empty'],
+            statusCode: 400,
+          });
+        });
+    });
+
+    it('should return empty list if there is no results for partner hash id', () => {
+      const params = new URLSearchParams({
+        partner: encodeHashId(v4(), process.env.HASHID_SALT),
       });
 
       return request(app.getHttpServer())
@@ -800,9 +1018,15 @@ describe('AssetsController', () => {
       await createAttribute({ asset: asset1 });
       await createAttribute({ asset: asset2 });
 
-      const assetWithAttributes1 = await Asset.findOne(asset1.id, { relations: ['attributes'] });
-      const assetWithAttributes2 = await Asset.findOne(asset2.id, { relations: ['attributes'] });
-      const assetWithAttributes3 = await Asset.findOne(asset3.id, { relations: ['attributes'] });
+      const assetWithAttributes1 = await Asset.findOne(asset1.id, {
+        relations: ['attributes', 'partner'],
+      });
+      const assetWithAttributes2 = await Asset.findOne(asset2.id, {
+        relations: ['attributes', 'partner'],
+      });
+      const assetWithAttributes3 = await Asset.findOne(asset3.id, {
+        relations: ['attributes', 'partner'],
+      });
 
       return request(app.getHttpServer())
         .get(`/v1/assets`)
@@ -841,9 +1065,9 @@ describe('AssetsController', () => {
     await createImageMedia({ asset: asset1, sortOrder: 3 });
     const videoMedia = await createVideoMedia({ asset: asset2, sortOrder: 1 });
 
-    const assetWithMedia1 = await Asset.findOne(asset1.id, { relations: ['media'] });
-    const assetWithMedia2 = await Asset.findOne(asset2.id, { relations: ['media'] });
-    const assetWithMedia3 = await Asset.findOne(asset3.id, { relations: ['media'] });
+    const assetWithMedia1 = await Asset.findOne(asset1.id, { relations: ['media', 'partner'] });
+    const assetWithMedia2 = await Asset.findOne(asset2.id, { relations: ['media', 'partner'] });
+    const assetWithMedia3 = await Asset.findOne(asset3.id, { relations: ['media', 'partner'] });
 
     const media3 = mediaTransformer.transformAll(assetWithMedia3.media);
     const media2 = mediaTransformer.transformAll([videoMedia]);

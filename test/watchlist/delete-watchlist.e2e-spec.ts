@@ -4,7 +4,7 @@ import { clearAllData, createApp } from '@/test/utils/app.utils';
 
 import { createWatchlist, createWatchlistAsset } from '../utils/watchlist.utils';
 import { Watchlist, WatchlistAsset } from 'modules/watchlists/entities';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
 import { createAsset } from '../utils/asset.utils';
 import { Asset } from 'modules/assets/entities';

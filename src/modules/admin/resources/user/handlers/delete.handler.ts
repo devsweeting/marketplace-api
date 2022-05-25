@@ -5,7 +5,7 @@ import {
   ActionResponse,
   RecordActionResponse,
 } from 'adminjs';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 import { RoleEnum } from '../../../../users/enums/role.enum';
 
 export const deleteHandler: ActionHandler<RecordActionResponse> = async (

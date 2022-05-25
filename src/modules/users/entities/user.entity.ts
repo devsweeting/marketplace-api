@@ -4,10 +4,10 @@ import { BaseEntityInterface } from 'modules/common/entities/base.entity.interfa
 import { BaseModel } from 'modules/common/entities/base.model';
 import { Exclude } from 'class-transformer';
 import { Validate } from 'class-validator';
-import { EmailValidator } from './validators/email.validator';
-import { RoleEnum } from './enums/role.enum';
-import { PartnerMemberUser } from 'modules/partners/entities/partners-members-users';
-import { Watchlist } from 'modules/watchlists/entities/watchlist.entity';
+import { EmailValidator } from '../validators/email.validator';
+import { RoleEnum } from '../enums/role.enum';
+import { PartnerMemberUser } from '../../partners/entities/partners-members-users.entity';
+import { Watchlist } from '../../watchlists/entities/watchlist.entity';
 
 @Entity('users')
 @Unique('USER_EMAIL_UNIQUE', ['email'])

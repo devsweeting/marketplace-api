@@ -8,7 +8,9 @@ const PhotoProperty: React.FC<BasePropertyProps> = ({ property, record, where })
 
   return (
     <Box mb="xl">
-      {where === 'show' && <Label>{property?.props?.label || property.label}</Label>}
+      {where === 'show' && (
+        <Label variant={'light'}>{property?.props?.label || property.label}</Label>
+      )}
       <PhotoImgComponent path={file?.path} alt={file?.name} width="200px" />
     </Box>
   );

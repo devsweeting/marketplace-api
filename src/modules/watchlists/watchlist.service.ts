@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Asset } from 'modules/assets/entities';
 import { AssetNotFoundException } from 'modules/assets/exceptions/asset-not-found.exception';
-import { User } from 'modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 
 import { BaseService } from '../common/services';
 import { WatchlistDto } from './dto';
