@@ -5,14 +5,25 @@ import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
 import MediaComponent from './media.component';
 import MediaDropZone from './media-drop-zone.component';
 
-const MediaRowComponent = ({ media, where, validation, onDelete, onUpdate, index, errors }) => {
+const MediaRowComponent = ({
+  media,
+  sortOrders,
+  where,
+  validation,
+  onDelete,
+  onUpdate,
+  index,
+  errors,
+}) => {
   const [state, setState] = useState({
     type: '',
     url: '',
     title: '',
     file: [],
-    sortOrder: '',
     ...media,
+    sortOrder: media.sortOrder
+      ? media.sortOrder
+      : Number(sortOrders[sortOrders.length - 2]) + 1 || index,
   });
 
   const onUpdateTitle = useCallback((event) => {

@@ -3,7 +3,6 @@ import {
   Button,
   FormGroup,
   Label,
-  FormMessage,
   Table,
   TableBody,
   TableCell,
@@ -51,6 +50,10 @@ const MediaBoxComponent: React.FC<EditPropertyProps> = (props) => {
   }
   const validation = custom.validation || property.props.validation || null;
 
+  const sortOrders = media.map((el) => {
+    if (el.sortOrder !== '') return el.sortOrder;
+  });
+
   return (
     <FormGroup>
       <Label property={property}>{property.label}</Label>
@@ -72,17 +75,18 @@ const MediaBoxComponent: React.FC<EditPropertyProps> = (props) => {
             </TableRow>
           )}
           {media.length > 0 &&
-            media.map((media, index) => (
-                <MediaRowComponent
-                  media={media}
-                  where={where}
-                  validation={validation}
-                  onDelete={() => onDelete(index)}
-                  onUpdate={onUpdate(index)}
-                  index={index}
-                  errors={mediaError}
-                  key={index}
-                ></MediaRowComponent>
+            media.map((m, index) => (
+              <MediaRowComponent
+                media={m}
+                sortOrders={sortOrders}
+                where={where}
+                validation={validation}
+                onDelete={() => onDelete(index)}
+                onUpdate={onUpdate(index)}
+                index={index}
+                errors={mediaError}
+                key={index}
+              ></MediaRowComponent>
             ))}
         </TableBody>
       </Table>
