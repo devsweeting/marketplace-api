@@ -102,38 +102,19 @@ export class AssetsService {
         results.items.map(async (item: Asset) => {
           item.attributes = await Attribute.findAllByAssetId(item.id);
           item.labels = await Label.findAllByAssetId(item.id);
-          item.media = await Media.find({
-            where: { assetId: item.id, isDeleted: false, deletedAt: null },
-            order: { sortOrder: 'ASC' },
-            take: 1,
-          });
+          item.media = await Media.createQueryBuilder('media')
+            .leftJoinAndMapOne('media.file', 'media.file', 'file')
+            .andWhere('media.assetId = :assetId', { assetId: item.id })
+            .andWhere('media.isDeleted = false')
+            .orderBy('media.sortOrder')
+            // Don't use .getOne() because we want to return an array
+            .limit(1)
+            .getMany();
           return item;
         }),
       ),
       results.meta,
     );
-  }
-
-  public async getOne(id: string): Promise<Asset> {
-    const asset = await Asset.createQueryBuilder('asset')
-      .leftJoinAndMapMany('asset.attributes', 'asset.attributes', 'attributes')
-      .leftJoinAndMapMany(
-        'asset.media',
-        'asset.media',
-        'media',
-        'media.isDeleted = FALSE AND media.deletedAt IS NULL',
-      )
-      .leftJoinAndMapOne('media.file', 'media.file', 'file')
-      .where('asset.id = :id', { id })
-      .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
-      .andWhere('asset.deletedAt IS NULL')
-      .orderBy('media.sortOrder', 'ASC')
-      .getOne();
-
-    if (!asset) {
-      throw new AssetNotFoundException();
-    }
-    return asset;
   }
 
   public async getOneByParams({ id, slug }: { id: string; slug: string }): Promise<Asset> {
