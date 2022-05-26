@@ -20,7 +20,7 @@ import { GetPartner } from 'modules/auth/decorators/get-partner.decorator';
 import { Partner } from 'modules/partners/entities';
 import { MediaIdDto } from '../dto/media/media-id.dto';
 import { UpdateMediaDto } from '../dto/media/update-media.dto';
-import { MediaResponse } from '../interfaces/response/media/media.response';
+import { MediaResponse } from '../responses/media/media.response';
 import { MediaService } from '../services/media.service';
 import { MediaTransformer } from '../transformers/media.transformer';
 

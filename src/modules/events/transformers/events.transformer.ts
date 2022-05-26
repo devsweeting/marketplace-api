@@ -2,7 +2,7 @@ import { Event } from '../entities';
 import { Injectable } from '@nestjs/common';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
-import { EventResponse } from '../interfaces/response/event.response';
+import { EventResponse } from '../responses/event.response';
 
 @Injectable()
 export class EventsTransformer {

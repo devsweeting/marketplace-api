@@ -1,9 +1,9 @@
 import { Attribute, Token } from '../entities';
 import { Injectable } from '@nestjs/common';
-import { TokenMetaResponse } from '../interfaces/response/tokens/token-meta.response';
-import { TraitsResponse } from '../interfaces/response/tokens/traits.response';
-import { TokenResponse } from '../interfaces/response/tokens/token.response';
-import { TraitsMetaResponse } from '../interfaces/response/tokens/traits-meta.response';
+import { TokenMetaResponse } from '../responses/tokens/token-meta.response';
+import { TraitsResponse } from '../responses/tokens/traits.response';
+import { TokenResponse } from '../responses/tokens/token.response';
+import { TraitsMetaResponse } from '../responses/tokens/traits-meta.response';
 import { MediaTransformer } from './media.transformer';
 
 @Injectable()

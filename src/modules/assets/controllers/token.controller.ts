@@ -1,8 +1,8 @@
 import { Controller, Get, HttpStatus, Param } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TokenDto } from '../dto/token.dto';
-import { TokenMetaResponse } from '../interfaces/response/tokens/token-meta.response';
-import { TokenResponse } from '../interfaces/response/tokens/token.response';
+import { TokenMetaResponse } from '../responses/tokens/token-meta.response';
+import { TokenResponse } from '../responses/tokens/token.response';
 import { TokensService } from '../services/token.service';
 import { TokensTransformer } from '../transformers/tokens.transformer';
 

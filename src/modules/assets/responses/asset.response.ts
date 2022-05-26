@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { MediaResponse } from 'modules/assets/interfaces/response/media/media.response';
+import { AttributeResponse } from 'modules/assets/responses/attribute.response';
+import { MediaResponse } from './media/media.response';
 
-export class CollectionAssetResponse {
+export class AssetResponse {
   @ApiProperty({ example: '1' })
   public id: string;
 
@@ -11,7 +12,10 @@ export class CollectionAssetResponse {
   @ApiProperty({ example: 'Test asset name' })
   public name: string;
 
-  @ApiProperty({ type: [MediaResponse] })
+  @ApiProperty({
+    type: [MediaResponse],
+    description: 'Media for asset',
+  })
   public media: MediaResponse[];
 
   @ApiProperty({ example: 'test-asset-name' })
@@ -28,4 +32,10 @@ export class CollectionAssetResponse {
 
   @ApiProperty({ example: '2022-03-09T09:05:34.176Z' })
   public createdAt: string;
+
+  @ApiProperty({ isArray: true, type: [AttributeResponse] })
+  public attributes: AttributeResponse[];
+
+  @ApiProperty({ example: ' A6t1tQ', description: 'Hashed id for partner' })
+  public partner: string;
 }

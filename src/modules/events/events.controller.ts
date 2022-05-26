@@ -1,12 +1,12 @@
 import { Controller, Get, HttpStatus, Param, Query } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AssetResponse } from 'modules/assets/interfaces/response/asset.response';
+import { AssetResponse } from 'modules/assets/responses/asset.response';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
 import { generateSwaggerPaginatedSchema } from 'modules/common/helpers/generate-swagger-paginated-schema';
 import { EventsTransformer } from './transformers/events.transformer';
 import { EventsService } from './events.service';
 import { ListEventsDto } from './dto';
-import { EventResponse } from './interfaces/response/event.response';
+import { EventResponse } from './responses/event.response';
 import { EventIdDto } from './dto/event-id.dto';
 
 @ApiTags('events')

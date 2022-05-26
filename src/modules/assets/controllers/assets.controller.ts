@@ -26,13 +26,13 @@ import { GetPartner } from 'modules/auth/decorators/get-partner.decorator';
 import { Partner } from 'modules/partners/entities';
 import { AssetIdOrSlugDto, TransferRequestDto } from 'modules/assets/dto';
 import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
-import { AssetResponse } from 'modules/assets/interfaces/response/asset.response';
+import { AssetResponse } from 'modules/assets/responses/asset.response';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
 import { generateSwaggerPaginatedSchema } from 'modules/common/helpers/generate-swagger-paginated-schema';
 import { AssetIdDto } from 'modules/assets/dto/asset-id.dto';
 import { UpdateAssetDto } from 'modules/assets/dto/update-asset.dto';
 import { MediaDto } from '../dto/media/media.dto';
-import { MediaResponse } from '../interfaces/response/media/media.response';
+import { MediaResponse } from '../responses/media/media.response';
 import { MediaService } from '../services/media.service';
 import { MediaTransformer } from '../transformers/media.transformer';
 
