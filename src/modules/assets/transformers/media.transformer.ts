@@ -1,6 +1,6 @@
 import { Media } from '../entities';
 import { Injectable } from '@nestjs/common';
-import { MediaResponse } from '../interfaces/response/media/media.response';
+import { MediaResponse } from '../responses/media/media.response';
 import { StorageService } from 'modules/storage/storage.service';
 
 @Injectable()

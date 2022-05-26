@@ -1,6 +1,6 @@
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
-import { AssetResponse } from 'modules/assets/interfaces/response/asset.response';
+import { AssetResponse } from 'modules/assets/responses/asset.response';
 import { INestApplication } from '@nestjs/common';
 
 export const setupSwagger = (app: INestApplication) => {

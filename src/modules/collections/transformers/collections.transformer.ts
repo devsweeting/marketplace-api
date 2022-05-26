@@ -4,9 +4,9 @@ import { Injectable } from '@nestjs/common';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
 import { StorageService } from 'modules/storage/storage.service';
-import { CollectionResponse } from '../interfaces/responses/collection.response';
+import { CollectionResponse } from '../responses/collection.response';
 import { Asset } from 'modules/assets/entities/asset.entity';
-import { CollectionAssetResponse } from '../interfaces/responses/collection-asset.response';
+import { CollectionAssetResponse } from '../responses/collection-asset.response';
 import { MediaTransformer } from 'modules/assets/transformers/media.transformer';
 
 @Injectable()

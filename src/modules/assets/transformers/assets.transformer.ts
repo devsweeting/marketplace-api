@@ -1,6 +1,6 @@
 import { Asset } from '../entities';
 import { Injectable } from '@nestjs/common';
-import { AssetResponse } from '../interfaces/response/asset.response';
+import { AssetResponse } from '../responses/asset.response';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
 import { AttributeTransformer } from 'modules/assets/transformers/attribute.transformer';

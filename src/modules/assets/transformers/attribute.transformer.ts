@@ -1,6 +1,6 @@
 import { Attribute } from '../entities';
 import { Injectable } from '@nestjs/common';
-import { AttributeResponse } from 'modules/assets/interfaces/response/attribute.response';
+import { AttributeResponse } from 'modules/assets/responses/attribute.response';
 
 @Injectable()
 export class AttributeTransformer {

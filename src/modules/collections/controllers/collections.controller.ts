@@ -16,7 +16,7 @@ import { CollectionsService } from '../collections.service';
 import { CollectionDto } from '../dto/collection.dto';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
 import { generateSwaggerPaginatedSchema } from 'modules/common/helpers/generate-swagger-paginated-schema';
-import { CollectionResponse } from '../interfaces/responses/collection.response';
+import { CollectionResponse } from '../responses/collection.response';
 import { CollectionIdDto, CollectionIdOrSlugDto, ListCollectionsDto } from '../dto';
 import { CollectionsTransformer } from '../transformers/collections.transformer';
 import { UpdateCollectionDto } from '../dto/update-collection.dto';
