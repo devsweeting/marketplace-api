@@ -9,9 +9,9 @@ export class LoginConfirmDto {
   })
   @IsNotEmpty()
   @IsString()
-  token: string;
+  public token: string;
 
   @ApiProperty()
   @IsNotEmpty()
-  metadata: UserLoginMetadata;
+  public metadata: UserLoginMetadata;
 }

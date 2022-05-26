@@ -1,16 +1,14 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from 'modules/auth/auth.service';
 import { TooManyRequestException } from 'modules/common/exceptions/too-many-request.exception';
 import { BaseService } from 'modules/common/services';
 import { MailService } from 'modules/mail/mail.service';
-import { User } from 'modules/users/user.entity';
 import moment from 'moment';
 import { MoreThanOrEqual } from 'typeorm';
 import { LoginConfirmDto, LoginRequestDto } from '../dto';
 import { UserLogin, UserOtp } from '../entities';
 import { OtpTokenInvalidException } from '../exceptions/otp-token-invalid.exception';
-import { UserNotFoundException } from '../exceptions/user-not-found.exception';
 import { UsersService } from '../users.service';
 
 @Injectable()

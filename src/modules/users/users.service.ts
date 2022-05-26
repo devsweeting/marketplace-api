@@ -1,11 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from './entities/user.entity';
-import { CreateUserDto, UpdateUserDto } from './dto';
+import { CreateUserDto, UpdateUserDto, CreateUserOtpDto } from './dto';
 
 import { BaseService } from '../common/services';
 import { PasswordService } from '../auth/password.service';
 import { UserNotFoundException } from '../common/exceptions/user-not-found.exception';
-import { CreateUserOtpDto } from './dto/create-user-otp.dto';
 
 @Injectable()
 export class UsersService extends BaseService {

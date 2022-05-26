@@ -2,15 +2,15 @@ import { Column, Entity, JoinColumn, ManyToOne, RelationId } from 'typeorm';
 
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
-import { User } from '../user.entity';
+import { User } from '.';
 import { UserLoginMetadata } from '../interfaces/user-login-metadata';
 
-@Entity('user-logins')
+@Entity('user_logins')
 export class UserLogin extends BaseModel implements BaseEntityInterface {
   @Column({
     type: 'jsonb',
   })
-  metadata: UserLoginMetadata;
+  public metadata: UserLoginMetadata;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })

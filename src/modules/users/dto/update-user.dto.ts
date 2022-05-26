@@ -11,7 +11,7 @@ export class UpdateUserDto {
   @IsOptional()
   @IsNotEmpty()
   @IsEmail()
-  email?: string;
+  public email?: string;
 
   @ApiProperty({
     example: 'firstName',
@@ -19,7 +19,7 @@ export class UpdateUserDto {
   })
   @IsOptional()
   @IsString()
-  firstName?: string;
+  public firstName?: string;
 
   @ApiProperty({
     example: 'lastName',
@@ -27,7 +27,7 @@ export class UpdateUserDto {
   })
   @IsOptional()
   @IsString()
-  lastName?: string;
+  public lastName?: string;
 
   @ApiProperty({
     example: RoleEnum.ADMIN,
@@ -37,7 +37,7 @@ export class UpdateUserDto {
   @Transform(({ value }) => value.toUpperCase() as RoleEnum)
   @IsEnum(RoleEnum)
   @IsOptional()
-  role?: RoleEnum;
+  public role?: RoleEnum;
 
   @ApiProperty({
     example: 'refId',
@@ -45,5 +45,5 @@ export class UpdateUserDto {
   })
   @IsOptional()
   @IsString()
-  refId: string;
+  public refId: string;
 }

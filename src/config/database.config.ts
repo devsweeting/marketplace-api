@@ -2,14 +2,13 @@ import { registerAs } from '@nestjs/config';
 import { Asset, Attribute, Contract, Label, Media, Token } from 'modules/assets/entities';
 import { File } from 'modules/storage/entities/file.entity';
 import { Partner, PartnerMemberUser } from 'modules/partners/entities';
-import { User } from 'modules/users/entities/user.entity';
 import { Session } from 'modules/auth/session/session.entity';
 import { Event } from 'modules/events/entities';
 import { Log } from 'modules/log/entities/log.entity';
 import { Collection, CollectionAsset } from 'modules/collections/entities';
 import { Watchlist } from 'modules/watchlists/entities/watchlist.entity';
 import { WatchlistAsset } from 'modules/watchlists/entities/watchlist-asset.entity';
-import { UserLogin, UserOtp } from 'modules/users/entities';
+import { UserLogin, UserOtp, User } from 'modules/users/entities';
 
 export default registerAs('database', () => {
   return {

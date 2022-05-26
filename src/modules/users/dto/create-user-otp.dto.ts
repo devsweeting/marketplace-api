@@ -8,5 +8,5 @@ export class CreateUserOtpDto {
   })
   @IsNotEmpty()
   @IsEmail()
-  email: string;
+  public email: string;
 }

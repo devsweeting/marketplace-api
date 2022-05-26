@@ -8,5 +8,5 @@ export class LoginRequestDto {
   })
   @IsNotEmpty()
   @IsEmail()
-  email: string;
+  public email: string;
 }
