@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { addMinutes, formatDistance, subHours } from 'date-fns';
 import { AuthService } from 'modules/auth/auth.service';
 import { TooManyRequestException } from 'modules/common/exceptions/too-many-request.exception';
 import { BaseService } from 'modules/common/services';
 import { MailService } from 'modules/mail/mail.service';
-import moment from 'moment';
 import { MoreThanOrEqual } from 'typeorm';
 import { LoginConfirmDto, LoginRequestDto } from '../dto';
 import { UserLogin, UserOtp } from '../entities';
 import { OtpTokenInvalidException } from '../exceptions/otp-token-invalid.exception';
 import { UsersService } from '../users.service';
-
+import { v4 } from 'uuid';
 @Injectable()
 export class OtpService extends BaseService {
   constructor(
@@ -33,7 +33,7 @@ export class OtpService extends BaseService {
 
     // count number of requests in last 1 hr
     const requestCountIn1Hour = await UserOtp.count({
-      createdAt: MoreThanOrEqual(moment().subtract(1, 'hour').toDate()),
+      createdAt: MoreThanOrEqual(subHours(new Date(), 1).toISOString()),
       email,
     });
     if (requestCountIn1Hour > this.configService.get('common.default.maxOtpRequestPerHour')) {
@@ -45,12 +45,13 @@ export class OtpService extends BaseService {
     }
 
     // Create a new token
-    const newUserOtp = await UserOtp.create({
+    const newUserOtp = UserOtp.create({
       email,
-      token: this.createRandomToken(),
-      expiresAt: moment()
-        .add(parseInt(this.configService.get('common.default.otpExpireDurationInMinute')), 'minute')
-        .toDate(),
+      token: v4(),
+      expiresAt: addMinutes(
+        new Date(),
+        parseInt(this.configService.get('common.default.otpExpireDurationInMinute')),
+      ),
     });
     await newUserOtp.save();
 
@@ -62,23 +63,14 @@ export class OtpService extends BaseService {
       emailTo: userOtp.email,
       content: {
         subject: 'Confirm the code',
-        expireInHumanReadable: moment(userOtp.expiresAt).fromNow(),
+        expireInHumanReadable: formatDistance(Date.now(), new Date(userOtp.expiresAt), {
+          addSuffix: true,
+        }),
         token: userOtp.token,
         host: this.configService.get('common.default.redirectRootUrl'),
       },
       template: 'user-otp',
     });
-  }
-
-  public createRandomToken() {
-    let result = '';
-    const length = 20;
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
   }
 
   public async markTokenUsed(token: string) {

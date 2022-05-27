@@ -1,10 +1,10 @@
-import { User } from '@/src/modules/users/user.entity';
+import { User } from 'modules/users/entities/user.entity';
 import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UserLogin, UserOtp } from 'modules/users/entities';
 import request from 'supertest';
 
-import { createApp } from '../utils/app.utils';
+import { clearAllData, createApp } from '@/test/utils/app.utils';
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;
@@ -14,7 +14,7 @@ describe('UserController (e2e)', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    await clearAllData(), await app.close();
   });
 
   describe('OTP flow', () => {
@@ -23,7 +23,7 @@ describe('UserController (e2e)', () => {
       await UserOtp.delete({});
       await UserLogin.delete({});
     });
-    it('should success', async () => {
+    test('should success', async () => {
       const email = 'danny@gmail.com';
       await request(app.getHttpServer())
         .post(`/v1/users/login/request`)
@@ -45,7 +45,7 @@ describe('UserController (e2e)', () => {
       expect(await UserLogin.count({ where: { user: createUser } })).toBe(1);
     });
 
-    it('should return 429 for too many requests', async () => {
+    test('should return 429 for too many requests', async () => {
       const email = 'danny@gmail.com';
       for (let i = 0; i <= app.get(ConfigService).get('common.default.maxOtpRequestPerHour'); i++) {
         await request(app.getHttpServer())
@@ -60,7 +60,7 @@ describe('UserController (e2e)', () => {
         .expect(429);
     });
 
-    it('should fail with invalid token', async () => {
+    test('should fail with invalid token', async () => {
       const email = 'danny@gmail.com';
       await request(app.getHttpServer())
         .post(`/v1/users/login/request`)
@@ -72,6 +72,51 @@ describe('UserController (e2e)', () => {
         .post(`/v1/users/login/confirm`)
         .send({ token: 'random token', metadata: { ip: '0.0.0.0' } })
         .expect(400);
+    });
+
+    test('should success if email is uppercase', async () => {
+      const email = 'FOO@BAR.COM';
+      await request(app.getHttpServer())
+        .post(`/v1/users/login/request`)
+        .send({ email })
+        .expect(200);
+
+      // OtpRecord created
+      const userOtp = await UserOtp.findOne({ email: email.toLowerCase() });
+      expect(userOtp).toBeDefined();
+      expect(userOtp.email).toBe(email.toLowerCase());
+
+      // confirm
+      await request(app.getHttpServer())
+        .post(`/v1/users/login/confirm`)
+        .send({ token: userOtp.token, metadata: { ip: '0.0.0.0' } })
+        .expect(200);
+
+      const createUser = await User.findOne({ email: email.toLowerCase() });
+      expect(createUser.email).toBe(email.toLowerCase());
+      expect(await UserLogin.count({ where: { user: createUser } })).toBe(1);
+    });
+
+    test('should success if email has uppercase and lowercase letters', async () => {
+      const email = 'FoO@bAr.CoM';
+      await request(app.getHttpServer())
+        .post(`/v1/users/login/request`)
+        .send({ email })
+        .expect(200);
+
+      // OtpRecord created
+      const userOtp = await UserOtp.findOne({ email: email.toLowerCase() });
+      expect(userOtp).toBeDefined();
+      expect(userOtp.email).toBe(email.toLowerCase());
+      // confirm
+      await request(app.getHttpServer())
+        .post(`/v1/users/login/confirm`)
+        .send({ token: userOtp.token, metadata: { ip: '0.0.0.0' } })
+        .expect(200);
+
+      const createUser = await User.findOne({ email: email.toLowerCase() });
+      expect(createUser.email).toBe(email.toLowerCase());
+      expect(await UserLogin.count({ where: { user: createUser } })).toBe(1);
     });
   });
 });
