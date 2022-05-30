@@ -17,7 +17,7 @@ import { CollectionsModule } from './modules/collections/collections.module';
 import { HealthModule } from './modules/health/health.module';
 
 import { WatchlistsModule } from './modules/watchlists/watchlists.module';
-import LogsMiddleware from 'modules/common/middlewares/logs.middleware';
+import LogsMiddleware from './middleware/logs.middleware';
 
 const modules = [];
 
