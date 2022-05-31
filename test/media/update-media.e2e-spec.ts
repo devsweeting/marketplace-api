@@ -72,7 +72,7 @@ describe('MediaController', () => {
   });
 
   describe(`PATCH V1 /media/:id`, () => {
-    it('should throw 401 exception if auth token is missing', () => {
+    test('should throw 401 exception if auth token is missing', () => {
       const dtoRequest = { title: 'title' };
       return request(app.getHttpServer())
         .patch(`/v1/media/${imageMedia.id}`)
@@ -80,7 +80,7 @@ describe('MediaController', () => {
         .expect(401);
     });
 
-    it('should throw 401 exception if token is invalid', () => {
+    test('should throw 401 exception if token is invalid', () => {
       const dtoRequest = { title: 'title' };
       return request(app.getHttpServer())
         .patch(`/v1/media/${imageMedia.id}`)
@@ -91,7 +91,7 @@ describe('MediaController', () => {
         .expect(401);
     });
 
-    it('should throw 404 exception if partner is not owner', async () => {
+    test('should throw 404 exception if partner is not owner', async () => {
       const dtoRequest = { title: 'title' };
       const anotherUser = await createUser({});
       const notOwnerPartner = await createPartner({
@@ -108,7 +108,7 @@ describe('MediaController', () => {
         .expect(404);
     });
 
-    it('should update a title of media object', () => {
+    test('should update a title of media object', () => {
       const dto: any = {
         url: 'https://example.com/image.png',
         title: 'Example',
@@ -131,7 +131,7 @@ describe('MediaController', () => {
           expect(media.title).toEqual(dto.title);
         });
     });
-    it('should update description of a media object', () => {
+    test('should update description of a media object', () => {
       const dto: any = {
         url: 'https://example.com/image.png',
         title: 'Example',
@@ -157,7 +157,7 @@ describe('MediaController', () => {
           expect(media.description).toEqual(dto.description);
         });
     });
-    it('should update file of a media object', () => {
+    test('should update file of a media object', () => {
       const dto: any = {
         url: 'https://picsum.photos/400/200',
         type: MediaTypeEnum.Image,
@@ -183,7 +183,7 @@ describe('MediaController', () => {
           expect(mockS3Provider.upload).toHaveBeenCalledWith(mockTmpFilePath, `assets/${asset.id}`);
         });
     });
-    it('should update file to null if type is youtube', () => {
+    test('should update file to null if type is youtube', () => {
       const dto: any = {
         url: 'https://picsum.photos/400/200',
         type: MediaTypeEnum.Youtube,
@@ -209,7 +209,7 @@ describe('MediaController', () => {
           expect(mockS3Provider.upload).not.toHaveBeenCalledWith();
         });
     });
-    it('should update sortOrder of a media object', () => {
+    test('should update sortOrder of a media object', () => {
       const dto: any = {
         sortOrder: 100,
       };
@@ -229,7 +229,7 @@ describe('MediaController', () => {
         });
     });
 
-    it('should update the same media with field sortOrder for defined asset', async () => {
+    test('should update the same media with field sortOrder for defined asset', async () => {
       const dtoRequest: any = {
         title: 'Example',
         description: 'test',
@@ -257,7 +257,7 @@ describe('MediaController', () => {
         });
     });
 
-    it('should throw an exception if media object is invalid', () => {
+    test('should throw an exception if media object is invalid', () => {
       const dtoRequest: any = {};
 
       return request(app.getHttpServer())
@@ -269,7 +269,7 @@ describe('MediaController', () => {
         .expect(200);
     });
 
-    it('should throw an exception if partner is deleted', async () => {
+    test('should throw an exception if partner is deleted', async () => {
       const anotherUser = await createUser({});
       const deletedPartner = await createPartner({
         apiKey: 'deleted-partner-api-key',

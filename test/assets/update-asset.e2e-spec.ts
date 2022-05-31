@@ -48,11 +48,11 @@ describe('AssetsController', () => {
   });
 
   describe(`PATCH V1 /assets/:id`, () => {
-    it('should throw 401 exception if auth token is missing', () => {
+    test('should throw 401 exception if auth token is missing', () => {
       return request(app.getHttpServer()).patch(`/v1/assets/${asset.id}`).send({}).expect(401);
     });
 
-    it('should throw 401 exception if token is invalid', () => {
+    test('should throw 401 exception if token is invalid', () => {
       return request(app.getHttpServer())
         .patch(`/v1/assets/${asset.id}`)
         .set({
@@ -62,7 +62,7 @@ describe('AssetsController', () => {
         .expect(401);
     });
 
-    it('should throw 404 exception if asset does not exist', async () => {
+    test('should throw 404 exception if asset does not exist', async () => {
       return request(app.getHttpServer())
         .patch(`/v1/assets/${v4()}`)
         .set({
@@ -72,7 +72,7 @@ describe('AssetsController', () => {
         .expect(404);
     });
 
-    it('should throw 404 exception if assets belongs to another partner', async () => {
+    test('should throw 404 exception if assets belongs to another partner', async () => {
       const anotherUser = await createUser({});
       const anotherPartner = await createPartner({
         apiKey: 'another-api-key',
@@ -89,7 +89,7 @@ describe('AssetsController', () => {
         .expect(404);
     });
 
-    it('should update refId', async () => {
+    test('should update refId', async () => {
       const payload = {
         refId: '12345',
       };
@@ -114,7 +114,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should pass if refId is the same', async () => {
+    test('should pass if refId is the same', async () => {
       const payload = {
         refId: asset.refId,
       };
@@ -134,7 +134,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should throw 409 exception if refId is already taken', async () => {
+    test('should throw 409 exception if refId is already taken', async () => {
       await createAsset({
         refId: '123456',
         partner,
@@ -159,7 +159,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should update media', async () => {
+    test('should update media', async () => {
       const payload = {
         media: [
           {
@@ -203,7 +203,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should update name', async () => {
+    test('should update name', async () => {
       const payload = {
         name: 'Test name 2',
       };
@@ -230,7 +230,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should throw 409 exception if refID is already exist', async () => {
+    test('should throw 409 exception if refID is already exist', async () => {
       await createAsset({
         refId: 'ref-1',
         partnerId: partner.id,
@@ -255,7 +255,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should update description', async () => {
+    test('should update description', async () => {
       const payload = {
         description: 'some new description',
       };
@@ -280,7 +280,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should not remove attributes', async () => {
+    test('should not remove attributes', async () => {
       const payload = {};
       const attribute = await createAttribute({ asset });
 
@@ -303,7 +303,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should remove attributes', async () => {
+    test('should remove attributes', async () => {
       const payload = {
         attributes: [],
       };
@@ -328,7 +328,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should create new Attribute', async () => {
+    test('should create new Attribute', async () => {
       const payload = {
         attributes: [
           {

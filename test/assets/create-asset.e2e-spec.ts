@@ -53,7 +53,7 @@ describe('AssetsController', () => {
   });
 
   describe(`POST V1 /assets`, () => {
-    it('should throw 401 exception if auth token is missing', () => {
+    test('should throw 401 exception if auth token is missing', () => {
       const transferRequest: any = {
         user: {
           refId: '1232',
@@ -71,7 +71,7 @@ describe('AssetsController', () => {
       return request(app.getHttpServer()).post(`/v1/assets`).send(transferRequest).expect(401);
     });
 
-    it('should throw 401 exception if token is invalid', () => {
+    test('should throw 401 exception if token is invalid', () => {
       const transferRequest: any = {
         user: {
           refId: '1232',
@@ -95,7 +95,7 @@ describe('AssetsController', () => {
         .expect(401);
     });
 
-    it('should create a new asset transfer object in the db', () => {
+    test('should create a new asset transfer object in the db', () => {
       const media = [
         {
           title: 'test',
@@ -156,7 +156,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should create a new asset transfer object in the db with multiple assets', () => {
+    test('should create a new asset transfer object in the db with multiple assets', () => {
       mockFileDownloadService.downloadAll.mockReturnValue([mockTmpFilePath, mockTmpFilePath]);
       const media = [
         {
@@ -227,7 +227,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should upload only media with type IMAGE', () => {
+    test('should upload only media with type IMAGE', () => {
       mockFileDownloadService.downloadAll.mockReturnValue([mockTmpFilePath]);
       const media = [
         {
@@ -286,7 +286,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should throw an error when url is wrong', () => {
+    test('should throw an error when url is wrong', () => {
       mockFileDownloadService.downloadAll.mockRejectedValue(
         'Error: TypeError [ERR_INVALID_URL]: Invalid URL',
       );
@@ -339,7 +339,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should throw an error when the one of the url is fails ', () => {
+    test('should throw an error when the one of the url is fails ', () => {
       mockFileDownloadService.downloadAll.mockRejectedValue(
         'Error: TypeError [ERR_INVALID_URL]: Invalid URL',
       );
@@ -398,7 +398,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should pass if refId is taken by another partner', async () => {
+    test('should pass if refId is taken by another partner', async () => {
       const anotherUser = await createUser({});
       const partner2 = await createPartner({
         apiKey: 'another-partner2-api-key',
@@ -433,7 +433,7 @@ describe('AssetsController', () => {
         .expect(201);
     });
 
-    it('should be able to recreate a deleted asset', async () => {
+    test('should be able to recreate a deleted asset', async () => {
       await Event.delete({});
       const anotherUser = await createUser({});
       const partner2 = await createPartner({
@@ -471,7 +471,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should pass if name is used for another asset for the same partner', async () => {
+    test('should pass if name is used for another asset for the same partner', async () => {
       await createAsset({ refId: '1', name: 'New Asset', partner: partner });
 
       const transferRequest: any = {
@@ -497,7 +497,7 @@ describe('AssetsController', () => {
         .expect(201);
     });
 
-    it('should pass if name is used for another asset for the different partner', async () => {
+    test('should pass if name is used for another asset for the different partner', async () => {
       const anotherUser = await createUser({});
       const partner2 = await createPartner({
         apiKey: 'another-partner2-api-key',
@@ -529,7 +529,7 @@ describe('AssetsController', () => {
         .expect(201);
     });
 
-    it('should throw 400 exception if asset already exist by refId (same request)', async () => {
+    test('should throw 400 exception if asset already exist by refId (same request)', async () => {
       const transferRequest: any = {
         user: {
           refId: '1232',
@@ -565,7 +565,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should throw an exception if assets property is undefined', () => {
+    test('should throw an exception if assets property is undefined', () => {
       const transferRequest: any = {
         user: {
           refId: 'test',
@@ -590,7 +590,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should throw an exception if assets property is empty', () => {
+    test('should throw an exception if assets property is empty', () => {
       const transferRequest: any = {
         user: {
           refId: 'test',
@@ -613,7 +613,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should throw an exception if asset object is invalid', () => {
+    test('should throw an exception if asset object is invalid', () => {
       const transferRequest: any = {
         user: {
           refId: 'test',
@@ -645,7 +645,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should throw an exception if partner is deleted', async () => {
+    test('should throw an exception if partner is deleted', async () => {
       const anotherUser = await createUser({});
       const deletedPartner = await createPartner({
         apiKey: 'deleted-partner-api-key',

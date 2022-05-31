@@ -44,11 +44,11 @@ describe('MediaController', () => {
   });
 
   describe(`DELETE V1 /media/:id`, () => {
-    it('should throw 401 exception if auth token is missing', () => {
+    test('should throw 401 exception if auth token is missing', () => {
       return request(app.getHttpServer()).delete(`/v1/media/${media.id}`).send().expect(401);
     });
 
-    it('should throw 401 exception if token is invalid', () => {
+    test('should throw 401 exception if token is invalid', () => {
       return request(app.getHttpServer())
         .delete(`/v1/media/${media.id}`)
         .set({
@@ -58,7 +58,7 @@ describe('MediaController', () => {
         .expect(401);
     });
 
-    it('should throw 400 exception if id is not uuid', () => {
+    test('should throw 400 exception if id is not uuid', () => {
       return request(app.getHttpServer())
         .delete(`/v1/media/123`)
         .set({
@@ -75,7 +75,7 @@ describe('MediaController', () => {
         });
     });
 
-    it('should throw 404 exception if media does not exist', () => {
+    test('should throw 404 exception if media does not exist', () => {
       return request(app.getHttpServer())
         .delete(`/v1/media/${v4()}`)
         .set({
@@ -85,7 +85,7 @@ describe('MediaController', () => {
         .expect(404);
     });
 
-    it('should throw 404 exception if partner is not owner', async () => {
+    test('should throw 404 exception if partner is not owner', async () => {
       const dtoRequest = { title: 'title' };
       const anotherUser = await createUser({});
       const notOwnerPartner = await createPartner({
@@ -102,7 +102,7 @@ describe('MediaController', () => {
         .expect(404);
     });
 
-    it('should remove media', async () => {
+    test('should remove media', async () => {
       return request(app.getHttpServer())
         .delete(`/v1/media/${media.id}`)
         .set({

@@ -36,11 +36,11 @@ describe('PartnerController', () => {
   });
 
   describe(`PATCH V1 /partners`, () => {
-    it('should throw 401 exception if auth token is missing', () => {
+    test('should throw 401 exception if auth token is missing', () => {
       return request(app.getHttpServer()).patch(`/v1/partners`).send({}).expect(401);
     });
 
-    it('should throw 401 exception if token is invalid', () => {
+    test('should throw 401 exception if token is invalid', () => {
       return request(app.getHttpServer())
         .patch(`/v1/partners`)
         .set({
@@ -50,7 +50,7 @@ describe('PartnerController', () => {
         .expect(401);
     });
 
-    it('should update user partner member', async () => {
+    test('should update user partner member', async () => {
       const payload = {
         emails: ['a@test.com', 'b@test.com'],
       };
@@ -79,7 +79,7 @@ describe('PartnerController', () => {
           );
         });
     });
-    it('should not update user partner member if email does not exist', async () => {
+    test('should not update user partner member if email does not exist', async () => {
       const payload = {
         emails: ['c@test.com'],
       };

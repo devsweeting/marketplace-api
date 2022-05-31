@@ -25,7 +25,7 @@ describe('UsersController', () => {
     beforeEach(async () => {
       admin = await createUser({ role: RoleEnum.SUPER_ADMIN });
     });
-    it('should delete a user record from the db', () => {
+    test('should delete a user record from the db', () => {
       return request(app.getHttpServer())
         .delete(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
@@ -39,7 +39,7 @@ describe('UsersController', () => {
         });
     });
 
-    it('should throw an exception if user id does not exists', () => {
+    test('should throw an exception if user id does not exists', () => {
       const wrongId = '1D700038-58B1-4EF0-8737-4DB7D6A9D60F';
       return request(app.getHttpServer())
         .delete(`/v1/users/${wrongId}`)
@@ -56,7 +56,7 @@ describe('UsersController', () => {
     beforeEach(async () => {
       admin = await createUser({ role: RoleEnum.ADMIN });
     });
-    it('should not delete a user record from the db', () => {
+    test('should not delete a user record from the db', () => {
       return request(app.getHttpServer())
         .delete(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
@@ -74,7 +74,7 @@ describe('UsersController', () => {
         });
     });
 
-    it('should throw an exception if user id does not exists', () => {
+    test('should throw an exception if user id does not exists', () => {
       const wrongId = '1D700038-58B1-4EF0-8737-4DB7D6A9D60F';
       return request(app.getHttpServer())
         .delete(`/v1/users/${wrongId}`)
@@ -83,7 +83,7 @@ describe('UsersController', () => {
     });
   });
   describe(`DELETE /users/:id AS USER`, () => {
-    it('should not delete a user record from the db', () => {
+    test('should not delete a user record from the db', () => {
       return request(app.getHttpServer())
         .delete(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
@@ -101,7 +101,7 @@ describe('UsersController', () => {
         });
     });
 
-    it('should throw an exception if user id does not exists', () => {
+    test('should throw an exception if user id does not exists', () => {
       const wrongId = '1D700038-58B1-4EF0-8737-4DB7D6A9D60F';
       return request(app.getHttpServer())
         .delete(`/v1/users/${wrongId}`)

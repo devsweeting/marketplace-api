@@ -25,7 +25,7 @@ describe('UsersController', () => {
     beforeEach(async () => {
       admin = await createUser({ role: RoleEnum.SUPER_ADMIN });
     });
-    it('should update a user record in the db', () => {
+    test('should update a user record in the db', () => {
       const userRequest: any = {
         email: 'changed@mail.com',
       };
@@ -51,7 +51,7 @@ describe('UsersController', () => {
         });
     });
 
-    it('should throw an exception if user email is invalid', () => {
+    test('should throw an exception if user email is invalid', () => {
       const userRequest: any = {
         email: 'wrong-email',
       };
@@ -67,7 +67,7 @@ describe('UsersController', () => {
           error: 'Bad Request',
         });
     });
-    it('should throw an exception if user password is exists in data', () => {
+    test('should throw an exception if user password is exists in data', () => {
       const userRequest: any = {
         password: 'password',
       };
@@ -88,7 +88,7 @@ describe('UsersController', () => {
     beforeEach(async () => {
       admin = await createUser({ role: RoleEnum.ADMIN });
     });
-    it('should update a user record in the db', () => {
+    test('should update a user record in the db', () => {
       const userRequest: any = {
         email: 'updated@mail.com',
       };
@@ -114,7 +114,7 @@ describe('UsersController', () => {
         });
     });
 
-    it('should throw an exception if user email is invalid', () => {
+    test('should throw an exception if user email is invalid', () => {
       const userRequest: any = {
         email: 'wrong-email',
       };
@@ -130,7 +130,7 @@ describe('UsersController', () => {
           error: 'Bad Request',
         });
     });
-    it('should throw an exception if user password is exists in data', () => {
+    test('should throw an exception if user password is exists in data', () => {
       const userRequest: any = {
         password: 'password',
       };

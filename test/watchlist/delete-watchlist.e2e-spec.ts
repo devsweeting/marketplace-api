@@ -52,11 +52,11 @@ describe('WatchlistController', () => {
   });
 
   describe(`DELETE V1 /watchlist`, () => {
-    it('should throw 401 exception if auth token is missing', () => {
+    test('should throw 401 exception if auth token is missing', () => {
       return request(app.getHttpServer()).delete(`/v1/watchlist/${asset.id}`).send({}).expect(401);
     });
 
-    it('should throw 401 exception if token is invalid', () => {
+    test('should throw 401 exception if token is invalid', () => {
       return request(app.getHttpServer())
         .delete(`/v1/watchlist/${asset.id}`)
         .set({ Authorization: `Bearer wrong` })
@@ -64,7 +64,7 @@ describe('WatchlistController', () => {
         .expect(401);
     });
 
-    it('should throw 400 exception if assetId is not uuid', () => {
+    test('should throw 400 exception if assetId is not uuid', () => {
       return request(app.getHttpServer())
         .delete(`/v1/watchlist/123`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
@@ -79,7 +79,7 @@ describe('WatchlistController', () => {
         });
     });
 
-    it('should throw 404 exception if media does not exist', () => {
+    test('should throw 404 exception if media does not exist', () => {
       return request(app.getHttpServer())
         .delete(`/v1/watchlist/${v4()}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
@@ -87,7 +87,7 @@ describe('WatchlistController', () => {
         .expect(404);
     });
 
-    it('should throw 404 exception if asset does not exist', async () => {
+    test('should throw 404 exception if asset does not exist', async () => {
       await createWatchlistAsset({ assetId: asset.id, watchlistId: watchlist.id });
       return request(app.getHttpServer())
         .delete(`/v1/watchlist/${v4()}`)
@@ -96,7 +96,7 @@ describe('WatchlistController', () => {
         .expect(404);
     });
 
-    it('should throw 404 exception if watchlist does not exist', async () => {
+    test('should throw 404 exception if watchlist does not exist', async () => {
       await createWatchlistAsset({ assetId: asset.id, watchlistId: watchlist.id });
       return request(app.getHttpServer())
         .delete(`/v1/watchlist/${v4()}`)
@@ -105,7 +105,7 @@ describe('WatchlistController', () => {
         .expect(404);
     });
 
-    it('should throw 409 exception if asset not added to watchlist', async () => {
+    test('should throw 409 exception if asset not added to watchlist', async () => {
       return request(app.getHttpServer())
         .delete(`/v1/watchlist/${asset.id}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
@@ -120,7 +120,7 @@ describe('WatchlistController', () => {
         });
     });
 
-    it('should remove asset from the watchlist', async () => {
+    test('should remove asset from the watchlist', async () => {
       await createWatchlistAsset({ assetId: asset.id, watchlistId: watchlist.id });
       return request(app.getHttpServer())
         .delete(`/v1/watchlist/${asset.id}`)

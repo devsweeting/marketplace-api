@@ -251,48 +251,42 @@ export class Asset extends BaseModel implements BaseEntityInterface {
       });
       if (arr.length) {
         arr.map((attr) => {
-          if (params.attr_gte[attr] >= params.attr_lte[attr]) {
+          if (Number(params.attr_gte[attr]) >= Number(params.attr_lte[attr])) {
             throw new AttributeLteMustBeGreaterThanGteException();
           }
-          return query.orWhere(
-            new Brackets((b) => {
-              b.andWhere(
-                'attributes.trait ILIKE :commonTrait AND attributes.value::integer >= :fromValue AND attributes.value::integer <= :toValue',
-                {
-                  commonTrait: `%${attr}%%`,
-                  fromValue: params.attr_gte[attr],
-                  toValue: params.attr_lte[attr],
-                },
-              );
-            }),
-          );
+          const subQuery = new Brackets((b) => {
+            b.andWhere(
+              'attributes.trait ILIKE :commonTrait AND attributes.value::integer >= :fromValue AND attributes.value::integer <= :toValue',
+              {
+                commonTrait: `%${attr}%%`,
+                fromValue: params.attr_gte[attr],
+                toValue: params.attr_lte[attr],
+              },
+            );
+          });
+          return params.attr_eq ? query.orWhere(subQuery) : query.andWhere(subQuery);
         });
       }
       if (fromArr) {
         fromArr.map((attr) => {
-          return query.orWhere(
-            new Brackets((b) => {
-              b.andWhere(
-                'attributes.trait ILIKE :fromTrait AND attributes.value::integer >= :from',
-                {
-                  fromTrait: `%${attr}%%`,
-                  from: params.attr_gte[attr],
-                },
-              );
-            }),
-          );
+          const subQuery = new Brackets((b) => {
+            b.andWhere('attributes.trait ILIKE :fromTrait AND attributes.value::integer >= :from', {
+              fromTrait: `%${attr}%%`,
+              from: params.attr_gte[attr],
+            });
+          });
+          return params.attr_eq ? query.orWhere(subQuery) : query.andWhere(subQuery);
         });
       }
       if (toArr) {
         toArr.map((attr) => {
-          return query.orWhere(
-            new Brackets((b) => {
-              b.andWhere('attributes.trait ILIKE :toTrait AND attributes.value::integer <= :to', {
-                toTrait: `%${attr}%%`,
-                to: params.attr_lte[attr],
-              });
-            }),
-          );
+          const subQuery = new Brackets((b) => {
+            b.andWhere('attributes.trait ILIKE :toTrait AND attributes.value::integer <= :to', {
+              toTrait: `%${attr}%%`,
+              to: params.attr_lte[attr],
+            });
+          });
+          return params.attr_eq ? query.orWhere(subQuery) : query.andWhere(subQuery);
         });
       }
     }

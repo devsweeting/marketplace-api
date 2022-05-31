@@ -50,7 +50,7 @@ describe('AssetsController', () => {
   });
 
   describe(`GET V1 /assets/:id`, () => {
-    it('should return asset', async () => {
+    test('should return asset', async () => {
       mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);
       const media = await createImageMedia({ assetId: asset.id, file: await createFile({}) });
       const response = {
@@ -69,7 +69,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should return asset only with active media', async () => {
+    test('should return asset only with active media', async () => {
       await Media.delete({});
       mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);
       const file = await createFile({});
@@ -92,7 +92,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should 404 exception id is invalid', () => {
+    test('should 404 exception id is invalid', () => {
       return request(app.getHttpServer())
         .get(`/v1/assets/123`)
         .send()
@@ -106,7 +106,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should 404 exception if file does not exist', () => {
+    test('should 404 exception if file does not exist', () => {
       return request(app.getHttpServer())
         .get(`/v1/assets/${v4()}`)
         .send()

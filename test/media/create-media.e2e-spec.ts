@@ -73,14 +73,14 @@ describe('MediaController', () => {
   });
 
   describe(`POST V1 /assets/:assetId/media`, () => {
-    it('should throw 401 exception if auth token is missing', () => {
+    test('should throw 401 exception if auth token is missing', () => {
       return request(app.getHttpServer())
         .post(`/v1/assets/${asset.id}/media`)
         .send(dtoRequest)
         .expect(401);
     });
 
-    it('should throw 401 exception if token is invalid', () => {
+    test('should throw 401 exception if token is invalid', () => {
       return request(app.getHttpServer())
         .post(`/v1/assets/${asset.id}/media`)
         .set({
@@ -90,7 +90,7 @@ describe('MediaController', () => {
         .expect(401);
     });
 
-    it('should throw 404 exception if partner is not owner', async () => {
+    test('should throw 404 exception if partner is not owner', async () => {
       const anotherUser = await createUser({});
       const notOwnerPartner = await createPartner({
         apiKey: 'not-owner-partner-api-key',
@@ -106,7 +106,7 @@ describe('MediaController', () => {
         .expect(404);
     });
 
-    it('should create a new media object in the db', () => {
+    test('should create a new media object in the db', () => {
       const dto: any = {
         url: 'https://example.com/image.png',
         title: 'Example',
@@ -138,7 +138,7 @@ describe('MediaController', () => {
         });
     });
 
-    it('should throw 409 exception if image media already exist with sortOrder for defined asset', async () => {
+    test('should throw 409 exception if image media already exist with sortOrder for defined asset', async () => {
       await createImageMedia({ assetId: asset.id, sortOrder: 1 });
 
       const dtoRequest: any = {
@@ -165,7 +165,7 @@ describe('MediaController', () => {
         });
     });
 
-    it('should create object with next sortOrder for defined asset', async () => {
+    test('should create object with next sortOrder for defined asset', async () => {
       await createImageMedia({ assetId: asset.id, sortOrder: 1 });
 
       const dtoRequest: any = {
@@ -194,7 +194,7 @@ describe('MediaController', () => {
         });
     });
 
-    it('should support long urls', async () => {
+    test('should support long urls', async () => {
       const newAsset = await createAsset({ refId: '123', partner });
       await createImageMedia({ assetId: newAsset.id, sortOrder: 1 });
 
@@ -231,7 +231,7 @@ describe('MediaController', () => {
       });
     });
 
-    it('should create object with the same sortOrder for another asset', async () => {
+    test('should create object with the same sortOrder for another asset', async () => {
       const newAsset = await createAsset({ refId: '2', partner });
       await createImageMedia({ assetId: newAsset.id, sortOrder: 1 });
 
@@ -267,7 +267,7 @@ describe('MediaController', () => {
         });
     });
 
-    it('should throw an exception if media object is invalid', () => {
+    test('should throw an exception if media object is invalid', () => {
       const dtoRequest: any = {};
 
       return request(app.getHttpServer())
@@ -292,7 +292,7 @@ describe('MediaController', () => {
         });
     });
 
-    it('should throw an exception if partner is deleted', async () => {
+    test('should throw an exception if partner is deleted', async () => {
       const anotherUser = await createUser({});
       const deletedPartner = await createPartner({
         apiKey: 'deleted-partner-api-key',
