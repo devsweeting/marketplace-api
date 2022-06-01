@@ -51,11 +51,11 @@ describe('WatchlistController', () => {
   });
 
   describe(`POST V1 /watchlist`, () => {
-    it('should throw 401 exception if auth token is missing', () => {
+    test('should throw 401 exception if auth token is missing', () => {
       return request(app.getHttpServer()).post(`/v1/watchlist`).send({}).expect(401);
     });
 
-    it('should throw 401 exception if token is invalid', () => {
+    test('should throw 401 exception if token is invalid', () => {
       return request(app.getHttpServer())
         .post(`/v1/watchlist`)
         .set({ Authorization: `Bearer wrong` })
@@ -63,7 +63,7 @@ describe('WatchlistController', () => {
         .expect(401);
     });
 
-    it('should add new asset to watchlist if watchlist does not exists', async () => {
+    test('should add new asset to watchlist if watchlist does not exists', async () => {
       const dtoRequest = { assetId: asset.id };
       return request(app.getHttpServer())
         .post(`/v1/watchlist`)
@@ -86,7 +86,7 @@ describe('WatchlistController', () => {
         });
     });
   });
-  it('should add new asset to watchlist if watchlist exists', async () => {
+  test('should add new asset to watchlist if watchlist exists', async () => {
     const dtoRequest = { assetId: asset.id };
     watchlist = await createWatchlist({
       user: user,
@@ -100,7 +100,7 @@ describe('WatchlistController', () => {
         expect(body).toEqual({ status: 201, description: 'Asset is added to watchlist' });
       });
   });
-  it('should add new asset to watchlist if watchlist exists with another asset', async () => {
+  test('should add new asset to watchlist if watchlist exists with another asset', async () => {
     const newAsset = await createAsset({
       refId: '2',
       name: 'New',
@@ -139,7 +139,7 @@ describe('WatchlistController', () => {
         expect(watchlist.watchlistAssets[1].assetId).toEqual(newAsset.id);
       });
   });
-  it('should re-add asset to watchlist', async () => {
+  test('should re-add asset to watchlist', async () => {
     const dtoRequest = { assetId: asset.id };
     watchlist = await createWatchlist({
       user: user,
@@ -177,7 +177,7 @@ describe('WatchlistController', () => {
       });
   });
 
-  it('throw duplicate exception if asset already exists in watchlist for user', async () => {
+  test('throw duplicate exception if asset already exists in watchlist for user', async () => {
     const dtoRequest = { assetId: asset.id };
     watchlist = await createWatchlist({
       user: user,
@@ -213,7 +213,7 @@ describe('WatchlistController', () => {
         expect(watchlist.watchlistAssets[0].assetId).toEqual(asset.id);
       });
   });
-  it('throw asset not found exception if asset does not exists and watchlist also does not exists', async () => {
+  test('throw asset not found exception if asset does not exists and watchlist also does not exists', async () => {
     const dtoRequest = { assetId: v4() };
 
     return request(app.getHttpServer())
@@ -238,7 +238,7 @@ describe('WatchlistController', () => {
         expect(watchlist).not.toBeDefined();
       });
   });
-  it('throw asset not found exception if asset does not exists', async () => {
+  test('throw asset not found exception if asset does not exists', async () => {
     const dtoRequest = { assetId: v4() };
     watchlist = await createWatchlist({
       user: user,
@@ -274,7 +274,7 @@ describe('WatchlistController', () => {
         expect(watchlist.watchlistAssets[0].assetId).toEqual(asset.id);
       });
   });
-  it('throw exception if over limit watchlist allowed number of assets ', async () => {
+  test('throw exception if over limit watchlist allowed number of assets ', async () => {
     const dtoRequest = { assetId: asset.id };
     watchlist = await createWatchlist({
       user: user,

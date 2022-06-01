@@ -48,11 +48,11 @@ describe('AssetsController', () => {
   });
 
   describe(`DELETE V1 /assets/:id`, () => {
-    it('should throw 401 exception if auth token is missing', () => {
+    test('should throw 401 exception if auth token is missing', () => {
       return request(app.getHttpServer()).delete(`/v1/assets/${asset.id}`).send().expect(401);
     });
 
-    it('should throw 401 exception if auth token is invalid', () => {
+    test('should throw 401 exception if auth token is invalid', () => {
       return request(app.getHttpServer())
         .delete(`/v1/assets/${asset.id}`)
         .set({
@@ -62,7 +62,7 @@ describe('AssetsController', () => {
         .expect(401);
     });
 
-    it('should throw 404 exception if id is not uuid', () => {
+    test('should throw 404 exception if id is not uuid', () => {
       return request(app.getHttpServer())
         .delete(`/v1/assets/123`)
         .set({
@@ -79,7 +79,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should throw 404 exception if asset does not exist', () => {
+    test('should throw 404 exception if asset does not exist', () => {
       return request(app.getHttpServer())
         .delete(`/v1/assets/${v4()}`)
         .set({
@@ -89,7 +89,7 @@ describe('AssetsController', () => {
         .expect(404);
     });
 
-    it('should throw 404 exception if asset does not belong to the partner', async () => {
+    test('should throw 404 exception if asset does not belong to the partner', async () => {
       const anotherUser = await createUser({});
       const otherPartner = await createPartner({
         apiKey: 'other-test-api-key',
@@ -106,7 +106,7 @@ describe('AssetsController', () => {
         .expect(404);
     });
 
-    it('should remove asset', async () => {
+    test('should remove asset', async () => {
       return request(app.getHttpServer())
         .delete(`/v1/assets/${asset.id}`)
         .set({

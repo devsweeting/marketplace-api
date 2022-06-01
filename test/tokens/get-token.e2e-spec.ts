@@ -60,7 +60,7 @@ describe('TokensController', () => {
   });
 
   describe(`GET V1 /token/:contractAddress/:tokenId`, () => {
-    it('should return token for image media', async () => {
+    test('should return token for image media', async () => {
       mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);
 
       const response = {
@@ -76,7 +76,7 @@ describe('TokensController', () => {
         });
     });
 
-    it('should return token for youtube media', async () => {
+    test('should return token for youtube media', async () => {
       const assetWithVideo = await createAsset({
         refId: '2',
         name: 'Egg-1',
@@ -105,7 +105,7 @@ describe('TokensController', () => {
         });
     });
 
-    it('should 400 exception tokenId is invalid', async () => {
+    test('should 400 exception tokenId is invalid', async () => {
       return request(app.getHttpServer())
         .get(`/v1/token/${contract.address}/123`)
         .send()
@@ -118,7 +118,7 @@ describe('TokensController', () => {
           });
         });
     });
-    it('should 404 error if address is wrong', () => {
+    test('should 404 error if address is wrong', () => {
       return request(app.getHttpServer())
         .get(`/v1/token/wrongAddress/${token.tokenId}`)
         .send()

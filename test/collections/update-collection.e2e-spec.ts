@@ -43,11 +43,11 @@ describe('CollectionsController', () => {
   });
 
   describe(`PATCH V1 /collections/:id`, () => {
-    it('should throw 404 exception if collection does not exist', async () => {
+    test('should throw 404 exception if collection does not exist', async () => {
       return request(app.getHttpServer()).patch(`/v1/collections/${v4()}`).send({}).expect(404);
     });
 
-    it('should update banner', async () => {
+    test('should update banner', async () => {
       const payload = {
         banner: 'https://cdn.pixabay.com/photo/2012/04/11/17/53/approved-29149_960_720.png',
       };
@@ -90,7 +90,7 @@ describe('CollectionsController', () => {
         });
     });
 
-    it('should update name', async () => {
+    test('should update name', async () => {
       const payload = {
         name: 'Test name 2',
       };
@@ -115,7 +115,7 @@ describe('CollectionsController', () => {
         });
     });
 
-    it('should update description', async () => {
+    test('should update description', async () => {
       const payload = {
         description: 'some new description',
       };

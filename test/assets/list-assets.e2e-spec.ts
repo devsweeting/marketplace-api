@@ -65,7 +65,30 @@ describe('AssetsController', () => {
   });
 
   describe(`GET V1 /assets`, () => {
-    it('should return 1 element', () => {
+    test('should empty list if second page is empty', () => {
+      const params = new URLSearchParams({
+        page: '2',
+      });
+
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 0,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 2,
+            },
+            items: [],
+          });
+        });
+    });
+
+    test('should return 1 element', () => {
       const params = new URLSearchParams({
         limit: '1',
       });
@@ -88,7 +111,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should return 2 page', () => {
+    test('should return 2 page', () => {
       const params = new URLSearchParams({
         limit: '1',
         page: '2',
@@ -112,7 +135,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should return 2 per page', () => {
+    test('should return 2 per page', () => {
       const params = new URLSearchParams({
         limit: '2',
       });
@@ -135,7 +158,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should sort by name ASC', () => {
+    test('should sort by name ASC', () => {
       const params = new URLSearchParams({
         sort: 'asset.name',
         order: 'ASC',
@@ -159,7 +182,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should sort by name DESC', () => {
+    test('should sort by name DESC', () => {
       const params = new URLSearchParams({
         sort: 'asset.name',
         order: 'DESC',
@@ -183,7 +206,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should sort by slug ASC', () => {
+    test('should sort by slug ASC', () => {
       const params = new URLSearchParams({
         sort: 'asset.slug',
         order: 'ASC',
@@ -207,7 +230,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should sort by slug DESC', () => {
+    test('should sort by slug DESC', () => {
       const params = new URLSearchParams({
         sort: 'asset.slug',
         order: 'DESC',
@@ -231,7 +254,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should search by name', () => {
+    test('should search by name', () => {
       const params = new URLSearchParams({
         query: 'pumpkin',
       });
@@ -254,7 +277,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should search by name or description, return 1 record', async () => {
+    test('should search by name or description, return 1 record', async () => {
       await Event.delete({});
       await Asset.delete({});
       assets = [
@@ -293,7 +316,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should search by name or description, return 2 records', async () => {
+    test('should search by name or description, return 2 records', async () => {
       await Event.delete({});
       await Asset.delete({});
       assets = [
@@ -331,7 +354,7 @@ describe('AssetsController', () => {
           });
         });
     });
-    it('should search by name or description and partner hashed id, return 2 records', async () => {
+    test('should search by name or description and partner hashed id, return 2 records', async () => {
       await Event.delete({});
       await Asset.delete({});
       assets = [
@@ -371,7 +394,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should filter by attribute, return 1 record', async () => {
+    test('should filter by attribute, return 1 record', async () => {
       await Event.delete({});
       await Asset.delete({});
 
@@ -412,7 +435,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should filter by attribute, return 2 records', async () => {
+    test('should filter by attribute, return 2 records', async () => {
       await Event.delete({});
       await Asset.delete({});
       assets = [
@@ -466,7 +489,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should filter by attribute and label, return 1 record', async () => {
+    test('should filter by attribute and label, return 1 record', async () => {
       await Event.delete({});
       await Asset.delete({});
       assets = [
@@ -521,7 +544,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should filter by attr_eq and attr_gte, return 2 records', async () => {
+    test('should filter by attr_eq and attr_gte, return 2 records', async () => {
       await Event.delete({});
       await Asset.delete({});
       assets = [
@@ -581,7 +604,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should filter by attr_eq and attr_gte, return 1 records', async () => {
+    test('should filter by attr_eq and attr_gte, return 1 records', async () => {
       await Event.delete({});
       await Asset.delete({});
       assets = [
@@ -638,7 +661,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should not found by attribute, return 0 records', async () => {
+    test('should not found by attribute, return 0 records', async () => {
       const params = new URLSearchParams({
         'attr_eq[category]': 'test',
       });
@@ -661,7 +684,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should not found by label, return 0 records', async () => {
+    test('should not found by label, return 0 records', async () => {
       const params = new URLSearchParams({
         'label_eq[feature]': 'true',
       });
@@ -684,7 +707,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should not found by attribute and label, return 0 records', async () => {
+    test('should not found by attribute and label, return 0 records', async () => {
       const params = new URLSearchParams({
         'attr_eq[category]': 'test',
         'label_eq[feature]': 'true',
@@ -708,7 +731,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should throw exception if attr_eq and attr_gte the same', async () => {
+    test('should throw exception if attr_eq and attr_gte the same', async () => {
       const params = new URLSearchParams('attr_eq[year]=2018&attr_gte[year]=2014');
       return request(app.getHttpServer())
         .get(`/v1/assets?${params.toString()}`)
@@ -723,7 +746,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should throw exception if attr_eq and attr_lte the same', async () => {
+    test('should throw exception if attr_eq and attr_lte the same', async () => {
       const params = new URLSearchParams('attr_eq[year]=2018&attr_lte[year]=2014');
       return request(app.getHttpServer())
         .get(`/v1/assets?${params.toString()}`)
@@ -738,7 +761,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should throw exception if attr_gte the same', async () => {
+    test('should throw exception if attr_gte the same', async () => {
       const params = new URLSearchParams('attr_gte[year]=2018&attr_gte[year]=2014');
       return request(app.getHttpServer())
         .get(`/v1/assets?${params.toString()}`)
@@ -753,7 +776,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should return empty list if attr_lte is different and not found records', async () => {
+    test('should return empty list if attr_lte is different and not found records', async () => {
       const params = new URLSearchParams('attr_lte[year]=2018&attr_lte[cat]=2014');
       return request(app.getHttpServer())
         .get(`/v1/assets?${params.toString()}`)
@@ -773,7 +796,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should throw exception if attr_lte the same', async () => {
+    test('should throw exception if attr_lte the same', async () => {
       const params = new URLSearchParams('attr_lte[year]=2018&attr_lte[year]=2014');
       return request(app.getHttpServer())
         .get(`/v1/assets?${params.toString()}`)
@@ -788,7 +811,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should return empty list if attr_lte is different and not found records', async () => {
+    test('should return empty list if attr_lte is different and not found records', async () => {
       const params = new URLSearchParams('attr_lte[year]=2018&attr_lte[cat]=2014');
       return request(app.getHttpServer())
         .get(`/v1/assets?${params.toString()}`)
@@ -808,7 +831,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should throw exception if attr_gte is greater than attr_lte', async () => {
+    test('should throw exception if attr_gte is greater than attr_lte', async () => {
       const params = new URLSearchParams('attr_gte[year]=2018&attr_lte[year]=2014');
       return request(app.getHttpServer())
         .get(`/v1/assets?${params.toString()}`)
@@ -823,7 +846,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should return list if attr_lte is greater than attr_gte', async () => {
+    test('should return list if attr_lte is greater than attr_gte', async () => {
       const attributes = [
         await createAttribute({
           trait: 'year',
@@ -851,7 +874,368 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should return empty list if there is no results', () => {
+    test('should return list od assets for date range', async () => {
+      const asset2 = await createAsset({
+        refId: '4',
+        name: 'Water',
+        description: 'test-water',
+        partner,
+      });
+      const attributes = [
+        await createAttribute({
+          trait: 'year',
+          value: '2014',
+          assetId: assets[0].id,
+        }),
+        await createAttribute({
+          trait: 'year',
+          value: '2019',
+          assetId: assets[1].id,
+        }),
+        await createAttribute({
+          trait: 'year',
+          value: '2000',
+          assetId: asset2.id,
+        }),
+      ];
+
+      const params = new URLSearchParams('attr_gte[year]=2014&attr_lte[year]=2019');
+      const result = [
+        Object.assign(assets[1], { attributes: [attributes[1]] }),
+        Object.assign(assets[0], { attributes: [attributes[0]] }),
+      ];
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 2,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: assetsTransformer.transformAll(result),
+          });
+        });
+    });
+
+    test('should return list od assets for attr_gte', async () => {
+      const asset2 = await createAsset({
+        refId: '5',
+        name: 'Water',
+        description: 'test-water',
+        partner,
+      });
+      const attributes = [
+        await createAttribute({
+          trait: 'year',
+          value: '2014',
+          assetId: assets[0].id,
+        }),
+        await createAttribute({
+          trait: 'year',
+          value: '2019',
+          assetId: assets[1].id,
+        }),
+        await createAttribute({
+          trait: 'year',
+          value: '2000',
+          assetId: asset2.id,
+        }),
+      ];
+
+      const params = new URLSearchParams('attr_gte[year]=2014');
+      const result = [
+        Object.assign(assets[1], { attributes: [attributes[1]] }),
+        Object.assign(assets[0], { attributes: [attributes[0]] }),
+      ];
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 2,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: assetsTransformer.transformAll(result),
+          });
+        });
+    });
+
+    test('should return list od assets for attr_lte', async () => {
+      const asset2 = await createAsset({
+        refId: '6',
+        name: 'Water',
+        description: 'test-water',
+        partner,
+      });
+      const attributes = [
+        await createAttribute({
+          trait: 'year',
+          value: '2014',
+          assetId: assets[0].id,
+        }),
+        await createAttribute({
+          trait: 'year',
+          value: '2019',
+          assetId: assets[1].id,
+        }),
+        await createAttribute({
+          trait: 'year',
+          value: '2000',
+          assetId: asset2.id,
+        }),
+      ];
+
+      const params = new URLSearchParams('attr_lte[year]=2014');
+      const result = [
+        Object.assign(asset2, { attributes: [attributes[2]] }),
+        Object.assign(assets[0], { attributes: [attributes[0]] }),
+      ];
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 2,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: assetsTransformer.transformAll(result),
+          });
+        });
+    });
+
+    test('should return asset for attr_lte and search', async () => {
+      const asset2 = await createAsset({
+        refId: '7',
+        name: 'Egg',
+        description: 'test-egg',
+        partner,
+      });
+      const attributes = [
+        await createAttribute({
+          trait: 'year',
+          value: '2014',
+          assetId: assets[0].id,
+        }),
+        await createAttribute({
+          trait: 'year',
+          value: '2019',
+          assetId: assets[1].id,
+        }),
+        await createAttribute({
+          trait: 'year',
+          value: '2000',
+          assetId: asset2.id,
+        }),
+      ];
+
+      const params = new URLSearchParams('search=egg&attr_lte[year]=2013');
+      const result = [Object.assign(asset2, { attributes: [attributes[2]] })];
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 1,
+              itemCount: 1,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: assetsTransformer.transformAll(result),
+          });
+        });
+    });
+
+    test('should return 2 records of assets for attr_lte and search', async () => {
+      const assets = [
+        await createAsset({
+          refId: '100',
+          name: 'ABC',
+          description: 'test-abc',
+          partner,
+        }),
+        await createAsset({
+          refId: '101',
+          name: 'Sun',
+          description: 'test-sun',
+          partner,
+        }),
+        await createAsset({
+          refId: '102',
+          name: 'ABC',
+          description: 'test-abc',
+          partner,
+        }),
+      ];
+
+      const attributes = [
+        await createAttribute({
+          trait: 'year',
+          value: '2014',
+          assetId: assets[0].id,
+        }),
+        await createAttribute({
+          trait: 'year',
+          value: '2019',
+          assetId: assets[1].id,
+        }),
+        await createAttribute({
+          trait: 'year',
+          value: '2000',
+          assetId: assets[2].id,
+        }),
+      ];
+
+      const params = new URLSearchParams('search=abc&attr_lte[year]=2020');
+      const result = [
+        Object.assign(assets[2], { attributes: [attributes[2]] }),
+        Object.assign(assets[0], { attributes: [attributes[0]] }),
+      ];
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 2,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: assetsTransformer.transformAll(result),
+          });
+        });
+    });
+
+    test('should return asset for attr_gte and search', async () => {
+      const asset2 = await createAsset({
+        refId: '8',
+        name: 'Sun',
+        description: 'test-sun',
+        partner,
+      });
+      const attributes = [
+        await createAttribute({
+          trait: 'year',
+          value: '2014',
+          assetId: assets[0].id,
+        }),
+        await createAttribute({
+          trait: 'year',
+          value: '2019',
+          assetId: assets[1].id,
+        }),
+        await createAttribute({
+          trait: 'year',
+          value: '2020',
+          assetId: asset2.id,
+        }),
+      ];
+
+      const params = new URLSearchParams('search=sun&attr_gte[year]=2015');
+      const result = [Object.assign(asset2, { attributes: [attributes[2]] })];
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 1,
+              itemCount: 1,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: assetsTransformer.transformAll(result),
+          });
+        });
+    });
+
+    test('should return asset for attr_lte and attr_gte as number', async () => {
+      const asset2 = await createAsset({
+        refId: '9',
+        name: 'Ice',
+        description: 'test-egg',
+        partner,
+      });
+      const attributes = [
+        await createAttribute({
+          trait: 'grade',
+          value: '1',
+          assetId: assets[0].id,
+        }),
+        await createAttribute({
+          trait: 'grade',
+          value: '10',
+          assetId: assets[1].id,
+        }),
+        await createAttribute({
+          trait: 'grade',
+          value: '5',
+          assetId: asset2.id,
+        }),
+      ];
+
+      const params = new URLSearchParams('attr_gte[grade]=5&attr_lte[grade]=10');
+      const result = [
+        Object.assign(asset2, { attributes: [attributes[2]] }),
+        Object.assign(assets[1], { attributes: [attributes[1]] }),
+      ];
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 2,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: assetsTransformer.transformAll(result),
+          });
+        });
+    });
+
+    test('should throw an error if asset attr_lte is less than attr_gte', async () => {
+      const params = new URLSearchParams('attr_gte[grade]=10&attr_lte[grade]=5');
+
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(400)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            error: 'Bad Request',
+            message: 'ATTRIBUTE_LTE_MUST_BE_GREATER_THAN_GTE',
+            statusCode: 400,
+          });
+        });
+    });
+
+    test('should return empty list if there is no results', () => {
       const params = new URLSearchParams({
         query: 'carrot',
       });
@@ -874,7 +1258,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should throw a 400 status if there is no results for the wrong format partner hash id ', () => {
+    test('should throw a 400 status if there is no results for the wrong format partner hash id ', () => {
       const params = new URLSearchParams({
         partner: encodeHashId('wrong-hash', process.env.HASHID_SALT),
       });
@@ -892,7 +1276,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should throw a 400 status if there is no results for the partner hash id not uuid after decode', () => {
+    test('should throw a 400 status if there is no results for the partner hash id not uuid after decode', () => {
       const params = new URLSearchParams({
         partner: encodeHashId('wronghash', process.env.HASHID_SALT),
       });
@@ -910,7 +1294,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should return empty list if there is no results for partner hash id', () => {
+    test('should return empty list if there is no results for partner hash id', () => {
       const params = new URLSearchParams({
         partner: encodeHashId(v4(), process.env.HASHID_SALT),
       });
@@ -933,7 +1317,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should return empty list if name or description has not include searched a word', () => {
+    test('should return empty list if name or description has not include searched a word', () => {
       const params = new URLSearchParams({
         search: 'carrot',
       });
@@ -956,30 +1340,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should empty list if second page is empty', () => {
-      const params = new URLSearchParams({
-        page: '2',
-      });
-
-      return request(app.getHttpServer())
-        .get(`/v1/assets?${params.toString()}`)
-        .send()
-        .expect(200)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            meta: {
-              totalItems: 2,
-              itemCount: 0,
-              itemsPerPage: 25,
-              totalPages: 1,
-              currentPage: 2,
-            },
-            items: [],
-          });
-        });
-    });
-
-    it('should 400 exception if params are invalid', () => {
+    test('should 400 exception if params are invalid', () => {
       const params = new URLSearchParams({
         page: '-4',
         limit: '-10',
@@ -1005,7 +1366,7 @@ describe('AssetsController', () => {
         });
     });
 
-    it('should return valid meta if asset has multiple attributes', async () => {
+    test('should return valid meta if asset has multiple attributes', async () => {
       await Event.delete({});
       await Asset.delete({});
 
@@ -1050,7 +1411,7 @@ describe('AssetsController', () => {
         });
     });
   });
-  it('should return valid meta if asset has media', async () => {
+  test('should return valid meta if asset has media', async () => {
     await Attribute.delete({});
     await Event.delete({});
     await Media.delete({});

@@ -44,7 +44,7 @@ describe('CollectionController', () => {
   });
 
   describe(`GET V1 /collections`, () => {
-    it('should return 1 element', () => {
+    test('should return 1 element', () => {
       const params = new URLSearchParams({
         limit: '1',
       });
@@ -67,7 +67,7 @@ describe('CollectionController', () => {
         });
     });
 
-    it('should return 2 page', () => {
+    test('should return 2 page', () => {
       const params = new URLSearchParams({
         limit: '1',
         page: '2',
@@ -91,7 +91,7 @@ describe('CollectionController', () => {
         });
     });
 
-    it('should return 2 per page', () => {
+    test('should return 2 per page', () => {
       const params = new URLSearchParams({
         limit: '2',
       });
@@ -117,7 +117,7 @@ describe('CollectionController', () => {
         });
     });
 
-    it('should sort by name ASC', () => {
+    test('should sort by name ASC', () => {
       const params = new URLSearchParams({
         sort: 'collection.name',
         order: 'ASC',
@@ -144,7 +144,7 @@ describe('CollectionController', () => {
         });
     });
 
-    it('should sort by name DESC', () => {
+    test('should sort by name DESC', () => {
       const params = new URLSearchParams({
         sort: 'collection.name',
         order: 'DESC',
@@ -171,7 +171,7 @@ describe('CollectionController', () => {
         });
     });
 
-    it('should sort by slug ASC', () => {
+    test('should sort by slug ASC', () => {
       const params = new URLSearchParams({
         sort: 'collection.slug',
         order: 'ASC',
@@ -198,7 +198,7 @@ describe('CollectionController', () => {
         });
     });
 
-    it('should sort by slug DESC', () => {
+    test('should sort by slug DESC', () => {
       const params = new URLSearchParams({
         sort: 'collection.slug',
         order: 'DESC',
@@ -225,7 +225,7 @@ describe('CollectionController', () => {
         });
     });
 
-    it('should search by name', () => {
+    test('should search by name', () => {
       const params = new URLSearchParams({
         query: 'flowers',
       });
@@ -248,7 +248,7 @@ describe('CollectionController', () => {
         });
     });
 
-    it('should empty list if there is no results', () => {
+    test('should empty list if there is no results', () => {
       const params = new URLSearchParams({
         query: 'carrot',
       });
@@ -271,7 +271,7 @@ describe('CollectionController', () => {
         });
     });
 
-    it('should empty list if second page is empty', () => {
+    test('should empty list if second page is empty', () => {
       const params = new URLSearchParams({
         page: '2',
       });
@@ -294,7 +294,7 @@ describe('CollectionController', () => {
         });
     });
 
-    it('should 400 exception if params are invalid', () => {
+    test('should 400 exception if params are invalid', () => {
       const params = new URLSearchParams({
         page: '-4',
         limit: '-10',

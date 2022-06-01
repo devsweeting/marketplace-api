@@ -35,7 +35,7 @@ describe('CollectionsController', () => {
   });
 
   describe(`GET V1 /collections/:id`, () => {
-    it('should return collection', () => {
+    test('should return collection', () => {
       mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);
 
       return request(app.getHttpServer())
@@ -50,7 +50,7 @@ describe('CollectionsController', () => {
         });
     });
 
-    it('should 404 exception id is invalid', () => {
+    test('should 404 exception id is invalid', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections/123`)
         .send()
@@ -64,7 +64,7 @@ describe('CollectionsController', () => {
         });
     });
 
-    it('should 404 exception if collection does not exist', () => {
+    test('should 404 exception if collection does not exist', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections/${v4()}`)
         .send()

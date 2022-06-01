@@ -65,7 +65,7 @@ describe('TokensController', () => {
   });
 
   describe(`GET V1 /token/meta/:contractAddress/:tokenId`, () => {
-    it('should return meta token', async () => {
+    test('should return meta token', async () => {
       mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);
       const { traits, ...rest } = tokensTransformer.transform(token);
       const response = {
@@ -83,7 +83,7 @@ describe('TokensController', () => {
         });
     });
 
-    it('should return meta token json', async () => {
+    test('should return meta token json', async () => {
       mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);
 
       const { traits, ...rest } = tokensTransformer.transform(token);
@@ -102,7 +102,7 @@ describe('TokensController', () => {
         });
     });
 
-    it('should 400 exception tokenId is invalid', () => {
+    test('should 400 exception tokenId is invalid', () => {
       return request(app.getHttpServer())
         .get(`/v1/token/meta/${contract.address}/123`)
         .send()
@@ -116,7 +116,7 @@ describe('TokensController', () => {
         });
     });
 
-    it('should 404 error if address is wrong', () => {
+    test('should 404 error if address is wrong', () => {
       return request(app.getHttpServer())
         .get(`/v1/token/meta/wrongAddress/${token.tokenId}`)
         .send()

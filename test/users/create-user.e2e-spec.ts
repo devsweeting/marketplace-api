@@ -24,7 +24,7 @@ describe('UsersController', () => {
       admin = await createUser({ role: RoleEnum.SUPER_ADMIN, nonce: generateNonce() });
     });
 
-    it('should create a new user record in the db', () => {
+    test('should create a new user record in the db', () => {
       const userRequest: any = {
         email: 'test@mail.com',
         password: 'password',
@@ -37,7 +37,7 @@ describe('UsersController', () => {
         .expect(201);
     });
 
-    it('should throw an exception if user object is undefined', () => {
+    test('should throw an exception if user object is undefined', () => {
       const userRequest: any = {};
 
       return request(app.getHttpServer())
@@ -58,7 +58,7 @@ describe('UsersController', () => {
         });
     });
 
-    it('should throw an exception if user email is invalid', () => {
+    test('should throw an exception if user email is invalid', () => {
       const userRequest: any = {
         email: 'wrong-email',
         password: 'password',
@@ -75,7 +75,7 @@ describe('UsersController', () => {
           error: 'Bad Request',
         });
     });
-    it('should throw an exception if user password is invalid', () => {
+    test('should throw an exception if user password is invalid', () => {
       const userRequest: any = {
         email: 'email@test.com',
         password: '',

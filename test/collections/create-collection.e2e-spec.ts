@@ -42,7 +42,7 @@ describe('CollectionController', () => {
   });
 
   describe(`POST V1 /collections`, () => {
-    it('should create a new collection object in the db', () => {
+    test('should create a new collection object in the db', () => {
       const collectionDto: CollectionDto = {
         name: 'test',
         description: 'description',
@@ -74,7 +74,7 @@ describe('CollectionController', () => {
         });
     });
 
-    it('should throw an exception if assets property is empty', () => {
+    test('should throw an exception if assets property is empty', () => {
       const collectionDto: any = {};
 
       return request(app.getHttpServer())
@@ -94,7 +94,7 @@ describe('CollectionController', () => {
         });
     });
 
-    it('should throw an exception if asset object is invalid', () => {
+    test('should throw an exception if asset object is invalid', () => {
       const collectionDto: CollectionDto = {
         name: '',
         description: '',

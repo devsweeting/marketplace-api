@@ -9,7 +9,7 @@ describe('AppController', () => {
     app = await createApp();
   });
 
-  it('should redirect to url', () => {
+  test('should redirect to url', () => {
     return request(app.getHttpServer())
       .get('/')
       .expect(302)

@@ -54,11 +54,11 @@ describe('WatchlistController', () => {
   });
 
   describe(`GET V1 /watchlist`, () => {
-    it('should throw 401 exception if auth token is missing', () => {
+    test('should throw 401 exception if auth token is missing', () => {
       return request(app.getHttpServer()).get(`/v1/watchlist/`).send({}).expect(401);
     });
 
-    it('should throw 401 exception if token is invalid', () => {
+    test('should throw 401 exception if token is invalid', () => {
       return request(app.getHttpServer())
         .get(`/v1/watchlist/`)
         .set({ Authorization: `Bearer wrong` })
@@ -66,7 +66,7 @@ describe('WatchlistController', () => {
         .expect(401);
     });
 
-    it('should return watchlist assets ids', async () => {
+    test('should return watchlist assets ids', async () => {
       watchlistAssets = [
         await createWatchlistAsset({
           assetId: asset.id,
@@ -84,7 +84,7 @@ describe('WatchlistController', () => {
         });
     });
 
-    it('return empty list if user has not added assets', () => {
+    test('return empty list if user has not added assets', () => {
       const response = Object.assign(watchlist, { watchlistAssets: [] });
       return request(app.getHttpServer())
         .get(`/v1/watchlist`)
@@ -96,7 +96,7 @@ describe('WatchlistController', () => {
         });
     });
 
-    it('return empty list if user has not added assets', async () => {
+    test('return empty list if user has not added assets', async () => {
       await Watchlist.delete({});
 
       return request(app.getHttpServer())
