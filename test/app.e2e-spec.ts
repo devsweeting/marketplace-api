@@ -15,7 +15,7 @@ describe('AppController', () => {
       .expect(302)
       .expect(({ redirect, header }) => {
         expect(redirect).toBeTruthy();
-        expect(header.location).toContain(`${process.env.REDIRECT_ROOT_URL}`);
+        expect(header.location).toContain(`${process.env.FRONTEND_URL}`);
       });
   });
 });
