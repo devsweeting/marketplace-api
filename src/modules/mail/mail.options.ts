@@ -1,12 +1,11 @@
 import { ConfigService } from '@nestjs/config';
-import nodemailer from 'nodemailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import path from 'path';
 import { MailerOptions } from '@nestjs-modules/mailer';
 
 export const getMailerTransport = (configService: ConfigService): MailerOptions => {
   return {
-    transport: nodemailer.createTransport({
+    transport: {
       host: configService.get('mailer.default.mailerHost'),
       port: parseInt(configService.get('mailer.default.mailerPort'), 10),
       secure: configService.get('mailer.default.mailerSecure') === 'true',
@@ -16,7 +15,7 @@ export const getMailerTransport = (configService: ConfigService): MailerOptions 
             pass: configService.get('mailer.default.mailerPassword'),
           }
         : null,
-    }),
+    },
     defaults: {
       from:
         configService.get('mailer.default.mailerFrom') ||

@@ -8,7 +8,7 @@ export class CreateUserDto {
   })
   @IsNotEmpty()
   @IsEmail()
-  email: string;
+  public email: string;
 
   @ApiProperty({
     example: 'password',
@@ -18,5 +18,5 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(8)
-  password: string;
+  public password: string;
 }

@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from './entities/user.entity';
-import { CreateUserDto, UpdateUserDto } from './dto';
+import { CreateUserDto, UpdateUserDto, CreateUserOtpDto } from './dto';
 
 import { BaseService } from '../common/services';
 import { PasswordService } from '../auth/password.service';
@@ -48,6 +48,15 @@ export class UsersService extends BaseService {
     const newUser = new User({ ...userData, nonce });
     await newUser.save();
     return newUser;
+  }
+
+  async createOrUpdateFromOtp(userData: CreateUserOtpDto): Promise<User> {
+    let user = await User.findOne({ where: { email: userData.email } });
+    if (!user) {
+      user = await User.create(userData);
+      await user.save();
+    }
+    return user;
   }
 
   public async update(id: string, userData: UpdateUserDto): Promise<User> {

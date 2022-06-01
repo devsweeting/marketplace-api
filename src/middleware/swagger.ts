@@ -17,6 +17,7 @@ export const setupSwagger = (app: INestApplication) => {
       },
       'api-key',
     )
+    .setExternalDoc('Postman Collection', '/docs-json')
     .build();
 
   SwaggerModule.setup(

@@ -11,11 +11,18 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { ApiNotFoundResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiTooManyRequestsResponse,
+} from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { UserResponse } from './interfaces/user.interface';
+import { CreateUserDto, LoginConfirmDto, LoginRequestDto, UpdateUserDto } from './dto';
 import { User } from './entities/user.entity';
-import { CreateUserDto, UpdateUserDto } from './dto';
 import { UserTransformer } from './transformers/user.transformer';
 import { LocalAuthGuard } from 'modules/auth/guards/local-auth.guard';
 import { AuthService } from 'modules/auth/auth.service';
@@ -23,6 +30,7 @@ import JwtAuthGuard from 'modules/auth/guards/jwt-auth.guard';
 import RoleGuard from 'modules/auth/guards/role.guard';
 import { RoleEnum } from './enums/role.enum';
 import { GetUser } from 'modules/auth/decorators/get-user.decorator';
+import { OtpService } from './services/otp.service';
 
 @ApiTags('users')
 @Controller({
@@ -35,6 +43,7 @@ export class UsersController {
     private readonly usersService: UsersService,
     private readonly userTransformer: UserTransformer,
     private readonly authService: AuthService,
+    private readonly otpService: OtpService,
   ) {}
 
   @UseGuards(LocalAuthGuard)
@@ -100,5 +109,36 @@ export class UsersController {
   @ApiNotFoundResponse()
   public async delete(@Param('id') id): Promise<void> {
     return this.usersService.softDelete(id);
+  }
+
+  @Post('login/request')
+  @ApiOperation({ summary: 'Send OTP token via email.' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Email was sent.',
+  })
+  @ApiTooManyRequestsResponse({
+    description: 'Too many requests',
+  })
+  @HttpCode(HttpStatus.OK)
+  public async loginRequest(@Body() dto: LoginRequestDto) {
+    await this.otpService.sendOtpToken(dto);
+
+    return {
+      status: 200,
+      description: 'Email was sent.',
+    };
+  }
+
+  @Post('login/confirm')
+  @ApiOperation({ summary: 'Confirm OTP token.' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Token is valid.',
+  })
+  @ApiBadRequestResponse({ description: 'Token is invalid.' })
+  @HttpCode(HttpStatus.OK)
+  public async loginConfirm(@Body() dto: LoginConfirmDto) {
+    return this.otpService.confirmOtpToken(dto);
   }
 }

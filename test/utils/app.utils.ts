@@ -14,6 +14,8 @@ import { S3Provider } from 'modules/storage/providers/s3.provider';
 import { FileDownloadService } from 'modules/storage/file-download.service';
 import { Collection, CollectionAsset } from 'modules/collections/entities';
 import { Watchlist, WatchlistAsset } from 'modules/watchlists/entities';
+import { UserLogin, UserOtp } from 'modules/users/entities';
+import { MailerService } from '@nestjs-modules/mailer';
 
 let app: INestApplication;
 
@@ -29,6 +31,10 @@ export const mockS3Provider = {
 
 export const mockFileDownloadService = {
   downloadAll: jest.fn(),
+};
+
+export const mockMailerService = {
+  sendMail: jest.fn(),
 };
 
 export const configureTestApp = (
@@ -52,6 +58,13 @@ export const createApp = async (providers: MockProvider[] = []): Promise<INestAp
 
   module.overrideProvider(S3Provider).useValue(mockS3Provider);
   module.overrideProvider(FileDownloadService).useValue(mockFileDownloadService);
+
+  if (!providers.some((p) => typeof p.provide === typeof MailerService)) {
+    providers.push({
+      provide: MailerService,
+      useValue: mockMailerService,
+    });
+  }
 
   // eslint-disable-next-line no-restricted-syntax
   for (const provider of providers) {
@@ -83,4 +96,6 @@ export const clearAllData = async (): Promise<void> => {
   await Collection.delete({});
   await CollectionAsset.delete({});
   await File.delete({});
+  await UserOtp.delete({});
+  await UserLogin.delete({});
 };

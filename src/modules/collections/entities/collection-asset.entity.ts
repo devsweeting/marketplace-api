@@ -13,7 +13,7 @@ import {
 } from 'typeorm';
 import { Collection } from '.';
 
-@Entity('collections_assets')
+@Entity({ name: 'collections_assets', synchronize: false })
 export class CollectionAsset extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   @IsUUID()
