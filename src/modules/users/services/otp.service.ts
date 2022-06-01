@@ -62,7 +62,7 @@ export class OtpService extends BaseService {
     return this.mailService.send({
       emailTo: userOtp.email,
       content: {
-        subject: 'Confirm the code',
+        subject: 'Your login information',
         expireInHumanReadable: formatDistance(Date.now(), new Date(userOtp.expiresAt), {
           addSuffix: true,
         }),
