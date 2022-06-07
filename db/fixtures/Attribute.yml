@@ -1,17 +1,34 @@
 entity: asset_attributes
+processor: ../../dist/config/database/processors/AttributeProcessor
 items:
   attributes11:
     trait: GRADE
     value: 10
-    display: '{{random.word}}'
+    display: 'number'
     asset: '@asset1'
   attributes12:
     trait: YEAR
     value: 2019
-    display: '{{random.word}}'
+    display: 'date'
     asset: '@asset1'
   attributes13:
     trait: GRADING SERVICE
     value: PSA
-    display: '{{random.word}}'
+    display: 'text'
     asset: '@asset1'
+  attributesCategory{1..5}:
+    trait: CATEGORY
+    display: 'text'
+    asset: '@asset*'
+  attributesGradingService{1..5}:
+    trait: GRADING SERVICE
+    display: 'text'
+    asset: '@asset*'
+  attributesGrade{1..5}:
+    trait: GRADE
+    display: 'number'
+    asset: '@asset*'
+  attributesYear{1..5}:
+    trait: YEAR
+    display: 'date'
+    asset: '@asset*'

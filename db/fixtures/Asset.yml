@@ -14,4 +14,4 @@ items:
     description: '{{lorem.sentence}}'
     contract: '@contract($current)'
     media: 
-      - '@mediaImage1'
+      - '@mediaImage'

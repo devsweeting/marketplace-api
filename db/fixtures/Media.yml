@@ -1,9 +1,9 @@
 entity: asset_media
+processor: ../../dist/config/database/processors/MediaProcessor
 items:
-  mediaImage{1..20}:
+  mediaImage:
     type: 'IMAGE'
     title: '{{lorem.words(4)}}'
     description: '{{lorem.words(4)}}'
     url: '{{image.imageUrl}}'
-    sortOrder: '($current)'
-    file: '@image($current)'
+    file: '@image'
