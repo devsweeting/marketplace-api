@@ -70,6 +70,7 @@ export class S3Provider implements ProviderInterface {
         Bucket: bucket,
         Key: key,
         Body: tmpFile,
+        ACL: 'public-read',
       })
       .promise()) as AwsUploadResponseInterface;
   }
