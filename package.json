@@ -31,6 +31,7 @@
     "migration:show": "yarn typeorm migration:show"
   },
   "dependencies": {
+    "@adminjs/design-system": "^2.2.4",
     "@adminjs/express": "^4.0.3",
     "@adminjs/logger": "^2.2.0",
     "@adminjs/typeorm": "^2.0.1",
@@ -46,7 +47,7 @@
     "@nestjs/swagger": "^5.1.5",
     "@nestjs/terminus": "^8.0.6",
     "@nestjs/typeorm": "^8.0.2",
-    "adminjs": "^5.7.5",
+    "adminjs": "^5.10.3",
     "aws-sdk": "^2.1095.0",
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.7.2",
@@ -111,6 +112,9 @@
     "tsconfig-paths": "^3.10.1",
     "typeorm-fixtures-cli": "^1.10.1",
     "typescript": "^4.3.5"
+  },
+  "resolutions": {
+    "nth-check": "^2.0.1"
   },
   "jest": {
     "moduleFileExtensions": [
