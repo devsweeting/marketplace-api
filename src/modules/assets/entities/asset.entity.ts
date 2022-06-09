@@ -239,16 +239,9 @@ export class Asset extends BaseModel implements BaseEntityInterface {
       const arr = fromAttr.length
         ? fromAttr.filter((value) => toAttr.includes(value))
         : toAttr.filter((value) => fromAttr.includes(value));
-      const fromArr = fromAttr.filter((el) => {
-        return !arr.some((s) => {
-          return s === el;
-        });
-      });
-      const toArr = toAttr.filter((el) => {
-        return !arr.some((s) => {
-          return s === el;
-        });
-      });
+      const fromArr = this.filterRangeArray(fromAttr, arr);
+      const toArr = this.filterRangeArray(toAttr, arr);
+
       if (arr.length) {
         arr.map((attr) => {
           if (Number(params.attr_gte[attr]) >= Number(params.attr_lte[attr])) {
@@ -264,6 +257,11 @@ export class Asset extends BaseModel implements BaseEntityInterface {
               },
             );
           });
+          if (params.attr_eq) {
+            query.andWhere('attributes.trait IN (:...traitArray)', {
+              traitArray: [...Object.keys(params.attr_eq), attr],
+            });
+          }
           return params.attr_eq ? query.orWhere(subQuery) : query.andWhere(subQuery);
         });
       }
@@ -291,6 +289,14 @@ export class Asset extends BaseModel implements BaseEntityInterface {
       }
     }
     return query;
+  }
+
+  private static filterRangeArray(arr1: string[], arr: string[]) {
+    return arr1.filter((el) => {
+      return !arr.some((s) => {
+        return s === el;
+      });
+    });
   }
 
   private async findSlugDuplicate(id: string = null): Promise<string> {
