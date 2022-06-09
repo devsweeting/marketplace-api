@@ -1219,6 +1219,66 @@ describe('AssetsController', () => {
         });
     });
 
+    test('should return asset for attr_lte and attr_gte as number and category', async () => {
+      const asset2 = await createAsset({
+        refId: '20',
+        name: 'Ice',
+        description: 'test-egg',
+        partner,
+      });
+      const attributes = [
+        await createAttribute({
+          trait: 'grade',
+          value: '1',
+          assetId: assets[0].id,
+        }),
+        await createAttribute({
+          trait: 'grade',
+          value: '10',
+          assetId: assets[1].id,
+        }),
+        await createAttribute({
+          trait: 'grade',
+          value: '5',
+          assetId: asset2.id,
+        }),
+        await createAttribute({
+          trait: 'category',
+          value: 'baseball',
+          assetId: asset2.id,
+        }),
+        await createAttribute({
+          trait: 'category',
+          value: 'baseball',
+          assetId: assets[1].id,
+        }),
+      ];
+
+      const params = new URLSearchParams(
+        'attr_eq[category]=baseball&attr_gte[grade]=5&attr_lte[grade]=10',
+      );
+      const result = [
+        Object.assign(asset2, { attributes: [attributes[2], attributes[3]] }),
+        Object.assign(assets[1], { attributes: [attributes[1], attributes[4]] }),
+      ];
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 2,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: assetsTransformer.transformAll(result),
+          });
+        });
+    });
+
     test('should throw an error if asset attr_lte is less than attr_gte', async () => {
       const params = new URLSearchParams('attr_gte[grade]=10&attr_lte[grade]=5');
 
