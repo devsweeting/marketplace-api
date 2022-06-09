@@ -249,7 +249,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
           }
           const subQuery = new Brackets((b) => {
             b.andWhere(
-              'attributes.trait ILIKE :commonTrait AND attributes.value::integer >= :fromValue AND attributes.value::integer <= :toValue',
+              'attributes.trait ILIKE :commonTrait AND attributes.value::float >= :fromValue AND attributes.value::float <= :toValue',
               {
                 commonTrait: `%${attr}%%`,
                 fromValue: params.attr_gte[attr],
@@ -268,7 +268,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
       if (fromArr) {
         fromArr.map((attr) => {
           const subQuery = new Brackets((b) => {
-            b.andWhere('attributes.trait ILIKE :fromTrait AND attributes.value::integer >= :from', {
+            b.andWhere('attributes.trait ILIKE :fromTrait AND attributes.value::float >= :from', {
               fromTrait: `%${attr}%%`,
               from: params.attr_gte[attr],
             });
@@ -279,7 +279,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
       if (toArr) {
         toArr.map((attr) => {
           const subQuery = new Brackets((b) => {
-            b.andWhere('attributes.trait ILIKE :toTrait AND attributes.value::integer <= :to', {
+            b.andWhere('attributes.trait ILIKE :toTrait AND attributes.value::float <= :to', {
               toTrait: `%${attr}%%`,
               to: params.attr_lte[attr],
             });
