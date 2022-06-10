@@ -1,7 +1,7 @@
 entity: files
 processor: ../../dist/config/database/processors/FileProcessor
 items:
-  image:
+  image{1..200}:
     name: '{{lorem.words(4)}}'
     mimeType: image/png
     storage: S3

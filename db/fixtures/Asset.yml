@@ -7,11 +7,9 @@ items:
     description: '{{lorem.sentence}}'
     externalUrl: '{{internet.url}}'
     contract: '@contract1'
-  asset{2..20}:
+  asset{2..200}:
     partner: '@partner{2..5}'
     refId: '{{random.alphaNumeric(8)}}'
     name: '{{lorem.words(4)}}'
     description: '{{lorem.sentence}}'
     contract: '@contract($current)'
-    media: 
-      - '@mediaImage'
