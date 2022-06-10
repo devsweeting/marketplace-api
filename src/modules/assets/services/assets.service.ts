@@ -96,25 +96,28 @@ export class AssetsService {
       page: params.page,
       limit: params.limit,
     });
+    const assetIds = results.items.map((el) => el.id);
+    const relations = await this.getRelations(assetIds);
 
-    return new Pagination(
-      await Promise.all(
-        results.items.map(async (item: Asset) => {
-          item.attributes = await Attribute.findAllByAssetId(item.id);
-          item.labels = await Label.findAllByAssetId(item.id);
-          item.media = await Media.createQueryBuilder('media')
-            .leftJoinAndMapOne('media.file', 'media.file', 'file')
-            .andWhere('media.assetId = :assetId', { assetId: item.id })
-            .andWhere('media.isDeleted = false')
-            .orderBy('media.sortOrder')
-            // Don't use .getOne() because we want to return an array
-            .limit(1)
-            .getMany();
-          return item;
-        }),
-      ),
-      results.meta,
-    );
+    const items = results.items.map((item: Asset) => {
+      const relation = relations.find((el) => el.id === item.id);
+      item.attributes = relation.attributes;
+      item.labels = relation.labels;
+      item.media = relation.media.length > 0 ? [relation.media[0]] : [];
+      return item;
+    });
+    return new Pagination(items, results.meta);
+  }
+
+  public async getRelations(ids: string[]): Promise<Asset[]> {
+    const query = Asset.createQueryBuilder('asset')
+      .leftJoinAndMapMany('asset.attributes', 'asset.attributes', 'attributes')
+      .leftJoinAndMapMany('asset.labels', 'asset.labels', 'labels')
+      .leftJoinAndMapMany('asset.media', 'asset.media', 'media')
+      .leftJoinAndMapOne('media.file', 'media.file', 'file')
+      .orderBy('media.sortOrder')
+      .andWhereInIds(ids);
+    return query.getMany();
   }
 
   public async getOneByParams({ id, slug }: { id: string; slug: string }): Promise<Asset> {
