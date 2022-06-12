@@ -2,6 +2,7 @@
 *.md
 docker-compose.yml
 Dockerfile
+.env*
 
 # Node
 ## Logs
