@@ -1,4 +1,5 @@
 ENV ?= test
+ACCOUNT_ID = $(shell aws --profile jump${ENV} sts get-caller-identity --query "Account" --output text)
 
 .PHONY : help
 help: # Display help
