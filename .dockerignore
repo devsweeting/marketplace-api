@@ -1,7 +1,8 @@
 # Common
 *.md
 docker-compose.yml
-Dockerfile
+Dockerfile*
+.env*
 
 # Node
 ## Logs
