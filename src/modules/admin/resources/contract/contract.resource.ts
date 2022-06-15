@@ -15,7 +15,7 @@ const createContractResource = (): CreateResourceResult<typeof Contract> => ({
   features: [
     (options): object => ({
       ...options,
-      listProperties: ['address', 'name', 'symbol', 'chain', 'externalLink'],
+      listProperties: ['address', 'name', 'chain', 'externalLink'],
     }),
     loggerFeature(loggerConfig),
   ],
@@ -53,10 +53,6 @@ const createContractResource = (): CreateResourceResult<typeof Contract> => ({
       },
       name: {
         position: 2,
-        isRequired: true,
-      },
-      symbol: {
-        position: 3,
         isRequired: true,
       },
       image: {
