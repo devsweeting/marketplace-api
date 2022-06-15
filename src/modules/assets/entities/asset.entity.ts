@@ -158,8 +158,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
     configService: ConfigService,
   ): SelectQueryBuilder<Asset> {
     const query = Asset.createQueryBuilder('asset')
-      .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
-      .andWhere('asset.deletedAt IS NULL')
+      .andWhere('asset.isDeleted = :isDeleted AND asset.deletedAt IS NULL', { isDeleted: false })
       .addOrderBy(params.sort, params.order)
       .addGroupBy('asset.id');
 
@@ -188,7 +187,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
     }
 
     if (params.attr_eq || params.attr_gte || params.attr_lte) {
-      query.innerJoin(
+      query.leftJoin(
         'asset.attributes',
         'attributes',
         'attributes.isDeleted = FALSE AND attributes.deletedAt IS NULL',
@@ -197,13 +196,19 @@ export class Asset extends BaseModel implements BaseEntityInterface {
 
     if (params.attr_eq && Object.keys(params.attr_eq).length) {
       let traitValues;
+      query.andHaving('array_agg(attributes.trait)::text[] @> ARRAY[:...attrEqArr]', {
+        attrEqArr: Object.keys(params.attr_eq),
+      });
       query.andWhere(
         new Brackets((b) => {
-          return Object.entries(params.attr_eq).map((attr) => {
+          return Object.entries(params.attr_eq).map((attr, index) => {
             traitValues = Array.isArray(attr[1]) ? attr[1] : [attr[1]];
-            return b.orWhere(
-              'attributes.trait ILIKE :trait AND attributes.value IN (:...traitValues) ',
-              { trait: `%${attr[0]}%%`, traitValues },
+            b.orWhere(
+              `attributes.trait ILIKE :trait${index} AND attributes.value IN (:...traitValues${index})`,
+              {
+                [`trait${index}`]: `%${attr[0]}%%`,
+                [`traitValues${index}`]: traitValues,
+              },
             );
           });
         }),
@@ -211,21 +216,24 @@ export class Asset extends BaseModel implements BaseEntityInterface {
     }
 
     if (params.label_eq && Object.keys(params.label_eq).length) {
-      query.innerJoin(
+      query.leftJoin(
         'asset.labels',
         'labels',
         'labels.isDeleted = FALSE AND labels.deletedAt IS NULL',
       );
       let labelValues;
+      query.andHaving('array_agg(labels.name)::text[] @> ARRAY[:...labelEqArr]', {
+        labelEqArr: Object.keys(params.label_eq),
+      });
       query.andWhere(
         new Brackets((b) => {
-          return Object.entries(params.label_eq).map((label) => {
+          return Object.entries(params.label_eq).map((label, index) => {
             labelValues = Array.isArray(label[1]) ? label[1] : [label[1]];
             return b.orWhere(
-              'labels.name ILIKE :name AND LOWER(labels.value) IN (:...labelValues) ',
+              `labels.name ILIKE :name${index} AND LOWER(labels.value) IN (:...labelValues${index})`,
               {
-                name: `%${label[0]}%%`,
-                labelValues,
+                [`name${index}`]: `%${label[0]}%%`,
+                [`labelValues${index}`]: labelValues,
               },
             );
           });
@@ -241,51 +249,67 @@ export class Asset extends BaseModel implements BaseEntityInterface {
         : toAttr.filter((value) => fromAttr.includes(value));
       const fromArr = this.filterRangeArray(fromAttr, arr);
       const toArr = this.filterRangeArray(toAttr, arr);
-
       if (arr.length) {
-        arr.map((attr) => {
-          if (Number(params.attr_gte[attr]) >= Number(params.attr_lte[attr])) {
-            throw new AttributeLteMustBeGreaterThanGteException();
-          }
-          const subQuery = new Brackets((b) => {
-            b.andWhere(
-              'attributes.trait ILIKE :commonTrait AND attributes.value::float >= :fromValue AND attributes.value::float <= :toValue',
+        if (Object.keys(params.attr_gte).length > 1) {
+          query.andHaving('array_agg(attributes.trait)::text[] @> ARRAY[:...arr]', { arr: arr });
+        }
+
+        const subQuery = new Brackets((b) => {
+          return arr.map((attr, index) => {
+            if (Number(params.attr_gte[attr]) >= Number(params.attr_lte[attr])) {
+              throw new AttributeLteMustBeGreaterThanGteException();
+            }
+            b.orWhere(
+              `attributes.trait ILIKE :commonTrait${index} AND attributes.value::float >= :fromValue${index} AND attributes.value::float <= :toValue${index}`,
               {
-                commonTrait: `%${attr}%%`,
-                fromValue: params.attr_gte[attr],
-                toValue: params.attr_lte[attr],
+                [`commonTrait${index}`]: `%${attr}%%`,
+                [`fromValue${index}`]: params.attr_gte[attr],
+                [`toValue${index}`]: params.attr_lte[attr],
               },
             );
           });
-          if (params.attr_eq) {
-            query.andWhere('attributes.trait IN (:...traitArray)', {
-              traitArray: [...Object.keys(params.attr_eq), attr],
-            });
-          }
-          return params.attr_eq ? query.orWhere(subQuery) : query.andWhere(subQuery);
         });
+        params.attr_eq ? query.orWhere(subQuery) : query.andWhere(subQuery);
       }
-      if (fromArr) {
-        fromArr.map((attr) => {
-          const subQuery = new Brackets((b) => {
-            b.andWhere('attributes.trait ILIKE :fromTrait AND attributes.value::float >= :from', {
-              fromTrait: `%${attr}%%`,
-              from: params.attr_gte[attr],
-            });
+      if (fromArr.length) {
+        if (params.attr_eq || fromArr.length > 1) {
+          query.having('array_agg(attributes.trait)::text[] @> ARRAY[:...fromArr]', {
+            fromArr: fromArr,
           });
-          return params.attr_eq ? query.orWhere(subQuery) : query.andWhere(subQuery);
+        }
+        const subQuery = new Brackets((b) => {
+          fromArr.map((attr, index) => {
+            b.orWhere(
+              `attributes.trait ILIKE :fromTrait${index} AND attributes.value::float >= :from${index}`,
+              {
+                [`fromTrait${index}`]: `%${attr}%%`,
+                [`from${index}`]: params.attr_gte[attr],
+              },
+            );
+          });
         });
+
+        params.attr_eq ? query.orWhere(subQuery) : query.andWhere(subQuery);
       }
-      if (toArr) {
-        toArr.map((attr) => {
-          const subQuery = new Brackets((b) => {
-            b.andWhere('attributes.trait ILIKE :toTrait AND attributes.value::float <= :to', {
-              toTrait: `%${attr}%%`,
-              to: params.attr_lte[attr],
-            });
+      if (toArr.length) {
+        if (params.attr_eq || toArr.length > 1) {
+          query.having('array_agg(attributes.trait)::text[] @> ARRAY[:...toArr]', {
+            toArr: toArr,
           });
-          return params.attr_eq ? query.orWhere(subQuery) : query.andWhere(subQuery);
+        }
+        const subQuery = new Brackets((b) => {
+          toArr.map((attr, index) => {
+            b.orWhere(
+              `attributes.trait ILIKE :toTrait${index} AND attributes.value::float <= :to${index}`,
+              {
+                [`toTrait${index}`]: `%${attr}%%`,
+                [`to${index}`]: params.attr_lte[attr],
+              },
+            );
+          });
         });
+
+        params.attr_eq ? query.orWhere(subQuery) : query.andWhere(subQuery);
       }
     }
     return query;
