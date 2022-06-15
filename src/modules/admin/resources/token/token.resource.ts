@@ -15,9 +15,9 @@ const createTokenResource = (): CreateResourceResult<typeof Token> => ({
   features: [
     (options): object => ({
       ...options,
-      listProperties: ['tokenId', 'supply', 'assetId', 'contractId', 'createdAt'],
-      showProperties: ['id', 'tokenId', 'supply', 'assetId', 'contractId'],
-      editProperties: ['assetId', 'contractId', 'supply'],
+      listProperties: ['tokenId', 'assetId', 'contractId', 'createdAt'],
+      showProperties: ['id', 'tokenId', 'assetId', 'contractId'],
+      editProperties: ['assetId', 'contractId'],
       filterProperties: [],
     }),
   ],

@@ -15,10 +15,6 @@ export class Contract extends BaseModel implements BaseEntityInterface {
   @Column({ length: 50, nullable: false })
   public name: string;
 
-  @Index()
-  @Column({ length: 12, nullable: false })
-  public symbol: string;
-
   @Column({ length: 200, nullable: true })
   public image: string;
 
