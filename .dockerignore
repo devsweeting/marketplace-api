@@ -3,6 +3,8 @@
 docker-compose.yml
 Dockerfile*
 .env*
+docker/
+Makefile
 
 # Node
 ## Logs
