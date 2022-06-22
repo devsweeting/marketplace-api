@@ -179,8 +179,8 @@ export class Asset extends BaseModel implements BaseEntityInterface {
       query.andWhere(
         new Brackets((b) => {
           b.andWhere(
-            `asset.ts_name @@ websearch_to_tsquery('english', :searchQuery) OR asset.ts_description @@ websearch_to_tsquery('english', :searchQuery)`,
-            { searchQuery: params.search },
+            `asset.ts_name @@ to_tsquery('english', :searchQuery) OR asset.ts_description @@ to_tsquery('english', :searchQuery)`,
+            { searchQuery: `${params.search}:*` },
           );
         }),
       );

@@ -354,6 +354,85 @@ describe('AssetsController', () => {
           });
         });
     });
+
+    test('should search match first word of string by name or description , return 1 record', async () => {
+      await Event.delete({});
+      await Asset.delete({});
+      assets = [
+        await createAsset({
+          refId: '1',
+          name: 'Stephen Curry',
+          description: 'test-stephen',
+          partner,
+        }),
+        await createAsset({
+          refId: '2',
+          name: 'Orange',
+          description: 'test-orange',
+          partner,
+        }),
+      ];
+      const params = new URLSearchParams({
+        search: 'steph',
+      });
+
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 1,
+              itemCount: 1,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: [assetsTransformer.transform(assets[0])],
+          });
+        });
+    });
+
+    test('should search match second word of string by name or description , return 1 record', async () => {
+      await Event.delete({});
+      await Asset.delete({});
+      assets = [
+        await createAsset({
+          refId: '1',
+          name: 'Stephen Curry',
+          description: 'test-stephen',
+          partner,
+        }),
+        await createAsset({
+          refId: '2',
+          name: 'Orange',
+          description: 'test-orange',
+          partner,
+        }),
+      ];
+      const params = new URLSearchParams({
+        search: 'cur',
+      });
+
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 1,
+              itemCount: 1,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: [assetsTransformer.transform(assets[0])],
+          });
+        });
+    });
+
     test('should search by name or description and partner hashed id, return 2 records', async () => {
       await Event.delete({});
       await Asset.delete({});
