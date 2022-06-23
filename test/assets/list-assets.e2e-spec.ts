@@ -570,21 +570,27 @@ describe('AssetsController', () => {
         await createAttribute({
           trait: 'year',
           value: '2019',
-          assetId: assets[1].id,
+          assetId: assets[0].id,
         }),
         await createAttribute({
           trait: 'category',
           value: 'test',
           assetId: assets[1].id,
         }),
+        await createAttribute({
+          trait: 'year',
+          value: '2019',
+          assetId: assets[1].id,
+        }),
       ];
       const params = new URLSearchParams({
         'attr_eq[category]': 'test',
         'attr_gte[year]': '2019',
+        'attr_lte[year]': '2030',
       });
       const result = [
-        Object.assign(assets[1], { attributes: [attributes[1], attributes[2]] }),
-        Object.assign(assets[0], { attributes: [attributes[0]] }),
+        Object.assign(assets[1], { attributes: [attributes[2], attributes[3]] }),
+        Object.assign(assets[0], { attributes: [attributes[0], attributes[1]] }),
       ];
       return request(app.getHttpServer())
         .get(`/v1/assets?${params.toString()}`)
@@ -629,7 +635,7 @@ describe('AssetsController', () => {
         }),
         await createAttribute({
           trait: 'year',
-          value: '2019',
+          value: '2020',
           assetId: assets[1].id,
         }),
         await createAttribute({
@@ -641,6 +647,7 @@ describe('AssetsController', () => {
       const params = new URLSearchParams({
         'attr_eq[category]': 'test',
         'attr_gte[year]': '2020',
+        'attr_lte[year]': '2030',
       });
       const result = [Object.assign(assets[1], { attributes: [attributes[1], attributes[2]] })];
       return request(app.getHttpServer())
@@ -1117,6 +1124,259 @@ describe('AssetsController', () => {
             meta: {
               totalItems: 2,
               itemCount: 2,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: assetsTransformer.transformAll(result),
+          });
+        });
+    });
+
+    test('should return 2 records of assets for attr_eq for different attributes', async () => {
+      const assets = [
+        await createAsset({
+          refId: '103',
+          name: 'ABC',
+          description: 'test-abc',
+          partner,
+        }),
+        await createAsset({
+          refId: '104',
+          name: 'Sun',
+          description: 'test-sun',
+          partner,
+        }),
+        await createAsset({
+          refId: '105',
+          name: 'ABC',
+          description: 'test-abc',
+          partner,
+        }),
+      ];
+
+      const attributes = [
+        await createAttribute({
+          trait: 'Category',
+          value: 'Baseball',
+          assetId: assets[0].id,
+        }),
+        await createAttribute({
+          trait: 'Grading Service',
+          value: 'BGS',
+          assetId: assets[0].id,
+        }),
+        await createAttribute({
+          trait: 'Category',
+          value: 'Baseball',
+          assetId: assets[1].id,
+        }),
+
+        await createAttribute({
+          trait: 'Grading Service',
+          value: 'BGS',
+          assetId: assets[1].id,
+        }),
+        await createAttribute({
+          trait: 'Category',
+          value: 'Baseball',
+          assetId: assets[2].id,
+        }),
+      ];
+
+      const params = new URLSearchParams('attr_eq[Category]=Baseball&attr_eq[Grading Service]=BGS');
+      const result = [
+        Object.assign(assets[1], { attributes: [attributes[2], attributes[3]] }),
+        Object.assign(assets[0], { attributes: [attributes[0], attributes[1]] }),
+      ];
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 2,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: assetsTransformer.transformAll(result),
+          });
+        });
+    });
+
+    test('should return 2 records of assets for label_eq for different labels', async () => {
+      const assets = [
+        await createAsset({
+          refId: '106',
+          name: 'ABC',
+          description: 'test-abc',
+          partner,
+        }),
+        await createAsset({
+          refId: '107',
+          name: 'Sun',
+          description: 'test-sun',
+          partner,
+        }),
+        await createAsset({
+          refId: '108',
+          name: 'ABC',
+          description: 'test-abc',
+          partner,
+        }),
+      ];
+
+      const labels = [
+        await createLabel({
+          name: 'Feature',
+          value: 'true',
+          assetId: assets[0].id,
+        }),
+        await createLabel({
+          name: 'Sold',
+          value: 'false',
+          assetId: assets[0].id,
+        }),
+        await createLabel({
+          name: 'Sold',
+          value: 'true',
+          assetId: assets[1].id,
+        }),
+      ];
+
+      const params = new URLSearchParams('label_eq[Feature]=true&label_eq[Sold]=false');
+      const result = [Object.assign(assets[0], { labels: [labels[0], labels[1]] })];
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 1,
+              itemCount: 1,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: assetsTransformer.transformAll(result),
+          });
+        });
+    });
+
+    test('should return asset for attr_gte and attr_lte range for different attributes', async () => {
+      const attributes = [
+        await createAttribute({
+          trait: 'year',
+          value: '2014',
+          assetId: assets[0].id,
+        }),
+        await createAttribute({
+          trait: 'year',
+          value: '2019',
+          assetId: assets[1].id,
+        }),
+        await createAttribute({
+          trait: 'grade',
+          value: '20',
+          assetId: assets[1].id,
+        }),
+      ];
+
+      const params = new URLSearchParams(
+        'attr_gte[year]=2015&attr_lte[year]=2020&attr_gte[grade]=20&attr_lte[grade]=30',
+      );
+      const result = [Object.assign(assets[1], { attributes: [attributes[1], attributes[2]] })];
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 1,
+              itemCount: 1,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: assetsTransformer.transformAll(result),
+          });
+        });
+    });
+
+    test('should return asset for attr_gte and attr_lte range for different attributes', async () => {
+      const attributes = [
+        await createAttribute({
+          trait: 'year',
+          value: '2014',
+          assetId: assets[0].id,
+        }),
+        await createAttribute({
+          trait: 'year',
+          value: '2019',
+          assetId: assets[1].id,
+        }),
+        await createAttribute({
+          trait: 'grade',
+          value: '20',
+          assetId: assets[1].id,
+        }),
+      ];
+
+      const params = new URLSearchParams('attr_gte[year]=2015&attr_gte[grade]=20');
+      const result = [Object.assign(assets[1], { attributes: [attributes[1], attributes[2]] })];
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 1,
+              itemCount: 1,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: assetsTransformer.transformAll(result),
+          });
+        });
+    });
+
+    test('should return asset for attr_lte range for different attributes', async () => {
+      const attributes = [
+        await createAttribute({
+          trait: 'year',
+          value: '2014',
+          assetId: assets[0].id,
+        }),
+        await createAttribute({
+          trait: 'year',
+          value: '2021',
+          assetId: assets[1].id,
+        }),
+        await createAttribute({
+          trait: 'grade',
+          value: '20',
+          assetId: assets[0].id,
+        }),
+      ];
+
+      const params = new URLSearchParams('attr_lte[year]=2020&attr_lte[grade]=30');
+      const result = [Object.assign(assets[0], { attributes: [attributes[0], attributes[2]] })];
+      return request(app.getHttpServer())
+        .get(`/v1/assets?${params.toString()}`)
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 1,
+              itemCount: 1,
               itemsPerPage: 25,
               totalPages: 1,
               currentPage: 1,

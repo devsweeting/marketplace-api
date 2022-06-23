@@ -8,9 +8,6 @@ export class Token extends BaseModel {
   @Generated('uuid')
   public tokenId: string;
 
-  @Column({ nullable: false, type: 'numeric' })
-  public supply: number;
-
   @OneToOne(() => Asset, (asset) => asset.token, { nullable: false })
   @JoinColumn({ name: 'assetId', referencedColumnName: 'id' })
   public asset: Asset;
@@ -26,10 +23,6 @@ export class Token extends BaseModel {
   @Column({ type: 'string', nullable: false })
   @RelationId((token: Token) => token.contract)
   public contractId: string;
-
-  public isNFT(): boolean {
-    return this.supply == 1;
-  }
 
   public constructor(partial: Partial<Token>) {
     super();

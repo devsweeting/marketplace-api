@@ -6,5 +6,4 @@ items:
     title: '{{lorem.words(4)}}'
     description: '{{lorem.words(4)}}'
     url: '{{image.imageUrl}}'
-    file: '@image($current)'
     asset: '@asset($current)'

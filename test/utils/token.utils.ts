@@ -7,7 +7,6 @@ export const deleteToken = (asset: Asset): Promise<DeleteResult> => {
 
 export const createToken = (data: Partial<Token>): Promise<Token> => {
   const token = new Token({
-    supply: 1,
     ...data,
   });
   return token.save();
