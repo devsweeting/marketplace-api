@@ -14,7 +14,7 @@ import {
 import { ApiNotFoundResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { GetUser } from 'modules/auth/decorators/get-user.decorator';
-import JwtAuthGuard from 'modules/auth/guards/jwt-auth.guard';
+import JwtOtpAuthGuard from 'modules/auth/guards/jwt-otp-auth.guard';
 import { User } from 'modules/users/entities/user.entity';
 import { WatchlistDto, WatchlistIdDto } from './dto';
 import { WatchlistResponse } from './interfaces/watchlist.interface';
@@ -33,7 +33,7 @@ export class WatchlistController {
     private readonly watchlistTransformer: WatchlistTransformer,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtOtpAuthGuard)
   @Get('')
   @ApiOperation({ summary: 'Return asset ids' })
   @ApiResponse({
@@ -47,12 +47,12 @@ export class WatchlistController {
     return this.watchlistTransformer.transform(watchlist);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtOtpAuthGuard)
   @Post('')
   @ApiOperation({ summary: 'Add or re-add an asset to watchlist' })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'Asset is added to watchlist',
+    description: 'Asset was added to watchlist',
   })
   @HttpCode(HttpStatus.CREATED)
   public async create(@GetUser() user: User, @Body() dto: WatchlistDto) {
@@ -62,11 +62,11 @@ export class WatchlistController {
     }
     return {
       status: 201,
-      description: 'Asset is added to watchlist',
+      description: 'Asset was added to watchlist',
     };
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtOtpAuthGuard)
   @Delete(':assetId')
   @ApiOperation({ summary: 'Delete an asset from watchlist' })
   @ApiResponse({

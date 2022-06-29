@@ -7,6 +7,7 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { JwtOtpStrategy } from './strategies/jwt-otp.strategy';
 
 @Module({
   imports: [
@@ -22,7 +23,14 @@ import { JwtStrategy } from './strategies/jwt.strategy';
       }),
     }),
   ],
-  providers: [AuthService, ApiKeyStrategy, LocalStrategy, JwtStrategy, PasswordService],
+  providers: [
+    AuthService,
+    ApiKeyStrategy,
+    LocalStrategy,
+    JwtStrategy,
+    JwtOtpStrategy,
+    PasswordService,
+  ],
   exports: [AuthService, PasswordService],
 })
 export class AuthModule {}

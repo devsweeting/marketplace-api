@@ -11,7 +11,7 @@ import { createAsset } from '../utils/asset.utils';
 import { Asset } from 'modules/assets/entities';
 import { createPartner } from '../utils/partner.utils';
 import { Partner } from 'modules/partners/entities';
-import { generateNonce, generateToken } from '../utils/jwt.utils';
+import { generateNonce, generateOtpToken } from '../utils/jwt.utils';
 
 describe('WatchlistController', () => {
   let app: INestApplication;
@@ -76,7 +76,7 @@ describe('WatchlistController', () => {
       const response = Object.assign(watchlist, { watchlistAssets });
       return request(app.getHttpServer())
         .get(`/v1/watchlist`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -88,7 +88,7 @@ describe('WatchlistController', () => {
       const response = Object.assign(watchlist, { watchlistAssets: [] });
       return request(app.getHttpServer())
         .get(`/v1/watchlist`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -101,7 +101,7 @@ describe('WatchlistController', () => {
 
       return request(app.getHttpServer())
         .get(`/v1/watchlist`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
