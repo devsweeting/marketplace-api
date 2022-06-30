@@ -12,33 +12,48 @@ import { Asset } from 'modules/assets/entities';
 import { createPartner } from '../utils/partner.utils';
 import { Partner } from 'modules/partners/entities';
 import { generateNonce, generateToken } from '../utils/jwt.utils';
+import { createAttribute } from '../utils/attribute.utils';
 
 describe('WatchlistController', () => {
   let app: INestApplication;
   let user: User;
+  let anotherUser: User;
   let partner: Partner;
-  let asset: Asset;
-  let watchlist: Watchlist;
-  let watchlistAssets: WatchlistAsset[];
+  let assets: Asset[];
+  let watchlists: Watchlist[];
   let watchlistTransformer: WatchlistTransformer;
 
   beforeAll(async () => {
     app = await createApp();
     watchlistTransformer = app.get(WatchlistTransformer);
     user = await createUser({ nonce: generateNonce() });
+    anotherUser = await createUser({ nonce: generateNonce() });
     partner = await createPartner({
       apiKey: 'test-api-key',
       accountOwner: user,
     });
-    asset = await createAsset({
-      refId: '1',
-      name: 'Egg',
-      description: 'test-egg',
-      partner,
-    });
-    watchlist = await createWatchlist({
-      user: user,
-    });
+    assets = [
+      await createAsset({
+        refId: '1',
+        name: 'Egg',
+        description: 'test-egg',
+        partner,
+      }),
+      await createAsset({
+        refId: '2',
+        name: 'Water',
+        description: 'test-water',
+        partner,
+      }),
+    ];
+    watchlists = [
+      await createWatchlist({
+        user: user,
+      }),
+      await createWatchlist({
+        user: anotherUser,
+      }),
+    ];
   });
 
   beforeEach(async () => {
@@ -66,46 +81,507 @@ describe('WatchlistController', () => {
         .expect(401);
     });
 
-    test('should return watchlist assets ids', async () => {
-      watchlistAssets = [
+    test('should empty list if second page is empty', async () => {
+      const params = new URLSearchParams({
+        page: '2',
+      });
+
+      await createWatchlistAsset({
+        assetId: assets[0].id,
+        watchlistId: watchlists[0].id,
+      });
+      await createWatchlistAsset({
+        assetId: assets[1].id,
+        watchlistId: watchlists[0].id,
+      });
+
+      return request(app.getHttpServer())
+        .get(`/v1/watchlist?${params.toString()}`)
+        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 0,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 2,
+            },
+            items: [],
+          });
+        });
+    });
+
+    test('should return 1 element', async () => {
+      const params = new URLSearchParams({
+        limit: '1',
+      });
+
+      const watchlistAssets = [
         await createWatchlistAsset({
-          assetId: asset.id,
-          watchlistId: watchlist.id,
+          assetId: assets[0].id,
+          watchlistId: watchlists[0].id,
+        }),
+        await createWatchlistAsset({
+          assetId: assets[1].id,
+          watchlistId: watchlists[0].id,
         }),
       ];
-      const response = Object.assign(watchlist, { watchlistAssets });
+      const result = [Object.assign(watchlistAssets[1], { asset: assets[1] })];
+
+      return request(app.getHttpServer())
+        .get(`/v1/watchlist?${params.toString()}`)
+        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 1,
+              itemsPerPage: 1,
+              totalPages: 2,
+              currentPage: 1,
+            },
+            items: watchlistTransformer.transformAll(result),
+          });
+        });
+    });
+
+    test('should return 2 page', async () => {
+      const params = new URLSearchParams({
+        limit: '1',
+        page: '2',
+      });
+
+      const watchlistAssets = [
+        await createWatchlistAsset({
+          assetId: assets[0].id,
+          watchlistId: watchlists[0].id,
+        }),
+        await createWatchlistAsset({
+          assetId: assets[1].id,
+          watchlistId: watchlists[0].id,
+        }),
+      ];
+      const result = [Object.assign(watchlistAssets[0], { asset: assets[0] })];
+      return request(app.getHttpServer())
+        .get(`/v1/watchlist?${params.toString()}`)
+        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 1,
+              itemsPerPage: 1,
+              totalPages: 2,
+              currentPage: 2,
+            },
+            items: watchlistTransformer.transformAll(result),
+          });
+        });
+    });
+
+    test('should return 2 per page', async () => {
+      const params = new URLSearchParams({
+        limit: '2',
+      });
+      const watchlistAssets = [
+        await createWatchlistAsset({
+          assetId: assets[0].id,
+          watchlistId: watchlists[0].id,
+        }),
+        await createWatchlistAsset({
+          assetId: assets[1].id,
+          watchlistId: watchlists[0].id,
+        }),
+      ];
+      const result = [
+        Object.assign(watchlistAssets[1], { asset: assets[1] }),
+        Object.assign(watchlistAssets[0], { asset: assets[0] }),
+      ];
+      return request(app.getHttpServer())
+        .get(`/v1/watchlist?${params.toString()}`)
+        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 2,
+              itemsPerPage: 2,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: watchlistTransformer.transformAll(result),
+          });
+        });
+    });
+    test('should sort by createdAt ASC', async () => {
+      const params = new URLSearchParams({
+        sort: 'asset.createdAt',
+        order: 'ASC',
+      });
+
+      const watchlistAssets = [
+        await createWatchlistAsset({
+          assetId: assets[0].id,
+          watchlistId: watchlists[0].id,
+        }),
+        await createWatchlistAsset({
+          assetId: assets[1].id,
+          watchlistId: watchlists[0].id,
+        }),
+      ];
+      const result = [
+        Object.assign(watchlistAssets[0], { asset: assets[0] }),
+        Object.assign(watchlistAssets[1], { asset: assets[1] }),
+      ];
+
+      return request(app.getHttpServer())
+        .get(`/v1/watchlist?${params.toString()}`)
+        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 2,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: watchlistTransformer.transformAll(result),
+          });
+        });
+    });
+
+    test('should sort by createdAt DESC', async () => {
+      const params = new URLSearchParams({
+        sort: 'asset.createdAt',
+        order: 'DESC',
+      });
+
+      const watchlistAssets = [
+        await createWatchlistAsset({
+          assetId: assets[0].id,
+          watchlistId: watchlists[0].id,
+        }),
+        await createWatchlistAsset({
+          assetId: assets[1].id,
+          watchlistId: watchlists[0].id,
+        }),
+      ];
+      const result = [
+        Object.assign(watchlistAssets[1], { asset: assets[1] }),
+        Object.assign(watchlistAssets[0], { asset: assets[0] }),
+      ];
+      return request(app.getHttpServer())
+        .get(`/v1/watchlist?${params.toString()}`)
+        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 2,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: watchlistTransformer.transformAll(result),
+          });
+        });
+    });
+
+    test('should sort by slug ASC', async () => {
+      const params = new URLSearchParams({
+        sort: 'asset.slug',
+        order: 'ASC',
+      });
+
+      const watchlistAssets = [
+        await createWatchlistAsset({
+          assetId: assets[0].id,
+          watchlistId: watchlists[0].id,
+        }),
+        await createWatchlistAsset({
+          assetId: assets[1].id,
+          watchlistId: watchlists[0].id,
+        }),
+      ];
+      const result = [
+        Object.assign(watchlistAssets[0], { asset: assets[0] }),
+        Object.assign(watchlistAssets[1], { asset: assets[1] }),
+      ];
+
+      return request(app.getHttpServer())
+        .get(`/v1/watchlist?${params.toString()}`)
+        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 2,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: watchlistTransformer.transformAll(result),
+          });
+        });
+    });
+
+    test('should sort by slug DESC', async () => {
+      const params = new URLSearchParams({
+        sort: 'asset.slug',
+        order: 'DESC',
+      });
+
+      const watchlistAssets = [
+        await createWatchlistAsset({
+          assetId: assets[0].id,
+          watchlistId: watchlists[0].id,
+        }),
+        await createWatchlistAsset({
+          assetId: assets[1].id,
+          watchlistId: watchlists[0].id,
+        }),
+      ];
+      const result = [
+        Object.assign(watchlistAssets[1], { asset: assets[1] }),
+        Object.assign(watchlistAssets[0], { asset: assets[0] }),
+      ];
+      return request(app.getHttpServer())
+        .get(`/v1/watchlist?${params.toString()}`)
+        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 2,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: watchlistTransformer.transformAll(result),
+          });
+        });
+    });
+
+    test('should sort by name ASC', async () => {
+      const params = new URLSearchParams({
+        sort: 'asset.name',
+        order: 'ASC',
+      });
+
+      const watchlistAssets = [
+        await createWatchlistAsset({
+          assetId: assets[0].id,
+          watchlistId: watchlists[0].id,
+        }),
+        await createWatchlistAsset({
+          assetId: assets[1].id,
+          watchlistId: watchlists[0].id,
+        }),
+      ];
+      const result = [
+        Object.assign(watchlistAssets[0], { asset: assets[0] }),
+        Object.assign(watchlistAssets[1], { asset: assets[1] }),
+      ];
+
+      return request(app.getHttpServer())
+        .get(`/v1/watchlist?${params.toString()}`)
+        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 2,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: watchlistTransformer.transformAll(result),
+          });
+        });
+    });
+
+    test('should sort by name DESC', async () => {
+      const params = new URLSearchParams({
+        sort: 'asset.name',
+        order: 'DESC',
+      });
+
+      const watchlistAssets = [
+        await createWatchlistAsset({
+          assetId: assets[0].id,
+          watchlistId: watchlists[0].id,
+        }),
+        await createWatchlistAsset({
+          assetId: assets[1].id,
+          watchlistId: watchlists[0].id,
+        }),
+      ];
+      const result = [
+        Object.assign(watchlistAssets[1], { asset: assets[1] }),
+        Object.assign(watchlistAssets[0], { asset: assets[0] }),
+      ];
+      return request(app.getHttpServer())
+        .get(`/v1/watchlist?${params.toString()}`)
+        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 2,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: watchlistTransformer.transformAll(result),
+          });
+        });
+    });
+
+    test('should return watchlist assets', async () => {
+      const watchlistAssets = [
+        await createWatchlistAsset({
+          assetId: assets[0].id,
+          watchlistId: watchlists[0].id,
+        }),
+        await createWatchlistAsset({
+          assetId: assets[1].id,
+          watchlistId: watchlists[0].id,
+        }),
+      ];
+      const result = [
+        Object.assign(watchlistAssets[1], { asset: assets[1] }),
+        Object.assign(watchlistAssets[0], { asset: assets[0] }),
+      ];
       return request(app.getHttpServer())
         .get(`/v1/watchlist`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
-          expect(body).toEqual(watchlistTransformer.transform(response));
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 2,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: watchlistTransformer.transformAll(result),
+          });
+        });
+    });
+
+    test('should return watchlist assets with attributes', async () => {
+      const attributes = [
+        await createAttribute({
+          trait: 'category',
+          value: 'baseball',
+          assetId: assets[0].id,
+        }),
+      ];
+      const watchlistAssets = [
+        await createWatchlistAsset({
+          assetId: assets[0].id,
+          watchlistId: watchlists[0].id,
+        }),
+        await createWatchlistAsset({
+          assetId: assets[1].id,
+          watchlistId: watchlists[0].id,
+        }),
+      ];
+      const result = [
+        Object.assign(watchlistAssets[1], { asset: assets[1] }),
+        Object.assign(watchlistAssets[0], { asset: assets[0], attributes: attributes[0] }),
+      ];
+      return request(app.getHttpServer())
+        .get(`/v1/watchlist`)
+        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 2,
+              itemCount: 2,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: watchlistTransformer.transformAll(result),
+          });
+        });
+    });
+
+    test('should return watchlist assets only for user owner', async () => {
+      const watchlistAssets = [
+        await createWatchlistAsset({
+          assetId: assets[0].id,
+          watchlistId: watchlists[0].id,
+        }),
+        await createWatchlistAsset({
+          assetId: assets[0].id,
+          watchlistId: watchlists[1].id,
+        }),
+      ];
+      const result = [Object.assign(watchlistAssets[0], { asset: assets[0] })];
+      return request(app.getHttpServer())
+        .get(`/v1/watchlist`)
+        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .send()
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            meta: {
+              totalItems: 1,
+              itemCount: 1,
+              itemsPerPage: 25,
+              totalPages: 1,
+              currentPage: 1,
+            },
+            items: watchlistTransformer.transformAll(result),
+          });
         });
     });
 
     test('return empty list if user has not added assets', () => {
-      const response = Object.assign(watchlist, { watchlistAssets: [] });
       return request(app.getHttpServer())
         .get(`/v1/watchlist`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
-          expect(body).toEqual(watchlistTransformer.transform(response));
-        });
-    });
-
-    test('return empty list if user has not added assets', async () => {
-      await Watchlist.delete({});
-
-      return request(app.getHttpServer())
-        .get(`/v1/watchlist`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
-        .send()
-        .expect(200)
-        .expect(({ body }) => {
-          expect(body).toEqual({ assets: [] });
+          expect(body).toEqual({
+            meta: {
+              totalItems: 0,
+              itemCount: 0,
+              itemsPerPage: 25,
+              totalPages: 0,
+              currentPage: 1,
+            },
+            items: [],
+          });
         });
     });
   });
