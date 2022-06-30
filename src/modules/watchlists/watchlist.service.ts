@@ -13,6 +13,7 @@ import { WatchlistAssetDuplicatedException } from './exceptions/watchlist-asset-
 import { WatchlistAssetNotAddedException } from './exceptions/watchlist-asset-not-added.exception';
 import { WatchlistAssetOverLimitException } from './exceptions/watchlist-asset-overlimit.exception';
 import { WatchlistNotFoundException } from './exceptions/watchlist-not-found.exception';
+import { WatchlistCheckAssetResponse } from './responses/watchlist-check-asset.response';
 
 @Injectable()
 export class WatchlistService extends BaseService {
@@ -57,6 +58,51 @@ export class WatchlistService extends BaseService {
       .orderBy('media.sortOrder')
       .andWhereInIds(ids);
     return query.getMany();
+  }
+
+  public async checkAssetInWatchlist({
+    assetId,
+    slug,
+    user,
+  }: {
+    assetId: string;
+    slug: string;
+    user: User;
+  }): Promise<WatchlistCheckAssetResponse> {
+    const asset = await Asset.findOne({
+      where: [
+        {
+          id: assetId,
+        },
+        {
+          slug: slug,
+        },
+      ],
+    });
+    if (!asset) {
+      throw new AssetNotFoundException();
+    }
+    const query = Watchlist.createQueryBuilder('watchlist')
+      .leftJoinAndMapMany(
+        'watchlist.watchlistAssets',
+        'watchlist.watchlistAssets',
+        'watchlistAssets',
+        'watchlistAssets.isDeleted = FALSE AND watchlistAssets.deletedAt IS NULL',
+      )
+      .leftJoinAndMapOne('watchlistAssets.asset', 'watchlistAssets.asset', 'asset')
+      .where('watchlist.userId = :userId', {
+        userId: user.id,
+      });
+
+    if (assetId) {
+      query.andWhere('asset.id = :assetId', { assetId });
+    }
+    if (slug) {
+      query.andWhere('asset.slug = :slug', { slug });
+    }
+    const watchlist = await query.getOne();
+
+    return { assetId: asset.id, inWatchlist: !!watchlist };
   }
 
   public async assignAssetToWatchlist(user: User, dto: WatchlistDto) {

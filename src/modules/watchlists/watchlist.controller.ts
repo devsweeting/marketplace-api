@@ -19,12 +19,13 @@ import JwtAuthGuard from 'modules/auth/guards/jwt-auth.guard';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
 import { generateSwaggerPaginatedSchema } from 'modules/common/helpers/generate-swagger-paginated-schema';
 import { User } from 'modules/users/entities/user.entity';
-import { ListWatchlistDto, WatchlistDto, WatchlistIdDto } from './dto';
+import { ListWatchlistDto, AssetIdOrSlugDto, WatchlistDto, WatchlistIdDto } from './dto';
+import { WatchlistCheckAssetResponse } from './responses/watchlist-check-asset.response';
 import { WatchlistAssetResponse } from './responses/watchlist.response';
 
 import { WatchlistTransformer } from './transformers/watchlist.transformer';
 import { WatchlistService } from './watchlist.service';
-
+import { validate as isValidUUID } from 'uuid';
 @ApiTags('watchlist')
 @Controller({
   path: 'watchlist',
@@ -85,5 +86,37 @@ export class WatchlistController {
   })
   public async delete(@GetUser() user: User, @Param() params: WatchlistIdDto): Promise<void> {
     await this.watchlistService.deleteAssetFromWatchlist(user, params.assetId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('check/:checkParams')
+  @ApiOperation({ summary: 'Check an asset in watchlist' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Asset checked',
+  })
+  @ApiNotFoundResponse({
+    description: 'Asset not found',
+  })
+  @HttpCode(HttpStatus.OK)
+  public async checkAssetInWatchlist(
+    @GetUser() user: User,
+    @Param() params: AssetIdOrSlugDto,
+  ): Promise<WatchlistCheckAssetResponse> {
+    let watchlist;
+    if (isValidUUID(params.checkParams)) {
+      watchlist = await this.watchlistService.checkAssetInWatchlist({
+        assetId: params.checkParams,
+        slug: null,
+        user,
+      });
+    } else {
+      watchlist = await this.watchlistService.checkAssetInWatchlist({
+        assetId: null,
+        slug: params.checkParams,
+        user,
+      });
+    }
+    return watchlist;
   }
 }
