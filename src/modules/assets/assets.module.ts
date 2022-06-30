@@ -23,6 +23,6 @@ import { MediaTransformer } from './transformers/media.transformer';
     MediaTransformer,
   ],
   controllers: [AssetsController, TokensController, MediaController],
-  exports: [AssetsService],
+  exports: [AssetsService, AttributeTransformer, MediaTransformer],
 })
 export class AssetsModule {}
