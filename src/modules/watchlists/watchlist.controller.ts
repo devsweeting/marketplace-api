@@ -8,6 +8,7 @@ import {
   InternalServerErrorException,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 
@@ -15,9 +16,11 @@ import { ApiNotFoundResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs
 
 import { GetUser } from 'modules/auth/decorators/get-user.decorator';
 import JwtOtpAuthGuard from 'modules/auth/guards/jwt-otp-auth.guard';
+import { PaginatedResponse } from 'modules/common/dto/paginated.response';
+import { generateSwaggerPaginatedSchema } from 'modules/common/helpers/generate-swagger-paginated-schema';
 import { User } from 'modules/users/entities/user.entity';
-import { WatchlistDto, WatchlistIdDto } from './dto';
-import { WatchlistResponse } from './interfaces/watchlist.interface';
+import { ListWatchlistDto, WatchlistDto, WatchlistIdDto } from './dto';
+import { WatchlistAssetResponse } from './responses/watchlist.response';
 
 import { WatchlistTransformer } from './transformers/watchlist.transformer';
 import { WatchlistService } from './watchlist.service';
@@ -35,16 +38,20 @@ export class WatchlistController {
 
   @UseGuards(JwtOtpAuthGuard)
   @Get('')
-  @ApiOperation({ summary: 'Return asset ids' })
+  @ApiOperation({ summary: 'Return list of assets' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'List of assets ids',
+    description: 'List of assets',
+    schema: generateSwaggerPaginatedSchema(WatchlistAssetResponse),
   })
   @HttpCode(HttpStatus.OK)
-  public async get(@GetUser() user: User): Promise<WatchlistResponse | []> {
-    const watchlist = await this.watchlistService.getWatchlist(user);
+  public async get(
+    @Query() params: ListWatchlistDto,
+    @GetUser() user: User,
+  ): Promise<PaginatedResponse<WatchlistAssetResponse>> {
+    const watchlist = await this.watchlistService.getWatchlist(params, user);
 
-    return this.watchlistTransformer.transform(watchlist);
+    return this.watchlistTransformer.transformPaginated(watchlist);
   }
 
   @UseGuards(JwtOtpAuthGuard)
