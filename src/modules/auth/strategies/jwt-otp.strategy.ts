@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtOtpStrategy extends PassportStrategy(Strategy, 'jwt-otp') {
   constructor() {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -14,8 +14,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   public validate(payload: any) {
     return Object.assign(
-      payload.id && payload.address
-        ? { id: payload.id, address: payload.address, role: payload.role }
+      payload.id && payload.email
+        ? { id: payload.id, email: payload.email, role: payload.role }
         : {},
     );
   }

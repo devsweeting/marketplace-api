@@ -11,7 +11,7 @@ import { createAsset } from '../utils/asset.utils';
 import { Asset } from 'modules/assets/entities';
 import { createPartner } from '../utils/partner.utils';
 import { Partner } from 'modules/partners/entities';
-import { generateNonce, generateToken } from '../utils/jwt.utils';
+import { generateNonce, generateOtpToken } from '../utils/jwt.utils';
 import { createAttribute } from '../utils/attribute.utils';
 
 describe('WatchlistController', () => {
@@ -97,7 +97,7 @@ describe('WatchlistController', () => {
 
       return request(app.getHttpServer())
         .get(`/v1/watchlist?${params.toString()}`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -133,7 +133,7 @@ describe('WatchlistController', () => {
 
       return request(app.getHttpServer())
         .get(`/v1/watchlist?${params.toString()}`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -169,7 +169,7 @@ describe('WatchlistController', () => {
       const result = [Object.assign(watchlistAssets[0], { asset: assets[0] })];
       return request(app.getHttpServer())
         .get(`/v1/watchlist?${params.toString()}`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -206,7 +206,7 @@ describe('WatchlistController', () => {
       ];
       return request(app.getHttpServer())
         .get(`/v1/watchlist?${params.toString()}`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -245,7 +245,7 @@ describe('WatchlistController', () => {
 
       return request(app.getHttpServer())
         .get(`/v1/watchlist?${params.toString()}`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -284,7 +284,7 @@ describe('WatchlistController', () => {
       ];
       return request(app.getHttpServer())
         .get(`/v1/watchlist?${params.toString()}`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -324,7 +324,7 @@ describe('WatchlistController', () => {
 
       return request(app.getHttpServer())
         .get(`/v1/watchlist?${params.toString()}`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -363,7 +363,7 @@ describe('WatchlistController', () => {
       ];
       return request(app.getHttpServer())
         .get(`/v1/watchlist?${params.toString()}`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -403,7 +403,7 @@ describe('WatchlistController', () => {
 
       return request(app.getHttpServer())
         .get(`/v1/watchlist?${params.toString()}`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -442,7 +442,7 @@ describe('WatchlistController', () => {
       ];
       return request(app.getHttpServer())
         .get(`/v1/watchlist?${params.toString()}`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -476,7 +476,7 @@ describe('WatchlistController', () => {
       ];
       return request(app.getHttpServer())
         .get(`/v1/watchlist`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -517,7 +517,7 @@ describe('WatchlistController', () => {
       ];
       return request(app.getHttpServer())
         .get(`/v1/watchlist`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -548,7 +548,7 @@ describe('WatchlistController', () => {
       const result = [Object.assign(watchlistAssets[0], { asset: assets[0] })];
       return request(app.getHttpServer())
         .get(`/v1/watchlist`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -568,7 +568,7 @@ describe('WatchlistController', () => {
     test('return empty list if user has not added assets', () => {
       return request(app.getHttpServer())
         .get(`/v1/watchlist`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(200)
         .expect(({ body }) => {

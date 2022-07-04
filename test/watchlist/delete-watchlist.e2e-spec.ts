@@ -11,7 +11,7 @@ import { Asset } from 'modules/assets/entities';
 import { createPartner } from '../utils/partner.utils';
 import { Partner } from 'modules/partners/entities';
 import { v4 } from 'uuid';
-import { generateNonce, generateToken } from '../utils/jwt.utils';
+import { generateNonce, generateOtpToken } from '../utils/jwt.utils';
 
 describe('WatchlistController', () => {
   let app: INestApplication;
@@ -67,7 +67,7 @@ describe('WatchlistController', () => {
     test('should throw 400 exception if assetId is not uuid', () => {
       return request(app.getHttpServer())
         .delete(`/v1/watchlist/123`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(400)
         .expect(({ body }) => {
@@ -82,7 +82,7 @@ describe('WatchlistController', () => {
     test('should throw 404 exception if media does not exist', () => {
       return request(app.getHttpServer())
         .delete(`/v1/watchlist/${v4()}`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(404);
     });
@@ -91,7 +91,7 @@ describe('WatchlistController', () => {
       await createWatchlistAsset({ assetId: asset.id, watchlistId: watchlist.id });
       return request(app.getHttpServer())
         .delete(`/v1/watchlist/${v4()}`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(404);
     });
@@ -100,7 +100,7 @@ describe('WatchlistController', () => {
       await createWatchlistAsset({ assetId: asset.id, watchlistId: watchlist.id });
       return request(app.getHttpServer())
         .delete(`/v1/watchlist/${v4()}`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(404);
     });
@@ -108,7 +108,7 @@ describe('WatchlistController', () => {
     test('should throw 409 exception if asset not added to watchlist', async () => {
       return request(app.getHttpServer())
         .delete(`/v1/watchlist/${asset.id}`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(409)
         .expect(({ body }) => {
@@ -124,7 +124,7 @@ describe('WatchlistController', () => {
       await createWatchlistAsset({ assetId: asset.id, watchlistId: watchlist.id });
       return request(app.getHttpServer())
         .delete(`/v1/watchlist/${asset.id}`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send()
         .expect(200)
         .then(async () => {
