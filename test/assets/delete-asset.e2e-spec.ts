@@ -1,4 +1,3 @@
-import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { createPartner } from '@/test/utils/partner.utils';
@@ -11,6 +10,8 @@ import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { createImageMedia } from '../utils/media.utils';
+import * as testApp from '../utils/app.utils';
+import { AUTH_UNAUTHORIZED } from '../utils/test-helper';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -18,6 +19,7 @@ describe('AssetsController', () => {
   let asset: Asset;
   let attribute: Attribute;
   let user: User;
+  let header;
 
   beforeAll(async () => {
     app = await createApp();
@@ -37,6 +39,9 @@ describe('AssetsController', () => {
       asset,
     });
     await createImageMedia({ assetId: asset.id });
+    header = {
+      'x-api-key': partner.apiKey,
+    };
   });
 
   afterEach(async () => {
@@ -49,44 +54,32 @@ describe('AssetsController', () => {
 
   describe(`DELETE V1 /assets/:id`, () => {
     test('should throw 401 exception if auth token is missing', () => {
-      return request(app.getHttpServer()).delete(`/v1/assets/${asset.id}`).send().expect(401);
+      return testApp.requireAuthorization(
+        testApp.del(app, `/v1/assets/${asset.id}`, 401, null, {}, {}),
+        AUTH_UNAUTHORIZED,
+      );
     });
 
-    test('should throw 401 exception if auth token is invalid', () => {
-      return request(app.getHttpServer())
-        .delete(`/v1/assets/${asset.id}`)
-        .set({
-          'x-api-key': 'invalid key',
-        })
-        .send()
-        .expect(401);
+    test('should throw 401 exception if auth token is invalid', async () => {
+      const customHeader = {
+        'x-api-key': 'invalid key',
+      };
+      return testApp.requireAuthorization(
+        testApp.del(app, `/v1/assets/${asset.id}`, 401, null, {}, customHeader),
+        AUTH_UNAUTHORIZED,
+      );
     });
 
-    test('should throw 404 exception if id is not uuid', () => {
-      return request(app.getHttpServer())
-        .delete(`/v1/assets/123`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send()
-        .expect(400)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            error: 'Bad Request',
-            message: ['id must be a UUID'],
-            statusCode: 400,
-          });
-        });
+    test('should throw 400 exception if id is not uuid', () => {
+      return testApp.del(app, `/v1/assets/123`, 400, null, {}, header);
     });
 
     test('should throw 404 exception if asset does not exist', () => {
-      return request(app.getHttpServer())
-        .delete(`/v1/assets/${v4()}`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send()
-        .expect(404);
+      const response = {
+        message: 'Not Found',
+        statusCode: 404,
+      };
+      return testApp.del(app, `/v1/assets/${v4()}`, 404, null, response, header);
     });
 
     test('should throw 404 exception if asset does not belong to the partner', async () => {
@@ -97,33 +90,20 @@ describe('AssetsController', () => {
       });
       const otherAsset = await createAsset({ partner: otherPartner });
 
-      return request(app.getHttpServer())
-        .delete(`/v1/assets/${otherAsset.id}`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send()
-        .expect(404);
+      return testApp.del(app, `/v1/assets/${otherAsset.id}`, 404, null, {}, header);
     });
 
     test('should remove asset', async () => {
-      return request(app.getHttpServer())
-        .delete(`/v1/assets/${asset.id}`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send()
-        .expect(200)
-        .then(async () => {
-          const persistedAsset = await Asset.findOne({
-            where: { id: asset.id, isDeleted: false },
-          });
-          const persistedAttribute = await Attribute.findOne({
-            where: { id: attribute.id, isDeleted: false },
-          });
-          expect(persistedAsset).toBeUndefined();
-          expect(persistedAttribute).toBeUndefined();
-        });
+      await testApp.del(app, `/v1/assets/${asset.id}`, 200, null, {}, header);
+
+      const persistedAsset = await Asset.findOne({
+        where: { id: asset.id, isDeleted: false },
+      });
+      const persistedAttribute = await Attribute.findOne({
+        where: { id: attribute.id, isDeleted: false },
+      });
+      expect(persistedAsset).toBeUndefined();
+      expect(persistedAttribute).toBeUndefined();
     });
   });
 });

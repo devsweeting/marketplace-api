@@ -1,4 +1,3 @@
-import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { clearAllData, createApp, mockS3Provider } from '@/test/utils/app.utils';
 import { Asset, Media } from 'modules/assets/entities';
@@ -13,6 +12,7 @@ import { RoleEnum } from 'modules/users/enums/role.enum';
 import { createImageMedia } from '../utils/media.utils';
 import { MediaTransformer } from 'modules/assets/transformers/media.transformer';
 import { createFile } from '../utils/file.utils';
+import * as testApp from '../utils/app.utils';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -21,6 +21,7 @@ describe('AssetsController', () => {
   let user: User;
   let assetsTransformer: AssetsTransformer;
   let mediaTransformer: MediaTransformer;
+  let header;
   const mockedFileUrl = 'http://example.com';
 
   beforeAll(async () => {
@@ -39,6 +40,9 @@ describe('AssetsController', () => {
       description: 'test-egg',
       partner,
     });
+    header = {
+      'x-api-key': partner.apiKey,
+    };
   });
 
   afterEach(async () => {
@@ -57,16 +61,8 @@ describe('AssetsController', () => {
         ...assetsTransformer.transform(asset),
         media: mediaTransformer.transformAll([media]),
       };
-      return request(app.getHttpServer())
-        .get(`/v1/assets/${asset.id}`)
-        .send()
-        .expect(200)
-        .expect(({ body }) => {
-          expect(body).toEqual(response);
-        })
-        .then(() => {
-          expect(mockS3Provider.getUrl).toHaveBeenCalledWith(media.file);
-        });
+      await testApp.get(app, `/v1/assets/${asset.id}`, 200, response, {}, header);
+      expect(mockS3Provider.getUrl).toHaveBeenCalledWith(media.file);
     });
 
     test('should return asset only with active media', async () => {
@@ -79,45 +75,28 @@ describe('AssetsController', () => {
         ...assetsTransformer.transform(asset),
         media: mediaTransformer.transformAll([media]),
       };
-      return request(app.getHttpServer())
-        .get(`/v1/assets/${asset.id}`)
-        .send()
-        .expect(200)
-        .expect(({ body }) => {
-          expect(body).toEqual(response);
-          expect(body.media.length).toEqual(1);
-        })
-        .then(() => {
-          expect(mockS3Provider.getUrl).toHaveBeenCalledWith(media.file);
-        });
+
+      await testApp.get(app, `/v1/assets/${asset.id}`, 200, response, {}, header);
+
+      expect(mockS3Provider.getUrl).toHaveBeenCalledWith(media.file);
     });
 
-    test('should 404 exception id is invalid', () => {
-      return request(app.getHttpServer())
-        .get(`/v1/assets/123`)
-        .send()
-        .expect(404)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            error: 'Not Found',
-            message: 'ASSET_NOT_FOUND',
-            statusCode: 404,
-          });
-        });
+    test('should 404 exception id is invalid', async () => {
+      const response = {
+        error: 'Not Found',
+        message: 'ASSET_NOT_FOUND',
+        statusCode: 404,
+      };
+      await testApp.get(app, `/v1/assets/123`, 404, response, {}, header);
     });
 
-    test('should 404 exception if file does not exist', () => {
-      return request(app.getHttpServer())
-        .get(`/v1/assets/${v4()}`)
-        .send()
-        .expect(404)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            error: 'Not Found',
-            message: 'ASSET_NOT_FOUND',
-            statusCode: 404,
-          });
-        });
+    test('should 404 exception if file does not exist', async () => {
+      const response = {
+        error: 'Not Found',
+        message: 'ASSET_NOT_FOUND',
+        statusCode: 404,
+      };
+      return testApp.get(app, `/v1/assets/${v4()}`, 404, response, {}, header);
     });
   });
 });
