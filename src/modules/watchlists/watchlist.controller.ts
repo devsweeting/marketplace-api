@@ -88,7 +88,7 @@ export class WatchlistController {
     await this.watchlistService.deleteAssetFromWatchlist(user, params.assetId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtOtpAuthGuard)
   @Get('check/:checkParams')
   @ApiOperation({ summary: 'Check an asset in watchlist' })
   @ApiResponse({
