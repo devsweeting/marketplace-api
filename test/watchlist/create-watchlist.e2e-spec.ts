@@ -11,7 +11,7 @@ import { Asset } from 'modules/assets/entities';
 import { createPartner } from '../utils/partner.utils';
 import { Partner } from 'modules/partners/entities';
 import { v4 } from 'uuid';
-import { generateNonce, generateToken } from '../utils/jwt.utils';
+import { generateNonce, generateOtpToken } from '../utils/jwt.utils';
 
 describe('WatchlistController', () => {
   let app: INestApplication;
@@ -67,11 +67,11 @@ describe('WatchlistController', () => {
       const dtoRequest = { assetId: asset.id };
       return request(app.getHttpServer())
         .post(`/v1/watchlist`)
-        .set({ Authorization: `Bearer ${generateToken(user)}` })
+        .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
         .send(dtoRequest)
         .expect(201)
         .expect(({ body }) => {
-          expect(body).toEqual({ status: 201, description: 'Asset is added to watchlist' });
+          expect(body).toEqual({ status: 201, description: 'Asset was added to watchlist' });
         })
         .then(async () => {
           const watchlist = await Watchlist.findOne(
@@ -93,11 +93,11 @@ describe('WatchlistController', () => {
     });
     return request(app.getHttpServer())
       .post(`/v1/watchlist`)
-      .set({ Authorization: `Bearer ${generateToken(user)}` })
+      .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
       .send(dtoRequest)
       .expect(201)
       .expect(({ body }) => {
-        expect(body).toEqual({ status: 201, description: 'Asset is added to watchlist' });
+        expect(body).toEqual({ status: 201, description: 'Asset was added to watchlist' });
       });
   });
   test('should add new asset to watchlist if watchlist exists with another asset', async () => {
@@ -119,11 +119,11 @@ describe('WatchlistController', () => {
 
     return request(app.getHttpServer())
       .post(`/v1/watchlist`)
-      .set({ Authorization: `Bearer ${generateToken(user)}` })
+      .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
       .send(dtoRequest)
       .expect(201)
       .expect(({ body }) => {
-        expect(body).toEqual({ status: 201, description: 'Asset is added to watchlist' });
+        expect(body).toEqual({ status: 201, description: 'Asset was added to watchlist' });
       })
       .then(async () => {
         const watchlist = await Watchlist.findOne(
@@ -154,11 +154,11 @@ describe('WatchlistController', () => {
 
     return request(app.getHttpServer())
       .post(`/v1/watchlist`)
-      .set({ Authorization: `Bearer ${generateToken(user)}` })
+      .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
       .send(dtoRequest)
       .expect(201)
       .expect(({ body }) => {
-        expect(body).toEqual({ status: 201, description: 'Asset is added to watchlist' });
+        expect(body).toEqual({ status: 201, description: 'Asset was added to watchlist' });
       })
       .then(async () => {
         const watchlist = await Watchlist.findOne(
@@ -190,7 +190,7 @@ describe('WatchlistController', () => {
 
     return request(app.getHttpServer())
       .post(`/v1/watchlist`)
-      .set({ Authorization: `Bearer ${generateToken(user)}` })
+      .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
       .send(dtoRequest)
       .expect(409)
       .expect(({ body }) => {
@@ -218,7 +218,7 @@ describe('WatchlistController', () => {
 
     return request(app.getHttpServer())
       .post(`/v1/watchlist`)
-      .set({ Authorization: `Bearer ${generateToken(user)}` })
+      .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
       .send(dtoRequest)
       .expect(404)
       .expect(({ body }) => {
@@ -251,7 +251,7 @@ describe('WatchlistController', () => {
 
     return request(app.getHttpServer())
       .post(`/v1/watchlist`)
-      .set({ Authorization: `Bearer ${generateToken(user)}` })
+      .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
       .send(dtoRequest)
       .expect(404)
       .expect(({ body }) => {
@@ -295,7 +295,7 @@ describe('WatchlistController', () => {
 
     return request(app.getHttpServer())
       .post(`/v1/watchlist`)
-      .set({ Authorization: `Bearer ${generateToken(user)}` })
+      .set({ Authorization: `Bearer ${generateOtpToken(user)}` })
       .send(dtoRequest)
       .expect(409)
       .expect(({ body }) => {

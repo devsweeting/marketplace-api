@@ -19,9 +19,14 @@ export class AuthService {
     return Partner.findOne({ where: { apiKey, isDeleted: false, deletedAt: IsNull() } });
   }
 
+  public generateOtpToken(user: { id: string; email: string; role: RoleEnum }): string {
+    const payload = { id: user.id, email: user.email, role: user.role };
+    return this.jwtService.sign(payload);
+  }
+
   public async generateToken(user: { id: string; address: string; role: RoleEnum }) {
     return this.jwtService.sign({
-      subId: user.id,
+      id: user.id,
       address: user.address,
       role: user.role,
     });

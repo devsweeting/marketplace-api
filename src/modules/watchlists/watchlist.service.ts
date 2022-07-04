@@ -3,15 +3,17 @@ import { ConfigService } from '@nestjs/config';
 import { Asset } from 'modules/assets/entities';
 import { AssetNotFoundException } from 'modules/assets/exceptions/asset-not-found.exception';
 import { User } from 'modules/users/entities/user.entity';
+import { IPaginationMeta, paginate, Pagination } from 'nestjs-typeorm-paginate';
 
 import { BaseService } from '../common/services';
-import { WatchlistDto } from './dto';
+import { WatchlistDto, ListWatchlistDto } from './dto';
 import { WatchlistAsset } from './entities/watchlist-asset.entity';
 import { Watchlist } from './entities/watchlist.entity';
 import { WatchlistAssetDuplicatedException } from './exceptions/watchlist-asset-duplicated.exception';
 import { WatchlistAssetNotAddedException } from './exceptions/watchlist-asset-not-added.exception';
 import { WatchlistAssetOverLimitException } from './exceptions/watchlist-asset-overlimit.exception';
 import { WatchlistNotFoundException } from './exceptions/watchlist-not-found.exception';
+import { WatchlistCheckAssetResponse } from './responses/watchlist-check-asset.response';
 
 @Injectable()
 export class WatchlistService extends BaseService {
@@ -26,19 +28,81 @@ export class WatchlistService extends BaseService {
     }
     return asset;
   }
+  public async getWatchlist(
+    params: ListWatchlistDto,
+    user: User,
+  ): Promise<Pagination<WatchlistAsset>> {
+    const results = await paginate<WatchlistAsset, IPaginationMeta>(Watchlist.list(params, user), {
+      page: params.page,
+      limit: params.limit,
+    });
+    const assetIds = results.items.map((el) => el.assetId);
+    const relations = await this.getRelations(assetIds);
 
-  public async getWatchlist(user: User): Promise<Watchlist> {
-    const watchlist = await Watchlist.createQueryBuilder('watchlist')
+    const items = results.items.map((item: WatchlistAsset) => {
+      const relation = relations.find((el) => el.id === item.id);
+      item.asset.attributes = relation?.attributes || [];
+      item.asset.labels = relation?.labels || [];
+      item.asset.media = relation?.media.length > 0 ? [relation.media[0]] : [];
+      return item;
+    });
+    return new Pagination(items, results.meta);
+  }
+
+  public async getRelations(ids: string[]): Promise<Asset[]> {
+    const query = Asset.createQueryBuilder('asset')
+      .leftJoinAndMapMany('asset.attributes', 'asset.attributes', 'attributes')
+      .leftJoinAndMapMany('asset.labels', 'asset.labels', 'labels')
+      .leftJoinAndMapMany('asset.media', 'asset.media', 'media')
+      .leftJoinAndMapOne('media.file', 'media.file', 'file')
+      .orderBy('media.sortOrder')
+      .andWhereInIds(ids);
+    return query.getMany();
+  }
+
+  public async checkAssetInWatchlist({
+    assetId,
+    slug,
+    user,
+  }: {
+    assetId: string;
+    slug: string;
+    user: User;
+  }): Promise<WatchlistCheckAssetResponse> {
+    const asset = await Asset.findOne({
+      where: [
+        {
+          id: assetId,
+        },
+        {
+          slug: slug,
+        },
+      ],
+    });
+    if (!asset) {
+      throw new AssetNotFoundException();
+    }
+    const query = Watchlist.createQueryBuilder('watchlist')
       .leftJoinAndMapMany(
         'watchlist.watchlistAssets',
         'watchlist.watchlistAssets',
         'watchlistAssets',
         'watchlistAssets.isDeleted = FALSE AND watchlistAssets.deletedAt IS NULL',
       )
-      .where('watchlist.userId = :userId', { userId: user.id })
-      .getOne();
+      .leftJoinAndMapOne('watchlistAssets.asset', 'watchlistAssets.asset', 'asset')
+      .where('watchlist.userId = :userId', {
+        userId: user.id,
+      });
 
-    return watchlist;
+    if (assetId) {
+      query.andWhere('asset.id = :assetId', { assetId });
+    }
+    if (slug) {
+      query.andWhere('asset.slug = :slug', { slug });
+    }
+    const watchlist = await query.getOne();
+
+    return { assetId: asset.id, inWatchlist: !!watchlist };
   }
 
   public async assignAssetToWatchlist(user: User, dto: WatchlistDto) {

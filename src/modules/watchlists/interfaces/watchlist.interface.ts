@@ -1,3 +1,5 @@
-export interface WatchlistResponse {
-  assets: string[];
+import { AssetResponse } from 'modules/assets/responses/asset.response';
+
+export interface WatchlistInterface {
+  assets: AssetResponse[];
 }
