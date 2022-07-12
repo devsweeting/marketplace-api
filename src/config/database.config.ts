@@ -9,6 +9,7 @@ import { Collection, CollectionAsset } from 'modules/collections/entities';
 import { Watchlist } from 'modules/watchlists/entities/watchlist.entity';
 import { WatchlistAsset } from 'modules/watchlists/entities/watchlist-asset.entity';
 import { UserLogin, UserOtp, User } from 'modules/users/entities';
+import { SellOrder } from 'modules/sell-orders/entities';
 
 export default registerAs('database', () => {
   return {
@@ -46,6 +47,7 @@ export default registerAs('database', () => {
         WatchlistAsset,
         UserOtp,
         UserLogin,
+        SellOrder,
       ],
     },
   };
