@@ -17,11 +17,13 @@ import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { Event } from 'modules/events/entities';
 import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
+import * as testApp from '../utils/app.utils';
 
 describe('AssetsController', () => {
   let app: INestApplication;
   let partner: Partner;
   let user: User;
+  let header;
   const mockedUrl = 'https://example.com';
   const mockTmpFilePath = '/tmp/temp-file.jpeg';
 
@@ -42,6 +44,9 @@ describe('AssetsController', () => {
       storage: StorageEnum.S3,
       size: 100,
     });
+    header = {
+      'x-api-key': partner.apiKey,
+    };
   });
 
   afterEach(async () => {
@@ -71,7 +76,7 @@ describe('AssetsController', () => {
       return request(app.getHttpServer()).post(`/v1/assets`).send(transferRequest).expect(401);
     });
 
-    test('should throw 401 exception if token is invalid', () => {
+    test('should throw 401 exception if token is invalid', async () => {
       const transferRequest: any = {
         user: {
           refId: '1232',
@@ -85,17 +90,11 @@ describe('AssetsController', () => {
           },
         ],
       };
-
-      return request(app.getHttpServer())
-        .post(`/v1/assets`)
-        .set({
-          'x-api-key': 'invalid key',
-        })
-        .send(transferRequest)
-        .expect(401);
+      const customHeader = { 'x-api-key': 'invalid key' };
+      await testApp.post(app, `/v1/assets`, 401, null, transferRequest, customHeader);
     });
 
-    test('should create a new asset transfer object in the db', () => {
+    test('should create a new asset transfer object in the db', async () => {
       const media = [
         {
           title: 'test',
@@ -126,37 +125,27 @@ describe('AssetsController', () => {
           },
         ],
       };
+      await testApp.post(app, `/v1/assets`, 201, null, transferRequest, header);
 
-      return request(app.getHttpServer())
-        .post(`/v1/assets`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(transferRequest)
-        .expect(201)
-        .then(async () => {
-          const asset = await Asset.findOne({
-            where: { refId: '1232' },
-            relations: ['attributes', 'media', 'media.file'],
-          });
-          expect(asset).toBeDefined();
-          expect(asset.name).toEqual(transferRequest.assets[0].name);
-          expect(asset.media).toBeDefined();
-          expect(asset.description).toEqual(transferRequest.assets[0].description);
-          expect(asset.attributes[0]).toBeDefined();
-          expect(asset.attributes[0].trait).toEqual(transferRequest.assets[0].attributes[0].trait);
-          expect(asset.attributes[0].value).toEqual(transferRequest.assets[0].attributes[0].value);
-          expect(asset.attributes[0].display).toEqual(
-            transferRequest.assets[0].attributes[0].display,
-          );
-          expect(mockFileDownloadService.downloadAll).toHaveBeenCalledWith([
-            { ...transferRequest.assets[0].media[0] },
-          ]);
-          expect(mockS3Provider.upload).toHaveBeenCalledWith(mockTmpFilePath, `assets/${asset.id}`);
-        });
+      const asset = await Asset.findOne({
+        where: { refId: '1232' },
+        relations: ['attributes', 'media', 'media.file'],
+      });
+      expect(asset).toBeDefined();
+      expect(asset.name).toEqual(transferRequest.assets[0].name);
+      expect(asset.media).toBeDefined();
+      expect(asset.description).toEqual(transferRequest.assets[0].description);
+      expect(asset.attributes[0]).toBeDefined();
+      expect(asset.attributes[0].trait).toEqual(transferRequest.assets[0].attributes[0].trait);
+      expect(asset.attributes[0].value).toEqual(transferRequest.assets[0].attributes[0].value);
+      expect(asset.attributes[0].display).toEqual(transferRequest.assets[0].attributes[0].display);
+      expect(mockFileDownloadService.downloadAll).toHaveBeenCalledWith([
+        { ...transferRequest.assets[0].media[0] },
+      ]);
+      expect(mockS3Provider.upload).toHaveBeenCalledWith(mockTmpFilePath, `assets/${asset.id}`);
     });
 
-    test('should create a new asset transfer object in the db with multiple assets', () => {
+    test('should create a new asset transfer object in the db with multiple assets', async () => {
       mockFileDownloadService.downloadAll.mockReturnValue([mockTmpFilePath, mockTmpFilePath]);
       const media = [
         {
@@ -193,41 +182,30 @@ describe('AssetsController', () => {
           },
         ],
       };
-
-      return request(app.getHttpServer())
-        .post(`/v1/assets`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(transferRequest)
-        .expect(201)
-        .then(async () => {
-          const asset = await Asset.findOne({
-            where: { refId: '12' },
-            relations: ['attributes', 'media', 'media.file'],
-          });
-          expect(asset).toBeDefined();
-          expect(asset.name).toEqual(transferRequest.assets[0].name);
-          expect(asset.media).toBeDefined();
-          expect(asset.media.length).toEqual(2);
-          expect(asset.media[0].fileId).toBeDefined();
-          expect(asset.media[1].fileId).toBeDefined();
-          expect(asset.description).toEqual(transferRequest.assets[0].description);
-          expect(asset.attributes[0]).toBeDefined();
-          expect(asset.attributes[0].trait).toEqual(transferRequest.assets[0].attributes[0].trait);
-          expect(asset.attributes[0].value).toEqual(transferRequest.assets[0].attributes[0].value);
-          expect(asset.attributes[0].display).toEqual(
-            transferRequest.assets[0].attributes[0].display,
-          );
-          expect(mockFileDownloadService.downloadAll).toHaveBeenCalledWith([
-            { ...transferRequest.assets[0].media[0] },
-            { ...transferRequest.assets[0].media[1] },
-          ]);
-          expect(mockS3Provider.upload).toHaveBeenCalledWith(mockTmpFilePath, `assets/${asset.id}`);
-        });
+      await testApp.post(app, `/v1/assets`, 201, null, transferRequest, header);
+      const asset = await Asset.findOne({
+        where: { refId: '12' },
+        relations: ['attributes', 'media', 'media.file'],
+      });
+      expect(asset).toBeDefined();
+      expect(asset.name).toEqual(transferRequest.assets[0].name);
+      expect(asset.media).toBeDefined();
+      expect(asset.media.length).toEqual(2);
+      expect(asset.media[0].fileId).toBeDefined();
+      expect(asset.media[1].fileId).toBeDefined();
+      expect(asset.description).toEqual(transferRequest.assets[0].description);
+      expect(asset.attributes[0]).toBeDefined();
+      expect(asset.attributes[0].trait).toEqual(transferRequest.assets[0].attributes[0].trait);
+      expect(asset.attributes[0].value).toEqual(transferRequest.assets[0].attributes[0].value);
+      expect(asset.attributes[0].display).toEqual(transferRequest.assets[0].attributes[0].display);
+      expect(mockFileDownloadService.downloadAll).toHaveBeenCalledWith([
+        { ...transferRequest.assets[0].media[0] },
+        { ...transferRequest.assets[0].media[1] },
+      ]);
+      expect(mockS3Provider.upload).toHaveBeenCalledWith(mockTmpFilePath, `assets/${asset.id}`);
     });
 
-    test('should upload only media with type IMAGE', () => {
+    test('should upload only media with type IMAGE', async () => {
       mockFileDownloadService.downloadAll.mockReturnValue([mockTmpFilePath]);
       const media = [
         {
@@ -257,36 +235,28 @@ describe('AssetsController', () => {
           },
         ],
       };
+      await testApp.post(app, `/v1/assets`, 201, null, transferRequest, header);
 
-      return request(app.getHttpServer())
-        .post(`/v1/assets`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(transferRequest)
-        .expect(201)
-        .then(async () => {
-          const asset = await Asset.findOne({
-            where: { refId: '13' },
-            relations: ['media', 'media.file'],
-          });
-          expect(asset).toBeDefined();
-          expect(asset.name).toEqual(transferRequest.assets[0].name);
-          expect(asset.media).toBeDefined();
-          expect(asset.media.length).toEqual(2);
-          expect(asset.media[0].fileId).toBeDefined();
-          expect(asset.media[1]).toBeDefined();
-          expect(asset.media[1].file).toEqual(null);
-          expect(asset.description).toEqual(transferRequest.assets[0].description);
+      const asset = await Asset.findOne({
+        where: { refId: '13' },
+        relations: ['media', 'media.file'],
+      });
+      expect(asset).toBeDefined();
+      expect(asset.name).toEqual(transferRequest.assets[0].name);
+      expect(asset.media).toBeDefined();
+      expect(asset.media.length).toEqual(2);
+      expect(asset.media[0].fileId).toBeDefined();
+      expect(asset.media[1]).toBeDefined();
+      expect(asset.media[1].file).toEqual(null);
+      expect(asset.description).toEqual(transferRequest.assets[0].description);
 
-          expect(mockFileDownloadService.downloadAll).toHaveBeenCalledWith([
-            { ...transferRequest.assets[0].media[0] },
-          ]);
-          expect(mockS3Provider.upload).toHaveBeenCalledWith(mockTmpFilePath, `assets/${asset.id}`);
-        });
+      expect(mockFileDownloadService.downloadAll).toHaveBeenCalledWith([
+        { ...transferRequest.assets[0].media[0] },
+      ]);
+      expect(mockS3Provider.upload).toHaveBeenCalledWith(mockTmpFilePath, `assets/${asset.id}`);
     });
 
-    test('should throw an error when url is wrong', () => {
+    test('should throw an error when url is wrong', async () => {
       mockFileDownloadService.downloadAll.mockRejectedValue(
         'Error: TypeError [ERR_INVALID_URL]: Invalid URL',
       );
@@ -313,33 +283,23 @@ describe('AssetsController', () => {
           },
         ],
       };
+      const response = {
+        message: 'Error: Error: TypeError [ERR_INVALID_URL]: Invalid URL',
+        statusCode: 400,
+      };
+      await testApp.post(app, `/v1/assets`, 400, response, transferRequest, header);
 
-      return request(app.getHttpServer())
-        .post(`/v1/assets`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(transferRequest)
-        .expect(400)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            message: 'Error: Error: TypeError [ERR_INVALID_URL]: Invalid URL',
-            statusCode: 400,
-          });
-        })
-        .then(async () => {
-          const asset = await Asset.findOne({
-            where: { refId: '14' },
-            relations: ['media', 'media.file'],
-          });
-          expect(asset).toBeDefined();
-          expect(asset.name).toEqual(transferRequest.assets[0].name);
-          expect(asset.media.length).toEqual(0);
-          expect(asset.description).toEqual(transferRequest.assets[0].description);
-        });
+      const asset = await Asset.findOne({
+        where: { refId: '14' },
+        relations: ['media', 'media.file'],
+      });
+      expect(asset).toBeDefined();
+      expect(asset.name).toEqual(transferRequest.assets[0].name);
+      expect(asset.media.length).toEqual(0);
+      expect(asset.description).toEqual(transferRequest.assets[0].description);
     });
 
-    test('should throw an error when the one of the url is fails ', () => {
+    test('should throw an error when the one of the url is fails ', async () => {
       mockFileDownloadService.downloadAll.mockRejectedValue(
         'Error: TypeError [ERR_INVALID_URL]: Invalid URL',
       );
@@ -372,30 +332,20 @@ describe('AssetsController', () => {
           },
         ],
       };
+      const response = {
+        message: 'Error: Error: TypeError [ERR_INVALID_URL]: Invalid URL',
+        statusCode: 400,
+      };
+      await testApp.post(app, `/v1/assets`, 400, response, transferRequest, header);
 
-      return request(app.getHttpServer())
-        .post(`/v1/assets`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(transferRequest)
-        .expect(400)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            message: 'Error: Error: TypeError [ERR_INVALID_URL]: Invalid URL',
-            statusCode: 400,
-          });
-        })
-        .then(async () => {
-          const asset = await Asset.findOne({
-            where: { refId: '15' },
-            relations: ['media', 'media.file'],
-          });
-          expect(asset).toBeDefined();
-          expect(asset.name).toEqual(transferRequest.assets[0].name);
-          expect(asset.media.length).toEqual(0);
-          expect(asset.description).toEqual(transferRequest.assets[0].description);
-        });
+      const asset = await Asset.findOne({
+        where: { refId: '15' },
+        relations: ['media', 'media.file'],
+      });
+      expect(asset).toBeDefined();
+      expect(asset.name).toEqual(transferRequest.assets[0].name);
+      expect(asset.media.length).toEqual(0);
+      expect(asset.description).toEqual(transferRequest.assets[0].description);
     });
 
     test('should pass if refId is taken by another partner', async () => {
@@ -423,14 +373,7 @@ describe('AssetsController', () => {
           },
         ],
       };
-
-      return request(app.getHttpServer())
-        .post(`/v1/assets`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(transferRequest)
-        .expect(201);
+      await testApp.post(app, `/v1/assets`, 201, null, transferRequest, header);
     });
 
     test('should be able to recreate a deleted asset', async () => {
@@ -455,20 +398,11 @@ describe('AssetsController', () => {
           },
         ],
       };
-
-      return request(app.getHttpServer())
-        .post(`/v1/assets`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(transferRequest)
-        .expect(400)
-        .then(async () => {
-          const asset = await Asset.findOne({
-            where: { refId: '1232' },
-          });
-          expect(asset).toBeDefined();
-        });
+      await testApp.post(app, `/v1/assets`, 400, null, transferRequest, header);
+      const getAsset = await Asset.findOne({
+        where: { refId: '1232' },
+      });
+      expect(getAsset).toBeDefined();
     });
 
     test('should pass if name is used for another asset for the same partner', async () => {
@@ -487,14 +421,7 @@ describe('AssetsController', () => {
           },
         ],
       };
-
-      return request(app.getHttpServer())
-        .post(`/v1/assets`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(transferRequest)
-        .expect(201);
+      return testApp.post(app, `/v1/assets`, 201, null, transferRequest, header);
     });
 
     test('should pass if name is used for another asset for the different partner', async () => {
@@ -519,14 +446,7 @@ describe('AssetsController', () => {
           },
         ],
       };
-
-      return request(app.getHttpServer())
-        .post(`/v1/assets`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(transferRequest)
-        .expect(201);
+      return testApp.post(app, `/v1/assets`, 201, null, transferRequest, header);
     });
 
     test('should throw 400 exception if asset already exist by refId (same request)', async () => {
@@ -548,21 +468,12 @@ describe('AssetsController', () => {
           },
         ],
       };
-
-      return request(app.getHttpServer())
-        .post(`/v1/assets`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(transferRequest)
-        .expect(400)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            statusCode: 400,
-            message: 'Duplicated assets',
-            refIds: ['1232'],
-          });
-        });
+      const response = {
+        statusCode: 400,
+        message: 'Duplicated assets',
+        refIds: ['1232'],
+      };
+      return testApp.post(app, `/v1/assets`, 400, response, transferRequest, header);
     });
 
     test('should throw an exception if assets property is undefined', () => {
@@ -572,22 +483,15 @@ describe('AssetsController', () => {
           email: 'steven@example.com',
         },
       };
-
-      return request(app.getHttpServer())
-        .post(`/v1/assets`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(transferRequest)
-        .expect(400)
-        .expect({
-          statusCode: 400,
-          message: [
-            'assets should not be null or undefined',
-            'assets must contain at least 1 elements',
-          ],
-          error: 'Bad Request',
-        });
+      const response = {
+        statusCode: 400,
+        message: [
+          'assets should not be null or undefined',
+          'assets must contain at least 1 elements',
+        ],
+        error: 'Bad Request',
+      };
+      return testApp.post(app, `/v1/assets`, 400, response, transferRequest, header);
     });
 
     test('should throw an exception if assets property is empty', () => {
@@ -598,19 +502,12 @@ describe('AssetsController', () => {
         },
         assets: [],
       };
-
-      return request(app.getHttpServer())
-        .post(`/v1/assets`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(transferRequest)
-        .expect(400)
-        .expect({
-          statusCode: 400,
-          message: ['assets must contain at least 1 elements'],
-          error: 'Bad Request',
-        });
+      const response = {
+        statusCode: 400,
+        message: ['assets must contain at least 1 elements'],
+        error: 'Bad Request',
+      };
+      return testApp.post(app, `/v1/assets`, 400, response, transferRequest, header);
     });
 
     test('should throw an exception if asset object is invalid', () => {
@@ -625,24 +522,17 @@ describe('AssetsController', () => {
           },
         ],
       };
-
-      return request(app.getHttpServer())
-        .post(`/v1/assets`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(transferRequest)
-        .expect(400)
-        .expect({
-          statusCode: 400,
-          message: [
-            'assets.0.refId must be shorter than or equal to 100 characters',
-            'assets.0.name must be shorter than or equal to 200 characters',
-            'assets.0.name should not be empty',
-            'assets.0.description should not be empty',
-          ],
-          error: 'Bad Request',
-        });
+      const response = {
+        statusCode: 400,
+        message: [
+          'assets.0.refId must be shorter than or equal to 100 characters',
+          'assets.0.name must be shorter than or equal to 200 characters',
+          'assets.0.name should not be empty',
+          'assets.0.description should not be empty',
+        ],
+        error: 'Bad Request',
+      };
+      return testApp.post(app, `/v1/assets`, 400, response, transferRequest, header);
     });
 
     test('should throw an exception if partner is deleted', async () => {
@@ -674,14 +564,10 @@ describe('AssetsController', () => {
           },
         ],
       };
-
-      return request(app.getHttpServer())
-        .post(`/v1/assets`)
-        .set({
-          'x-api-key': deletedPartner.apiKey,
-        })
-        .send(transferRequest)
-        .expect(401);
+      const customHeader = {
+        'x-api-key': deletedPartner.apiKey,
+      };
+      return testApp.post(app, `/v1/assets`, 401, null, transferRequest, customHeader);
     });
   });
 });

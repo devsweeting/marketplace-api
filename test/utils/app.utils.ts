@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, VersioningType } from '@nestjs/common';
 import { Injectable } from '@nestjs/common/interfaces';
-
+import request from 'supertest';
 import { AppModule } from '@/src/app.module';
 import { AuthModule } from '@/src/modules/auth/auth.module';
 import validationPipe from '@/src/modules/common/pipes/validation.pipe';
@@ -16,6 +16,10 @@ import { Collection, CollectionAsset } from 'modules/collections/entities';
 import { Watchlist, WatchlistAsset } from 'modules/watchlists/entities';
 import { UserLogin, UserOtp } from 'modules/users/entities';
 import { MailerService } from '@nestjs-modules/mailer';
+
+export type SupertestResponse = request.Response;
+
+export type RequestMethod = 'get' | 'post' | 'delete' | 'patch';
 
 let app: INestApplication;
 
@@ -98,4 +102,88 @@ export const clearAllData = async (): Promise<void> => {
   await File.delete({});
   await UserOtp.delete({});
   await UserLogin.delete({});
+};
+
+const expectStatus = (
+  method: RequestMethod,
+  url: string,
+  expectedStatus: number,
+  response: SupertestResponse,
+): Promise<SupertestResponse> => {
+  if (response.status !== expectedStatus) {
+    const methodName = method.toUpperCase();
+    const { status, body } = response;
+
+    console.error(body);
+
+    throw new Error(`${methodName} ${url} expected status ${expectedStatus}, got ${status}`);
+  }
+
+  return Promise.resolve(response);
+};
+
+const baseRequest = (
+  app: INestApplication,
+  method: RequestMethod,
+  url: string,
+  expectedStatus: number,
+  expectedResponse: Record<string, unknown> = {},
+  params: Record<string, unknown> = {},
+  headers: Record<string, unknown> = {},
+): Promise<SupertestResponse> =>
+  request(app.getHttpServer())
+    [method](url)
+    .set('Accept', 'application/json')
+    .set(headers)
+    .send(params)
+    .expect(({ body }) => {
+      if (expectedResponse) {
+        expect(body).toEqual(expectedResponse);
+      }
+    })
+    .then((response) => expectStatus(method, url, expectedStatus, response));
+
+export const post = (
+  app: INestApplication,
+  url: string,
+  expectedStatus: number,
+  expectedResponse: Record<string, unknown> = {},
+  params: Record<string, unknown> = {},
+  headers: Record<string, unknown> = {},
+): Promise<SupertestResponse> =>
+  baseRequest(app, 'post', url, expectedStatus, expectedResponse, params, headers);
+
+export const patch = (
+  app: INestApplication,
+  url: string,
+  expectedStatus: number,
+  expectedResponse: Record<string, unknown> = {},
+  params: Record<string, unknown> = {},
+  headers: Record<string, unknown> = {},
+): Promise<SupertestResponse> =>
+  baseRequest(app, 'patch', url, expectedStatus, expectedResponse, params, headers);
+
+export const del = (
+  app: INestApplication,
+  url: string,
+  expectedStatus: number,
+  expectedResponse: Record<string, unknown> = {},
+  params: Record<string, unknown> = {},
+  headers: Record<string, unknown> = {},
+): Promise<SupertestResponse> =>
+  baseRequest(app, 'delete', url, expectedStatus, expectedResponse, params, headers);
+
+export const get = (
+  app: INestApplication,
+  url: string,
+  expectedStatus: number,
+  expectedResponse: Record<string, unknown> = {},
+  params: Record<string, unknown> = {},
+  headers: Record<string, unknown> = {},
+): Promise<SupertestResponse> =>
+  baseRequest(app, 'get', url, expectedStatus, expectedResponse, params, headers);
+
+export const requireAuthorization = async (method: any, expectMsg) => {
+  const response = await method;
+  expect(response.text).toEqual(expectMsg);
 };

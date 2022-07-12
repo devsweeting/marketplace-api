@@ -1,4 +1,3 @@
-import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import {
   clearAllData,
@@ -19,6 +18,7 @@ import { User } from 'modules/users/entities/user.entity';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { createUser } from '../utils/create-user';
 import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
+import * as testApp from '../utils/app.utils';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -26,6 +26,7 @@ describe('AssetsController', () => {
   let user: User;
   let asset: Asset;
   let assetTransformer: AssetsTransformer;
+  let header;
 
   beforeAll(async () => {
     app = await createApp();
@@ -36,6 +37,9 @@ describe('AssetsController', () => {
     });
     asset = await createAsset({ partner });
     assetTransformer = app.get(AssetsTransformer);
+    header = {
+      'x-api-key': partner.apiKey,
+    };
   });
 
   afterEach(async () => {
@@ -49,27 +53,31 @@ describe('AssetsController', () => {
 
   describe(`PATCH V1 /assets/:id`, () => {
     test('should throw 401 exception if auth token is missing', () => {
-      return request(app.getHttpServer()).patch(`/v1/assets/${asset.id}`).send({}).expect(401);
+      const response = {
+        message: 'Unauthorized',
+        statusCode: 401,
+      };
+      return testApp.patch(app, `/v1/assets/${asset.id}`, 401, response, {}, {});
     });
 
     test('should throw 401 exception if token is invalid', () => {
-      return request(app.getHttpServer())
-        .patch(`/v1/assets/${asset.id}`)
-        .set({
-          'x-api-key': 'invalid key',
-        })
-        .send({})
-        .expect(401);
+      const customHeader = {
+        'x-api-key': 'invalid key',
+      };
+      const response = {
+        message: 'Unauthorized',
+        statusCode: 401,
+      };
+      return testApp.patch(app, `/v1/assets/${asset.id}`, 401, response, {}, customHeader);
     });
 
     test('should throw 404 exception if asset does not exist', async () => {
-      return request(app.getHttpServer())
-        .patch(`/v1/assets/${v4()}`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send({})
-        .expect(404);
+      const response = {
+        error: 'Not Found',
+        message: 'ASSET_NOT_FOUND',
+        statusCode: 404,
+      };
+      return testApp.patch(app, `/v1/assets/${v4()}`, 404, response, {}, header);
     });
 
     test('should throw 404 exception if assets belongs to another partner', async () => {
@@ -79,59 +87,39 @@ describe('AssetsController', () => {
         accountOwner: anotherUser,
       });
       const anotherAsset = await createAsset({ partner: anotherPartner });
-
-      return request(app.getHttpServer())
-        .patch(`/v1/assets/${anotherAsset.id}`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send({})
-        .expect(404);
+      const response = {
+        error: 'Not Found',
+        message: 'ASSET_NOT_FOUND',
+        statusCode: 404,
+      };
+      return testApp.patch(app, `/v1/assets/${anotherAsset.id}`, 404, response, {}, header);
     });
 
     test('should update refId', async () => {
       const payload = {
         refId: '12345',
       };
+      const response = {
+        ...assetTransformer.transform(asset),
+        refId: payload.refId,
+        updatedAt: expect.any(String),
+      };
+      await testApp.patch(app, `/v1/assets/${asset.id}`, 200, response, payload, header);
 
-      return request(app.getHttpServer())
-        .patch(`/v1/assets/${asset.id}`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(payload)
-        .expect(200)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            ...assetTransformer.transform(asset),
-            refId: payload.refId,
-            updatedAt: expect.any(String),
-          });
-        })
-        .then(async () => {
-          await asset.reload();
-          expect(asset.refId).toEqual(payload.refId);
-        });
+      await asset.reload();
+      expect(asset.refId).toEqual(payload.refId);
     });
 
     test('should pass if refId is the same', async () => {
       const payload = {
         refId: asset.refId,
       };
+      const response = {
+        ...assetTransformer.transform(asset),
+        updatedAt: expect.any(String),
+      };
 
-      return request(app.getHttpServer())
-        .patch(`/v1/assets/${asset.id}`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(payload)
-        .expect(200)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            ...assetTransformer.transform(asset),
-            updatedAt: expect.any(String),
-          });
-        });
+      await testApp.patch(app, `/v1/assets/${asset.id}`, 200, response, payload, header);
     });
 
     test('should throw 409 exception if refId is already taken', async () => {
@@ -142,24 +130,16 @@ describe('AssetsController', () => {
       const payload = {
         refId: '123456',
       };
-
-      return request(app.getHttpServer())
-        .patch(`/v1/assets/${asset.id}`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(payload)
-        .expect(409)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            error: 'Conflict',
-            message: 'REF_ALREADY_TAKEN',
-            statusCode: 409,
-          });
-        });
+      const response = {
+        error: 'Conflict',
+        message: 'REF_ALREADY_TAKEN',
+        statusCode: 409,
+      };
+      await testApp.patch(app, `/v1/assets/${asset.id}`, 409, response, payload, header);
     });
 
     test('should update media', async () => {
+      const fileId = v4();
       const payload = {
         media: [
           {
@@ -170,8 +150,9 @@ describe('AssetsController', () => {
           },
         ],
       };
+
       mockS3Provider.upload.mockReturnValue({
-        id: v4(),
+        id: fileId,
         name: 'example.jpeg',
         path: 'test/example.jpeg',
         mimeType: 'image/jpeg',
@@ -181,26 +162,20 @@ describe('AssetsController', () => {
       mockS3Provider.getUrl.mockReturnValue('mocked-url');
       mockFileDownloadService.downloadAll.mockReturnValue(['downloaded-path']);
 
-      return request(app.getHttpServer())
-        .patch(`/v1/assets/${asset.id}`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(payload)
-        .expect(200)
-        .then(async () => {
-          const updatedAsset = await Asset.findOne({
-            where: { id: asset.id },
-            relations: ['media', 'media.file'],
-          });
-          expect(updatedAsset.media[0]).toBeDefined();
-          expect(updatedAsset.media[0].title).toEqual(payload.media[0].title);
-          expect(updatedAsset.media[0].file.path).toEqual('test/example.jpeg');
-          expect(mockS3Provider.upload).toHaveBeenCalledWith(
-            'downloaded-path',
-            `assets/${updatedAsset.id}`,
-          );
-        });
+      await testApp.patch(app, `/v1/assets/${asset.id}`, 200, null, payload, header);
+
+      const updatedAsset = await Asset.findOne({
+        where: { id: asset.id },
+        relations: ['media', 'media.file'],
+      });
+
+      expect(updatedAsset.media[0]).toBeDefined();
+      expect(updatedAsset.media[0].title).toEqual(payload.media[0].title);
+      expect(updatedAsset.media[0].file.path).toEqual('test/example.jpeg');
+      expect(mockS3Provider.upload).toHaveBeenCalledWith(
+        'downloaded-path',
+        `assets/${updatedAsset.id}`,
+      );
     });
 
     test('should update name', async () => {
@@ -208,26 +183,18 @@ describe('AssetsController', () => {
         name: 'Test name 2',
       };
 
-      return request(app.getHttpServer())
-        .patch(`/v1/assets/${asset.id}`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(payload)
-        .expect(200)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            ...assetTransformer.transform(asset),
-            name: payload.name,
-            slug: generateSlug(payload.name),
-            updatedAt: expect.any(String),
-          });
-        })
-        .then(async () => {
-          await asset.reload();
-          expect(asset.name).toEqual(payload.name);
-          expect(asset.slug).toEqual(generateSlug(payload.name));
-        });
+      const response = {
+        ...assetTransformer.transform(asset),
+        name: payload.name,
+        slug: generateSlug(payload.name),
+        updatedAt: expect.any(String),
+      };
+
+      await testApp.patch(app, `/v1/assets/${asset.id}`, 200, response, payload, header);
+
+      await asset.reload();
+      expect(asset.name).toEqual(payload.name);
+      expect(asset.slug).toEqual(generateSlug(payload.name));
     });
 
     test('should throw 409 exception if refID is already exist', async () => {
@@ -238,21 +205,13 @@ describe('AssetsController', () => {
       const payload = {
         refId: 'ref-1',
       };
+      const response = {
+        error: 'Conflict',
+        message: 'REF_ALREADY_TAKEN',
+        statusCode: 409,
+      };
 
-      return request(app.getHttpServer())
-        .patch(`/v1/assets/${asset.id}`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(payload)
-        .expect(409)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            error: 'Conflict',
-            message: 'REF_ALREADY_TAKEN',
-            statusCode: 409,
-          });
-        });
+      await testApp.patch(app, `/v1/assets/${asset.id}`, 409, response, payload, header);
     });
 
     test('should update description', async () => {
@@ -260,47 +219,31 @@ describe('AssetsController', () => {
         description: 'some new description',
       };
 
-      return request(app.getHttpServer())
-        .patch(`/v1/assets/${asset.id}`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(payload)
-        .expect(200)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            ...assetTransformer.transform(asset),
-            description: payload.description,
-            updatedAt: expect.any(String),
-          });
-        })
-        .then(async () => {
-          await asset.reload();
-          expect(asset.description).toEqual(payload.description);
-        });
+      const response = {
+        ...assetTransformer.transform(asset),
+        description: payload.description,
+        updatedAt: expect.any(String),
+      };
+
+      await testApp.patch(app, `/v1/assets/${asset.id}`, 200, response, payload, header);
+
+      await asset.reload();
+      expect(asset.description).toEqual(payload.description);
     });
 
     test('should not remove attributes', async () => {
       const payload = {};
       const attribute = await createAttribute({ asset });
 
-      return request(app.getHttpServer())
-        .patch(`/v1/assets/${asset.id}`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(payload)
-        .expect(200)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            ...assetTransformer.transform(asset),
-            updatedAt: expect.any(String),
-          });
-        })
-        .then(async () => {
-          await attribute.reload();
-          expect(attribute).toBeDefined();
-        });
+      const response = {
+        ...assetTransformer.transform(asset),
+        updatedAt: expect.any(String),
+      };
+
+      await testApp.patch(app, `/v1/assets/${asset.id}`, 200, response, payload, header);
+
+      await attribute.reload();
+      expect(attribute).toBeDefined();
     });
 
     test('should remove attributes', async () => {
@@ -308,24 +251,15 @@ describe('AssetsController', () => {
         attributes: [],
       };
       const attribute = await createAttribute({ asset });
+      const response = {
+        ...assetTransformer.transform(asset),
+        updatedAt: expect.any(String),
+      };
 
-      return request(app.getHttpServer())
-        .patch(`/v1/assets/${asset.id}`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(payload)
-        .expect(200)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            ...assetTransformer.transform(asset),
-            updatedAt: expect.any(String),
-          });
-        })
-        .then(async () => {
-          const savedAttribute = await Attribute.findOne(attribute.id);
-          expect(savedAttribute).toBeUndefined();
-        });
+      await testApp.patch(app, `/v1/assets/${asset.id}`, 200, response, payload, header);
+
+      const savedAttribute = await Attribute.findOne(attribute.id);
+      expect(savedAttribute).toBeUndefined();
     });
 
     test('should create new Attribute', async () => {
@@ -340,26 +274,17 @@ describe('AssetsController', () => {
       };
       const attribute = await createAttribute({ asset });
 
-      return request(app.getHttpServer())
-        .patch(`/v1/assets/${asset.id}`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(payload)
-        .expect(200)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            ...assetTransformer.transform(asset),
-            updatedAt: expect.any(String),
-          });
-        })
-        .then(async () => {
-          const savedAttribute = await Attribute.findOne(attribute.id);
-          expect(savedAttribute).toBeUndefined();
-          const newAttributes = await Attribute.find({ where: { assetId: asset.id } });
-          expect(newAttributes).toHaveLength(1);
-          expect(newAttributes[0]).toEqual(expect.objectContaining(payload.attributes[0]));
-        });
+      const response = {
+        ...assetTransformer.transform(asset),
+        updatedAt: expect.any(String),
+      };
+      await testApp.patch(app, `/v1/assets/${asset.id}`, 200, response, payload, header);
+
+      const savedAttribute = await Attribute.findOne(attribute.id);
+      expect(savedAttribute).toBeUndefined();
+      const newAttributes = await Attribute.find({ where: { assetId: asset.id } });
+      expect(newAttributes).toHaveLength(1);
+      expect(newAttributes[0]).toEqual(expect.objectContaining(payload.attributes[0]));
     });
   });
 });

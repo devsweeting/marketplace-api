@@ -1,12 +1,16 @@
-export const fillPayloadWithDefaults = (payload = {}, defaults = {}) => {
-  const newPayload = {};
-  Object.keys(defaults).forEach((key) => {
-    if (payload[key]) {
-      newPayload[key] = payload[key];
-    } else if (defaults[key] !== undefined) {
-      newPayload[key] = defaults[key];
-    }
-  });
+import { Attribute } from 'modules/assets/entities';
+import { createAttribute } from './attribute.utils';
 
-  return newPayload;
+export const AUTH_UNAUTHORIZED = '{"statusCode":401,"message":"Unauthorized"}';
+
+export const createAttributes = async (array: Partial<Attribute>[]) => {
+  const attr = [];
+  for (const el of array) {
+    attr.push(await createAttribute({ ...el }));
+  }
+  return attr;
+};
+
+export const filterAttributes = (attributes: Partial<Attribute>[], assetId: string) => {
+  return attributes.filter((el) => el.assetId === assetId);
 };
