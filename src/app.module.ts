@@ -17,6 +17,7 @@ import { CollectionsModule } from './modules/collections/collections.module';
 import { HealthModule } from './modules/health/health.module';
 
 import { WatchlistsModule } from './modules/watchlists/watchlists.module';
+import { SellOrdersModule } from './modules/sell-orders/sell-orders.module';
 import LogsMiddleware from './middleware/logs.middleware';
 
 const modules = [];
@@ -68,6 +69,7 @@ if (process.env.NODE_ENV === 'STAGING' || process.env.NODE_ENV === 'PRODUCTION')
     CollectionsModule,
     WatchlistsModule,
     HealthModule,
+    SellOrdersModule,
     ...modules,
   ],
   controllers: [AppController],

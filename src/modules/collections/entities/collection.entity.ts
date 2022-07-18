@@ -78,9 +78,13 @@ export class Collection extends BaseModel implements BaseEntityInterface {
 
   public static list(params: ListCollectionsDto): SelectQueryBuilder<Collection> {
     const query = Collection.createQueryBuilder('collection')
-      .leftJoinAndMapMany('collection.assets', 'collection.assets', 'assets')
+      .leftJoinAndMapMany(
+        'collection.assets',
+        'collection.assets',
+        'assets',
+        'assets.isDeleted = FALSE',
+      )
       .leftJoinAndMapOne('collection.banner', 'collection.banner', 'banner')
-      .where('assets.isDeleted = :isDeleted', { isDeleted: false })
       .where('collection.isDeleted = :isDeleted', { isDeleted: false })
       .addOrderBy(params.sort, params.order);
 
