@@ -72,11 +72,6 @@ export class SellOrder extends BaseModel implements BaseEntityInterface {
         slug: params.slug,
       });
     }
-    if (params.email) {
-      query
-        .leftJoinAndMapMany('sellOrder.user', 'sellOrder.user', 'user')
-        .andWhere('user.email = :email', { email: params.email });
-    }
 
     return query;
   }

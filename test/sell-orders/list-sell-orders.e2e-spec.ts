@@ -259,57 +259,6 @@ describe('SellOrdersController', () => {
 
     return testApp.get(app, BASE_URL + `?${params.toString()}`, 200, response, {}, header);
   });
-  test('should throw a 400 status if there are no results for the wrong format email ', () => {
-    const params = new URLSearchParams({
-      partnerId: partner.id,
-      email: 'wrong-email',
-    });
-    const response = {
-      error: 'Bad Request',
-      message: ['email must be an email'],
-      statusCode: 400,
-    };
-    return testApp.get(app, BASE_URL + `?${params.toString()}`, 400, response, {}, header);
-  });
-
-  test('should return empty list if there are no results for email filter', () => {
-    const params = new URLSearchParams({
-      partnerId: partner.id,
-      email: users[2].email,
-    });
-    const response = {
-      meta: {
-        totalItems: 0,
-        itemCount: 0,
-        itemsPerPage: 25,
-        totalPages: 0,
-        currentPage: 1,
-      },
-      items: [],
-    };
-    return testApp.get(app, BASE_URL + `?${params.toString()}`, 200, response, {}, header);
-  });
-
-  test('should return list if there are results for email filter', () => {
-    const params = new URLSearchParams({
-      partnerId: partner.id,
-      email: users[1].email,
-    });
-    const response = {
-      meta: {
-        totalItems: 2,
-        itemCount: 2,
-        itemsPerPage: 25,
-        totalPages: 1,
-        currentPage: 1,
-      },
-      items: [
-        sellOrdersTransformer.transform(sellOrders[1]),
-        sellOrdersTransformer.transform(sellOrders[0]),
-      ],
-    };
-    return testApp.get(app, BASE_URL + `?${params.toString()}`, 200, response, {}, header);
-  });
 
   test('should return empty list if there are no results for assetId filter', () => {
     const params = new URLSearchParams({

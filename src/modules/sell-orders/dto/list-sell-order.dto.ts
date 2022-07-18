@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 import { ListDto } from 'modules/common/dto/list.dto';
 import { SortEnum } from '../enums/sort.enum';
 
@@ -8,12 +8,6 @@ export class ListSellOrderDto extends ListDto {
   @IsNotEmpty()
   @IsUUID(4)
   public partnerId: string;
-
-  @ApiPropertyOptional()
-  @IsNotEmpty()
-  @IsEmail()
-  @IsOptional()
-  public email: string;
 
   @ApiPropertyOptional()
   @IsNotEmpty()
