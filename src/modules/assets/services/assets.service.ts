@@ -115,7 +115,7 @@ export class AssetsService {
       .leftJoinAndMapMany('asset.labels', 'asset.labels', 'labels')
       .leftJoinAndMapMany('asset.media', 'asset.media', 'media')
       .leftJoinAndMapOne('media.file', 'media.file', 'file')
-      .orderBy('media.sortOrder')
+      .orderBy('media.sortOrder, attributes.trait', 'ASC')
       .andWhereInIds(ids);
     return query.getMany();
   }
@@ -133,7 +133,7 @@ export class AssetsService {
 
       .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
       .andWhere('asset.deletedAt IS NULL')
-      .orderBy('media.sortOrder', 'ASC');
+      .orderBy('media.sortOrder, attributes.trait', 'ASC');
 
     if (id) {
       query.where('asset.id = :id', { id });

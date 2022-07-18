@@ -654,8 +654,8 @@ describe('AssetsController', () => {
       ];
       const attributes = await createAttributes([
         { trait: 'category', value: 'another', assetId: assets[0].id },
-        { trait: 'year', value: '2020', assetId: assets[1].id },
         { trait: 'category', value: 'test', assetId: assets[1].id },
+        { trait: 'year', value: '2020', assetId: assets[1].id },
       ]);
 
       const params = new URLSearchParams({
@@ -1116,9 +1116,9 @@ describe('AssetsController', () => {
 
     test('should return asset for attr_gte and attr_lte range for different attributes', async () => {
       const attributes = await createAttributes([
+        { trait: 'grade', value: '20', assetId: assets[1].id },
         { trait: 'year', value: '2014', assetId: assets[0].id },
         { trait: 'year', value: '2019', assetId: assets[1].id },
-        { trait: 'grade', value: '20', assetId: assets[1].id },
       ]);
 
       const params = new URLSearchParams(
@@ -1144,9 +1144,9 @@ describe('AssetsController', () => {
 
     test('should return asset for attr_gte and attr_lte range for different attributes', async () => {
       const attributes = await createAttributes([
+        { trait: 'grade', value: '20', assetId: assets[1].id },
         { trait: 'year', value: '2014', assetId: assets[0].id },
         { trait: 'year', value: '2019', assetId: assets[1].id },
-        { trait: 'grade', value: '20', assetId: assets[1].id },
       ]);
 
       const params = new URLSearchParams('attr_gte[year]=2015&attr_gte[grade]=20');
@@ -1168,9 +1168,9 @@ describe('AssetsController', () => {
 
     test('should return asset for attr_lte range for different attributes', async () => {
       const attributes = await createAttributes([
+        { trait: 'grade', value: '20', assetId: assets[0].id },
         { trait: 'year', value: '2014', assetId: assets[0].id },
         { trait: 'year', value: '2021', assetId: assets[1].id },
-        { trait: 'grade', value: '20', assetId: assets[0].id },
       ]);
 
       const params = new URLSearchParams('attr_lte[year]=2020&attr_lte[grade]=30');
@@ -1259,11 +1259,11 @@ describe('AssetsController', () => {
         partner,
       });
       const attributes = await createAttributes([
+        { trait: 'category', value: 'baseball', assetId: asset2.id },
+        { trait: 'category', value: 'baseball', assetId: assets[1].id },
         { trait: 'grade', value: '1', assetId: assets[0].id },
         { trait: 'grade', value: '10', assetId: assets[1].id },
         { trait: 'grade', value: '5', assetId: asset2.id },
-        { trait: 'category', value: 'baseball', assetId: asset2.id },
-        { trait: 'category', value: 'baseball', assetId: assets[1].id },
       ]);
 
       const params = new URLSearchParams(
