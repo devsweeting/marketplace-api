@@ -1,11 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsInt, IsUUID, Min } from 'class-validator';
+import { IsEmail, IsInt, IsNotEmpty, IsUUID, Min } from 'class-validator';
 
 export class SellOrderDto {
   @ApiProperty()
-  @IsUUID(4)
-  public userId: string;
+  @IsNotEmpty()
+  @IsEmail()
+  public email: string;
 
   @ApiProperty()
   @IsUUID(4)

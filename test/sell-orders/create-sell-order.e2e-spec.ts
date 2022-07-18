@@ -6,7 +6,6 @@ import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { Asset } from 'modules/assets/entities';
-import { Event } from 'modules/events/entities';
 import { createAsset } from '../utils/asset.utils';
 import * as testApp from '../utils/app.utils';
 import { SellOrder } from 'modules/sell-orders/entities';
@@ -45,11 +44,6 @@ describe('SellOrdersController', () => {
   });
 
   afterAll(async () => {
-    await Event.delete({});
-    await Asset.delete({});
-    await Partner.delete({});
-    await User.delete({});
-    await SellOrder.delete({});
     await clearAllData();
   });
 
@@ -66,7 +60,7 @@ describe('SellOrdersController', () => {
     test('should create sell order', async () => {
       const payload = {
         assetId: asset.id,
-        userId: user.id,
+        email: user.email,
         fractionQty: 1,
         fractionPriceCents: 1000,
         expireTime: Date.now(),
@@ -86,7 +80,7 @@ describe('SellOrdersController', () => {
     test('should create sell order', async () => {
       const payload = {
         assetId: asset.id,
-        userId: user.id,
+        email: user.email,
         fractionQty: 1,
         fractionPriceCents: 1000,
         expireTime: Date.now(),
@@ -107,7 +101,7 @@ describe('SellOrdersController', () => {
     test('should throw an error when fractionQty is wrong', async () => {
       const payload = {
         assetId: asset.id,
-        userId: user.id,
+        email: user.email,
         fractionQty: 'wrong',
         fractionPriceCents: 1000,
         expireTime: Date.now(),
@@ -127,7 +121,7 @@ describe('SellOrdersController', () => {
     test('should throw an error when fractionPriceCents is wrong', async () => {
       const payload = {
         assetId: asset.id,
-        userId: user.id,
+        email: user.email,
         fractionQty: 1,
         fractionPriceCents: 'wrong',
         expireTime: Date.now(),
@@ -150,7 +144,7 @@ describe('SellOrdersController', () => {
     test('should throw an error 404 when assetId is not found', async () => {
       const payload = {
         assetId: v4(),
-        userId: user.id,
+        email: user.email,
         fractionQty: 1,
         fractionPriceCents: 1000,
         expireTime: Date.now(),
@@ -167,10 +161,10 @@ describe('SellOrdersController', () => {
       });
       expect(sellOrder).not.toBeDefined();
     });
-    test('should throw an error 404 when userId is not found', async () => {
+    test('should throw an error 404 when email is not found', async () => {
       const payload = {
         assetId: asset.id,
-        userId: v4(),
+        email: 'doesnotexist@example.com',
         fractionQty: 1,
         fractionPriceCents: 1000,
         expireTime: Date.now(),

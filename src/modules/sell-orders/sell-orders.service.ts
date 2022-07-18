@@ -46,7 +46,7 @@ export class SellOrdersService {
     if (!asset) {
       throw new AssetNotFoundException();
     }
-    const user = await User.findOne({ id: dto.userId, deletedAt: null, isDeleted: false });
+    const user = await User.findOne({ email: dto.email, deletedAt: null, isDeleted: false });
     if (!user) {
       throw new UserNotFoundException();
     }
