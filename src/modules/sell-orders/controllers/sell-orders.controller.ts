@@ -33,8 +33,6 @@ import { Partner } from 'modules/partners/entities';
   path: 'sellorders',
   version: '1',
 })
-@ApiBasicAuth('api-key')
-@UseGuards(AuthGuard('headerapikey'))
 export class SellOrdersController {
   constructor(
     private readonly sellOrdersService: SellOrdersService,
@@ -56,6 +54,8 @@ export class SellOrdersController {
   }
 
   @Get(':id')
+  @ApiBasicAuth('api-key')
+  @UseGuards(AuthGuard('headerapikey'))
   @ApiOperation({ summary: 'Returns single sell order' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -72,6 +72,8 @@ export class SellOrdersController {
   }
 
   @Post()
+  @ApiBasicAuth('api-key')
+  @UseGuards(AuthGuard('headerapikey'))
   @ApiOperation({ summary: 'Create a sell order' })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -91,6 +93,8 @@ export class SellOrdersController {
   }
 
   @Delete(':id')
+  @ApiBasicAuth('api-key')
+  @UseGuards(AuthGuard('headerapikey'))
   @ApiOperation({ summary: 'Delete a sell order' })
   @ApiResponse({
     status: HttpStatus.NO_CONTENT,

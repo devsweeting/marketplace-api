@@ -73,6 +73,11 @@ describe('SellOrdersController', () => {
         partnerId: partner.id,
         userId: users[1].id,
       }),
+      await createSellOrder({
+        assetId: assets[2].id,
+        partnerId: anotherPartner.id,
+        userId: users[2].id,
+      }),
     ];
     header = {
       'x-api-key': partner.apiKey,
@@ -90,6 +95,7 @@ describe('SellOrdersController', () => {
   describe(`GET V1 /sellorders`, () => {
     test('should empty list if second page is empty', () => {
       const params = new URLSearchParams({
+        partnerId: partner.id,
         page: '2',
       });
       const response = {
@@ -107,6 +113,7 @@ describe('SellOrdersController', () => {
 
     test('should return 1 element', () => {
       const params = new URLSearchParams({
+        partnerId: partner.id,
         limit: '1',
       });
       const response = {
@@ -124,6 +131,7 @@ describe('SellOrdersController', () => {
 
     test('should return 2 page', () => {
       const params = new URLSearchParams({
+        partnerId: partner.id,
         limit: '1',
         page: '2',
       });
@@ -144,6 +152,7 @@ describe('SellOrdersController', () => {
 
     test('should return 2 per page', () => {
       const params = new URLSearchParams({
+        partnerId: partner.id,
         limit: '2',
       });
       const response = {
@@ -164,6 +173,7 @@ describe('SellOrdersController', () => {
   });
   test('should sort by name ASC', () => {
     const params = new URLSearchParams({
+      partnerId: partner.id,
       sort: 'asset.name',
       order: 'ASC',
     });
@@ -185,6 +195,7 @@ describe('SellOrdersController', () => {
 
   test('should sort by name DESC', () => {
     const params = new URLSearchParams({
+      partnerId: partner.id,
       sort: 'asset.name',
       order: 'DESC',
     });
@@ -206,6 +217,7 @@ describe('SellOrdersController', () => {
   });
   test('should sort by slug ASC', () => {
     const params = new URLSearchParams({
+      partnerId: partner.id,
       sort: 'asset.slug',
       order: 'ASC',
     });
@@ -227,6 +239,7 @@ describe('SellOrdersController', () => {
 
   test('should sort by slug DESC', () => {
     const params = new URLSearchParams({
+      partnerId: partner.id,
       sort: 'asset.slug',
       order: 'DESC',
     });
@@ -248,6 +261,7 @@ describe('SellOrdersController', () => {
   });
   test('should throw a 400 status if there are no results for the wrong format email ', () => {
     const params = new URLSearchParams({
+      partnerId: partner.id,
       email: 'wrong-email',
     });
     const response = {
@@ -260,6 +274,7 @@ describe('SellOrdersController', () => {
 
   test('should return empty list if there are no results for email filter', () => {
     const params = new URLSearchParams({
+      partnerId: partner.id,
       email: users[2].email,
     });
     const response = {
@@ -277,6 +292,7 @@ describe('SellOrdersController', () => {
 
   test('should return list if there are results for email filter', () => {
     const params = new URLSearchParams({
+      partnerId: partner.id,
       email: users[1].email,
     });
     const response = {
@@ -297,6 +313,7 @@ describe('SellOrdersController', () => {
 
   test('should return empty list if there are no results for assetId filter', () => {
     const params = new URLSearchParams({
+      partnerId: partner.id,
       assetId: assets[2].id,
     });
     const response = {
@@ -314,6 +331,7 @@ describe('SellOrdersController', () => {
 
   test('should return list if there are results for assetId filter', () => {
     const params = new URLSearchParams({
+      partnerId: partner.id,
       assetId: assets[0].id,
     });
     const response = {
@@ -331,6 +349,7 @@ describe('SellOrdersController', () => {
 
   test('should return empty list if there are no results for slug filter', () => {
     const params = new URLSearchParams({
+      partnerId: partner.id,
       slug: assets[2].slug,
     });
     const response = {
@@ -348,6 +367,7 @@ describe('SellOrdersController', () => {
 
   test('should return list if there are results for slug filter', () => {
     const params = new URLSearchParams({
+      partnerId: partner.id,
       slug: assets[0].slug,
     });
     const response = {
@@ -359,6 +379,23 @@ describe('SellOrdersController', () => {
         currentPage: 1,
       },
       items: [sellOrdersTransformer.transform(sellOrders[0])],
+    };
+    return testApp.get(app, BASE_URL + `?${params.toString()}`, 200, response, {}, header);
+  });
+
+  test('should return only anotherPartner`s sell orders', () => {
+    const params = new URLSearchParams({
+      partnerId: anotherPartner.id,
+    });
+    const response = {
+      meta: {
+        totalItems: 1,
+        itemCount: 1,
+        itemsPerPage: 25,
+        totalPages: 1,
+        currentPage: 1,
+      },
+      items: [sellOrdersTransformer.transform(sellOrders[2])],
     };
     return testApp.get(app, BASE_URL + `?${params.toString()}`, 200, response, {}, header);
   });

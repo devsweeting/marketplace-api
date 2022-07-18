@@ -53,9 +53,13 @@ export class SellOrder extends BaseModel implements BaseEntityInterface {
   public static list(params: ListSellOrderDto): SelectQueryBuilder<SellOrder> {
     const query = SellOrder.createQueryBuilder('sellOrder')
       .leftJoinAndMapOne('sellOrder.asset', 'sellOrder.asset', 'asset')
-      .where('sellOrder.isDeleted = :isDeleted AND sellOrder.deletedAt IS NULL', {
-        isDeleted: false,
-      })
+      .where(
+        'sellOrder.partnerId = :partnerId AND sellOrder.isDeleted = :isDeleted AND sellOrder.deletedAt IS NULL',
+        {
+          partnerId: params.partnerId,
+          isDeleted: false,
+        },
+      )
       .addOrderBy(params.sort, params.order);
 
     if (params.assetId) {
