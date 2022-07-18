@@ -35,7 +35,7 @@ describe('AssetsController', () => {
       apiKey: 'test-api-key',
       accountOwner: user,
     });
-    asset = await createAsset({ partner });
+    asset = await createAsset({}, partner);
     assetTransformer = app.get(AssetsTransformer);
     header = {
       'x-api-key': partner.apiKey,
@@ -86,7 +86,7 @@ describe('AssetsController', () => {
         apiKey: 'another-api-key',
         accountOwner: anotherUser,
       });
-      const anotherAsset = await createAsset({ partner: anotherPartner });
+      const anotherAsset = await createAsset({}, anotherPartner);
       const response = {
         error: 'Not Found',
         message: 'ASSET_NOT_FOUND',
@@ -123,10 +123,12 @@ describe('AssetsController', () => {
     });
 
     test('should throw 409 exception if refId is already taken', async () => {
-      await createAsset({
-        refId: '123456',
+      await createAsset(
+        {
+          refId: '123456',
+        },
         partner,
-      });
+      );
       const payload = {
         refId: '123456',
       };
@@ -198,10 +200,12 @@ describe('AssetsController', () => {
     });
 
     test('should throw 409 exception if refID is already exist', async () => {
-      await createAsset({
-        refId: 'ref-1',
-        partnerId: partner.id,
-      });
+      await createAsset(
+        {
+          refId: 'ref-1',
+        },
+        partner,
+      );
       const payload = {
         refId: 'ref-1',
       };

@@ -33,18 +33,22 @@ describe('WatchlistController', () => {
       accountOwner: user,
     });
     assets = [
-      await createAsset({
-        refId: '1',
-        name: 'Egg',
-        description: 'test-egg',
+      await createAsset(
+        {
+          refId: '1',
+          name: 'Egg',
+          description: 'test-egg',
+        },
         partner,
-      }),
-      await createAsset({
-        refId: '2',
-        name: 'Water',
-        description: 'test-water',
+      ),
+      await createAsset(
+        {
+          refId: '2',
+          name: 'Water',
+          description: 'test-water',
+        },
         partner,
-      }),
+      ),
     ];
     watchlists = [
       await createWatchlist({

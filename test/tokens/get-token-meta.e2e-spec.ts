@@ -39,13 +39,15 @@ describe('TokensController', () => {
       accountOwner: user,
     });
     contract = await createContract({});
-    asset = await createAsset({
-      refId: '1',
-      name: 'Egg',
-      slug: 'egg',
-      description: 'test-egg',
+    asset = await createAsset(
+      {
+        refId: '1',
+        name: 'Egg',
+        slug: 'egg',
+        description: 'test-egg',
+      },
       partner,
-    });
+    );
     token = await createToken({
       assetId: asset.id,
       asset,

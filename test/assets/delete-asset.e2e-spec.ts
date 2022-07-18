@@ -28,13 +28,15 @@ describe('AssetsController', () => {
       apiKey: 'test-api-key',
       accountOwner: user,
     });
-    asset = await createAsset({
-      refId: '1',
-      name: 'Egg',
-      slug: 'egg',
-      description: 'test-egg',
+    asset = await createAsset(
+      {
+        refId: '1',
+        name: 'Egg',
+        slug: 'egg',
+        description: 'test-egg',
+      },
       partner,
-    });
+    );
     attribute = await createAttribute({
       asset,
     });
@@ -88,7 +90,7 @@ describe('AssetsController', () => {
         apiKey: 'other-test-api-key',
         accountOwner: anotherUser,
       });
-      const otherAsset = await createAsset({ partner: otherPartner });
+      const otherAsset = await createAsset({}, otherPartner);
 
       return testApp.del(app, `/v1/assets/${otherAsset.id}`, 404, null, {}, header);
     });

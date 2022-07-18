@@ -43,18 +43,23 @@ describe('AssetsController', () => {
 
   beforeEach(async () => {
     assets = [
-      await createAsset({
-        refId: '1',
-        name: 'Egg',
-        description: 'test-egg',
+      await createAsset(
+        {
+          refId: '1',
+          name: 'Egg',
+          description: 'test-egg',
+          partner,
+        },
         partner,
-      }),
-      await createAsset({
-        refId: '2',
-        name: 'Pumpkin',
-        description: 'test-pumpkin',
+      ),
+      await createAsset(
+        {
+          refId: '2',
+          name: 'Pumpkin',
+          description: 'test-pumpkin',
+        },
         partner,
-      }),
+      ),
     ];
   });
 
@@ -251,18 +256,22 @@ describe('AssetsController', () => {
 
     test('should search by name or description, return 2 records', async () => {
       assets = [
-        await createAsset({
-          refId: '3',
-          name: 'Pumpkin',
-          description: 'test-orange',
+        await createAsset(
+          {
+            refId: '3',
+            name: 'Pumpkin',
+            description: 'test-orange',
+          },
           partner,
-        }),
-        await createAsset({
-          refId: '4',
-          name: 'Orange',
-          description: 'test-orange',
+        ),
+        await createAsset(
+          {
+            refId: '4',
+            name: 'Orange',
+            description: 'test-orange',
+          },
           partner,
-        }),
+        ),
       ];
       const params = new URLSearchParams({
         search: 'orange',
@@ -282,18 +291,22 @@ describe('AssetsController', () => {
 
     test('should search match first word of string by name or description , return 1 record', async () => {
       assets = [
-        await createAsset({
-          refId: '3',
-          name: 'Stephen Curry',
-          description: 'test-stephen',
+        await createAsset(
+          {
+            refId: '3',
+            name: 'Stephen Curry',
+            description: 'test-stephen',
+          },
           partner,
-        }),
-        await createAsset({
-          refId: '4',
-          name: 'Orange',
-          description: 'test-orange',
+        ),
+        await createAsset(
+          {
+            refId: '4',
+            name: 'Orange',
+            description: 'test-orange',
+          },
           partner,
-        }),
+        ),
       ];
       const params = new URLSearchParams({
         search: 'steph',
@@ -313,18 +326,22 @@ describe('AssetsController', () => {
 
     test('should search match second word of string by name or description , return 1 record', async () => {
       assets = [
-        await createAsset({
-          refId: '3',
-          name: 'Stephen Curry',
-          description: 'test-stephen',
+        await createAsset(
+          {
+            refId: '3',
+            name: 'Stephen Curry',
+            description: 'test-stephen',
+          },
           partner,
-        }),
-        await createAsset({
-          refId: '4',
-          name: 'Orange',
-          description: 'test-orange',
+        ),
+        await createAsset(
+          {
+            refId: '4',
+            name: 'Orange',
+            description: 'test-orange',
+          },
           partner,
-        }),
+        ),
       ];
       const params = new URLSearchParams({
         search: 'cur',
@@ -344,18 +361,22 @@ describe('AssetsController', () => {
 
     test('should search match multiple word of string by name or description , return 1 record', async () => {
       assets = [
-        await createAsset({
-          refId: '3',
-          name: '2009 Topps Chrome Refractor Stephen Curry ROOKIE /500 #101 PSA 10 GEM MINT',
-          description: 'test-stephen',
+        await createAsset(
+          {
+            refId: '3',
+            name: '2009 Topps Chrome Refractor Stephen Curry ROOKIE /500 #101 PSA 10 GEM MINT',
+            description: 'test-stephen',
+          },
           partner,
-        }),
-        await createAsset({
-          refId: '4',
-          name: 'Orange',
-          description: 'test-orange',
+        ),
+        await createAsset(
+          {
+            refId: '4',
+            name: 'Orange',
+            description: 'test-orange',
+          },
           partner,
-        }),
+        ),
       ];
       const params = new URLSearchParams({
         search: 'Topps Curry 2009',
@@ -375,18 +396,23 @@ describe('AssetsController', () => {
 
     test('should search match multiple word with substring of string by name , return 1 record', async () => {
       assets = [
-        await createAsset({
-          refId: '3',
-          name: '2009 Topps Chrome Refractor Stephen Curry ROOKIE /500 #101 PSA 10 GEM MINT',
-          description: 'test-stephen',
+        await createAsset(
+          {
+            refId: '3',
+            name: '2009 Topps Chrome Refractor Stephen Curry ROOKIE /500 #101 PSA 10 GEM MINT',
+            description: 'test-stephen',
+            partner,
+          },
           partner,
-        }),
-        await createAsset({
-          refId: '4',
-          name: 'Orange',
-          description: 'test-orange',
+        ),
+        await createAsset(
+          {
+            refId: '4',
+            name: 'Orange',
+            description: 'test-orange',
+          },
           partner,
-        }),
+        ),
       ];
       const params = new URLSearchParams({
         search: 'Topps Refract Curry',
@@ -407,18 +433,23 @@ describe('AssetsController', () => {
 
     test('should search match multiple word with substring of string by description , return 1 record', async () => {
       assets = [
-        await createAsset({
-          refId: '3',
-          name: 'Stephen',
-          description: '2009 Topps Chrome Refractor Stephen Curry ROOKIE /500 #101 PSA 10 GEM MINT',
+        await createAsset(
+          {
+            refId: '3',
+            name: 'Stephen',
+            description:
+              '2009 Topps Chrome Refractor Stephen Curry ROOKIE /500 #101 PSA 10 GEM MINT',
+          },
           partner,
-        }),
-        await createAsset({
-          refId: '4',
-          name: 'Orange',
-          description: 'test-orange',
+        ),
+        await createAsset(
+          {
+            refId: '4',
+            name: 'Orange',
+            description: 'test-orange',
+          },
           partner,
-        }),
+        ),
       ];
       const params = new URLSearchParams({
         search: 'Topps Refract Curry',
@@ -438,18 +469,22 @@ describe('AssetsController', () => {
 
     test('should search by name or description and partner hashed id, return 2 records', async () => {
       assets = [
-        await createAsset({
-          refId: '3',
-          name: 'Pumpkin',
-          description: 'test-orange',
+        await createAsset(
+          {
+            refId: '3',
+            name: 'Pumpkin',
+            description: 'test-orange',
+          },
           partner,
-        }),
-        await createAsset({
-          refId: '4',
-          name: 'Orange',
-          description: 'test-orange',
+        ),
+        await createAsset(
+          {
+            refId: '4',
+            name: 'Orange',
+            description: 'test-orange',
+          },
           partner,
-        }),
+        ),
       ];
       const params = new URLSearchParams({
         search: 'orange',
@@ -470,12 +505,14 @@ describe('AssetsController', () => {
 
     test('should filter by attribute, return 1 record', async () => {
       assets = [
-        await createAsset({
-          refId: '3',
-          name: 'Orange',
-          description: 'test-orange',
+        await createAsset(
+          {
+            refId: '3',
+            name: 'Orange',
+            description: 'test-orange',
+          },
           partner,
-        }),
+        ),
       ];
       const attributes = [
         await createAttribute({
@@ -503,18 +540,22 @@ describe('AssetsController', () => {
 
     test('should filter by attribute, return 2 records', async () => {
       assets = [
-        await createAsset({
-          refId: '3',
-          name: 'Orange 1',
-          description: 'test-orange',
+        await createAsset(
+          {
+            refId: '3',
+            name: 'Orange 1',
+            description: 'test-orange',
+          },
           partner,
-        }),
-        await createAsset({
-          refId: '4',
-          name: 'Orange 2',
-          description: 'test-orange',
+        ),
+        await createAsset(
+          {
+            refId: '4',
+            name: 'Orange 2',
+            description: 'test-orange',
+          },
           partner,
-        }),
+        ),
       ];
       const attributes = await createAttributes([
         {
@@ -551,18 +592,22 @@ describe('AssetsController', () => {
 
     test('should filter by attribute and label, return 1 record', async () => {
       assets = [
-        await createAsset({
-          refId: '3',
-          name: 'Orange 1',
-          description: 'test-orange',
+        await createAsset(
+          {
+            refId: '3',
+            name: 'Orange 1',
+            description: 'test-orange',
+          },
           partner,
-        }),
-        await createAsset({
-          refId: '4',
-          name: 'Orange 2',
-          description: 'test-orange',
+        ),
+        await createAsset(
+          {
+            refId: '4',
+            name: 'Orange 2',
+            description: 'test-orange',
+          },
           partner,
-        }),
+        ),
       ];
       const attributes = await createAttributes([
         { trait: 'category', value: 'test', assetId: assets[0].id },
@@ -592,18 +637,22 @@ describe('AssetsController', () => {
 
     test('should filter by attr_eq and attr_gte, return 2 records', async () => {
       assets = [
-        await createAsset({
-          refId: '3',
-          name: 'Orange 1',
-          description: 'test-orange',
+        await createAsset(
+          {
+            refId: '3',
+            name: 'Orange 1',
+            description: 'test-orange',
+          },
           partner,
-        }),
-        await createAsset({
-          refId: '4',
-          name: 'Orange 2',
-          description: 'test-orange',
+        ),
+        await createAsset(
+          {
+            refId: '4',
+            name: 'Orange 2',
+            description: 'test-orange',
+          },
           partner,
-        }),
+        ),
       ];
       const attributes = await createAttributes([
         { trait: 'category', value: 'test', assetId: assets[0].id },
@@ -639,18 +688,22 @@ describe('AssetsController', () => {
 
     test('should filter by attr_eq and attr_gte, return 1 records', async () => {
       assets = [
-        await createAsset({
-          refId: '3',
-          name: 'Orange 1',
-          description: 'test-orange',
+        await createAsset(
+          {
+            refId: '3',
+            name: 'Orange 1',
+            description: 'test-orange',
+          },
           partner,
-        }),
-        await createAsset({
-          refId: '4',
-          name: 'Orange 2',
-          description: 'test-orange',
+        ),
+        await createAsset(
+          {
+            refId: '4',
+            name: 'Orange 2',
+            description: 'test-orange',
+          },
           partner,
-        }),
+        ),
       ];
       const attributes = await createAttributes([
         { trait: 'category', value: 'another', assetId: assets[0].id },
@@ -837,12 +890,14 @@ describe('AssetsController', () => {
     });
 
     test('should return list od assets for date range', async () => {
-      const asset2 = await createAsset({
-        refId: '4',
-        name: 'Water',
-        description: 'test-water',
+      const asset2 = await createAsset(
+        {
+          refId: '4',
+          name: 'Water',
+          description: 'test-water',
+        },
         partner,
-      });
+      );
 
       const attributes = await createAttributes([
         { trait: 'year', value: '2014', assetId: assets[0].id },
@@ -869,12 +924,14 @@ describe('AssetsController', () => {
     });
 
     test('should return list od assets for attr_gte', async () => {
-      const asset2 = await createAsset({
-        refId: '5',
-        name: 'Water',
-        description: 'test-water',
+      const asset2 = await createAsset(
+        {
+          refId: '5',
+          name: 'Water',
+          description: 'test-water',
+        },
         partner,
-      });
+      );
 
       const attributes = await createAttributes([
         { trait: 'year', value: '2014', assetId: assets[0].id },
@@ -904,12 +961,14 @@ describe('AssetsController', () => {
     });
 
     test('should return list od assets for attr_lte', async () => {
-      const asset2 = await createAsset({
-        refId: '6',
-        name: 'Water',
-        description: 'test-water',
+      const asset2 = await createAsset(
+        {
+          refId: '6',
+          name: 'Water',
+          description: 'test-water',
+        },
         partner,
-      });
+      );
       const attributes = await createAttributes([
         { trait: 'year', value: '2014', assetId: assets[0].id },
         { trait: 'year', value: '2019', assetId: assets[1].id },
@@ -937,12 +996,14 @@ describe('AssetsController', () => {
     });
 
     test('should return asset for attr_lte and search', async () => {
-      const asset2 = await createAsset({
-        refId: '7',
-        name: 'Egg',
-        description: 'test-egg',
+      const asset2 = await createAsset(
+        {
+          refId: '7',
+          name: 'Egg',
+          description: 'test-egg',
+        },
         partner,
-      });
+      );
       const attributes = await createAttributes([
         { trait: 'year', value: '2014', assetId: assets[0].id },
         { trait: 'year', value: '2019', assetId: assets[1].id },
@@ -968,24 +1029,30 @@ describe('AssetsController', () => {
 
     test('should return 2 records of assets for attr_lte and search', async () => {
       const assets = [
-        await createAsset({
-          refId: '100',
-          name: 'ABC',
-          description: 'test-abc',
+        await createAsset(
+          {
+            refId: '100',
+            name: 'ABC',
+            description: 'test-abc',
+          },
           partner,
-        }),
-        await createAsset({
-          refId: '101',
-          name: 'Sun',
-          description: 'test-sun',
+        ),
+        await createAsset(
+          {
+            refId: '101',
+            name: 'Sun',
+            description: 'test-sun',
+          },
           partner,
-        }),
-        await createAsset({
-          refId: '102',
-          name: 'ABC',
-          description: 'test-abc',
+        ),
+        await createAsset(
+          {
+            refId: '102',
+            name: 'ABC',
+            description: 'test-abc',
+          },
           partner,
-        }),
+        ),
       ];
       const attributes = await createAttributes([
         { trait: 'year', value: '2014', assetId: assets[0].id },
@@ -1013,24 +1080,30 @@ describe('AssetsController', () => {
 
     test('should return 2 records of assets for attr_eq for different attributes', async () => {
       const assets = [
-        await createAsset({
-          refId: '103',
-          name: 'ABC',
-          description: 'test-abc',
+        await createAsset(
+          {
+            refId: '103',
+            name: 'ABC',
+            description: 'test-abc',
+          },
           partner,
-        }),
-        await createAsset({
-          refId: '104',
-          name: 'Sun',
-          description: 'test-sun',
+        ),
+        await createAsset(
+          {
+            refId: '104',
+            name: 'Sun',
+            description: 'test-sun',
+          },
           partner,
-        }),
-        await createAsset({
-          refId: '105',
-          name: 'ABC',
-          description: 'test-abc',
+        ),
+        await createAsset(
+          {
+            refId: '105',
+            name: 'ABC',
+            description: 'test-abc',
+          },
           partner,
-        }),
+        ),
       ];
 
       const attributes = await createAttributes([
@@ -1061,24 +1134,30 @@ describe('AssetsController', () => {
 
     test('should return 2 records of assets for label_eq for different labels', async () => {
       const assets = [
-        await createAsset({
-          refId: '106',
-          name: 'ABC',
-          description: 'test-abc',
+        await createAsset(
+          {
+            refId: '106',
+            name: 'ABC',
+            description: 'test-abc',
+          },
           partner,
-        }),
-        await createAsset({
-          refId: '107',
-          name: 'Sun',
-          description: 'test-sun',
+        ),
+        await createAsset(
+          {
+            refId: '107',
+            name: 'Sun',
+            description: 'test-sun',
+          },
           partner,
-        }),
-        await createAsset({
-          refId: '108',
-          name: 'ABC',
-          description: 'test-abc',
+        ),
+        await createAsset(
+          {
+            refId: '108',
+            name: 'ABC',
+            description: 'test-abc',
+          },
           partner,
-        }),
+        ),
       ];
 
       const labels = [
@@ -1191,12 +1270,14 @@ describe('AssetsController', () => {
     });
 
     test('should return asset for attr_gte and search', async () => {
-      const asset2 = await createAsset({
-        refId: '8',
-        name: 'Sun',
-        description: 'test-sun',
+      const asset2 = await createAsset(
+        {
+          refId: '8',
+          name: 'Sun',
+          description: 'test-sun',
+        },
         partner,
-      });
+      );
       const attributes = await createAttributes([
         { trait: 'year', value: '2014', assetId: assets[0].id },
         { trait: 'year', value: '2019', assetId: assets[1].id },
@@ -1221,12 +1302,14 @@ describe('AssetsController', () => {
     });
 
     test('should return asset for attr_lte and attr_gte as number', async () => {
-      const asset2 = await createAsset({
-        refId: '9',
-        name: 'Ice',
-        description: 'test-egg',
+      const asset2 = await createAsset(
+        {
+          refId: '9',
+          name: 'Ice',
+          description: 'test-egg',
+        },
         partner,
-      });
+      );
       const attributes = await createAttributes([
         { trait: 'grade', value: '1', assetId: assets[0].id },
         { trait: 'grade', value: '10', assetId: assets[1].id },
@@ -1252,12 +1335,14 @@ describe('AssetsController', () => {
     });
 
     test('should return asset for attr_lte and attr_gte as number and category', async () => {
-      const asset2 = await createAsset({
-        refId: '20',
-        name: 'Ice',
-        description: 'test-egg',
+      const asset2 = await createAsset(
+        {
+          refId: '20',
+          name: 'Ice',
+          description: 'test-egg',
+        },
         partner,
-      });
+      );
       const attributes = await createAttributes([
         { trait: 'category', value: 'baseball', assetId: asset2.id },
         { trait: 'category', value: 'baseball', assetId: assets[1].id },
@@ -1396,9 +1481,9 @@ describe('AssetsController', () => {
     });
 
     test('should return valid meta if asset has multiple attributes', async () => {
-      const asset1 = await createAsset({ partner, refId: '3', name: 'abc-1' });
-      const asset2 = await createAsset({ partner, refId: '4', name: 'abc-2' });
-      const asset3 = await createAsset({ partner, refId: '5', name: 'abc-3' });
+      const asset1 = await createAsset({ refId: '3', name: 'abc-1' }, partner);
+      const asset2 = await createAsset({ refId: '4', name: 'abc-2' }, partner);
+      const asset3 = await createAsset({ refId: '5', name: 'abc-3' }, partner);
 
       await createAttributes([
         { asset: asset1 },
@@ -1437,9 +1522,9 @@ describe('AssetsController', () => {
     });
   });
   test('should return valid meta if asset has media', async () => {
-    const asset1 = await createAsset({ partner, refId: '3', name: 'abc-1' });
-    const asset2 = await createAsset({ partner, refId: '4', name: 'abc-2' });
-    const asset3 = await createAsset({ partner, refId: '5', name: 'abc-3' });
+    const asset1 = await createAsset({ refId: '3', name: 'abc-1' }, partner);
+    const asset2 = await createAsset({ refId: '4', name: 'abc-2' }, partner);
+    const asset3 = await createAsset({ refId: '5', name: 'abc-3' }, partner);
 
     const imageMedia = await createImageMedia({ asset: asset1, sortOrder: 1 });
     await createImageMedia({ asset: asset1, sortOrder: 2 });

@@ -29,12 +29,14 @@ describe('WatchlistController', () => {
       apiKey: 'test-api-key',
       accountOwner: user,
     });
-    asset = await createAsset({
-      refId: '1',
-      name: 'Egg',
-      description: 'test-egg',
+    asset = await createAsset(
+      {
+        refId: '1',
+        name: 'Egg',
+        description: 'test-egg',
+      },
       partner,
-    });
+    );
   });
 
   beforeEach(async () => {
@@ -101,12 +103,14 @@ describe('WatchlistController', () => {
       });
   });
   test('should add new asset to watchlist if watchlist exists with another asset', async () => {
-    const newAsset = await createAsset({
-      refId: '2',
-      name: 'New',
-      description: 'test-egg',
+    const newAsset = await createAsset(
+      {
+        refId: '2',
+        name: 'New',
+        description: 'test-egg',
+      },
       partner,
-    });
+    );
     const dtoRequest = { assetId: newAsset.id };
     watchlist = await createWatchlist({
       user: user,
@@ -281,12 +285,14 @@ describe('WatchlistController', () => {
     });
 
     for (let index = 3; index < 8; index++) {
-      asset = await createAsset({
-        refId: `${index}`,
-        name: `Egg ${index}`,
-        description: 'test-egg',
+      asset = await createAsset(
+        {
+          refId: `${index}`,
+          name: `Egg ${index}`,
+          description: 'test-egg',
+        },
         partner,
-      });
+      );
       await createWatchlistAsset({
         assetId: asset.id,
         watchlistId: watchlist.id,
