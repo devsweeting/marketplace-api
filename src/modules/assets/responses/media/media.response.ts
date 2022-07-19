@@ -27,4 +27,7 @@ export class MediaResponse {
 
   @ApiProperty({ example: 1 })
   public sortOrder: number;
+
+  // Shouldn't be exposed to the client on POST/PUT/PATCH
+  public absoluteUrl: string | null;
 }

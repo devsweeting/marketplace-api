@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
-import { clearAllData, createApp, mockS3Provider } from '@/test/utils/app.utils';
+import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { createFile } from '@/test/utils/file.utils';
 import { Collection } from 'modules/collections/entities';
 import { CollectionsTransformer } from 'modules/collections/transformers/collections.transformer';
@@ -11,7 +11,6 @@ describe('CollectionController', () => {
 
   let collections: Collection[];
   let collectionsTransformer: CollectionsTransformer;
-  const mockedFileUrl = 'http://example.com';
 
   beforeAll(async () => {
     app = await createApp();
@@ -31,8 +30,6 @@ describe('CollectionController', () => {
         description: 'test-flower',
       }),
     ];
-
-    mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);
   });
 
   afterEach(async () => {

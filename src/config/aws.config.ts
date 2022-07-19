@@ -9,7 +9,9 @@ export default registerAs('aws', () => {
       region: process.env.AWS_REGION,
       cloudFrontDomain: process.env.CLOUDFRONT_DOMAIN,
       endpoint: process.env.AWS_ENDPOINT,
-      s3ForcePathStyle: process.env.NODE_ENV === 'DEVELOP' || process.env.NODE_ENV === 'TEST',
+      s3ForcePathStyle:
+        process.env.NODE_ENV.toUpperCase() === 'DEVELOP' ||
+        process.env.NODE_ENV.toUpperCase() === 'TEST',
     },
   };
 });

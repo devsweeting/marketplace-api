@@ -7,4 +7,5 @@ export class UploadResponseDto {
   public mimeType: string;
   public storage: StorageEnum;
   public size: number;
+  public absoluteUrl: string;
 }

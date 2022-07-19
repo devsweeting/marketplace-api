@@ -1,22 +1,14 @@
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
-import {
-  clearAllData,
-  createApp,
-  mockFileDownloadService,
-  mockS3Provider,
-} from '@/test/utils/app.utils';
+import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { createPartner } from '@/test/utils/partner.utils';
 import { createAsset } from '@/test/utils/asset.utils';
 import { Partner } from 'modules/partners/entities';
 import { File } from 'modules/storage/entities/file.entity';
 import { Asset, Media } from 'modules/assets/entities';
-import { StorageEnum } from 'modules/storage/enums/storage.enum';
-import { v4 } from 'uuid';
 import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
-import crypto from 'crypto';
 import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
 import { createImageMedia } from '../utils/media.utils';
 import { MediaDto } from 'modules/assets/dto/media/media.dto';
@@ -26,10 +18,10 @@ describe('MediaController', () => {
   let partner: Partner;
   let user: User;
   let asset: Asset;
-  const mockedUrl = 'https://example.com';
-  const mockTmpFilePath = '/tmp/temp-file.jpeg';
+  const imageUrl =
+    'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
   const dtoRequest: any = {
-    url: 'https://example.com/image.png',
+    url: imageUrl,
     title: 'Example',
     description: 'test',
     type: MediaTypeEnum.Image,
@@ -52,16 +44,6 @@ describe('MediaController', () => {
       },
       partner,
     );
-    mockS3Provider.getUrl.mockReturnValue(mockedUrl);
-    mockFileDownloadService.downloadAll.mockReturnValue([mockTmpFilePath]);
-    mockS3Provider.upload.mockReturnValue({
-      id: v4(),
-      name: 'example.jpeg',
-      path: 'test/example.jpeg',
-      mimeType: 'image/jpeg',
-      storage: StorageEnum.S3,
-      size: 100,
-    });
   });
 
   afterEach(async () => {
@@ -110,7 +92,7 @@ describe('MediaController', () => {
 
     test('should create a new media object in the db', () => {
       const dto: any = {
-        url: 'https://example.com/image.png',
+        url: 'https://avatars.githubusercontent.com/u/3612?v=4',
         title: 'Example',
         description: 'test',
         type: MediaTypeEnum.Image,
@@ -126,7 +108,7 @@ describe('MediaController', () => {
         .then(async () => {
           const getAsset = await Asset.findOne({
             where: { id: asset.id },
-            relations: ['media'],
+            relations: ['media', 'media.file'],
           });
           const media = getAsset.media[0];
           expect(media).toBeDefined();
@@ -134,9 +116,11 @@ describe('MediaController', () => {
           expect(media.fileId).toBeDefined();
           expect(media.url).toEqual(dto.url);
           expect(media.description).toEqual(dto.description);
-
-          expect(mockFileDownloadService.downloadAll).toHaveBeenCalledWith([{ ...dto }]);
-          expect(mockS3Provider.upload).toHaveBeenCalledWith(mockTmpFilePath, `assets/${asset.id}`);
+          expect(media.type).toEqual(dto.type);
+          expect(media.file).toBeDefined();
+          expect(media.file.absoluteUrl).toEqual(
+            'http://localhost:4566/test-bucket/assets/' + asset.id + '/' + media.file.name,
+          );
         });
     });
 
@@ -144,7 +128,7 @@ describe('MediaController', () => {
       await createImageMedia({ assetId: asset.id, sortOrder: 1 });
 
       const dtoRequest: any = {
-        url: 'https://example.com/image.png',
+        url: imageUrl,
         title: 'Example',
         description: 'test',
         type: MediaTypeEnum.Image,
@@ -171,7 +155,7 @@ describe('MediaController', () => {
       await createImageMedia({ assetId: asset.id, sortOrder: 1 });
 
       const dtoRequest: any = {
-        url: 'https://example.com/image.png',
+        url: imageUrl,
         title: 'Example',
         description: 'test',
         type: MediaTypeEnum.Image,
@@ -196,49 +180,12 @@ describe('MediaController', () => {
         });
     });
 
-    test('should support long urls', async () => {
-      const newAsset = await createAsset({ refId: '123' }, partner);
-      await createImageMedia({ assetId: newAsset.id, sortOrder: 1 });
-
-      const bigurl = crypto.randomBytes((1024 - 15) / 2).toString('hex');
-      const dtoRequest: any = {
-        url: `http://foo.com/${bigurl}`,
-        title: 'Example',
-        description: 'test',
-        type: MediaTypeEnum.Image,
-        sortOrder: 1,
-      };
-
-      const resp = request(app.getHttpServer())
-        .post(`/v1/assets/${asset.id}/media`)
-        .set({
-          'x-api-key': partner.apiKey,
-        })
-        .send(dtoRequest);
-
-      return resp.expect(201).then(async () => {
-        const getAsset = await Asset.findOne({
-          where: { id: asset.id },
-          relations: ['media'],
-        });
-        const getNewAsset = await Asset.findOne({
-          where: { id: newAsset.id },
-          relations: ['media'],
-        });
-
-        expect(getAsset.media).toBeDefined();
-        expect(getAsset.media.length).toEqual(1);
-        expect(getNewAsset.media).toBeDefined();
-        expect(getNewAsset.media.length).toEqual(1);
-      });
-    });
-
     test('should create object with the same sortOrder for another asset', async () => {
       const newAsset = await createAsset({ refId: '2' }, partner);
       await createImageMedia({ assetId: newAsset.id, sortOrder: 1 });
 
       const dtoRequest: MediaDto = {
-        url: 'https://example.com/image.png',
+        url: imageUrl,
         title: 'Example',
         description: 'test',
         type: MediaTypeEnum.Image,
@@ -304,7 +251,7 @@ describe('MediaController', () => {
       });
 
       const dtoRequest: any = {
-        url: 'https://example.com/image.png',
+        url: imageUrl,
         title: 'Example',
         description: 'test',
         type: MediaTypeEnum.Image,

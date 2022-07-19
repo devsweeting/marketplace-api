@@ -29,7 +29,7 @@ export class MediaDto {
   @ApiProperty({
     description: 'Link to media url.  Must be less than 1024 characters.',
     required: true,
-    example: 'https://picsum.photos/400/200',
+    example: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
   })
   public url: string;
 

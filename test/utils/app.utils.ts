@@ -10,8 +10,6 @@ import { Asset, Attribute, Contract, Label, Media, Token } from 'modules/assets/
 import { Event } from 'modules/events/entities';
 import { Partner, PartnerMemberUser } from 'modules/partners/entities';
 import { File } from 'modules/storage/entities/file.entity';
-import { S3Provider } from 'modules/storage/providers/s3.provider';
-import { FileDownloadService } from 'modules/storage/file-download.service';
 import { Collection, CollectionAsset } from 'modules/collections/entities';
 import { Watchlist, WatchlistAsset } from 'modules/watchlists/entities';
 import { UserLogin, UserOtp } from 'modules/users/entities';
@@ -28,15 +26,6 @@ interface MockProvider {
   provide: Injectable;
   useValue: object;
 }
-
-export const mockS3Provider = {
-  upload: jest.fn(),
-  getUrl: jest.fn(),
-};
-
-export const mockFileDownloadService = {
-  downloadAll: jest.fn(),
-};
 
 export const mockMailerService = {
   sendMail: jest.fn(),
@@ -60,9 +49,6 @@ export const createApp = async (providers: MockProvider[] = []): Promise<INestAp
   const module = Test.createTestingModule({
     imports: [AppModule, AuthModule],
   });
-
-  module.overrideProvider(S3Provider).useValue(mockS3Provider);
-  module.overrideProvider(FileDownloadService).useValue(mockFileDownloadService);
 
   if (!providers.some((p) => typeof p.provide === typeof MailerService)) {
     providers.push({

@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
-import { clearAllData, createApp, mockS3Provider } from '@/test/utils/app.utils';
+import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { CollectionsTransformer } from 'modules/collections/transformers/collections.transformer';
 import { createFile } from '@/test/utils/file.utils';
 import { v4 } from 'uuid';
@@ -12,7 +12,6 @@ describe('CollectionsController', () => {
   let app: INestApplication;
   let collection: Collection;
   let collectionsTransformer: CollectionsTransformer;
-  const mockedFileUrl = 'http://example.com';
 
   beforeAll(async () => {
     app = await createApp();
@@ -36,17 +35,12 @@ describe('CollectionsController', () => {
 
   describe(`GET V1 /collections/:id`, () => {
     test('should return collection', () => {
-      mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);
-
       return request(app.getHttpServer())
         .get(`/v1/collections/${collection.id}`)
         .send()
         .expect(200)
         .expect(({ body }) => {
           expect(body).toEqual(collectionsTransformer.transform(collection));
-        })
-        .then(() => {
-          expect(mockS3Provider.getUrl).toHaveBeenCalledWith(collection.banner);
         });
     });
 

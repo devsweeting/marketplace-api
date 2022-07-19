@@ -1,17 +1,10 @@
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
-import {
-  clearAllData,
-  createApp,
-  mockFileDownloadService,
-  mockS3Provider,
-} from '@/test/utils/app.utils';
+import { clearAllData, createApp } from '@/test/utils/app.utils';
 
 import { v4 } from 'uuid';
 
 import { generateSlug } from 'modules/common/helpers/slug.helper';
-
-import { StorageEnum } from 'modules/storage/enums/storage.enum';
 
 import { CollectionsTransformer } from 'modules/collections/transformers/collections.transformer';
 import { createCollection } from '../utils/collection.utils';
@@ -25,16 +18,20 @@ describe('CollectionsController', () => {
 
   beforeAll(async () => {
     app = await createApp();
+    collectionsTransformer = app.get(CollectionsTransformer);
+  });
+
+  beforeEach(async () => {
     collection = await createCollection({
       name: 'Egg',
       banner: await createFile({}),
       slug: 'egg',
       description: 'test-egg',
     });
-    collectionsTransformer = app.get(CollectionsTransformer);
   });
 
   afterEach(async () => {
+    await Collection.delete({});
     jest.clearAllMocks();
   });
 
@@ -51,16 +48,6 @@ describe('CollectionsController', () => {
       const payload = {
         banner: 'https://cdn.pixabay.com/photo/2012/04/11/17/53/approved-29149_960_720.png',
       };
-      mockS3Provider.upload.mockReturnValue({
-        id: v4(),
-        name: 'example.jpeg',
-        path: 'test/example.jpeg',
-        mimeType: 'image/jpeg',
-        storage: StorageEnum.S3,
-        size: 100,
-      });
-      mockS3Provider.getUrl.mockReturnValue('mocked-url');
-      mockFileDownloadService.downloadAll.mockReturnValue(['downloaded-path']);
 
       return request(app.getHttpServer())
         .patch(`/v1/collections/${collection.id}`)
@@ -69,7 +56,7 @@ describe('CollectionsController', () => {
         .expect(({ body }) => {
           expect(body).toEqual({
             ...collectionsTransformer.transform(collection),
-            banner: 'mocked-url',
+            banner: expect.any(String),
             updatedAt: expect.any(String),
           });
         })
@@ -79,14 +66,6 @@ describe('CollectionsController', () => {
             relations: ['banner'],
           });
           expect(updatedCollection.banner).toBeDefined();
-          expect(updatedCollection.banner.path).toEqual('test/example.jpeg');
-          expect(mockFileDownloadService.downloadAll).toHaveBeenCalledWith([
-            { url: payload.banner },
-          ]);
-          expect(mockS3Provider.upload).toHaveBeenCalledWith(
-            'downloaded-path',
-            `collections/${updatedCollection.id}`,
-          );
         });
     });
 
@@ -106,6 +85,7 @@ describe('CollectionsController', () => {
             name: payload.name,
             slug: generateSlug(payload.name),
             updatedAt: expect.any(String),
+            banner: expect.any(String),
           });
         })
         .then(async () => {
@@ -129,6 +109,7 @@ describe('CollectionsController', () => {
             ...collectionsTransformer.transform(collection),
             description: payload.description,
             updatedAt: expect.any(String),
+            banner: expect.any(String),
           });
         })
         .then(async () => {

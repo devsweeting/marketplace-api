@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import { clearAllData, createApp, mockS3Provider } from '@/test/utils/app.utils';
+import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { Asset, Attribute, Label, Media } from 'modules/assets/entities';
 import { createAsset } from '@/test/utils/asset.utils';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
@@ -26,7 +26,6 @@ describe('AssetsController', () => {
   let user: User;
   let assetsTransformer: AssetsTransformer;
   let mediaTransformer: MediaTransformer;
-  const mockedFileUrl = 'http://example.com';
 
   beforeAll(async () => {
     app = await createApp();
@@ -37,8 +36,6 @@ describe('AssetsController', () => {
       apiKey: 'test-api-key',
       accountOwner: user,
     });
-
-    mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);
   });
 
   beforeEach(async () => {

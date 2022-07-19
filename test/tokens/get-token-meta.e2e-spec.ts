@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
-import { clearAllData, createApp, mockS3Provider } from '@/test/utils/app.utils';
+import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { Asset, Contract, Media, Token } from 'modules/assets/entities';
 import { createAsset } from '@/test/utils/asset.utils';
 import { Partner } from 'modules/partners/entities';
@@ -27,7 +27,6 @@ describe('TokensController', () => {
   let media: Media;
   let tokensTransformer: TokensTransformer;
   let mediaTransformer: MediaTransformer;
-  const mockedFileUrl = 'http://example.com';
 
   beforeAll(async () => {
     app = await createApp();
@@ -68,7 +67,6 @@ describe('TokensController', () => {
 
   describe(`GET V1 /token/meta/:contractAddress/:tokenId`, () => {
     test('should return meta token', async () => {
-      mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);
       const { traits, ...rest } = tokensTransformer.transform(token);
       const response = {
         ...rest,
@@ -86,8 +84,6 @@ describe('TokensController', () => {
     });
 
     test('should return meta token json', async () => {
-      mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);
-
       const { traits, ...rest } = tokensTransformer.transform(token);
       const response = {
         ...rest,

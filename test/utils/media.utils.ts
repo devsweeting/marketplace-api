@@ -18,7 +18,7 @@ export const createImageMedia = (data: Partial<Media>): Promise<Media> => {
   const media = new Media({
     title: 'Example',
     description: 'test description',
-    url: 'https://example.com/image.png',
+    url: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
     type: MediaTypeEnum.Image,
     sortOrder: 1,
     ...data,

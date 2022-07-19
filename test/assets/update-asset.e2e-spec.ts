@@ -1,10 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import {
-  clearAllData,
-  createApp,
-  mockFileDownloadService,
-  mockS3Provider,
-} from '@/test/utils/app.utils';
+import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { createPartner } from '@/test/utils/partner.utils';
 import { createAsset } from '@/test/utils/asset.utils';
 import { Partner } from 'modules/partners/entities';
@@ -13,7 +8,6 @@ import { v4 } from 'uuid';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
 import { generateSlug } from 'modules/common/helpers/slug.helper';
 import { createAttribute } from '@/test/utils/attribute.utils';
-import { StorageEnum } from 'modules/storage/enums/storage.enum';
 import { User } from 'modules/users/entities/user.entity';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { createUser } from '../utils/create-user';
@@ -141,28 +135,16 @@ describe('AssetsController', () => {
     });
 
     test('should update media', async () => {
-      const fileId = v4();
       const payload = {
         media: [
           {
             title: 'UPDATED',
             description: 'description',
-            url: 'https://example.com/image.png',
+            url: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
             type: MediaTypeEnum.Image,
           },
         ],
       };
-
-      mockS3Provider.upload.mockReturnValue({
-        id: fileId,
-        name: 'example.jpeg',
-        path: 'test/example.jpeg',
-        mimeType: 'image/jpeg',
-        storage: StorageEnum.S3,
-        size: 100,
-      });
-      mockS3Provider.getUrl.mockReturnValue('mocked-url');
-      mockFileDownloadService.downloadAll.mockReturnValue(['downloaded-path']);
 
       await testApp.patch(app, `/v1/assets/${asset.id}`, 200, null, payload, header);
 
@@ -173,10 +155,8 @@ describe('AssetsController', () => {
 
       expect(updatedAsset.media[0]).toBeDefined();
       expect(updatedAsset.media[0].title).toEqual(payload.media[0].title);
-      expect(updatedAsset.media[0].file.path).toEqual('test/example.jpeg');
-      expect(mockS3Provider.upload).toHaveBeenCalledWith(
-        'downloaded-path',
-        `assets/${updatedAsset.id}`,
+      expect(updatedAsset.media[0].file.path).toEqual(
+        'assets/' + asset.id + '/' + updatedAsset.media[0].file.name,
       );
     });
 

@@ -28,6 +28,7 @@ export class S3Provider implements ProviderInterface {
       mimeType: mime.lookup(filePath),
       storage: StorageEnum.S3,
       size: stats.size,
+      absoluteUrl: response.Location,
     };
   }
 
@@ -41,6 +42,7 @@ export class S3Provider implements ProviderInterface {
       mimeType: file.type,
       storage: StorageEnum.S3,
       size: file.size,
+      absoluteUrl: response.Location,
     };
   }
 

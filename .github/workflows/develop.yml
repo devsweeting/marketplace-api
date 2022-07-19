@@ -13,6 +13,13 @@ jobs:
     name: 'Test & Deploy'
     runs-on: ubuntu-latest
     services:
+      localstack:
+        image: localstack/localstack:latest
+        env:
+          AWS_DEFAULT_REGION: us-west-2
+          EDGE_PORT: 4566
+          SERVICES: s3
+        ports: ["4566:4566"]
       postgres:
         image: postgres
         env:

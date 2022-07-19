@@ -1,35 +1,15 @@
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
-import {
-  clearAllData,
-  createApp,
-  mockFileDownloadService,
-  mockS3Provider,
-} from '@/test/utils/app.utils';
+import { clearAllData, createApp } from '@/test/utils/app.utils';
 
-import { StorageEnum } from 'modules/storage/enums/storage.enum';
-import { v4 } from 'uuid';
 import { Collection } from 'modules/collections/entities';
 import { CollectionDto } from 'modules/collections/dto';
 
 describe('CollectionController', () => {
   let app: INestApplication;
-  const mockedUrl = 'https://example.com';
-  const mockTmpFilePath = '/tmp/temp-file.jpeg';
 
   beforeAll(async () => {
     app = await createApp();
-
-    mockS3Provider.getUrl.mockReturnValue(mockedUrl);
-    mockS3Provider.upload.mockReturnValue({
-      id: v4(),
-      name: 'example.jpeg',
-      path: 'test/example.jpeg',
-      mimeType: 'image/jpeg',
-      storage: StorageEnum.S3,
-      size: 100,
-    });
-    mockFileDownloadService.downloadAll.mockReturnValue([mockTmpFilePath]);
   });
 
   afterEach(async () => {
@@ -46,7 +26,8 @@ describe('CollectionController', () => {
       const collectionDto: CollectionDto = {
         name: 'test',
         description: 'description',
-        banner: 'https://example.com/image.png',
+        banner:
+          'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
       };
 
       return request(app.getHttpServer())
@@ -61,16 +42,10 @@ describe('CollectionController', () => {
           expect(collection).toBeDefined();
           expect(collection.name).toEqual(collectionDto.name);
           expect(collection.banner).toBeDefined();
-          expect(collection.banner.path).toEqual('test/example.jpeg');
-          expect(collection.description).toEqual(collectionDto.description);
-
-          expect(mockFileDownloadService.downloadAll).toHaveBeenCalledWith([
-            { url: collectionDto.banner },
-          ]);
-          expect(mockS3Provider.upload).toHaveBeenCalledWith(
-            mockTmpFilePath,
-            `collections/${collection.id}`,
+          expect(collection.banner.path).toEqual(
+            'collections/' + collection.id + '/' + collection.banner.name,
           );
+          expect(collection.description).toEqual(collectionDto.description);
         });
     });
 

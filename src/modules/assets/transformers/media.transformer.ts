@@ -16,6 +16,7 @@ export class MediaTransformer {
       assetId: media.assetId,
       fileId: media.fileId,
       file: media.file ? this.storageService.getUrl(media.file) : null,
+      absoluteUrl: media.file && media.file.absoluteUrl ? media.file.absoluteUrl : null,
     };
   }
 

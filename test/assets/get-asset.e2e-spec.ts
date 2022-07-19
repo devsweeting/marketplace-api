@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import { clearAllData, createApp, mockS3Provider } from '@/test/utils/app.utils';
+import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { Asset, Media } from 'modules/assets/entities';
 import { createAsset } from '@/test/utils/asset.utils';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
@@ -22,7 +22,6 @@ describe('AssetsController', () => {
   let assetsTransformer: AssetsTransformer;
   let mediaTransformer: MediaTransformer;
   let header;
-  const mockedFileUrl = 'http://example.com';
 
   beforeAll(async () => {
     app = await createApp();
@@ -57,19 +56,16 @@ describe('AssetsController', () => {
 
   describe(`GET V1 /assets/:id`, () => {
     test('should return asset', async () => {
-      mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);
       const media = await createImageMedia({ assetId: asset.id, file: await createFile({}) });
       const response = {
         ...assetsTransformer.transform(asset),
         media: mediaTransformer.transformAll([media]),
       };
       await testApp.get(app, `/v1/assets/${asset.id}`, 200, response, {}, header);
-      expect(mockS3Provider.getUrl).toHaveBeenCalledWith(media.file);
     });
 
     test('should return asset only with active media', async () => {
       await Media.delete({});
-      mockS3Provider.getUrl.mockReturnValue(mockedFileUrl);
       const file = await createFile({});
       const media = await createImageMedia({ assetId: asset.id, file, fileId: file.id });
       await createImageMedia({ assetId: asset.id, isDeleted: true, deletedAt: new Date() });
@@ -79,8 +75,6 @@ describe('AssetsController', () => {
       };
 
       await testApp.get(app, `/v1/assets/${asset.id}`, 200, response, {}, header);
-
-      expect(mockS3Provider.getUrl).toHaveBeenCalledWith(media.file);
     });
 
     test('should 404 exception id is invalid', async () => {

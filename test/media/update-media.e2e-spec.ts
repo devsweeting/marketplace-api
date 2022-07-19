@@ -1,18 +1,11 @@
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
-import {
-  clearAllData,
-  createApp,
-  mockFileDownloadService,
-  mockS3Provider,
-} from '@/test/utils/app.utils';
+import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { createPartner } from '@/test/utils/partner.utils';
 import { createAsset } from '@/test/utils/asset.utils';
 import { Partner } from 'modules/partners/entities';
 import { Asset, Media } from 'modules/assets/entities';
 import { File } from 'modules/storage/entities/file.entity';
-import { StorageEnum } from 'modules/storage/enums/storage.enum';
-import { v4 } from 'uuid';
 import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
@@ -28,8 +21,6 @@ describe('MediaController', () => {
   let asset: Asset;
   let imageMedia: Media;
   let file: File;
-  const mockedUrl = 'https://example.com';
-  const mockTmpFilePath = '/tmp/temp-file.jpeg';
 
   beforeAll(async () => {
     app = await createApp();
@@ -47,16 +38,6 @@ describe('MediaController', () => {
       },
       partner,
     );
-    mockS3Provider.getUrl.mockReturnValue(mockedUrl);
-    mockFileDownloadService.downloadAll.mockReturnValue([mockTmpFilePath]);
-    mockS3Provider.upload.mockReturnValue({
-      id: v4(),
-      name: 'example.jpeg',
-      path: 'test/example.jpeg',
-      mimeType: 'image/jpeg',
-      storage: StorageEnum.S3,
-      size: 100,
-    });
   });
   beforeEach(async () => {
     file = await createFile({});
@@ -112,7 +93,7 @@ describe('MediaController', () => {
 
     test('should update a title of media object', () => {
       const dto: any = {
-        url: 'https://example.com/image.png',
+        url: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
         title: 'Example',
         description: 'test',
         type: MediaTypeEnum.Image,
@@ -135,7 +116,7 @@ describe('MediaController', () => {
     });
     test('should update description of a media object', () => {
       const dto: any = {
-        url: 'https://example.com/image.png',
+        url: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
         title: 'Example',
         description: 'test',
         type: MediaTypeEnum.Image,
@@ -161,7 +142,7 @@ describe('MediaController', () => {
     });
     test('should update file of a media object', () => {
       const dto: any = {
-        url: 'https://picsum.photos/400/200',
+        url: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
         type: MediaTypeEnum.Image,
       };
       return request(app.getHttpServer())
@@ -180,14 +161,11 @@ describe('MediaController', () => {
           expect(media.description).toEqual(imageMedia.description);
           expect(media.fileId).toBeDefined();
           expect(media.url).toEqual(dto.url);
-
-          expect(mockFileDownloadService.downloadAll).toHaveBeenCalledWith([{ url: dto.url }]);
-          expect(mockS3Provider.upload).toHaveBeenCalledWith(mockTmpFilePath, `assets/${asset.id}`);
         });
     });
     test('should update file to null if type is youtube', () => {
       const dto: any = {
-        url: 'https://picsum.photos/400/200',
+        url: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
         type: MediaTypeEnum.Youtube,
       };
       return request(app.getHttpServer())
@@ -206,9 +184,6 @@ describe('MediaController', () => {
           expect(media.description).toEqual(imageMedia.description);
           expect(media.fileId).toEqual(null);
           expect(media.url).toEqual(dto.url);
-
-          expect(mockFileDownloadService.downloadAll).not.toHaveBeenCalled();
-          expect(mockS3Provider.upload).not.toHaveBeenCalledWith();
         });
     });
     test('should update sortOrder of a media object', () => {
@@ -255,6 +230,7 @@ describe('MediaController', () => {
             sortOrder: dtoRequest.sortOrder,
             title: dtoRequest.title,
             url: imageMedia.url,
+            absoluteUrl: null,
           });
         });
     });
@@ -281,7 +257,7 @@ describe('MediaController', () => {
       });
 
       const dtoRequest: any = {
-        url: 'https://example.com/image.png',
+        url: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
         title: 'Example',
         description: 'test',
         type: MediaTypeEnum.Image,

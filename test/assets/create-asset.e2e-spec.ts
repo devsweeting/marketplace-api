@@ -1,17 +1,10 @@
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
-import {
-  clearAllData,
-  createApp,
-  mockFileDownloadService,
-  mockS3Provider,
-} from '@/test/utils/app.utils';
+import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { createPartner } from '@/test/utils/partner.utils';
 import { createAsset, softDeleteAsset } from '@/test/utils/asset.utils';
 import { Partner } from 'modules/partners/entities';
 import { Asset, Attribute, Media } from 'modules/assets/entities';
-import { StorageEnum } from 'modules/storage/enums/storage.enum';
-import { v4 } from 'uuid';
 import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
@@ -24,8 +17,6 @@ describe('AssetsController', () => {
   let partner: Partner;
   let user: User;
   let header;
-  const mockedUrl = 'https://example.com';
-  const mockTmpFilePath = '/tmp/temp-file.jpeg';
 
   beforeAll(async () => {
     app = await createApp();
@@ -33,16 +24,6 @@ describe('AssetsController', () => {
     partner = await createPartner({
       apiKey: 'test-api-key',
       accountOwner: user,
-    });
-    mockS3Provider.getUrl.mockReturnValue(mockedUrl);
-    mockFileDownloadService.downloadAll.mockReturnValue([mockTmpFilePath]);
-    mockS3Provider.upload.mockReturnValue({
-      id: v4(),
-      name: 'example.jpeg',
-      path: 'test/example.jpeg',
-      mimeType: 'image/jpeg',
-      storage: StorageEnum.S3,
-      size: 100,
     });
     header = {
       'x-api-key': partner.apiKey,
@@ -99,7 +80,7 @@ describe('AssetsController', () => {
         {
           title: 'test',
           description: 'description',
-          url: 'https://example.com/image.png',
+          url: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
           type: MediaTypeEnum.Image,
           sortOrder: 1,
         },
@@ -139,25 +120,20 @@ describe('AssetsController', () => {
       expect(asset.attributes[0].trait).toEqual(transferRequest.assets[0].attributes[0].trait);
       expect(asset.attributes[0].value).toEqual(transferRequest.assets[0].attributes[0].value);
       expect(asset.attributes[0].display).toEqual(transferRequest.assets[0].attributes[0].display);
-      expect(mockFileDownloadService.downloadAll).toHaveBeenCalledWith([
-        { ...transferRequest.assets[0].media[0] },
-      ]);
-      expect(mockS3Provider.upload).toHaveBeenCalledWith(mockTmpFilePath, `assets/${asset.id}`);
     });
 
     test('should create a new asset transfer object in the db with multiple assets', async () => {
-      mockFileDownloadService.downloadAll.mockReturnValue([mockTmpFilePath, mockTmpFilePath]);
       const media = [
         {
           title: 'test',
           description: 'description',
-          url: 'https://example.com/image.png',
+          url: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
           type: MediaTypeEnum.Image,
         },
         {
           title: 'test',
           description: 'description',
-          url: 'https://example.com/image2.png',
+          url: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
           type: MediaTypeEnum.Image,
         },
       ];
@@ -198,20 +174,14 @@ describe('AssetsController', () => {
       expect(asset.attributes[0].trait).toEqual(transferRequest.assets[0].attributes[0].trait);
       expect(asset.attributes[0].value).toEqual(transferRequest.assets[0].attributes[0].value);
       expect(asset.attributes[0].display).toEqual(transferRequest.assets[0].attributes[0].display);
-      expect(mockFileDownloadService.downloadAll).toHaveBeenCalledWith([
-        { ...transferRequest.assets[0].media[0] },
-        { ...transferRequest.assets[0].media[1] },
-      ]);
-      expect(mockS3Provider.upload).toHaveBeenCalledWith(mockTmpFilePath, `assets/${asset.id}`);
     });
 
     test('should upload only media with type IMAGE', async () => {
-      mockFileDownloadService.downloadAll.mockReturnValue([mockTmpFilePath]);
       const media = [
         {
           title: 'test',
           description: 'description',
-          url: 'https://example.com/image.png',
+          url: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
           type: MediaTypeEnum.Image,
         },
         {
@@ -249,18 +219,9 @@ describe('AssetsController', () => {
       expect(asset.media[1]).toBeDefined();
       expect(asset.media[1].file).toEqual(null);
       expect(asset.description).toEqual(transferRequest.assets[0].description);
-
-      expect(mockFileDownloadService.downloadAll).toHaveBeenCalledWith([
-        { ...transferRequest.assets[0].media[0] },
-      ]);
-      expect(mockS3Provider.upload).toHaveBeenCalledWith(mockTmpFilePath, `assets/${asset.id}`);
     });
 
     test('should throw an error when url is wrong', async () => {
-      mockFileDownloadService.downloadAll.mockRejectedValue(
-        'Error: TypeError [ERR_INVALID_URL]: Invalid URL',
-      );
-
       const media = [
         {
           title: 'test',
@@ -284,7 +245,7 @@ describe('AssetsController', () => {
         ],
       };
       const response = {
-        message: 'Error: Error: TypeError [ERR_INVALID_URL]: Invalid URL',
+        message: 'Error: HttpException: Error: TypeError [ERR_INVALID_URL]: Invalid URL: https:',
         statusCode: 400,
       };
       await testApp.post(app, `/v1/assets`, 400, response, transferRequest, header);
@@ -300,21 +261,17 @@ describe('AssetsController', () => {
     });
 
     test('should throw an error when the one of the url is fails ', async () => {
-      mockFileDownloadService.downloadAll.mockRejectedValue(
-        'Error: TypeError [ERR_INVALID_URL]: Invalid URL',
-      );
-
       const media = [
         {
           title: 'test',
           description: 'description',
-          url: 'https://example.com/image.png',
+          url: 'http://httpstat.us/500',
           type: MediaTypeEnum.Image,
         },
         {
           title: 'test',
           description: 'description',
-          url: 'https://example.com/image.png',
+          url: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
           type: MediaTypeEnum.Image,
         },
       ];
@@ -333,7 +290,7 @@ describe('AssetsController', () => {
         ],
       };
       const response = {
-        message: 'Error: Error: TypeError [ERR_INVALID_URL]: Invalid URL',
+        message: 'Error: HttpException: Error: Error: 500',
         statusCode: 400,
       };
       await testApp.post(app, `/v1/assets`, 400, response, transferRequest, header);

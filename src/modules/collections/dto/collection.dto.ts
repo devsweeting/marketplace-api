@@ -24,7 +24,7 @@ export class CollectionDto {
   @ApiProperty({
     description: 'URI pointing to collection banner.  Must be less than 255 characters.',
     required: false,
-    example: 'https://picsum.photos/400/200',
+    example: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
   })
   public banner: any;
 }

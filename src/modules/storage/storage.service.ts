@@ -15,7 +15,10 @@ export class StorageService {
   ) {}
 
   public onModuleInit() {
-    if (process.env.NODE_ENV === 'DEVELOP' || process.env.NODE_ENV === 'TEST') {
+    if (
+      process.env.NODE_ENV.toUpperCase() === 'DEVELOP' ||
+      process.env.NODE_ENV.toUpperCase() === 'TEST'
+    ) {
       this.provider.ensureBucket();
       console.log(`S3 buckets have been initialized.`);
     }

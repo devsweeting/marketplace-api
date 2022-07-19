@@ -23,6 +23,9 @@ export class FileDownloadService {
     const downloader = image.startsWith('https') ? https : http;
     return new Promise((resolve, reject) => {
       downloader.get(options, (response) => {
+        if (response.statusCode !== 200) {
+          reject(`Error: ${response.statusCode}`);
+        }
         const ws = fs.createWriteStream(dest, { encoding: 'binary', flags: 'a+' });
         response
           .on('end', () => {
