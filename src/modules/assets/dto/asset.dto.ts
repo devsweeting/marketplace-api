@@ -72,4 +72,8 @@ export class AssetDto {
   })
   @IsOptional()
   public collection?: CollectionDto;
+
+  constructor(data: Partial<AssetDto>) {
+    Object.assign(this, data);
+  }
 }

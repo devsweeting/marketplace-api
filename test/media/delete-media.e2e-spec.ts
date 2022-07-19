@@ -26,7 +26,7 @@ describe('MediaController', () => {
       apiKey: 'test-api-key',
       accountOwner: user,
     });
-    asset = await createAsset({ partner });
+    asset = await createAsset({}, partner);
   });
 
   beforeEach(async () => {

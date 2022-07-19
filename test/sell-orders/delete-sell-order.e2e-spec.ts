@@ -37,13 +37,15 @@ describe('SellOrdersController', () => {
       apiKey: 'test-api-key-another',
       accountOwner: users[1],
     });
-    asset = await createAsset({
-      refId: '1',
-      name: 'Egg',
-      slug: `egg-${Date.now()}`,
-      description: 'test-egg',
+    asset = await createAsset(
+      {
+        refId: '1',
+        name: 'Egg',
+        slug: `egg-${Date.now()}`,
+        description: 'test-egg',
+      },
       partner,
-    });
+    );
     sellOrder = await createSellOrder({
       assetId: asset.id,
       partnerId: partner.id,
@@ -93,7 +95,7 @@ describe('SellOrdersController', () => {
     });
 
     test('should throw 404 exception if sell order does not belong to the partner', async () => {
-      const otherAsset = await createAsset({ partner: anotherPartner });
+      const otherAsset = await createAsset({}, anotherPartner);
 
       return testApp.del(app, BASE_URL + otherAsset.id, 404, null, {}, header);
     });

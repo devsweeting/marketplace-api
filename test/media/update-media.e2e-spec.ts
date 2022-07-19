@@ -38,13 +38,15 @@ describe('MediaController', () => {
       apiKey: 'test-api-key',
       accountOwner: user,
     });
-    asset = await createAsset({
-      refId: '1',
-      name: 'Egg',
-      slug: 'egg',
-      description: 'test-egg',
+    asset = await createAsset(
+      {
+        refId: '1',
+        name: 'Egg',
+        slug: 'egg',
+        description: 'test-egg',
+      },
       partner,
-    });
+    );
     mockS3Provider.getUrl.mockReturnValue(mockedUrl);
     mockFileDownloadService.downloadAll.mockReturnValue([mockTmpFilePath]);
     mockS3Provider.upload.mockReturnValue({

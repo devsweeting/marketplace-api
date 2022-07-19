@@ -358,7 +358,7 @@ describe('AssetsController', () => {
       await Media.delete({});
       await Attribute.delete({});
       await Asset.delete({});
-      await createAsset({ refId: '1232', partner: partner2 });
+      await createAsset({ refId: '1232' }, partner2);
 
       const transferRequest: any = {
         user: {
@@ -383,7 +383,7 @@ describe('AssetsController', () => {
         apiKey: 'another-partner2-api-key',
         accountOwner: anotherUser,
       });
-      const asset = await createAsset({ refId: '1232', partner: partner2 });
+      const asset = await createAsset({ refId: '1232' }, partner2);
       await softDeleteAsset(asset);
       const transferRequest: any = {
         user: {
@@ -406,7 +406,7 @@ describe('AssetsController', () => {
     });
 
     test('should pass if name is used for another asset for the same partner', async () => {
-      await createAsset({ refId: '1', name: 'New Asset', partner: partner });
+      await createAsset({ refId: '1', name: 'New Asset' }, partner);
 
       const transferRequest: any = {
         user: {
@@ -431,7 +431,7 @@ describe('AssetsController', () => {
         accountOwner: anotherUser,
       });
 
-      await createAsset({ refId: '3', name: 'NewAssetDifferentPartner', partner: partner2 });
+      await createAsset({ refId: '3', name: 'NewAssetDifferentPartner' }, partner2);
 
       const transferRequest: any = {
         user: {

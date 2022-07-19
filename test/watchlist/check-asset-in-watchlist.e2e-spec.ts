@@ -37,18 +37,22 @@ describe('WatchlistController', () => {
       }),
     ];
     assets = [
-      await createAsset({
-        refId: '1',
-        name: 'Egg',
-        description: 'test-egg',
-        partner: partners[0],
-      }),
-      await createAsset({
-        refId: '2',
-        name: 'Water',
-        description: 'test-water',
-        partner: partners[1],
-      }),
+      await createAsset(
+        {
+          refId: '1',
+          name: 'Egg',
+          description: 'test-egg',
+        },
+        partners[0],
+      ),
+      await createAsset(
+        {
+          refId: '2',
+          name: 'Water',
+          description: 'test-water',
+        },
+        partners[1],
+      ),
     ];
     watchlist = await createWatchlist({
       user: users[0],
@@ -146,14 +150,16 @@ describe('WatchlistController', () => {
     });
 
     test('return inWatchlist: true if user has added asset to watchlist but asset is deleted: search by id', async () => {
-      const asset = await createAsset({
-        refId: '3',
-        name: 'Water',
-        description: 'test-water',
-        partner: partners[0],
-        isDeleted: true,
-        deletedAt: new Date(),
-      });
+      const asset = await createAsset(
+        {
+          refId: '3',
+          name: 'Water',
+          description: 'test-water',
+          isDeleted: true,
+          deletedAt: new Date(),
+        },
+        partners[0],
+      );
 
       await createWatchlistAsset({ watchlistId: watchlist.id, assetId: asset.id });
 
@@ -168,14 +174,16 @@ describe('WatchlistController', () => {
     });
 
     test('return inWatchlist: true if user has added asset to watchlist but asset is deleted: search by slug', async () => {
-      const asset = await createAsset({
-        refId: '4',
-        name: 'Water',
-        description: 'test-water',
-        partner: partners[0],
-        isDeleted: true,
-        deletedAt: new Date(),
-      });
+      const asset = await createAsset(
+        {
+          refId: '4',
+          name: 'Water',
+          description: 'test-water',
+          isDeleted: true,
+          deletedAt: new Date(),
+        },
+        partners[0],
+      );
 
       await createWatchlistAsset({ watchlistId: watchlist.id, assetId: asset.id });
 

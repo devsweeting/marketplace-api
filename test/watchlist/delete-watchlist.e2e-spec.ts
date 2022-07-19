@@ -27,13 +27,15 @@ describe('WatchlistController', () => {
       apiKey: 'test-api-key',
       accountOwner: user,
     });
-    asset = await createAsset({
-      refId: '1',
-      name: 'Egg',
-      slug: 'egg',
-      description: 'test-egg',
+    asset = await createAsset(
+      {
+        refId: '1',
+        name: 'Egg',
+        slug: 'egg',
+        description: 'test-egg',
+      },
       partner,
-    });
+    );
     watchlist = await createWatchlist({
       user: user,
     });

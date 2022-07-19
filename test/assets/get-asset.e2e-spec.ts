@@ -33,13 +33,15 @@ describe('AssetsController', () => {
       apiKey: 'test-api-key',
       accountOwner: user,
     });
-    asset = await createAsset({
-      refId: '1',
-      name: 'Egg',
-      slug: `egg-${Date.now()}`,
-      description: 'test-egg',
+    asset = await createAsset(
+      {
+        refId: '1',
+        name: 'Egg',
+        slug: `egg-${Date.now()}`,
+        description: 'test-egg',
+      },
       partner,
-    });
+    );
     header = {
       'x-api-key': partner.apiKey,
     };

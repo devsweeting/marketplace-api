@@ -43,13 +43,15 @@ describe('MediaController', () => {
       apiKey: 'test-api-key',
       accountOwner: user,
     });
-    asset = await createAsset({
-      refId: '1',
-      name: 'Egg',
-      slug: 'egg',
-      description: 'test-egg',
+    asset = await createAsset(
+      {
+        refId: '1',
+        name: 'Egg',
+        slug: 'egg',
+        description: 'test-egg',
+      },
       partner,
-    });
+    );
     mockS3Provider.getUrl.mockReturnValue(mockedUrl);
     mockFileDownloadService.downloadAll.mockReturnValue([mockTmpFilePath]);
     mockS3Provider.upload.mockReturnValue({
@@ -195,7 +197,7 @@ describe('MediaController', () => {
     });
 
     test('should support long urls', async () => {
-      const newAsset = await createAsset({ refId: '123', partner });
+      const newAsset = await createAsset({ refId: '123' }, partner);
       await createImageMedia({ assetId: newAsset.id, sortOrder: 1 });
 
       const bigurl = crypto.randomBytes((1024 - 15) / 2).toString('hex');
@@ -232,7 +234,7 @@ describe('MediaController', () => {
     });
 
     test('should create object with the same sortOrder for another asset', async () => {
-      const newAsset = await createAsset({ refId: '2', partner });
+      const newAsset = await createAsset({ refId: '2' }, partner);
       await createImageMedia({ assetId: newAsset.id, sortOrder: 1 });
 
       const dtoRequest: MediaDto = {

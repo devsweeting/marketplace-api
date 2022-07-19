@@ -39,13 +39,15 @@ describe('TokensController', () => {
       accountOwner: user,
     });
     contract = await createContract({});
-    asset = await createAsset({
-      refId: '1',
-      name: 'Egg',
-      slug: 'egg',
-      description: 'test-egg',
+    asset = await createAsset(
+      {
+        refId: '1',
+        name: 'Egg',
+        slug: 'egg',
+        description: 'test-egg',
+      },
       partner,
-    });
+    );
     file = await createFile({});
     media = await createImageMedia({ assetId: asset.id, file, fileId: file.id });
     token = await createToken({ assetId: asset.id, asset, contract, contractId: contract.id });
@@ -77,12 +79,14 @@ describe('TokensController', () => {
     });
 
     test('should return token for youtube media', async () => {
-      const assetWithVideo = await createAsset({
-        refId: '2',
-        name: 'Egg-1',
-        description: 'test-egg',
+      const assetWithVideo = await createAsset(
+        {
+          refId: '2',
+          name: 'Egg-1',
+          description: 'test-egg',
+        },
         partner,
-      });
+      );
       const contract2 = await createContract({});
       const videoMedia = await createVideoMedia({ assetId: assetWithVideo.id });
       const videoToken = await createToken({

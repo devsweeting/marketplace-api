@@ -1,10 +1,10 @@
 import {
-  AfterInsert,
   BeforeInsert,
   BeforeUpdate,
   Brackets,
   Column,
   Entity,
+  getConnection,
   Index,
   JoinColumn,
   Like,
@@ -101,14 +101,6 @@ export class Asset extends BaseModel implements BaseEntityInterface {
     this.slug = generateSlug(name);
   }
 
-  @AfterInsert()
-  public afterInsert(): void {
-    Partner.findOne({ where: { id: this.partnerId } }).then((partner) => {
-      const assetEvent = new Event({ fromAccount: partner.accountOwnerId, asset: this });
-      assetEvent.save();
-    });
-  }
-
   @BeforeUpdate()
   public async beforeUpdate(): Promise<void> {
     const name = await this.findSlugDuplicate(this.id);
@@ -123,8 +115,6 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   }
 
   public static async saveAssetForPartner(dto: AssetDto, partner: Partner): Promise<Asset> {
-    let newAsset = null;
-
     try {
       const asset = new Asset({
         refId: dto.refId,
@@ -133,24 +123,26 @@ export class Asset extends BaseModel implements BaseEntityInterface {
         partnerId: partner.id,
         description: dto.description,
       });
+      await getConnection().transaction(async (txMgr) => {
+        await txMgr.save(asset);
+        if (dto.attributes) {
+          await Promise.all(
+            dto.attributes.map((attribute: AttributeDto) =>
+              txMgr.save(new Attribute({ ...attribute, assetId: asset.id })),
+            ),
+          );
+        }
 
-      asset.partner = partner;
-      newAsset = await asset.save();
-
-      if (dto.attributes) {
-        await Promise.all(
-          dto.attributes.map((attribute: AttributeDto) =>
-            new Attribute({ ...attribute, assetId: asset.id }).save(),
-          ),
-        );
-      }
+        const event = new Event({ fromAccount: partner.accountOwnerId, asset: asset });
+        await txMgr.save(event);
+      });
+      return asset;
     } catch (e) {
       if (e.code === POSTGRES_DUPE_KEY_ERROR && e.constraint == 'PARTNER_REF_UNIQUE') {
         throw new AssetsDuplicatedException([dto.refId]);
       }
       throw new InternalServerErrorException();
     }
-    return newAsset;
   }
 
   public static list(
