@@ -40,27 +40,33 @@ describe('SellOrdersController', () => {
       accountOwner: users[1],
     });
     assets = [
-      await createAsset({
-        refId: '1',
-        name: 'Egg',
-        slug: `egg-${Date.now()}`,
-        description: 'test-egg',
+      await createAsset(
+        {
+          refId: '1',
+          name: 'Egg',
+          slug: `egg-${Date.now()}`,
+          description: 'test-egg',
+        },
         partner,
-      }),
-      await createAsset({
-        refId: '2',
-        name: 'Water',
-        slug: `water-${Date.now()}`,
-        description: 'test-water',
+      ),
+      await createAsset(
+        {
+          refId: '2',
+          name: 'Water',
+          slug: `water-${Date.now()}`,
+          description: 'test-water',
+        },
         partner,
-      }),
-      await createAsset({
-        refId: '3',
-        name: 'Sun',
-        slug: `sun-${Date.now()}`,
-        description: 'test-sun',
-        partner: anotherPartner,
-      }),
+      ),
+      await createAsset(
+        {
+          refId: '3',
+          name: 'Sun',
+          slug: `sun-${Date.now()}`,
+          description: 'test-sun',
+        },
+        anotherPartner,
+      ),
     ];
     sellOrders = [
       await createSellOrder({

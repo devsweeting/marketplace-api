@@ -40,13 +40,15 @@ describe('SellOrdersController', () => {
       apiKey: 'test-api-key-another',
       accountOwner: users[1],
     });
-    asset = await createAsset({
-      refId: '1',
-      name: 'Egg',
-      slug: `egg-${Date.now()}`,
-      description: 'test-egg',
+    asset = await createAsset(
+      {
+        refId: '1',
+        name: 'Egg',
+        slug: `egg-${Date.now()}`,
+        description: 'test-egg',
+      },
       partner,
-    });
+    );
     sellOrder = await createSellOrder({
       assetId: asset.id,
       partnerId: partner.id,
