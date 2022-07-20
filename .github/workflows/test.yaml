@@ -4,60 +4,12 @@ on:
     tags:
       - test
 jobs:
-  test-and-deploy:
-    name: 'Test & Deploy'
+  deploy:
+    name: 'Deploy'
     runs-on: ubuntu-latest
-    services:
-      localstack:
-        image: localstack/localstack:latest
-        env:
-          AWS_DEFAULT_REGION: us-west-2
-          EDGE_PORT: 4566
-          SERVICES: s3
-        ports: ["4566:4566"]
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_PORT: 5432
-          POSTGRES_DB: 'test'
-          POSTGRES_USERNAME: 'postgres'
-          POSTGRES_PASSWORD: 'password'
-        ports:
-          - 5432/tcp
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - name: 'Checkout source code'
         uses: actions/checkout@v2
-
-      - name: 'Setup NodeJS 14'
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-          cache: 'yarn'
-          cache-dependency-path: yarn.lock
-
-      - name: 'Install Dependencies'
-        run: yarn install
-
-      - name: 'Build'
-        run: yarn build
-
-      - name: 'Fixtures'
-        run: yarn fixtures
-        env:
-          TYPEORM_PORT: ${{ job.services.postgres.ports['5432'] }}
-
-      - name: 'Run e2e Tests'
-        id: tests
-        run: yarn test:e2e
-        env:
-          TYPEORM_HOST: localhost
-          TYPEORM_PORT: ${{ job.services.postgres.ports['5432'] }}
 
       - name: Configure AWS credentials
         id: aws_creds
@@ -91,7 +43,7 @@ jobs:
           IMAGE_TAG: latest
           DOCKER_FILE: Dockerfile.ecs
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f $DOCKERFILE
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f $DOCKERFILE .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Restart API and ADMIN services to enfore pulling latest/newest ECR image
