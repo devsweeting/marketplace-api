@@ -9,6 +9,7 @@ export class MediaTransformer {
 
   public transform(media: Media): MediaResponse {
     return {
+      id: media.id,
       title: media.title,
       description: media.description,
       url: media.url,

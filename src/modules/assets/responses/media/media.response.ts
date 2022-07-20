@@ -1,6 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class MediaResponse {
+  @ApiProperty()
+  public id: string;
+
   @ApiProperty({ example: 'Test asset name' })
   public title: string;
 
