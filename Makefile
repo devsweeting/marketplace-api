@@ -22,7 +22,14 @@ dc: ## Run docker compose locally
 
 .PHONY : ecr
 ecr: ## Build new container image and push to ECR
+	export AWS_PROFILE=jump${ENV}
 	docker build --platform=linux/amd64 -f Dockerfile.ecs -t api-${ENV} .
 	docker tag api-${ENV}:latest ${ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/api-${ENV}:latest
 	aws ecr get-login-password --profile jump${ENV} --region us-west-2 | docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com
 	docker push ${ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/api-${ENV}:latest
+
+.PHONY : deploy
+deploy: ecr ## Build new container image, push to ECR and deploy to ECS
+	export AWS_PROFILE=jump${ENV}
+	aws ecs update-service --cluster jumpco-cluster-${ENV} --service api-${ENV} --force-new-deployment
+	aws ecs update-service --cluster jumpco-cluster-${ENV} --service admin-${ENV} --force-new-deployment

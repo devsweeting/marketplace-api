@@ -1,0 +1,59 @@
+name: 'Test'
+on:
+  push:
+    tags:
+      - test
+jobs:
+  deploy:
+    name: 'Deploy'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout source code'
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        id: aws_creds
+        if: |
+          github.ref == 'refs/tags/test' &&
+          github.event_name == 'push' &&
+          steps.tests.outcome == 'success'
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.TEST_AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        if: |
+          github.ref == 'refs/tags/test' &&
+          github.event_name == 'push' &&
+          steps.aws_creds.outcome == 'success'
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: ecr
+        if: |
+          github.ref == 'refs/tags/test' &&
+          github.event_name == 'push' &&
+          steps.ecr-login.outcome == 'success'
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          ECR_REPOSITORY: api-test
+          IMAGE_TAG: latest
+          DOCKER_FILE: Dockerfile.ecs
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f $DOCKERFILE .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Restart API and ADMIN services to enfore pulling latest/newest ECR image
+        if: |
+          github.ref == 'refs/tags/test' &&
+          github.event_name == 'push' &&
+          steps.ecr.outcome == 'success'
+        env:
+          CLUSTER_NAME: jumpco-cluster-test
+        run: |
+          aws ecs update-service --cluster $CLUSTER_NAME --service api-test --force-new-deployment
+          aws ecs update-service --cluster $CLUSTER_NAME --service admin-test --force-new-deployment
+
