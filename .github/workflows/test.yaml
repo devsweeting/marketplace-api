@@ -15,8 +15,7 @@ jobs:
         id: aws_creds
         if: |
           github.ref == 'refs/tags/test' &&
-          github.event_name == 'push' &&
-          steps.tests.outcome == 'success'
+          github.event_name == 'push'
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
