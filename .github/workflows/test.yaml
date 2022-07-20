@@ -62,7 +62,7 @@ jobs:
       - name: Configure AWS credentials
         id: aws_creds
         if: |
-          github.ref == 'refs/heads/test' &&
+          github.ref == 'refs/tags/test' &&
           github.event_name == 'push' &&
           steps.tests.outcome == 'success'
         uses: aws-actions/configure-aws-credentials@v1
@@ -74,7 +74,7 @@ jobs:
       - name: Login to Amazon ECR
         id: ecr_login
         if: |
-          github.ref == 'refs/heads/test' &&
+          github.ref == 'refs/tags/test' &&
           github.event_name == 'push' &&
           steps.aws_creds.outcome == 'success'
         uses: aws-actions/amazon-ecr-login@v1
@@ -82,7 +82,7 @@ jobs:
       - name: Build, tag, and push image to Amazon ECR
         id: ecr
         if: |
-          github.ref == 'refs/heads/test' &&
+          github.ref == 'refs/tags/test' &&
           github.event_name == 'push' &&
           steps.ecr_login.outcome == 'success'
         env:
@@ -96,7 +96,7 @@ jobs:
 
       - name: Restart API and ADMIN services to enfore pulling latest/newest ECR image
         if: |
-          github.ref == 'refs/heads/test' &&
+          github.ref == 'refs/tags/test' &&
           github.event_name == 'push' &&
           steps.ecr.outcome == 'success'
         env:
