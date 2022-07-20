@@ -20,7 +20,6 @@ export class StorageService {
       process.env.NODE_ENV.toUpperCase() === 'TEST'
     ) {
       this.provider.ensureBucket();
-      console.log(`S3 buckets have been initialized.`);
     }
   }
 

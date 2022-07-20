@@ -223,6 +223,7 @@ describe('MediaController', () => {
         .expect(200)
         .expect(({ body }) => {
           expect(body).toEqual({
+            id: imageMedia.id,
             assetId: imageMedia.assetId,
             description: dtoRequest.description,
             file: null,
