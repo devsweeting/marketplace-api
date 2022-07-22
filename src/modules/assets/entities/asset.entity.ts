@@ -141,7 +141,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
       if (e.code === POSTGRES_DUPE_KEY_ERROR && e.constraint == 'PARTNER_REF_UNIQUE') {
         throw new AssetsDuplicatedException([dto.refId]);
       }
-      throw new InternalServerErrorException();
+      throw e;
     }
   }
 

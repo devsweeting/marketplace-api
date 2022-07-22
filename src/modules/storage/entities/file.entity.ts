@@ -23,7 +23,7 @@ export class File extends BaseModel implements BaseEntityInterface {
   @Column({ name: 'mime_type', nullable: true })
   public mimeType: string;
 
-  @Column({ name: 'absoluteUrl', nullable: false })
+  @Column({ name: 'absoluteUrl', nullable: true })
   public absoluteUrl: string;
 
   public constructor(partial: Partial<File>) {
