@@ -1553,4 +1553,35 @@ describe('AssetsController', () => {
     });
     return testApp.get(app, `/v1/assets?${params.toString()}`, 200, response);
   });
+
+  test('should exclude deleted media', async () => {
+    const asset = await createAsset({ refId: '3', name: 'abc-1' }, partner);
+
+    const toBeDeleted = await createImageMedia({ asset: asset, sortOrder: 1 });
+    toBeDeleted.deletedAt = new Date();
+    toBeDeleted.isDeleted = true;
+    toBeDeleted.save();
+    const imageMedia = await createImageMedia({ asset: asset, sortOrder: 2 });
+
+    await createImageMedia({ asset: asset, sortOrder: 3 });
+
+    const assetWithMedia1 = await Asset.findOne(asset.id, { relations: ['media', 'partner'] });
+
+    const response = {
+      meta: {
+        totalItems: 1,
+        itemCount: 1,
+        itemsPerPage: 25,
+        totalPages: 1,
+        currentPage: 1,
+      },
+      items: assetsTransformer.transformAll([
+        Object.assign(assetWithMedia1, { media: mediaTransformer.transformAll([imageMedia]) }),
+      ]),
+    };
+    const params = new URLSearchParams({
+      search: 'abc',
+    });
+    return testApp.get(app, `/v1/assets?${params.toString()}`, 200, response);
+  });
 });
