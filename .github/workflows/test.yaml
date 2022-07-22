@@ -62,7 +62,7 @@ jobs:
           SLACK_CHANNEL: jump-dev
           SLACK_COLOR: ${{ job.status }}
           SLACK_MESSAGE: |
-            Deploy ${{ fromJSON(''["FAILED", "SUCCEEDED"]'')[job.status == ''success''] }}
+            Deploy ${{ job.status }}
 
             Details: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
 
@@ -70,4 +70,3 @@ jobs:
           SLACK_TITLE: "API & Admin Deployment: Test Environment"
           SLACK_WEBHOOK: ${{ secrets.SLACK_DEPLOYMENTS_WEBHOOK_URL }}
           SLACK_FOOTER: "Powered by our GitHub automated deploys"
-
