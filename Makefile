@@ -20,8 +20,8 @@ build: ## Build docker image locally
 dc: ## Run docker compose locally
 	docker-compose up -d
 
-.PHONY : test
-test: ## Add test tag to current HEAD and push tag remotely
+.PHONY : tag-test
+tag-test: ## Add test tag to current HEAD and push tag remotely
 	@echo "This might fail if your local changes have not been pushed remotely"
 	git tag -f test && git push -f origin --tags
 
