@@ -113,7 +113,12 @@ export class AssetsService {
     const query = Asset.createQueryBuilder('asset')
       .leftJoinAndMapMany('asset.attributes', 'asset.attributes', 'attributes')
       .leftJoinAndMapMany('asset.labels', 'asset.labels', 'labels')
-      .leftJoinAndMapMany('asset.media', 'asset.media', 'media')
+      .leftJoinAndMapMany(
+        'asset.media',
+        'asset.media',
+        'media',
+        'media.isDeleted = FALSE AND media.deletedAt IS NULL',
+      )
       .leftJoinAndMapOne('media.file', 'media.file', 'file')
       .orderBy('media.sortOrder, attributes.trait', 'ASC')
       .andWhereInIds(ids);
