@@ -15,7 +15,7 @@ services:
 
   mailhog:
     container_name: jump-marketplace-mailhog
-    image: mailhog/mailhog
+    image: luckythetourist/mailhog
     ports:
       - 1025:1025 # smtp server
       - 8025:8025 # web ui
