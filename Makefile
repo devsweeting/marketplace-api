@@ -16,10 +16,6 @@ env: ## Echo out environment
 build: ## Build docker image locally
 	docker build -t api .
 
-.PHONY : dc
-dc: ## Run docker compose locally
-	docker-compose up -d
-
 .PHONY : tag-test
 tag-test: ## Add test tag to current HEAD and push tag remotely
 	@echo "This might fail if your local changes have not been pushed remotely"

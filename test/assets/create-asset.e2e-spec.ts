@@ -244,11 +244,12 @@ describe('AssetsController', () => {
           },
         ],
       };
-      const response = {
-        message: 'Error: HttpException: Error: TypeError [ERR_INVALID_URL]: Invalid URL: https:',
-        statusCode: 400,
-      };
-      await testApp.post(app, `/v1/assets`, 400, response, transferRequest, header);
+
+      const response = await testApp.post(app, `/v1/assets`, 400, null, transferRequest, header);
+      expect(response.body).toHaveProperty('message');
+      expect(response.body.message).toContain(
+        'Error: HttpException: Error: TypeError [ERR_INVALID_URL]: Invalid URL',
+      );
 
       const asset = await Asset.findOne({
         where: { refId: '14' },
@@ -265,7 +266,7 @@ describe('AssetsController', () => {
         {
           title: 'test',
           description: 'description',
-          url: 'http://httpstat.us/500',
+          url: 'http://httpstatus:3999/500',
           type: MediaTypeEnum.Image,
         },
         {

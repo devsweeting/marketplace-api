@@ -12,7 +12,12 @@ jobs:
   main:
     name: 'Test & Deploy'
     runs-on: ubuntu-latest
+    container: node:14
     services:
+      httpstatus:
+        image: ghcr.io/lucky/httpstatus:latest
+        ports:
+          - 3999/tcp
       localstack:
         image: localstack/localstack:latest
         env:
@@ -63,12 +68,10 @@ jobs:
         env:
           TYPEORM_PORT: ${{ job.services.postgres.ports['5432'] }}
 
-      - name: 'Run e2e Tests'
-        run: yarn test:e2e
+      - name: 'Run Tests'
+        run: yarn test
         env:
           NODE_ENV: test
-          TYPEORM_HOST: localhost
-          TYPEORM_PORT: ${{ job.services.postgres.ports['5432'] }}
 
       ######################################
       # Deploy to Elastic Beanstalk

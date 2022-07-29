@@ -4,28 +4,29 @@ This document outlines the "standard operating procedures" for this repository c
 
 ## Development process.
 
+**Note**: This repository uses a [devcontainer](https://code.visualstudio.com/docs/remote/containers) and presumes you are using VSCode. Upon opening the project in VSCode, the IDE will manage the support containers. *Using another IDE is possible, but you will have to manage support containers yourself. See the `.devcontainer` directory for more information*.
+
   * Create a local feature branch `git checkout -b <mybranch>`
   * Edit your local copy
   * Write tests
   * Run `yarn test` to ensure your code passes all tests before pushing changes.
   * Stage changes to commit `git add <filename>`
-  * Commit changes locally `git commit -m "fixes #12"`  Please use short descriptive commit messages.  Included referneces to tickets you are working on.
+  * Commit changes locally `git commit -m "fixes #12"`  Please use short descriptive commit messages.  Include references to tickets you are working on.
   * Push your changes to a remote branch `git push`
-  * Create a pull request on github, ensure you choose `develop` as your base and not `main`
+  * Create a pull request on github against the `develop` branch (default)
       * Ensure all tests have passed and branch is has no conflicts.
       * Select someone to review your code.  All code must have **at lease one approval** from another team member before merging.
   * Wait for a code review.  If the reviewer requests changes make sure that they are addressed before merging.
   * Once the code has been approved and has passed all checks you may merge your branch.
-  * Delete old feature branch on Github
 
 ## Environment variables
 
-The .env file store the default values for environment variables. 
-These values can be easily overridden by creating .env.local file. 
-The application recognises NODE_ENV variable and load .env files depends on this value. 
+The .env file store the default values for environment variables.
+These values can be easily overridden by creating .env.local file.
+The application recognises NODE_ENV variable and load .env files depends on this value.
 For example if we run `yarn test`, the NODE_ENV value is `test`.
 The application will load `.env.test` file.
-These test values can be overridden in `.env.test.local` file. 
+These test values can be overridden in `.env.test.local` file.
 The hierarchy of loading .env files looks as below:
 
 - `.env.${process.env.NODE_ENV}.local`

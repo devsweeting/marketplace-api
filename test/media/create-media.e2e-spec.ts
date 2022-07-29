@@ -119,7 +119,7 @@ describe('MediaController', () => {
           expect(media.type).toEqual(dto.type);
           expect(media.file).toBeDefined();
           expect(media.file.absoluteUrl).toEqual(
-            'http://localhost:4566/test-bucket/assets/' + asset.id + '/' + media.file.name,
+            process.env.AWS_ENDPOINT + '/test-bucket/assets/' + asset.id + '/' + media.file.name,
           );
         });
     });

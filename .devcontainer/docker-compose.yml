@@ -1,29 +1,36 @@
 version: '3.7'
 
 services:
-  db:
-    container_name: jump-marketplace-database
+  app:
+    container_name: jump-api
+    build: .
+    volumes:
+      - ..:/workspace:cached
+      - node-modules:/workspace/node_modules:rw
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    environment:
+      - MAILER_HOST=mailhog
+    ports:
+      - 3001:3001
+  httpstatus:
+    image: ghcr.io/lucky/httpstatus:latest
+  postgres:
+    container_name: jump-database
     image: postgres
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=marketplace
-    ports:
-      - 7432:5432
     volumes:
       - jump_marketplace_postgres:/var/lib/postgresql/data
 
   mailhog:
-    container_name: jump-marketplace-mailhog
+    container_name: jump-mailhog
     image: luckythetourist/mailhog
     ports:
-      - 1025:1025 # smtp server
-      - 8025:8025 # web ui
-
+      - 8025:8025
   localstack:
     image: localstack/localstack:latest
-    ports:
-      - "4566-4583:4566-4583"
     environment:
       - AWS_DEFAULT_REGION=us-west-2
       - EDGE_PORT=4566
@@ -33,6 +40,9 @@ services:
     volumes:
       - "./.localstack:/tmp/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
+    ports:
+      - 4566:4566
 
 volumes:
   jump_marketplace_postgres:
+  node-modules:

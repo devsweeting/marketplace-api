@@ -6,10 +6,5 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
   echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
   curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
   apt install -y yarn nodejs
-WORKDIR /srv/app
-COPY . .
-COPY docker/entrypoint.sh /srv/app
-RUN yarn install --frozen-lockfile --ignore-platform
-RUN yarn build
-RUN yarn bundle
-EXPOSE 3000
+
+RUN apt install -y postgresql-client

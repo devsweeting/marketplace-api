@@ -15,13 +15,9 @@ yarn
 You can override your environment variables in file `.env.local`, but it's not necessary for development environment
 
 ## Running the app
-Start Postgres and mail server (mailhog) locally
-```bash
-docker-compose up -d
-```
 
 Add test data to database (optional)
-```
+```bash
 yarn fixtures
 ```
 
@@ -37,7 +33,7 @@ yarn start:dev
 
 ## API Docs
 
-Swagger docs available at 
+Swagger docs available at
 http://localhost:3001/docs
 
 ## Blockchain

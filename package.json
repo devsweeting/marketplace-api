@@ -20,7 +20,6 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
     "bundle": "rimraf public/*.{js,map} && parcel build src/modules/admin/pages/*.html --dist-dir public",
     "bundle:dev": "parcel src/modules/admin/pages/*.html --dist-dir public",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js -f dist/config/ormconfig",
