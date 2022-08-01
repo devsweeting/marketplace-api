@@ -1,12 +1,8 @@
-name: 'Develop'
+name: 'Run tests'
 on:
   push:
     branches:
-      - develop
-
-  pull_request:
-    branches:
-      - develop
+      - '**'
 
 jobs:
   main:
@@ -41,9 +37,6 @@ jobs:
           --health-retries 5
 
     steps:
-      ######################################
-      # Build, Install and Test
-      ######################################
       - name: 'Checkout source code'
         uses: actions/checkout@v2
 
