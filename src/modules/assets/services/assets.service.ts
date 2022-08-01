@@ -148,10 +148,9 @@ export class AssetsService {
       .orderBy('media.sortOrder, attributes.trait', 'ASC');
 
     if (id) {
-      query.where('asset.id = :id', { id });
-    }
-    if (slug) {
-      query.where('asset.slug = :slug', { slug });
+      query.andWhere('asset.id = :id', { id });
+    } else if (slug) {
+      query.andWhere('asset.slug = :slug', { slug });
     }
     const asset = await query.getOne();
     if (!asset) {
