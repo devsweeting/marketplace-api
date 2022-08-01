@@ -33,6 +33,7 @@ import { POSTGRES_DUPE_KEY_ERROR } from 'modules/common/constants';
 import { AssetsDuplicatedException } from '../exceptions/assets-duplicated.exception';
 import { decodeHashId } from 'modules/common/helpers/hash-id.helper';
 import { ConfigService } from '@nestjs/config';
+import { SellOrder } from 'modules/sell-orders/entities';
 
 @Entity('partner_assets')
 // This requires two partial indexes because Postgres treats all
@@ -86,6 +87,9 @@ export class Asset extends BaseModel implements BaseEntityInterface {
 
   @OneToMany(() => CollectionAsset, (collectionAsset) => collectionAsset.asset)
   public collectionAssets: CollectionAsset[];
+
+  @OneToMany(() => SellOrder, (sellOrder) => sellOrder.asset)
+  public sellOrders: SellOrder[];
 
   @BeforeInsert()
   public async beforeInsert(): Promise<void> {

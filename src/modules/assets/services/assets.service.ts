@@ -104,6 +104,7 @@ export class AssetsService {
       item.attributes = relation.attributes;
       item.labels = relation.labels;
       item.media = relation.media.length > 0 ? [relation.media[0]] : [];
+      item.sellOrders = relation.sellOrders.length > 0 ? relation.sellOrders : [];
       return item;
     });
     return new Pagination(items, results.meta);
@@ -120,6 +121,12 @@ export class AssetsService {
         'media.isDeleted = FALSE AND media.deletedAt IS NULL',
       )
       .leftJoinAndMapOne('media.file', 'media.file', 'file')
+      .leftJoinAndMapMany(
+        'asset.sellOrders',
+        'asset.sellOrders',
+        'sellOrders',
+        'sellOrders.isDeleted = FALSE',
+      )
       .orderBy('media.sortOrder, attributes.trait', 'ASC')
       .andWhereInIds(ids);
     return query.getMany();

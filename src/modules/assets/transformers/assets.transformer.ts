@@ -7,12 +7,14 @@ import { AttributeTransformer } from 'modules/assets/transformers/attribute.tran
 import { MediaTransformer } from './media.transformer';
 import { encodeHashId } from 'modules/common/helpers/hash-id.helper';
 import { ConfigService } from '@nestjs/config';
+import { SellOrdersTransformer } from 'modules/sell-orders/transformers/sell-orders.transformer';
 
 @Injectable()
 export class AssetsTransformer {
   public constructor(
     private readonly attributeTransformer: AttributeTransformer,
     private readonly mediaTransformer: MediaTransformer,
+    private readonly sellOrderTransformer: SellOrdersTransformer,
     private readonly configService: ConfigService,
   ) {}
 
@@ -28,6 +30,9 @@ export class AssetsTransformer {
       updatedAt: asset.updatedAt.toISOString(),
       attributes: this.attributeTransformer.transformAll(asset.attributes || []),
       partner: encodeHashId(asset.partnerId, this.configService.get('common.default.hashIdSalt')),
+      sellOrders: asset.sellOrders?.length
+        ? this.sellOrderTransformer.transformAll(asset.sellOrders)
+        : null,
     };
   }
 
