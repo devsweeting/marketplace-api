@@ -1534,9 +1534,11 @@ describe('AssetsController', () => {
     const asset2 = await createAsset({ refId: '4', name: 'abc-2' }, partner);
     const asset3 = await createAsset({ refId: '5', name: 'abc-3' }, partner);
 
-    const imageMedia = await createImageMedia({ asset: asset1, sortOrder: 1 });
-    await createImageMedia({ asset: asset1, sortOrder: 2 });
-    await createImageMedia({ asset: asset1, sortOrder: 3 });
+    const activeMedia = [
+      await createImageMedia({ asset: asset1, sortOrder: 1 }),
+      await createImageMedia({ asset: asset1, sortOrder: 2 }),
+      await createImageMedia({ asset: asset1, sortOrder: 3 }),
+    ];
     const videoMedia = await createVideoMedia({ asset: asset2, sortOrder: 1 });
 
     const assetWithMedia1 = await Asset.findOne(asset1.id, { relations: ['media', 'partner'] });
@@ -1556,7 +1558,7 @@ describe('AssetsController', () => {
           media: mediaTransformer.transformAll(assetWithMedia3.media),
         }),
         Object.assign(assetWithMedia2, { media: mediaTransformer.transformAll([videoMedia]) }),
-        Object.assign(assetWithMedia1, { media: mediaTransformer.transformAll([imageMedia]) }),
+        Object.assign(assetWithMedia1, { media: mediaTransformer.transformAll(activeMedia) }),
       ]),
     };
     const params = new URLSearchParams({
@@ -1572,9 +1574,10 @@ describe('AssetsController', () => {
     toBeDeleted.deletedAt = new Date();
     toBeDeleted.isDeleted = true;
     toBeDeleted.save();
-    const imageMedia = await createImageMedia({ asset: asset, sortOrder: 2 });
-
-    await createImageMedia({ asset: asset, sortOrder: 3 });
+    const activeMedia = [
+      await createImageMedia({ asset: asset, sortOrder: 2 }),
+      await createImageMedia({ asset: asset, sortOrder: 3 }),
+    ];
 
     const assetWithMedia1 = await Asset.findOne(asset.id, { relations: ['media', 'partner'] });
 
@@ -1587,7 +1590,7 @@ describe('AssetsController', () => {
         currentPage: 1,
       },
       items: assetsTransformer.transformAll([
-        Object.assign(assetWithMedia1, { media: mediaTransformer.transformAll([imageMedia]) }),
+        Object.assign(assetWithMedia1, { media: mediaTransformer.transformAll(activeMedia) }),
       ]),
     };
     const params = new URLSearchParams({
