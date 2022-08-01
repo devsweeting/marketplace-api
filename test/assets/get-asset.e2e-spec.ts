@@ -94,5 +94,28 @@ describe('AssetsController', () => {
       };
       return testApp.get(app, `/v1/assets/${v4()}`, 404, response, {}, header);
     });
+
+    test('should 404 if asset is soft-deleted', async () => {
+      const toBeDeleted = await createAsset(
+        {
+          refId: '9999',
+          name: 'To be deleted',
+          slug: `tobedeleted-${Date.now()}`,
+          description: 'to-be-deleted',
+        },
+        partner,
+      );
+
+      toBeDeleted.isDeleted = true;
+      toBeDeleted.deletedAt = new Date();
+      await toBeDeleted.save();
+
+      const response = {
+        error: 'Not Found',
+        message: 'ASSET_NOT_FOUND',
+        statusCode: 404,
+      };
+      await testApp.get(app, `/v1/assets/${toBeDeleted.id}`, 404, response, {}, header);
+    });
   });
 });
