@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { AttributeResponse } from 'modules/assets/responses/attribute.response';
+import { SellOrderResponse } from 'modules/sell-orders/responses';
 import { MediaResponse } from './media/media.response';
 
 export class AssetResponse {
@@ -17,6 +18,12 @@ export class AssetResponse {
     description: 'Media for asset',
   })
   public media: MediaResponse[];
+
+  @ApiProperty({
+    type: [SellOrderResponse],
+    description: 'Sell orders for asset',
+  })
+  public sellOrders: SellOrderResponse[];
 
   @ApiProperty({ example: 'test-asset-name' })
   public slug: string;

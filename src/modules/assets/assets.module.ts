@@ -10,6 +10,7 @@ import { AttributeTransformer } from 'modules/assets/transformers/attribute.tran
 import { MediaService } from './services/media.service';
 import { MediaController } from './controllers/media.controller';
 import { MediaTransformer } from './transformers/media.transformer';
+import { SellOrdersTransformer } from 'modules/sell-orders/transformers/sell-orders.transformer';
 
 @Module({
   imports: [StorageModule],
@@ -21,6 +22,7 @@ import { MediaTransformer } from './transformers/media.transformer';
     AttributeTransformer,
     MediaService,
     MediaTransformer,
+    SellOrdersTransformer,
   ],
   controllers: [AssetsController, TokensController, MediaController],
   exports: [AssetsService, AttributeTransformer, MediaTransformer],

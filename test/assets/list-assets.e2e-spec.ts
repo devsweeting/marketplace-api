@@ -18,6 +18,8 @@ import { encodeHashId } from 'modules/common/helpers/hash-id.helper';
 import * as testApp from '../utils/app.utils';
 import { v4 } from 'uuid';
 import { createAttributes, filterAttributes } from '../utils/test-helper';
+import { createSellOrder } from '../utils/sell-order.utils';
+import { SellOrder } from 'modules/sell-orders/entities';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -58,6 +60,14 @@ describe('AssetsController', () => {
         partner,
       ),
     ];
+
+    assets[1].sellOrders = [
+      await createSellOrder({
+        assetId: assets[1].id,
+        partnerId: partner.id,
+        userId: user.id,
+      }),
+    ];
   });
 
   afterEach(async () => {
@@ -65,6 +75,7 @@ describe('AssetsController', () => {
     await Attribute.delete({});
     await Event.delete({});
     await Media.delete({});
+    await SellOrder.delete({});
     await Asset.delete({});
     await Event.delete({});
     jest.clearAllMocks();
