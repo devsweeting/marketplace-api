@@ -12,6 +12,7 @@ services:
       - MAILER_HOST=mailhog
     ports:
       - 3001:3001
+      - 4566:4566
   httpstatus:
     image: ghcr.io/lucky/httpstatus:latest
   postgres:
@@ -40,8 +41,7 @@ services:
     volumes:
       - "./.localstack:/tmp/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
-    ports:
-      - 4566:4566
+    network_mode: "service:app"
 
 volumes:
   jump_marketplace_postgres:
