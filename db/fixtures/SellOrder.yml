@@ -1,0 +1,9 @@
+entity: sell_orders
+items:
+  sellOrder{1..200}:
+    user: '@user1'
+    partner: '@partner1'
+    asset: '@asset($current)'
+    fractionQty: '{{datatype.number}}'
+    fractionPriceCents: '{{datatype.number(5000)}}'
+    expireTime: 2145945600
