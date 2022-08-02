@@ -4,32 +4,33 @@
 
 Before contributing code to this repository please review the [Development SOP](DEVELOP.md)
 
-## Installation
-
-```bash
-yarn
-```
-
 ## Configuration
 
 You can override your environment variables in file `.env.local`, but it's not necessary for development environment
 
 ## Running the app
 
-Add test data to database (optional)
-```bash
-yarn fixtures
-```
+### Prerequisites
 
-Bundle custom login page
-```bash
-yarn bundle
-```
+ 1. Docker
+ 2. VSCode (see below)
+     - The [Remote Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension
 
-Start development server
-```bash
-yarn start:dev
-```
+### Run
+
+ 1. Open this repository in VSCode
+ 2. Follow the VSCode prompt to "Reopen in container"
+ 3. Using the VSCode terminal (which is attached to the container):
+     - `yarn bundle`
+     - `yarn migration:up`
+     - `yarn fixtures`
+     - `yarn start:dev`
+
+### Devcontainers
+
+This repository uses [devcontainers](https://code.visualstudio.com/docs/remote/containers) to bootstrap the development environment. Because this is a VSCode-specific feature, that is what's expected here. If you prefer another editor, you will need to figure out the docker-compose setup yourself.
+
+See `.devcontainer/devcontainer.json` for specifics.
 
 ## API Docs
 
