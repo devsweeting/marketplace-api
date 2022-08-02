@@ -103,8 +103,8 @@ export class AssetsService {
       const relation = relations.find((el) => el.id === item.id);
       item.attributes = relation.attributes;
       item.labels = relation.labels;
-      item.media = relation.media.length > 0 ? [relation.media[0]] : [];
-      item.sellOrders = relation.sellOrders.length > 0 ? relation.sellOrders : [];
+      item.media = relation.media;
+      item.sellOrders = relation.sellOrders;
       return item;
     });
     return new Pagination(items, results.meta);
