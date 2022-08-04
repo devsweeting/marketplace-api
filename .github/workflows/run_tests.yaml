@@ -60,3 +60,4 @@ jobs:
         run: yarn test
         env:
           NODE_ENV: test
+          AWS_ENDPOINT: http://localstack:4566
