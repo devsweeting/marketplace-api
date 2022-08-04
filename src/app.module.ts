@@ -19,6 +19,7 @@ import { HealthModule } from './modules/health/health.module';
 import { WatchlistsModule } from './modules/watchlists/watchlists.module';
 import { SellOrdersModule } from './modules/sell-orders/sell-orders.module';
 import LogsMiddleware from './middleware/logs.middleware';
+import { SentryModule } from '@ntegral/nestjs-sentry';
 
 const modules = [];
 
@@ -52,6 +53,11 @@ if (process.env.NODE_ENV === 'STAGING' || process.env.NODE_ENV === 'PRODUCTION')
       ],
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       load: Object.values(require('./config')),
+    }),
+    SentryModule.forRoot({
+      dsn: process.env.SENTRY_DSN, // Disabled if left blank
+      debug: true,
+      environment: process.env.SENTRY_ENV || 'dev',
     }),
     AuthModule,
     ServeStaticModule.forRoot({
