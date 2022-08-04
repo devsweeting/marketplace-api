@@ -58,6 +58,9 @@ if (process.env.NODE_ENV === 'STAGING' || process.env.NODE_ENV === 'PRODUCTION')
       dsn: process.env.SENTRY_DSN, // Disabled if left blank
       debug: true,
       environment: process.env.SENTRY_ENV || 'dev',
+      tracesSampleRate: process.env.SENTRY_SAMPLE_RATE
+        ? parseFloat(process.env.SENTRY_SAMPLE_RATE)
+        : 1.0,
     }),
     AuthModule,
     ServeStaticModule.forRoot({
