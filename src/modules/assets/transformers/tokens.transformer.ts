@@ -1,4 +1,4 @@
-import { Attribute, Token } from '../entities';
+import { Attribute, AssetAttributes, Token } from '../entities';
 import { Injectable } from '@nestjs/common';
 import { TokenMetaResponse } from '../responses/tokens/token-meta.response';
 import { TraitsResponse } from '../responses/tokens/traits.response';
@@ -36,10 +36,12 @@ export class TokensTransformer {
     };
   }
 
-  public traitsTransformAll<T>(attributes: Attribute[], meta = false): T[] {
-    return attributes.map((attribute) =>
-      meta ? this.traitMetaTransform(attribute) : this.traitTransform(attribute),
-    ) as unknown as T[];
+  public traitsTransformAll<T>(attributes: AssetAttributes, meta = false): T[] {
+    // TODO: https://github.com/FractionalDev/jump-marketplace-api/issues/214
+    // return attributes.map((attribute) =>
+    //   meta ? this.traitMetaTransform(attribute) : this.traitTransform(attribute),
+    // ) as unknown as T[];
+    return [];
   }
 
   public traitTransform(attribute: Attribute): TraitsResponse {

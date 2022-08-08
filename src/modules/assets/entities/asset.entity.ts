@@ -34,6 +34,22 @@ import { decodeHashId } from 'modules/common/helpers/hash-id.helper';
 import { ConfigService } from '@nestjs/config';
 import { SellOrder } from 'modules/sell-orders/entities';
 
+export class AssetAttributes {
+  constructor(attrs: AttributeDto[]) {
+    for (const attr of attrs) {
+      this.add(attr.trait, attr.value);
+    }
+  }
+
+  public add(key: string, val: string | number) {
+    key = key.toLowerCase();
+    if (this[key] === undefined) {
+      this[key] = [];
+    }
+    this[key].push(val);
+  }
+}
+
 @Entity('partner_assets')
 // This requires two partial indexes because Postgres treats all
 // null values as unique
@@ -69,8 +85,8 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   @RelationId((asset: Asset) => asset.partner)
   public partnerId: string;
 
-  @OneToMany(() => Attribute, (attribute) => attribute.asset)
-  public attributes: Attribute[];
+  @Column({ type: 'jsonb', nullable: false, name: 'attributesJson' })
+  public attributes: AssetAttributes;
 
   @OneToMany(() => Label, (label) => label.asset)
   public labels: Label[];
@@ -110,13 +126,6 @@ export class Asset extends BaseModel implements BaseEntityInterface {
     this.slug = generateSlug(name);
   }
 
-  public async saveAttributes(attributes: AttributeDto[]): Promise<Attribute[]> {
-    await Attribute.delete({ assetId: this.id });
-    return Promise.all(
-      attributes.map((attribute) => new Attribute({ ...attribute, assetId: this.id }).save()),
-    );
-  }
-
   public static async saveAssetForPartner(dto: AssetDto, partner: Partner): Promise<Asset> {
     try {
       const asset = new Asset({
@@ -127,15 +136,10 @@ export class Asset extends BaseModel implements BaseEntityInterface {
         description: dto.description,
       });
       await getConnection().transaction(async (txMgr) => {
-        await txMgr.save(asset);
         if (dto.attributes) {
-          await Promise.all(
-            dto.attributes.map((attribute: AttributeDto) =>
-              txMgr.save(new Attribute({ ...attribute, assetId: asset.id })),
-            ),
-          );
+          asset.attributes = new AssetAttributes(dto.attributes);
         }
-
+        await txMgr.save(asset);
         const event = new Event({ fromAccount: partner.accountOwnerId, asset: asset });
         await txMgr.save(event);
       });
@@ -182,130 +186,79 @@ export class Asset extends BaseModel implements BaseEntityInterface {
       );
     }
 
-    if (params.attr_eq || params.attr_gte || params.attr_lte) {
-      query.leftJoin(
-        'asset.attributes',
-        'attributes',
-        'attributes.isDeleted = FALSE AND attributes.deletedAt IS NULL',
-      );
-    }
-
-    if (params.attr_eq && Object.keys(params.attr_eq).length) {
-      let traitValues;
-      query.andHaving('array_agg(attributes.trait)::text[] @> ARRAY[:...attrEqArr]', {
-        attrEqArr: Object.keys(params.attr_eq),
-      });
-      query.andWhere(
-        new Brackets((b) => {
-          return Object.entries(params.attr_eq).map((attr, index) => {
-            traitValues = Array.isArray(attr[1]) ? attr[1] : [attr[1]];
-            b.orWhere(
-              `attributes.trait ILIKE :trait${index} AND attributes.value IN (:...traitValues${index})`,
-              {
-                [`trait${index}`]: `%${attr[0]}%%`,
-                [`traitValues${index}`]: traitValues,
-              },
-            );
-          });
-        }),
-      );
-    }
-
-    if (params.label_eq && Object.keys(params.label_eq).length) {
-      query.leftJoin(
-        'asset.labels',
-        'labels',
-        'labels.isDeleted = FALSE AND labels.deletedAt IS NULL',
-      );
-      let labelValues;
-      query.andHaving('array_agg(labels.name)::text[] @> ARRAY[:...labelEqArr]', {
-        labelEqArr: Object.keys(params.label_eq),
-      });
-      query.andWhere(
-        new Brackets((b) => {
-          return Object.entries(params.label_eq).map((label, index) => {
-            labelValues = Array.isArray(label[1]) ? label[1] : [label[1]];
-            return b.orWhere(
-              `labels.name ILIKE :name${index} AND LOWER(labels.value) IN (:...labelValues${index})`,
-              {
-                [`name${index}`]: `%${label[0]}%%`,
-                [`labelValues${index}`]: labelValues,
-              },
-            );
-          });
-        }),
-      );
-    }
-
-    if (params.attr_lte || params.attr_gte) {
-      const fromAttr = params.attr_gte ? Object.keys(params.attr_gte) : [];
-      const toAttr = params.attr_lte ? Object.keys(params.attr_lte) : [];
-      const arr = fromAttr.length
-        ? fromAttr.filter((value) => toAttr.includes(value))
-        : toAttr.filter((value) => fromAttr.includes(value));
-      const fromArr = this.filterRangeArray(fromAttr, arr);
-      const toArr = this.filterRangeArray(toAttr, arr);
-      if (arr.length) {
-        if (Object.keys(params.attr_gte).length > 1) {
-          query.andHaving('array_agg(attributes.trait)::text[] @> ARRAY[:...arr]', { arr: arr });
+    if (params.attr_eq) {
+      const keys = Object.keys(params.attr_eq);
+      if (keys.length > 0) {
+        const group = {};
+        for (const attr in params.attr_eq) {
+          const val = params.attr_eq[attr];
+          if (typeof val === 'string') {
+            group[attr] = [val];
+          } else if (Array.isArray(val)) {
+            group[attr] = val;
+          }
         }
 
-        const subQuery = new Brackets((b) => {
-          return arr.map((attr, index) => {
-            if (Number(params.attr_gte[attr]) >= Number(params.attr_lte[attr])) {
-              throw new AttributeLteMustBeGreaterThanGteException();
-            }
-            b.orWhere(
-              `attributes.trait ILIKE :commonTrait${index} AND attributes.value::float >= :fromValue${index} AND attributes.value::float <= :toValue${index}`,
-              {
-                [`commonTrait${index}`]: `%${attr}%%`,
-                [`fromValue${index}`]: params.attr_gte[attr],
-                [`toValue${index}`]: params.attr_lte[attr],
-              },
-            );
-          });
-        });
-        params.attr_eq ? query.orWhere(subQuery) : query.andWhere(subQuery);
+        for (const [attr, vals] of Object.entries(group)) {
+          const v: string[] = vals as string[];
+          query.andWhere(
+            new Brackets((b) => {
+              for (const val of v) {
+                b.orWhere(`asset.attributesJson @? :match`, {
+                  match: `$."${attr}" ? (@ like_regex "(?i)^${val}$")`,
+                });
+              }
+            }),
+          );
+        }
       }
-      if (fromArr.length) {
-        if (params.attr_eq || fromArr.length > 1) {
-          query.having('array_agg(attributes.trait)::text[] @> ARRAY[:...fromArr]', {
-            fromArr: fromArr,
-          });
-        }
-        const subQuery = new Brackets((b) => {
-          fromArr.map((attr, index) => {
-            b.orWhere(
-              `attributes.trait ILIKE :fromTrait${index} AND attributes.value::float >= :from${index}`,
-              {
-                [`fromTrait${index}`]: `%${attr}%%`,
-                [`from${index}`]: params.attr_gte[attr],
-              },
-            );
-          });
-        });
+    }
 
-        params.attr_eq ? query.orWhere(subQuery) : query.andWhere(subQuery);
+    if (params.attr_gte || params.attr_lte) {
+      const lte_group = {};
+      const gte_group = {};
+      for (const attr in params.attr_lte) {
+        const val = params.attr_lte[attr];
+        if (Array.isArray(val)) {
+          throw 'Too many values for parameter';
+        }
+
+        lte_group[attr] = parseFloat(val);
       }
-      if (toArr.length) {
-        if (params.attr_eq || toArr.length > 1) {
-          query.having('array_agg(attributes.trait)::text[] @> ARRAY[:...toArr]', {
-            toArr: toArr,
-          });
+      for (const attr in params.attr_gte) {
+        const val = params.attr_gte[attr];
+        if (Array.isArray(val)) {
+          throw 'Too many values for parameter';
         }
-        const subQuery = new Brackets((b) => {
-          toArr.map((attr, index) => {
-            b.orWhere(
-              `attributes.trait ILIKE :toTrait${index} AND attributes.value::float <= :to${index}`,
-              {
-                [`toTrait${index}`]: `%${attr}%%`,
-                [`to${index}`]: params.attr_lte[attr],
-              },
-            );
-          });
-        });
+        gte_group[attr] = parseFloat(val);
+      }
 
-        params.attr_eq ? query.orWhere(subQuery) : query.andWhere(subQuery);
+      for (const [attr, val] of Object.entries(lte_group)) {
+        if (gte_group[attr] !== undefined && val < gte_group[attr]) {
+          throw new AttributeLteMustBeGreaterThanGteException();
+        }
+      }
+      let i = 0;
+
+      for (const [attr, val] of Object.entries(lte_group)) {
+        query.andWhere(
+          new Brackets((b) => {
+            const matchName = `match_${i++}`;
+            const params = {};
+            params[matchName] = `$."${attr.toLowerCase()}" ? (@.double() <= ${val})`;
+            b.andWhere(`asset.attributesJson @? :${matchName}`, params);
+          }),
+        );
+      }
+      for (const [attr, val] of Object.entries(gte_group)) {
+        query.andWhere(
+          new Brackets((b) => {
+            const matchName = `match_${i++}`;
+            const params = {};
+            params[matchName] = `$."${attr.toLowerCase()}" ? (@.double() >= ${val})`;
+            b.andWhere(`asset.attributesJson @? :${matchName}`, params);
+          }),
+        );
       }
     }
     return query;

@@ -1,4 +1,5 @@
 entity: partner_assets
+processor: ../../dist/config/database/processors/AssetProcessor
 items:
   asset1:
     partner: '@partner1'

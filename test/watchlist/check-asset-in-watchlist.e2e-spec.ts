@@ -155,11 +155,10 @@ describe('WatchlistController', () => {
           refId: '3',
           name: 'Water',
           description: 'test-water',
-          isDeleted: true,
-          deletedAt: new Date(),
         },
         partners[0],
       );
+      // TODO https://github.com/FractionalDev/jump-marketplace-api/issues/219
 
       await createWatchlistAsset({ watchlistId: watchlist.id, assetId: asset.id });
 
@@ -179,11 +178,10 @@ describe('WatchlistController', () => {
           refId: '4',
           name: 'Water',
           description: 'test-water',
-          isDeleted: true,
-          deletedAt: new Date(),
         },
         partners[0],
       );
+      // TODO https://github.com/FractionalDev/jump-marketplace-api/issues/219
 
       await createWatchlistAsset({ watchlistId: watchlist.id, assetId: asset.id });
 

@@ -33,7 +33,6 @@ describe('MediaController', () => {
       {
         refId: '1',
         name: 'Egg',
-        slug: 'egg',
         description: 'test-egg',
       },
       partner,

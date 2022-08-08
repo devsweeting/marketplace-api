@@ -41,7 +41,6 @@ describe('SellOrdersController', () => {
       {
         refId: '1',
         name: 'Egg',
-        slug: `egg-${Date.now()}`,
         description: 'test-egg',
       },
       partner,

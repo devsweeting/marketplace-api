@@ -19,7 +19,7 @@ export class TokensService {
         contract: { address: contractAddress },
         isDeleted: false,
       },
-      relations: ['asset', 'asset.attributes', 'contract', 'asset.media', 'asset.media.file'],
+      relations: ['asset', 'contract', 'asset.media', 'asset.media.file'],
     });
     if (!token) {
       throw new TokenNotFoundException();

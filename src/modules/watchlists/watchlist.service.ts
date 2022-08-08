@@ -41,7 +41,6 @@ export class WatchlistService extends BaseService {
 
     const items = results.items.map((item: WatchlistAsset) => {
       const relation = relations.find((el) => el.id === item.id);
-      item.asset.attributes = relation?.attributes || [];
       item.asset.labels = relation?.labels || [];
       item.asset.media = relation?.media.length > 0 ? [relation.media[0]] : [];
       return item;
@@ -51,7 +50,6 @@ export class WatchlistService extends BaseService {
 
   public async getRelations(ids: string[]): Promise<Asset[]> {
     const query = Asset.createQueryBuilder('asset')
-      .leftJoinAndMapMany('asset.attributes', 'asset.attributes', 'attributes')
       .leftJoinAndMapMany('asset.labels', 'asset.labels', 'labels')
       .leftJoinAndMapMany('asset.media', 'asset.media', 'media')
       .leftJoinAndMapOne('media.file', 'media.file', 'file')

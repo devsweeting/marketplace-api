@@ -44,7 +44,6 @@ describe('SellOrdersController', () => {
         {
           refId: '1',
           name: 'Egg',
-          slug: `egg-${Date.now()}`,
           description: 'test-egg',
         },
         partner,
@@ -53,7 +52,6 @@ describe('SellOrdersController', () => {
         {
           refId: '2',
           name: 'Water',
-          slug: `water-${Date.now()}`,
           description: 'test-water',
         },
         partner,
@@ -62,7 +60,6 @@ describe('SellOrdersController', () => {
         {
           refId: '3',
           name: 'Sun',
-          slug: `sun-${Date.now()}`,
           description: 'test-sun',
         },
         anotherPartner,

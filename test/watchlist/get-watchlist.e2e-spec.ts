@@ -12,7 +12,6 @@ import { Asset } from 'modules/assets/entities';
 import { createPartner } from '../utils/partner.utils';
 import { Partner } from 'modules/partners/entities';
 import { generateNonce, generateOtpToken } from '../utils/jwt.utils';
-import { createAttribute } from '../utils/attribute.utils';
 
 describe('WatchlistController', () => {
   let app: INestApplication;
@@ -38,6 +37,12 @@ describe('WatchlistController', () => {
           refId: '1',
           name: 'Egg',
           description: 'test-egg',
+          attributes: [
+            {
+              trait: 'category',
+              value: 'baseball',
+            },
+          ],
         },
         partner,
       ),
@@ -498,13 +503,6 @@ describe('WatchlistController', () => {
     });
 
     test('should return watchlist assets with attributes', async () => {
-      const attributes = [
-        await createAttribute({
-          trait: 'category',
-          value: 'baseball',
-          assetId: assets[0].id,
-        }),
-      ];
       const watchlistAssets = [
         await createWatchlistAsset({
           assetId: assets[0].id,
@@ -517,7 +515,7 @@ describe('WatchlistController', () => {
       ];
       const result = [
         Object.assign(watchlistAssets[1], { asset: assets[1] }),
-        Object.assign(watchlistAssets[0], { asset: assets[0], attributes: attributes[0] }),
+        Object.assign(watchlistAssets[0], { asset: assets[0] }),
       ];
       return request(app.getHttpServer())
         .get(`/v1/watchlist`)

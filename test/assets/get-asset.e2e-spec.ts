@@ -36,8 +36,14 @@ describe('AssetsController', () => {
       {
         refId: '1',
         name: 'Egg',
-        slug: `egg-${Date.now()}`,
         description: 'test-egg',
+        attributes: [
+          {
+            trait: 'foo',
+            value: 'bar',
+            display: null,
+          },
+        ],
       },
       partner,
     );
@@ -100,7 +106,6 @@ describe('AssetsController', () => {
         {
           refId: '9999',
           name: 'To be deleted',
-          slug: `tobedeleted-${Date.now()}`,
           description: 'to-be-deleted',
         },
         partner,

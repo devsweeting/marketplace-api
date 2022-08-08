@@ -3,8 +3,7 @@ import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { createPartner } from '@/test/utils/partner.utils';
 import { createAsset } from '@/test/utils/asset.utils';
 import { Partner } from 'modules/partners/entities';
-import { Asset, Attribute } from 'modules/assets/entities';
-import { createAttribute } from '@/test/utils/attribute.utils';
+import { Asset } from 'modules/assets/entities';
 import { v4 } from 'uuid';
 import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
@@ -17,7 +16,6 @@ describe('AssetsController', () => {
   let app: INestApplication;
   let partner: Partner;
   let asset: Asset;
-  let attribute: Attribute;
   let user: User;
   let header;
 
@@ -32,14 +30,10 @@ describe('AssetsController', () => {
       {
         refId: '1',
         name: 'Egg',
-        slug: 'egg',
         description: 'test-egg',
       },
       partner,
     );
-    attribute = await createAttribute({
-      asset,
-    });
     await createImageMedia({ assetId: asset.id });
     header = {
       'x-api-key': partner.apiKey,
@@ -101,11 +95,8 @@ describe('AssetsController', () => {
       const persistedAsset = await Asset.findOne({
         where: { id: asset.id, isDeleted: false },
       });
-      const persistedAttribute = await Attribute.findOne({
-        where: { id: attribute.id, isDeleted: false },
-      });
+
       expect(persistedAsset).toBeUndefined();
-      expect(persistedAttribute).toBeUndefined();
     });
   });
 });

@@ -11,12 +11,19 @@ import { RoleEnum } from 'modules/users/enums/role.enum';
 import { Event } from 'modules/events/entities';
 import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
 import * as testApp from '../utils/app.utils';
+import { AssetAttributes } from 'modules/assets/entities/asset.entity';
+import { AttributeDto } from 'modules/assets/dto';
 
 describe('AssetsController', () => {
   let app: INestApplication;
   let partner: Partner;
   let user: User;
   let header;
+  const attrDto: AttributeDto = {
+    trait: 'trait name',
+    value: 'some value',
+    display: 'text',
+  };
 
   beforeAll(async () => {
     app = await createApp();
@@ -96,13 +103,7 @@ describe('AssetsController', () => {
             media,
             name: 'Example',
             description: 'test',
-            attributes: [
-              {
-                trait: 'trait name',
-                value: 'some value',
-                display: 'text',
-              },
-            ],
+            attributes: [attrDto],
           },
         ],
       };
@@ -110,16 +111,14 @@ describe('AssetsController', () => {
 
       const asset = await Asset.findOne({
         where: { refId: '1232' },
-        relations: ['attributes', 'media', 'media.file'],
+        relations: ['media', 'media.file'],
       });
       expect(asset).toBeDefined();
       expect(asset.name).toEqual(transferRequest.assets[0].name);
       expect(asset.media).toBeDefined();
       expect(asset.description).toEqual(transferRequest.assets[0].description);
-      expect(asset.attributes[0]).toBeDefined();
-      expect(asset.attributes[0].trait).toEqual(transferRequest.assets[0].attributes[0].trait);
-      expect(asset.attributes[0].value).toEqual(transferRequest.assets[0].attributes[0].value);
-      expect(asset.attributes[0].display).toEqual(transferRequest.assets[0].attributes[0].display);
+      expect(asset.attributes).toBeDefined();
+      expect(asset.attributes).toEqual(new AssetAttributes([attrDto]));
     });
 
     test('should create a new asset transfer object in the db with multiple assets', async () => {
@@ -148,20 +147,14 @@ describe('AssetsController', () => {
             media,
             name: 'Example',
             description: 'test',
-            attributes: [
-              {
-                trait: 'trait name',
-                value: 'some value',
-                display: 'text',
-              },
-            ],
+            attributes: [attrDto],
           },
         ],
       };
       await testApp.post(app, `/v1/assets`, 201, null, transferRequest, header);
       const asset = await Asset.findOne({
         where: { refId: '12' },
-        relations: ['attributes', 'media', 'media.file'],
+        relations: ['media', 'media.file'],
       });
       expect(asset).toBeDefined();
       expect(asset.name).toEqual(transferRequest.assets[0].name);
@@ -170,10 +163,8 @@ describe('AssetsController', () => {
       expect(asset.media[0].fileId).toBeDefined();
       expect(asset.media[1].fileId).toBeDefined();
       expect(asset.description).toEqual(transferRequest.assets[0].description);
-      expect(asset.attributes[0]).toBeDefined();
-      expect(asset.attributes[0].trait).toEqual(transferRequest.assets[0].attributes[0].trait);
-      expect(asset.attributes[0].value).toEqual(transferRequest.assets[0].attributes[0].value);
-      expect(asset.attributes[0].display).toEqual(transferRequest.assets[0].attributes[0].display);
+      expect(asset.attributes).toBeDefined();
+      expect(asset.attributes).toEqual(new AssetAttributes([attrDto]));
     });
 
     test('should upload only media with type IMAGE', async () => {

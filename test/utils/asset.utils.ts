@@ -8,7 +8,7 @@ export const softDeleteAsset = (asset: Asset) => {
   return asset.save();
 };
 
-export const createAsset = async (data: Partial<Asset>, partner: Partner): Promise<Asset> => {
+export const createAsset = async (data: Partial<AssetDto>, partner: Partner): Promise<Asset> => {
   const dto = new AssetDto({
     refId: 'test',
     name: `Example ${Date.now()}`,

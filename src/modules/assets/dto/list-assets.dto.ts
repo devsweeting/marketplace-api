@@ -17,22 +17,17 @@ export class ListAssetsDto extends ListDto {
   @ApiPropertyOptional()
   @IsNotEmpty()
   @IsOptional()
-  public label_eq?: string[];
+  public attr_eq?: object;
 
   @ApiPropertyOptional()
   @IsNotEmpty()
   @IsOptional()
-  public attr_eq?: string[];
+  public attr_gte?: object;
 
   @ApiPropertyOptional()
   @IsNotEmpty()
   @IsOptional()
-  public attr_gte?: any;
-
-  @ApiPropertyOptional()
-  @IsNotEmpty()
-  @IsOptional()
-  public attr_lte?: any;
+  public attr_lte?: object;
 
   @ApiPropertyOptional()
   @IsNotEmpty()

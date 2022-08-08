@@ -3,16 +3,16 @@ import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { createPartner } from '@/test/utils/partner.utils';
 import { createAsset } from '@/test/utils/asset.utils';
 import { Partner } from 'modules/partners/entities';
-import { Asset, Attribute, Media } from 'modules/assets/entities';
+import { Asset, Media } from 'modules/assets/entities';
 import { v4 } from 'uuid';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
 import { generateSlug } from 'modules/common/helpers/slug.helper';
-import { createAttribute } from '@/test/utils/attribute.utils';
 import { User } from 'modules/users/entities/user.entity';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { createUser } from '../utils/create-user';
 import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
 import * as testApp from '../utils/app.utils';
+import { AssetAttributes } from 'modules/assets/entities/asset.entity';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -29,7 +29,17 @@ describe('AssetsController', () => {
       apiKey: 'test-api-key',
       accountOwner: user,
     });
-    asset = await createAsset({}, partner);
+    asset = await createAsset(
+      {
+        attributes: [
+          {
+            trait: 'color',
+            value: 'red',
+          },
+        ],
+      },
+      partner,
+    );
     assetTransformer = app.get(AssetsTransformer);
     header = {
       'x-api-key': partner.apiKey,
@@ -217,33 +227,33 @@ describe('AssetsController', () => {
 
     test('should not remove attributes', async () => {
       const payload = {};
-      const attribute = await createAttribute({ asset });
 
       const response = {
         ...assetTransformer.transform(asset),
         updatedAt: expect.any(String),
       };
+      const originalAttributes = asset.attributes;
 
       await testApp.patch(app, `/v1/assets/${asset.id}`, 200, response, payload, header);
 
-      await attribute.reload();
-      expect(attribute).toBeDefined();
+      await asset.reload();
+      expect(asset.attributes).toEqual(originalAttributes);
     });
 
     test('should remove attributes', async () => {
       const payload = {
         attributes: [],
       };
-      const attribute = await createAttribute({ asset });
       const response = {
         ...assetTransformer.transform(asset),
         updatedAt: expect.any(String),
+        attributes: payload.attributes,
       };
 
       await testApp.patch(app, `/v1/assets/${asset.id}`, 200, response, payload, header);
 
-      const savedAttribute = await Attribute.findOne(attribute.id);
-      expect(savedAttribute).toBeUndefined();
+      await asset.reload();
+      expect(asset.attributes).toEqual({});
     });
 
     test('should create new Attribute', async () => {
@@ -252,23 +262,20 @@ describe('AssetsController', () => {
           {
             trait: 'new trait',
             value: 'new value',
-            display: 'text',
+            display: null,
           },
         ],
       };
-      const attribute = await createAttribute({ asset });
 
       const response = {
         ...assetTransformer.transform(asset),
         updatedAt: expect.any(String),
+        attributes: payload.attributes,
       };
       await testApp.patch(app, `/v1/assets/${asset.id}`, 200, response, payload, header);
+      await asset.reload();
 
-      const savedAttribute = await Attribute.findOne(attribute.id);
-      expect(savedAttribute).toBeUndefined();
-      const newAttributes = await Attribute.find({ where: { assetId: asset.id } });
-      expect(newAttributes).toHaveLength(1);
-      expect(newAttributes[0]).toEqual(expect.objectContaining(payload.attributes[0]));
+      expect(asset.attributes).toEqual(new AssetAttributes(payload.attributes));
     });
   });
 });

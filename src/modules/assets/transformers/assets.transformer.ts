@@ -28,7 +28,7 @@ export class AssetsTransformer {
       slug: asset.slug,
       createdAt: asset.createdAt.toISOString(),
       updatedAt: asset.updatedAt.toISOString(),
-      attributes: this.attributeTransformer.transformAll(asset.attributes || []),
+      attributes: this.attributeTransformer.transformAll(asset.attributes),
       partner: encodeHashId(asset.partnerId, this.configService.get('common.default.hashIdSalt')),
       sellOrders: asset.sellOrders?.length
         ? this.sellOrderTransformer.transformAll(asset.sellOrders)

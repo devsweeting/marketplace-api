@@ -22,6 +22,7 @@ import { Collection, CollectionAsset } from 'modules/collections/entities';
 import { CollectionNotFoundException } from 'modules/collections/exceptions/collection-not-found.exception';
 import { decodeHashId } from 'modules/common/helpers/hash-id.helper';
 import { validate as isValidUUID } from 'uuid';
+import { AssetAttributes } from '../entities/asset.entity';
 
 @Injectable()
 export class AssetsService {
@@ -44,13 +45,6 @@ export class AssetsService {
 
     if (params?.search?.length > this.configService.get('asset.default.searchMaxNumber')) {
       throw new AssetSearchOverLimitException();
-    }
-    if (
-      params.label_eq &&
-      Object.keys(params.label_eq).length >
-        this.configService.get('asset.default.filterLabelMaxNumber')
-    ) {
-      throw new AssetFilterLabelOverLimitException();
     }
     if (
       params.attr_eq &&
@@ -101,7 +95,6 @@ export class AssetsService {
 
     const items = results.items.map((item: Asset) => {
       const relation = relations.find((el) => el.id === item.id);
-      item.attributes = relation.attributes;
       item.labels = relation.labels;
       item.media = relation.media;
       item.sellOrders = relation.sellOrders;
@@ -112,7 +105,6 @@ export class AssetsService {
 
   public async getRelations(ids: string[]): Promise<Asset[]> {
     const query = Asset.createQueryBuilder('asset')
-      .leftJoinAndMapMany('asset.attributes', 'asset.attributes', 'attributes')
       .leftJoinAndMapMany('asset.labels', 'asset.labels', 'labels')
       .leftJoinAndMapMany(
         'asset.media',
@@ -127,14 +119,13 @@ export class AssetsService {
         'sellOrders',
         'sellOrders.isDeleted = FALSE',
       )
-      .orderBy('media.sortOrder, attributes.trait', 'ASC')
+      .orderBy('media.sortOrder', 'ASC')
       .andWhereInIds(ids);
     return query.getMany();
   }
 
   public async getOneByParams({ id, slug }: { id: string; slug: string }): Promise<Asset> {
     const query = Asset.createQueryBuilder('asset')
-      .leftJoinAndMapMany('asset.attributes', 'asset.attributes', 'attributes')
       .leftJoinAndMapMany(
         'asset.media',
         'asset.media',
@@ -145,7 +136,7 @@ export class AssetsService {
 
       .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
       .andWhere('asset.deletedAt IS NULL')
-      .orderBy('media.sortOrder, attributes.trait', 'ASC');
+      .orderBy('media.sortOrder', 'ASC');
 
     if (id) {
       query.andWhere('asset.id = :id', { id });
@@ -183,9 +174,8 @@ export class AssetsService {
 
     const { attributes, media, ...data } = dto;
     if (Array.isArray(attributes)) {
-      await asset.saveAttributes(attributes);
+      asset.attributes = new AssetAttributes(attributes);
     }
-
     if (media) {
       asset.media = await this.mediaService.createBulkMedia(id, media);
     }
