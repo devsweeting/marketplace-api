@@ -17,11 +17,20 @@ export class SellOrderResponse {
   public fractionQty: number;
 
   @ApiProperty({ example: 1 })
+  public fractionQtyAvailable: number;
+
+  @ApiProperty({ example: 1 })
   public fractionPriceCents: number;
 
   @ApiProperty({ example: 1657541523785 })
   public expireTime: number;
 
   @ApiProperty({ example: 1657541523785 })
+  public startTime: number;
+
+  @ApiProperty({ example: 1657541523785 })
   public deletedTime: number;
+
+  @ApiProperty({ example: 'standard' })
+  public type: string;
 }

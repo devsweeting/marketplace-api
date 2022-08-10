@@ -13,9 +13,12 @@ export class SellOrdersTransformer {
       userId: sellOrder.userId,
       partnerId: sellOrder.partnerId,
       fractionQty: Number(sellOrder.fractionQty),
+      fractionQtyAvailable: Number(sellOrder.fractionQtyAvailable),
       fractionPriceCents: Number(sellOrder.fractionPriceCents),
       expireTime: Number(sellOrder.expireTime),
+      startTime: Number(sellOrder.startTime),
       deletedTime: Number(sellOrder.deletedTime),
+      type: sellOrder.type,
     };
   }
 

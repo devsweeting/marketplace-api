@@ -13,6 +13,7 @@ import { SellOrder } from 'modules/sell-orders/entities';
 import { v4 } from 'uuid';
 import { createSellOrder } from '../utils/sell-order.utils';
 import { SellOrdersTransformer } from 'modules/sell-orders/transformers/sell-orders.transformer';
+import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
 
 describe('SellOrdersController', () => {
   let app: INestApplication;
@@ -52,6 +53,8 @@ describe('SellOrdersController', () => {
       assetId: asset.id,
       partnerId: partner.id,
       userId: users[0].id,
+      startTime: Date.now(),
+      type: SellOrderTypeEnum.standard,
     });
     header = {
       'x-api-key': partner.apiKey,
