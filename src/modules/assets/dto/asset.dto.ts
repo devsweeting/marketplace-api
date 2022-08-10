@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsOptional, MaxLength, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsOptional, Max, MaxLength, Min, ValidateNested } from 'class-validator';
 import { CollectionDto } from '.';
 import { AttributeDto } from './attribute.dto';
 import { MediaDto } from './media/media.dto';
@@ -72,6 +72,14 @@ export class AssetDto {
   })
   @IsOptional()
   public collection?: CollectionDto;
+
+  @ApiProperty({
+    description: 'Total number of fractions of the asset.',
+    required: true,
+  })
+  @Min(1)
+  @Max(1000000000)
+  public fractionQtyTotal: number;
 
   constructor(data: Partial<AssetDto>) {
     Object.assign(this, data);
