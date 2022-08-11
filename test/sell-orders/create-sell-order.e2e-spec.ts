@@ -10,6 +10,7 @@ import { createAsset } from '../utils/asset.utils';
 import * as testApp from '../utils/app.utils';
 import { SellOrder } from 'modules/sell-orders/entities';
 import { v4 } from 'uuid';
+import faker from '@faker-js/faker';
 
 describe('SellOrdersController', () => {
   let app: INestApplication;
@@ -64,8 +65,8 @@ describe('SellOrdersController', () => {
         email: user.email,
         fractionQty: 1,
         fractionPriceCents: 1000,
-        expireTime: Date.now(),
-        startTime: Date.now(),
+        expireTime: faker.date.future().getTime(),
+        startTime: Date.now(), // Don't mock since it should be now-ish
       };
       const expectedResponse = {
         status: 201,
