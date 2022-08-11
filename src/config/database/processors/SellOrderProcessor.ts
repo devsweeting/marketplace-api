@@ -3,11 +3,11 @@ import { SellOrder } from 'modules/sell-orders/entities';
 import { IProcessor } from 'typeorm-fixtures-cli';
 
 export default class SellOrderProcessor implements IProcessor<SellOrder> {
-  preProcess(name: string, object: any): any {
+  preProcess(_name: string, object: any): any {
     return { ...object };
   }
 
-  postProcess(name: string, obj: { [key: string]: any }): void {
+  postProcess(_name: string, obj: { [key: string]: any }): void {
     obj.fractionQty = faker.datatype.number({ min: 10000, max: 100000 });
     obj.fractionQtyAvailable = faker.datatype.number({ min: 0, max: obj.fractionQty });
 
