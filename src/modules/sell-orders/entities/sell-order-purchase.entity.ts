@@ -72,9 +72,8 @@ export class SellOrderPurchase extends BaseModel implements BaseEntityInterface 
         fractionQty: purchaseDto.fractionsToPurchase,
         fractionPriceCents: purchaseDto.fractionPriceCents,
       });
-      await manager.save(purchase);
       sellOrder.fractionQtyAvailable -= purchaseDto.fractionsToPurchase;
-      await manager.save(sellOrder);
+      await Promise.all([manager.save(purchase), manager.save(sellOrder)]);
       return purchase;
     });
     return purchase;
