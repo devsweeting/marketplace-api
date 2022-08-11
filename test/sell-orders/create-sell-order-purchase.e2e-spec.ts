@@ -54,7 +54,7 @@ describe('SellOrdersController -> Purchases', () => {
       fractionQty: initialQty,
       fractionPriceCents: 100,
     });
-    baseUrl = '/v1/sellorders/' + sellOrder.id + '/purchase';
+    baseUrl = `/v1/sellorders/${sellOrder.id}/purchase`;
     header = { Authorization: `Bearer ${generateOtpToken(buyer)}` };
   });
 
