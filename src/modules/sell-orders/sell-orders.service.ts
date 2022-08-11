@@ -5,8 +5,8 @@ import { UserNotFoundException } from 'modules/common/exceptions/user-not-found.
 import { Partner } from 'modules/partners/entities';
 import { User } from 'modules/users/entities';
 import { Pagination, paginate, IPaginationMeta } from 'nestjs-typeorm-paginate';
-import { ListSellOrderDto, SellOrderDto } from './dto';
-import { SellOrder } from './entities';
+import { ListSellOrderDto, SellOrderDto, SellOrderIdDto, SellOrderPurchaseDto } from './dto';
+import { SellOrder, SellOrderPurchase } from './entities';
 import { SellOrderNotFoundException } from './exceptions';
 
 @Injectable()
@@ -18,15 +18,16 @@ export class SellOrdersService {
     });
   }
 
-  public async getOne(partner: Partner, id: string): Promise<SellOrder> {
+  public async getOne(dto: SellOrderIdDto, partner?: Partner): Promise<SellOrder> {
     const query = SellOrder.createQueryBuilder('sellOrder')
-      .where('sellOrder.id = :id AND sellOrder.partnerId = :partnerId', {
-        id,
-        partnerId: partner.id,
-      })
+      .where('sellOrder.id = :id', { id: dto.id })
       .andWhere('sellOrder.isDeleted = :isDeleted AND sellOrder.deletedAt IS NULL', {
         isDeleted: false,
       });
+
+    if (partner) {
+      query.andWhere('sellOrder.partnerId = :partnerId', { partnerId: partner.id });
+    }
 
     const sellOrder = await query.getOne();
 
@@ -54,9 +55,17 @@ export class SellOrdersService {
     return sellOrder.save();
   }
 
-  public async deleteSellOrder(partner: Partner, id: string): Promise<void> {
-    const sellOrder = await this.getOne(partner, id);
+  public async deleteSellOrder(partner: Partner, dto: SellOrderIdDto): Promise<void> {
+    const sellOrder = await this.getOne(dto, partner);
     Object.assign(sellOrder, { isDeleted: true, deletedAt: new Date(), deletedTime: Date.now() });
     await sellOrder.save();
+  }
+
+  async purchase(
+    user: User,
+    dto: SellOrderIdDto,
+    purchaseDto: SellOrderPurchaseDto,
+  ): Promise<SellOrderPurchase> {
+    return SellOrderPurchase.from(user, dto, purchaseDto);
   }
 }

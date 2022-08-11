@@ -34,3 +34,5 @@ export class SellOrderResponse {
   @ApiProperty({ example: 'standard' })
   public type: string;
 }
+
+export class SellOrderPurchaseResponse {}
