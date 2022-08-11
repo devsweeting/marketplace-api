@@ -1,10 +1,9 @@
 import { ActionContext, ActionRequest, RecordActionResponse } from 'adminjs';
 import { isGETMethod, isPOSTMethod } from 'modules/admin/admin.utils';
-import { Attribute, Label, Media, Token } from 'modules/assets/entities';
+import { Label, Media, Token } from 'modules/assets/entities';
 
 const updateRelation = async (record) => {
   await Token.update({ assetId: record.params.id }, { isDeleted: true, deletedAt: new Date() });
-  await Attribute.update({ assetId: record.params.id }, { isDeleted: true, deletedAt: new Date() });
   await Label.update({ assetId: record.params.id }, { isDeleted: true, deletedAt: new Date() });
   await Media.update({ assetId: record.params.id }, { isDeleted: true, deletedAt: new Date() });
 };
