@@ -57,6 +57,7 @@ describe('AssetsController', () => {
             refId: '1232',
             name: 'Example',
             description: 'test',
+            fractionQtyTotal: 1000,
           },
         ],
       };
@@ -75,6 +76,7 @@ describe('AssetsController', () => {
             refId: '1232',
             name: 'Example',
             description: 'test',
+            fractionQtyTotal: 1000,
           },
         ],
       };
@@ -104,6 +106,7 @@ describe('AssetsController', () => {
             name: 'Example',
             description: 'test',
             attributes: [attrDto],
+            fractionQtyTotal: 1000,
           },
         ],
       };
@@ -119,6 +122,7 @@ describe('AssetsController', () => {
       expect(asset.description).toEqual(transferRequest.assets[0].description);
       expect(asset.attributes).toBeDefined();
       expect(asset.attributes).toEqual(new AssetAttributes([attrDto]));
+      expect(asset.fractionQtyTotal).toEqual(transferRequest.assets[0].fractionQtyTotal);
     });
 
     test('should create a new asset transfer object in the db with multiple assets', async () => {
@@ -148,6 +152,7 @@ describe('AssetsController', () => {
             name: 'Example',
             description: 'test',
             attributes: [attrDto],
+            fractionQtyTotal: 1000,
           },
         ],
       };
@@ -165,6 +170,7 @@ describe('AssetsController', () => {
       expect(asset.description).toEqual(transferRequest.assets[0].description);
       expect(asset.attributes).toBeDefined();
       expect(asset.attributes).toEqual(new AssetAttributes([attrDto]));
+      expect(asset.fractionQtyTotal).toEqual(transferRequest.assets[0].fractionQtyTotal);
     });
 
     test('should upload only media with type IMAGE', async () => {
@@ -193,6 +199,7 @@ describe('AssetsController', () => {
             media,
             name: 'Example',
             description: 'test',
+            fractionQtyTotal: 1000,
           },
         ],
       };
@@ -210,6 +217,7 @@ describe('AssetsController', () => {
       expect(asset.media[1]).toBeDefined();
       expect(asset.media[1].file).toEqual(null);
       expect(asset.description).toEqual(transferRequest.assets[0].description);
+      expect(asset.fractionQtyTotal).toEqual(transferRequest.assets[0].fractionQtyTotal);
     });
 
     test('should throw an error when url is wrong', async () => {
@@ -232,6 +240,7 @@ describe('AssetsController', () => {
             media,
             name: 'Example',
             description: 'test',
+            fractionQtyTotal: 1000,
           },
         ],
       };
@@ -278,6 +287,7 @@ describe('AssetsController', () => {
             media,
             name: 'Example',
             description: 'test',
+            fractionQtyTotal: 1000,
           },
         ],
       };
@@ -295,6 +305,7 @@ describe('AssetsController', () => {
       expect(asset.name).toEqual(transferRequest.assets[0].name);
       expect(asset.media.length).toEqual(0);
       expect(asset.description).toEqual(transferRequest.assets[0].description);
+      expect(asset.fractionQtyTotal).toEqual(transferRequest.assets[0].fractionQtyTotal);
     });
 
     test('should pass if refId is taken by another partner', async () => {
@@ -319,6 +330,7 @@ describe('AssetsController', () => {
             refId: '1232',
             name: 'Example',
             description: 'test',
+            fractionQtyTotal: 1000,
           },
         ],
       };
@@ -367,6 +379,7 @@ describe('AssetsController', () => {
             refId: '2',
             name: 'New Asset',
             description: 'test',
+            fractionQtyTotal: 1000,
           },
         ],
       };
@@ -392,6 +405,7 @@ describe('AssetsController', () => {
             refId: '4',
             name: 'NewAssetDifferentPartner',
             description: 'test',
+            fractionQtyTotal: 1000,
           },
         ],
       };
@@ -409,11 +423,13 @@ describe('AssetsController', () => {
             refId: '1232',
             name: 'Example 1',
             description: 'test',
+            fractionQtyTotal: 1000,
           },
           {
             refId: '1232',
             name: 'Example 2',
             description: 'test',
+            fractionQtyTotal: 1000,
           },
         ],
       };
@@ -478,6 +494,8 @@ describe('AssetsController', () => {
           'assets.0.name must be shorter than or equal to 200 characters',
           'assets.0.name should not be empty',
           'assets.0.description should not be empty',
+          'assets.0.fractionQtyTotal must not be greater than 1000000000',
+          'assets.0.fractionQtyTotal must not be less than 1',
         ],
         error: 'Bad Request',
       };

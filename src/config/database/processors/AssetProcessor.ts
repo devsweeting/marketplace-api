@@ -8,6 +8,7 @@ export default class AssetProcessor implements IProcessor<Asset> {
   }
 
   postProcess(name: string, obj: { [key: string]: any }): void {
+    obj.fractionQtyTotal = faker.datatype.number({ min: 10000, max: 100000 });
     obj.attributes = {};
     obj.attributes['Category'] = [faker.helpers.randomize(['Baseball', 'Basketball'])];
     obj.attributes['Grading Service'] = [faker.helpers.randomize(['BGS', 'PSA'])];

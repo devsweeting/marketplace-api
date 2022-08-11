@@ -22,11 +22,14 @@ import { SellOrdersService } from '../sell-orders.service';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
 import { generateSwaggerPaginatedSchema } from 'modules/common/helpers/generate-swagger-paginated-schema';
 import { SellOrderResponse } from '../responses/sell-order.response';
-import { SellOrderIdDto, SellOrderDto, ListSellOrderDto } from '../dto';
+import { SellOrderIdDto, SellOrderDto, ListSellOrderDto, SellOrderPurchaseDto } from '../dto';
 import { SellOrdersTransformer } from '../transformers/sell-orders.transformer';
 import { AuthGuard } from '@nestjs/passport';
 import { GetPartner } from 'modules/auth/decorators/get-partner.decorator';
 import { Partner } from 'modules/partners/entities';
+import JwtOtpAuthGuard from 'modules/auth/guards/jwt-otp-auth.guard';
+import { GetUser } from 'modules/auth/decorators/get-user.decorator';
+import { User } from 'modules/users/entities/user.entity';
 
 @ApiTags('sellorders')
 @Controller({
@@ -66,7 +69,7 @@ export class SellOrdersController {
     @GetPartner() partner: Partner,
     @Param() params: SellOrderIdDto,
   ): Promise<SellOrderResponse> {
-    const sellOrder = await this.sellOrdersService.getOne(partner, params.id);
+    const sellOrder = await this.sellOrdersService.getOne(params, partner);
 
     return this.sellOrdersTransformer.transform(sellOrder);
   }
@@ -107,6 +110,21 @@ export class SellOrdersController {
     @GetPartner() partner: Partner,
     @Param() params: SellOrderIdDto,
   ): Promise<void> {
-    await this.sellOrdersService.deleteSellOrder(partner, params.id);
+    await this.sellOrdersService.deleteSellOrder(partner, params);
+  }
+
+  @Post(':id/purchase')
+  @UseGuards(JwtOtpAuthGuard)
+  @ApiOperation({ summary: 'Purchase fractions from sell order' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Sell order created',
+  })
+  public async purchase(
+    @GetUser() user: User,
+    @Param() params: SellOrderIdDto,
+    @Body() dto: SellOrderPurchaseDto,
+  ): Promise<void> {
+    await this.sellOrdersService.purchase(user, params, dto);
   }
 }

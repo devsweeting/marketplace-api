@@ -10,6 +10,7 @@ import { createAsset } from '../utils/asset.utils';
 import * as testApp from '../utils/app.utils';
 import { SellOrder } from 'modules/sell-orders/entities';
 import { v4 } from 'uuid';
+import faker from '@faker-js/faker';
 
 describe('SellOrdersController', () => {
   let app: INestApplication;
@@ -64,7 +65,8 @@ describe('SellOrdersController', () => {
         email: user.email,
         fractionQty: 1,
         fractionPriceCents: 1000,
-        expireTime: Date.now(),
+        expireTime: faker.date.future().getTime(),
+        startTime: Date.now(), // Don't mock since it should be now-ish
       };
       const expectedResponse = {
         status: 201,
@@ -77,6 +79,7 @@ describe('SellOrdersController', () => {
       });
       expect(sellOrder).toBeDefined();
       expect(sellOrder.fractionPriceCents).toEqual(String(payload.fractionPriceCents));
+      expect(sellOrder.fractionQtyAvailable).toEqual(payload.fractionQty);
     });
     test('should create sell order', async () => {
       const payload = {
@@ -85,6 +88,7 @@ describe('SellOrdersController', () => {
         fractionQty: 1,
         fractionPriceCents: 1000,
         expireTime: Date.now(),
+        startTime: Date.now(),
       };
       const expectedResponse = {
         status: 201,
@@ -97,6 +101,7 @@ describe('SellOrdersController', () => {
       });
       expect(sellOrder).toBeDefined();
       expect(sellOrder.fractionPriceCents).toEqual(String(payload.fractionPriceCents));
+      expect(sellOrder.fractionQtyAvailable).toEqual(payload.fractionQty);
     });
 
     test('should throw an error when fractionQty is wrong', async () => {
@@ -106,6 +111,7 @@ describe('SellOrdersController', () => {
         fractionQty: 'wrong',
         fractionPriceCents: 1000,
         expireTime: Date.now(),
+        startTime: Date.now(),
       };
       const response = {
         error: 'Bad Request',
@@ -126,6 +132,7 @@ describe('SellOrdersController', () => {
         fractionQty: 1,
         fractionPriceCents: 'wrong',
         expireTime: Date.now(),
+        startTime: Date.now(),
       };
       const response = {
         error: 'Bad Request',
@@ -149,6 +156,7 @@ describe('SellOrdersController', () => {
         fractionQty: 1,
         fractionPriceCents: 1000,
         expireTime: Date.now(),
+        startTime: Date.now(),
       };
       const response = {
         error: 'Not Found',
@@ -169,6 +177,7 @@ describe('SellOrdersController', () => {
         fractionQty: 1,
         fractionPriceCents: 1000,
         expireTime: Date.now(),
+        startTime: Date.now(),
       };
       const response = {
         error: 'Not Found',

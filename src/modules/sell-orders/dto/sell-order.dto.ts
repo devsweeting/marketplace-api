@@ -28,4 +28,9 @@ export class SellOrderDto {
   @Transform(({ value }) => parseInt(value, 10))
   @Min(new Date().getTime())
   public expireTime: number;
+
+  @ApiProperty()
+  @Transform(({ value }) => parseInt(value, 10))
+  @Min(new Date().getTime())
+  public startTime: number;
 }

@@ -14,7 +14,7 @@ import { Collection, CollectionAsset } from 'modules/collections/entities';
 import { Watchlist, WatchlistAsset } from 'modules/watchlists/entities';
 import { UserLogin, UserOtp } from 'modules/users/entities';
 import { MailerService } from '@nestjs-modules/mailer';
-import { SellOrder } from 'modules/sell-orders/entities';
+import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
 
 export type SupertestResponse = request.Response;
 
@@ -72,6 +72,7 @@ export const createApp = async (providers: MockProvider[] = []): Promise<INestAp
 };
 
 export const clearAllData = async (): Promise<void> => {
+  await SellOrderPurchase.delete({});
   await SellOrder.delete({});
   await Attribute.delete({});
   await Label.delete({});
@@ -90,6 +91,7 @@ export const clearAllData = async (): Promise<void> => {
   await File.delete({});
   await UserOtp.delete({});
   await UserLogin.delete({});
+  await User.delete({});
 };
 
 const expectStatus = (

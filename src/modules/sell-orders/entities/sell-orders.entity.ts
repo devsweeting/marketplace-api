@@ -1,4 +1,12 @@
-import { Column, Entity, JoinColumn, ManyToOne, RelationId, SelectQueryBuilder } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  RelationId,
+  SelectQueryBuilder,
+} from 'typeorm';
 
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from '../../common/entities/base.model';
@@ -6,6 +14,7 @@ import { ListSellOrderDto } from '../dto';
 import { Partner } from 'modules/partners/entities';
 import { User } from 'modules/users/entities';
 import { Asset } from 'modules/assets/entities';
+import { SellOrderTypeEnum } from '../enums/sell-order-type.enum';
 
 @Entity('sell_orders')
 export class SellOrder extends BaseModel implements BaseEntityInterface {
@@ -36,8 +45,14 @@ export class SellOrder extends BaseModel implements BaseEntityInterface {
   @Column({ type: 'bigint', nullable: false })
   public fractionQty: number;
 
+  @Column({ type: 'int', nullable: false })
+  public fractionQtyAvailable: number;
+
   @Column({ type: 'bigint', nullable: false })
   public fractionPriceCents: number;
+
+  @Column({ type: 'bigint', nullable: false })
+  public startTime: number;
 
   @Column({ type: 'bigint', nullable: false })
   public expireTime: number;
@@ -45,9 +60,17 @@ export class SellOrder extends BaseModel implements BaseEntityInterface {
   @Column({ type: 'bigint', nullable: false, default: 0 })
   public deletedTime: number;
 
+  @Column({ type: 'enum', enum: SellOrderTypeEnum, nullable: false })
+  public type: SellOrderTypeEnum;
+
   public constructor(partial: Partial<SellOrder>) {
     super();
     Object.assign(this, partial);
+  }
+
+  @BeforeInsert()
+  public beforeInsert(): void {
+    this.fractionQtyAvailable = this.fractionQty;
   }
 
   public static list(params: ListSellOrderDto): SelectQueryBuilder<SellOrder> {

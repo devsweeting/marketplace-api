@@ -88,6 +88,9 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   @Column({ type: 'jsonb', nullable: false, name: 'attributesJson' })
   public attributes: AssetAttributes;
 
+  @Column({ type: 'int', nullable: false })
+  public fractionQtyTotal: number;
+
   @OneToMany(() => Label, (label) => label.asset)
   public labels: Label[];
 
@@ -134,6 +137,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
         partner: partner,
         partnerId: partner.id,
         description: dto.description,
+        fractionQtyTotal: dto.fractionQtyTotal,
       });
       await getConnection().transaction(async (txMgr) => {
         if (dto.attributes) {

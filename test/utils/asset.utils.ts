@@ -13,6 +13,7 @@ export const createAsset = async (data: Partial<AssetDto>, partner: Partner): Pr
     refId: 'test',
     name: `Example ${Date.now()}`,
     description: 'test description',
+    fractionQtyTotal: 1000,
     ...data,
   });
   return Asset.saveAssetForPartner(new AssetDto({ ...dto }), partner);

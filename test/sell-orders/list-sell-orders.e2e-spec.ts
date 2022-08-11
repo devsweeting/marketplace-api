@@ -11,6 +11,7 @@ import * as testApp from '../utils/app.utils';
 import { SellOrder } from 'modules/sell-orders/entities';
 import { createSellOrder } from '../utils/sell-order.utils';
 import { SellOrdersTransformer } from 'modules/sell-orders/transformers/sell-orders.transformer';
+import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
 
 describe('SellOrdersController', () => {
   let app: INestApplication;
@@ -65,21 +66,28 @@ describe('SellOrdersController', () => {
         anotherPartner,
       ),
     ];
+    const now = Date.now();
     sellOrders = [
       await createSellOrder({
         assetId: assets[0].id,
         partnerId: partner.id,
         userId: users[1].id,
+        startTime: now,
+        type: SellOrderTypeEnum.standard,
       }),
       await createSellOrder({
         assetId: assets[1].id,
         partnerId: partner.id,
         userId: users[1].id,
+        startTime: now,
+        type: SellOrderTypeEnum.standard,
       }),
       await createSellOrder({
         assetId: assets[2].id,
         partnerId: anotherPartner.id,
         userId: users[2].id,
+        startTime: now,
+        type: SellOrderTypeEnum.drop,
       }),
     ];
     header = {
