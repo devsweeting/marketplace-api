@@ -9,8 +9,6 @@ import {
 } from 'modules/admin/components.bundler';
 import { Asset } from 'modules/assets/entities';
 import { CreateResourceResult } from '../create-resource-result.type';
-import { loadAttributes } from './hooks/load-attributes.hook';
-import { saveAttributes } from './hooks/save-attributes.hook';
 import { saveLabels } from 'modules/admin/resources/asset/hooks/save-labels.hook';
 import { getLabels } from './hooks/get-labels.hook';
 import { forAdminGroup } from 'modules/admin/resources/user/user-permissions';
@@ -48,23 +46,16 @@ const createAssetResource = (
       },
       new: {
         isAccessible: (context): boolean => forAdminGroup(context),
-        after: [saveLabels, saveAttributes, saveMedia(serviceAccessor)],
+        after: [saveLabels, saveMedia(serviceAccessor)],
         before: [validate(serviceAccessor)],
       },
       edit: {
         isAccessible: (context): boolean => forAdminGroup(context),
-        after: [
-          loadMedia(serviceAccessor),
-          getLabels,
-          saveLabels,
-          loadAttributes,
-          saveAttributes,
-          saveMedia(serviceAccessor),
-        ],
+        after: [loadMedia(serviceAccessor), getLabels, saveLabels, saveMedia(serviceAccessor)],
         before: [validate(serviceAccessor)],
       },
       show: {
-        after: [loadMedia(serviceAccessor), getLabels, loadAttributes, loadEvents],
+        after: [loadMedia(serviceAccessor), getLabels, loadEvents],
         isAccessible: (context): boolean => forAdminGroup(context),
         component: ASSET_SHOW,
       },
