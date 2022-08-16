@@ -47,4 +47,5 @@ async function bootstrap() {
   console.log(`🚀  Server ready at ${port}`);
 }
 
-bootstrap();
+// We ignore the result of this function by using the `void` operator.
+void bootstrap();
