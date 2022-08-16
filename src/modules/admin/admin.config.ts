@@ -34,6 +34,8 @@ const getRouter = async (adminJS: AdminJS, serviceAccessor: ServiceAccessor): Pr
     return res.send(fs.readFileSync(file).toString().replace('__NONCE__', req.session.nonce));
   });
 
+  // Disabling here because this is not in the critical path, and will be removed in the future.
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   predefinedRouter.post(loginPath, async (req: SessionRequestInterface, res) => {
     if (!req.body.message || !req.body.address || !req.body.signed)
       return res.status(400).json({
