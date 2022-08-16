@@ -78,8 +78,8 @@ const uploadMediaFile = async () => {
 };
 
 loadFixtures('./db/fixtures')
-  .then(() => {
-    uploadMediaFile();
+  .then(async () => {
+    await uploadMediaFile();
     console.log('Fixtures are successfully loaded.');
   })
   .catch((err) => console.log(err));

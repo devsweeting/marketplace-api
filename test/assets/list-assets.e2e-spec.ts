@@ -122,16 +122,20 @@ describe('AssetsController', () => {
   });
 
   describe(`GET V1 /assets`, () => {
-    test('should empty list if second page is empty', () => {
-      doAssetSearch('page=2', [], { totalItems: 3, totalPages: 1, currentPage: 2 });
+    test('should empty list if second page is empty', async () => {
+      await doAssetSearch('page=2', [], { totalItems: 3, totalPages: 1, currentPage: 2 });
     });
 
-    test('should return 1 element', () => {
-      doAssetSearch('limit=1', [assets[2]], { totalItems: 3, itemsPerPage: 1, totalPages: 3 });
+    test('should return 1 element', async () => {
+      await doAssetSearch('limit=1', [assets[2]], {
+        totalItems: 3,
+        itemsPerPage: 1,
+        totalPages: 3,
+      });
     });
 
-    test('should return 2 page', () => {
-      doAssetSearch('page=2&limit=1', [assets[1]], {
+    test('should return 2 page', async () => {
+      await doAssetSearch('page=2&limit=1', [assets[1]], {
         totalItems: 3,
         itemsPerPage: 1,
         totalPages: 3,
@@ -139,143 +143,148 @@ describe('AssetsController', () => {
       });
     });
 
-    test('should return 2 per page', () => {
-      doAssetSearch('limit=2', [assets[2], assets[1]], {
+    test('should return 2 per page', async () => {
+      await doAssetSearch('limit=2', [assets[2], assets[1]], {
         totalItems: 3,
         itemsPerPage: 2,
         totalPages: 2,
       });
     });
 
-    test('should sort by name ASC', () => {
-      doAssetSearch('sort=asset.name&order=ASC', [assets[0], assets[1], assets[2]]);
+    test('should sort by name ASC', async () => {
+      await doAssetSearch('sort=asset.name&order=ASC', [assets[0], assets[1], assets[2]]);
     });
 
-    test('should sort by name DESC', () => {
-      doAssetSearch('sort=asset.name&order=DESC', [assets[2], assets[1], assets[0]]);
+    test('should sort by name DESC', async () => {
+      await doAssetSearch('sort=asset.name&order=DESC', [assets[2], assets[1], assets[0]]);
     });
 
-    test('should sort by slug ASC', () => {
-      doAssetSearch('sort=asset.slug&order=ASC', [assets[0], assets[1], assets[2]]);
+    test('should sort by slug ASC', async () => {
+      await doAssetSearch('sort=asset.slug&order=ASC', [assets[0], assets[1], assets[2]]);
     });
 
-    test('should sort by slug DESC', () => {
-      doAssetSearch('sort=asset.slug&order=DESC', [assets[2], assets[1], assets[0]]);
+    test('should sort by slug DESC', async () => {
+      await doAssetSearch('sort=asset.slug&order=DESC', [assets[2], assets[1], assets[0]]);
     });
 
-    test('should search by name', () => {
-      doAssetSearch('query=pumpkin', [assets[1]]);
+    test('should search by name', async () => {
+      await doAssetSearch('query=pumpkin', [assets[1]]);
     });
 
     test('should search by name or description, return 1 record', async () => {
-      doAssetSearch('search=pumpkin', [assets[1]]);
+      await doAssetSearch('search=pumpkin', [assets[1]]);
     });
 
     test('should search by name or description, return 2 records', async () => {
-      doAssetSearch('search=egg', [assets[0]]);
+      await doAssetSearch('search=egg', [assets[0]]);
     });
 
     // TODO https://github.com/FractionalDev/jump-marketplace-api/issues/217
 
     test('should filter by attribute, return 1 record', async () => {
-      doAssetSearch('attr_eq[grading service]=PSA', [assets[2]]);
+      await doAssetSearch('attr_eq[grading service]=PSA', [assets[2]]);
     });
 
     test('should filter by attribute, return 2 records', async () => {
-      doAssetSearch('attr_eq[grading service]=BGS', [assets[1], assets[0]]);
+      await doAssetSearch('attr_eq[grading service]=BGS', [assets[1], assets[0]]);
     });
 
     test('should filter by attr_eq and attr_gte, return 2 records', async () => {
-      doAssetSearch('attr_eq[category]=Baseball&attr_gte[year]=2014&attr_lte[year]=2030', [
+      await doAssetSearch('attr_eq[category]=Baseball&attr_gte[year]=2014&attr_lte[year]=2030', [
         assets[1],
         assets[0],
       ]);
     });
 
     test('should filter by attr_eq and attr_gte, return 1 records', async () => {
-      doAssetSearch('attr_eq[category]=baseball&attr_gte[year]=1999&attr_lte[year]=2001', [
+      await doAssetSearch('attr_eq[category]=baseball&attr_gte[year]=1999&attr_lte[year]=2001', [
         assets[2],
       ]);
     });
 
     test('should not found by attribute, return 0 records', async () => {
-      doAssetSearch('attr_eq[category]=test', []);
+      await doAssetSearch('attr_eq[category]=test', []);
     });
 
     test('should return empty list if attr_lte is different and not found records', async () => {
-      doAssetSearch('attr_lte[year]=2018&attr_lte[cat]=2014', []);
+      await doAssetSearch('attr_lte[year]=2018&attr_lte[cat]=2014', []);
     });
 
     test('should return empty list if attr_lte is different and not found records', async () => {
-      doAssetSearch('attr_lte[year]=2018&attr_lte[cat]=2014', []);
+      await doAssetSearch('attr_lte[year]=2018&attr_lte[cat]=2014', []);
     });
 
     test('should return list od assets for date range', async () => {
-      doAssetSearch('attr_gte[year]=2014&attr_lte[year]=2019', [assets[1], assets[0]]);
+      await doAssetSearch('attr_gte[year]=2014&attr_lte[year]=2019', [assets[1], assets[0]]);
     });
 
     test('should return list od assets for attr_gte', async () => {
-      doAssetSearch('attr_gte[year]=2014', [assets[1], assets[0]]);
+      await doAssetSearch('attr_gte[year]=2014', [assets[1], assets[0]]);
     });
 
     test('should return list od assets for attr_lte', async () => {
-      doAssetSearch('attr_lte[year]=2014', [assets[2], assets[0]]);
+      await doAssetSearch('attr_lte[year]=2014', [assets[2], assets[0]]);
     });
 
     test('should return asset for attr_lte and search', async () => {
-      doAssetSearch('search=water&attr_lte[year]=2013', [assets[2]]);
+      await doAssetSearch('search=water&attr_lte[year]=2013', [assets[2]]);
     });
 
     test('should return 1 record of assets for attr_lte and search', async () => {
-      doAssetSearch('search=egg&attr_lte[year]=2020', [assets[0]]);
+      await doAssetSearch('search=egg&attr_lte[year]=2020', [assets[0]]);
     });
 
     test('should return 2 records of assets for attr_eq for different attributes', async () => {
-      doAssetSearch('attr_eq[category]=baseball&attr_eq[grading service]=bgs', [
+      await doAssetSearch('attr_eq[category]=baseball&attr_eq[grading service]=bgs', [
         assets[1],
         assets[0],
       ]);
     });
 
     test('a) should return asset for attr_gte and attr_lte range for different attributes', async () => {
-      doAssetSearch('attr_gte[year]=2015&attr_lte[year]=2020&attr_gte[grade]=2&attr_lte[grade]=2', [
-        assets[1],
-      ]);
+      await doAssetSearch(
+        'attr_gte[year]=2015&attr_lte[year]=2020&attr_gte[grade]=2&attr_lte[grade]=2',
+        [assets[1]],
+      );
     });
 
     test('b) should return asset for attr_gte and attr_lte range for different attributes', async () => {
-      doAssetSearch('attr_gte[year]=2014&attr_gte[grade]=8', [assets[0]]);
+      await doAssetSearch('attr_gte[year]=2014&attr_gte[grade]=8', [assets[0]]);
     });
 
     test('should return asset for attr_lte range for different attributes', async () => {
-      doAssetSearch('attr_lte[year]=2020&attr_lte[grade]=10', [assets[2], assets[1], assets[0]]);
+      await doAssetSearch('attr_lte[year]=2020&attr_lte[grade]=10', [
+        assets[2],
+        assets[1],
+        assets[0],
+      ]);
     });
 
     test('should return asset for attr_gte and search', async () => {
-      doAssetSearch('search=pumpkin&attr_gte[year]=2015', [assets[1]]);
+      await doAssetSearch('search=pumpkin&attr_gte[year]=2015', [assets[1]]);
     });
 
     test('should return asset for attr_lte and attr_gte as number', async () => {
-      doAssetSearch('attr_gte[grade]=5&attr_lte[grade]=10', [assets[2], assets[0]]);
+      await doAssetSearch('attr_gte[grade]=5&attr_lte[grade]=10', [assets[2], assets[0]]);
     });
 
     test('should return asset for attr_lte and attr_gte as number and category', async () => {
-      doAssetSearch('attr_eq[category]=baseball&attr_gte[grade]=5&attr_lte[grade]=10', [
+      await doAssetSearch('attr_eq[category]=baseball&attr_gte[grade]=5&attr_lte[grade]=10', [
         assets[2],
         assets[0],
       ]);
     });
 
-    test('should return empty list if there is no results', () => {
-      doAssetSearch('query=carrot', []);
+    test('should return empty list if there is no results', async () => {
+      await doAssetSearch('query=carrot', []);
     });
 
-    test('should return empty list if name or description has not include searched a word', () => {
-      doAssetSearch('search=carrot', []);
+    test('should return empty list if name or description has not include searched a word', async () => {
+      await doAssetSearch('search=carrot', []);
     });
 
     test('should return valid meta if asset has multiple attributes', async () => {
-      doAssetSearch('', [assets[2], assets[1], assets[0]]);
+      await doAssetSearch('', [assets[2], assets[1], assets[0]]);
     });
 
     test('should throw exception if attr_eq and attr_gte the same', async () => {
@@ -338,7 +347,7 @@ describe('AssetsController', () => {
       return testApp.get(app, `/v1/assets?${params.toString()}`, 400, response);
     });
 
-    test('should 400 exception if params are invalid', () => {
+    test('should 400 exception if params are invalid', async () => {
       const params = new URLSearchParams({
         page: '-4',
         limit: '-10',
