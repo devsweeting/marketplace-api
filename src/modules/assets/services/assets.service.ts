@@ -7,7 +7,7 @@ import { IPaginationMeta, paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { UpdateAssetDto } from 'modules/assets/dto/update-asset.dto';
 import { RefAlreadyTakenException } from 'modules/common/exceptions/ref-already-taken.exception';
 import { StorageService } from 'modules/storage/storage.service';
-import { Not } from 'typeorm';
+import { getManager, Not } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import {
   AssetNotFoundException,
@@ -23,6 +23,18 @@ import { CollectionNotFoundException } from 'modules/collections/exceptions/coll
 import { decodeHashId } from 'modules/common/helpers/hash-id.helper';
 import { validate as isValidUUID } from 'uuid';
 import { AssetAttributes } from '../entities/asset.entity';
+
+// TODO find a better place for this to live
+export class TrendingMarket {
+  constructor(data: any) {
+    this.brand = data.grouping[0];
+    this.filter = 'attr_eq[brand]=' + encodeURIComponent(this.brand);
+    this.value_dollars = data.total_cents / 100;
+  }
+  brand: string;
+  filter: string;
+  value_dollars: number;
+}
 
 @Injectable()
 export class AssetsService {
@@ -226,5 +238,28 @@ export class AssetsService {
         }
       }),
     );
+  }
+
+  public async getTrending(): Promise<TrendingMarket[]> {
+    // Using a raw SQL query here is easier than using the ORM especially
+    // when we need to group by the attributesJson column
+    const result = await getManager().query(
+      `
+      SELECT
+          partner_assets."attributesJson" -> $1 AS grouping,
+          SUM(sell_orders."fractionQty" * sell_orders."fractionPriceCents") AS total_cents
+      FROM partner_assets
+      LEFT JOIN sell_orders ON sell_orders."assetId" = partner_assets.id
+      WHERE
+          partner_assets."isDeleted" = FALSE AND partner_assets."deletedAt" IS NULL AND
+          sell_orders."isDeleted" = FALSE AND sell_orders."deletedAt" IS NULL AND
+          partner_assets."attributesJson" -> $1 IS NOT NULL
+      GROUP BY grouping
+      ORDER BY total_cents DESC
+      LIMIT 20;`,
+      ['brand'], // TODO might need to make this extensible in the future
+    );
+    const markets: TrendingMarket[] = result.map((item) => new TrendingMarket(item));
+    return Promise.resolve(markets);
   }
 }
