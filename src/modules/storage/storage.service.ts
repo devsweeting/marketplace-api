@@ -32,7 +32,7 @@ export class StorageService {
         const object = await this.provider.upload(el, directory);
 
         fs.unlink(el, (err) => {
-          if (err) new Error(`file ${el}: failed to be removed from memory`);
+          if (err) new Error(`Failed to remove file ${el}: ${err}`);
         });
         return new File({ ...object, id: v4() }).save();
       });
