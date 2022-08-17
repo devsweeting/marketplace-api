@@ -53,8 +53,6 @@ describe('SellOrdersController', () => {
       assetId: asset.id,
       partnerId: partner.id,
       userId: users[0].id,
-      startTime: Date.now(),
-      type: SellOrderTypeEnum.standard,
     });
     header = {
       'x-api-key': partner.apiKey,

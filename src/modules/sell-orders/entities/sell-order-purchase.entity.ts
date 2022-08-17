@@ -40,6 +40,7 @@ export class SellOrderPurchase extends BaseModel implements BaseEntityInterface 
     idDto: SellOrderIdDto,
     purchaseDto: SellOrderPurchaseDto,
   ): Promise<SellOrderPurchase> {
+    const now = new Date();
     const purchase = await getConnection().transaction(async (manager) => {
       const sellOrder = await manager.findOne(
         SellOrder,
@@ -60,10 +61,10 @@ export class SellOrderPurchase extends BaseModel implements BaseEntityInterface 
       if (sellOrder.userId === user.id) {
         throw new UserCannotPurchaseOwnOrderException();
       }
-      if (sellOrder.startTime > new Date().getTime()) {
+      if (sellOrder.startTime > now) {
         throw new SellOrderNotFoundException();
       }
-      if (sellOrder.expireTime < new Date().getTime()) {
+      if (sellOrder.expireTime < now) {
         throw new SellOrderNotFoundException();
       }
       const purchase = new SellOrderPurchase({

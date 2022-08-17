@@ -51,11 +51,11 @@ export class SellOrder extends BaseModel implements BaseEntityInterface {
   @Column({ type: 'bigint', nullable: false })
   public fractionPriceCents: number;
 
-  @Column({ type: 'bigint', nullable: false })
-  public startTime: number;
+  @Column({ type: 'timestamp', nullable: false })
+  public startTime: Date;
 
-  @Column({ type: 'bigint', nullable: false })
-  public expireTime: number;
+  @Column({ type: 'timestamp', nullable: false })
+  public expireTime: Date;
 
   @Column({ type: 'bigint', nullable: false, default: 0 })
   public deletedTime: number;

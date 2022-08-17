@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsEmail, IsInt, IsNotEmpty, IsUUID, Min } from 'class-validator';
+import { IsDateString, IsEmail, IsInt, IsNotEmpty, IsUUID, Min } from 'class-validator';
 
 export class SellOrderDto {
   @ApiProperty()
@@ -25,12 +25,10 @@ export class SellOrderDto {
   public fractionPriceCents: number;
 
   @ApiProperty()
-  @Transform(({ value }) => parseInt(value, 10))
-  @Min(new Date().getTime())
-  public expireTime: number;
+  @IsDateString()
+  public expireTime: Date;
 
   @ApiProperty()
-  @Transform(({ value }) => parseInt(value, 10))
-  @Min(new Date().getTime())
-  public startTime: number;
+  @IsDateString()
+  public startTime: Date;
 }
