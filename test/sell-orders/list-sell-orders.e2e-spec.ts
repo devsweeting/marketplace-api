@@ -66,7 +66,7 @@ describe('SellOrdersController', () => {
         anotherPartner,
       ),
     ];
-    const now = Date.now();
+    const now = new Date();
     sellOrders = [
       await createSellOrder({
         assetId: assets[0].id,

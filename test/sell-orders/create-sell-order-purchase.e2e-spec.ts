@@ -109,7 +109,7 @@ describe('SellOrdersController -> Purchases', () => {
     });
 
     test('should return 404 if sell order startTime is in the future', async () => {
-      sellOrder.startTime = faker.date.future().getTime();
+      sellOrder.startTime = faker.date.future();
       await sellOrder.save();
 
       const payload = { fractionsToPurchase: 10, fractionPriceCents: sellOrder.fractionPriceCents };
@@ -117,7 +117,7 @@ describe('SellOrdersController -> Purchases', () => {
     });
 
     test('should return 404 if sell order expireTime is in the past', async () => {
-      sellOrder.expireTime = faker.date.past().getTime();
+      sellOrder.expireTime = faker.date.past();
       await sellOrder.save();
 
       const payload = { fractionsToPurchase: 10, fractionPriceCents: sellOrder.fractionPriceCents };

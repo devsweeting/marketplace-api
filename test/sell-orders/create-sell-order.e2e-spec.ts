@@ -65,8 +65,8 @@ describe('SellOrdersController', () => {
         email: user.email,
         fractionQty: 1,
         fractionPriceCents: 1000,
-        expireTime: faker.date.future().getTime(),
-        startTime: Date.now(), // Don't mock since it should be now-ish
+        expireTime: faker.date.future(),
+        startTime: new Date(), // Don't mock since it should be now-ish
       };
       const expectedResponse = {
         status: 201,
@@ -87,8 +87,8 @@ describe('SellOrdersController', () => {
         email: user.email,
         fractionQty: 1,
         fractionPriceCents: 1000,
-        expireTime: Date.now(),
-        startTime: Date.now(),
+        expireTime: new Date(),
+        startTime: new Date(),
       };
       const expectedResponse = {
         status: 201,
@@ -110,8 +110,8 @@ describe('SellOrdersController', () => {
         email: user.email,
         fractionQty: 'wrong',
         fractionPriceCents: 1000,
-        expireTime: Date.now(),
-        startTime: Date.now(),
+        expireTime: new Date(),
+        startTime: new Date(),
       };
       const response = {
         error: 'Bad Request',
@@ -131,8 +131,8 @@ describe('SellOrdersController', () => {
         email: user.email,
         fractionQty: 1,
         fractionPriceCents: 'wrong',
-        expireTime: Date.now(),
-        startTime: Date.now(),
+        expireTime: new Date(),
+        startTime: new Date(),
       };
       const response = {
         error: 'Bad Request',
@@ -155,8 +155,8 @@ describe('SellOrdersController', () => {
         email: user.email,
         fractionQty: 1,
         fractionPriceCents: 1000,
-        expireTime: Date.now(),
-        startTime: Date.now(),
+        expireTime: new Date(),
+        startTime: new Date(),
       };
       const response = {
         error: 'Not Found',
@@ -176,8 +176,8 @@ describe('SellOrdersController', () => {
         email: 'doesnotexist@example.com',
         fractionQty: 1,
         fractionPriceCents: 1000,
-        expireTime: Date.now(),
-        startTime: Date.now(),
+        expireTime: new Date(),
+        startTime: new Date(),
       };
       const response = {
         error: 'Not Found',

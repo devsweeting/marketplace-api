@@ -6,8 +6,8 @@ export const createSellOrder = (data: Partial<SellOrder>): Promise<SellOrder> =>
   const sellOrder = new SellOrder({
     fractionQty: 1,
     fractionPriceCents: 1000,
-    startTime: Date.now(),
-    expireTime: faker.date.future().getTime(),
+    startTime: faker.date.recent(),
+    expireTime: faker.date.future(),
     type: SellOrderTypeEnum.standard,
     ...data,
   });

@@ -14,7 +14,7 @@ export default class SellOrderProcessor implements IProcessor<SellOrder> {
     const dollars = faker.datatype.number({ min: 1, max: 100 });
     obj.fractionPriceCents = dollars * 100;
 
-    obj.startTime = faker.date.past().getTime();
-    obj.expireTime = faker.date.future().getTime();
+    obj.startTime = faker.date.past();
+    obj.expireTime = faker.date.future();
   }
 }
