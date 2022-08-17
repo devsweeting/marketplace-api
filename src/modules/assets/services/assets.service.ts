@@ -13,7 +13,6 @@ import {
   AssetNotFoundException,
   AttributeDuplicatedException,
   AssetFilterAttributeOverLimitException,
-  AssetFilterLabelOverLimitException,
   AssetSearchOverLimitException,
   PartnerHashIsInvalidException,
 } from 'modules/assets/exceptions';
@@ -145,6 +144,12 @@ export class AssetsService {
         'media.isDeleted = FALSE AND media.deletedAt IS NULL',
       )
       .leftJoinAndMapOne('media.file', 'media.file', 'file')
+      .leftJoinAndMapMany(
+        'asset.sellOrders',
+        'asset.sellOrders',
+        'sellOrders',
+        'sellOrders.isDeleted = FALSE',
+      )
 
       .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
       .andWhere('asset.deletedAt IS NULL')

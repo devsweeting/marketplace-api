@@ -12,6 +12,7 @@ import { User } from 'modules/users/entities/user.entity';
 import { Event } from 'modules/events/entities';
 import * as testApp from '../utils/app.utils';
 import { SellOrder } from 'modules/sell-orders/entities';
+import { createSellOrder } from '../utils/sell-order.utils';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -96,14 +97,13 @@ describe('AssetsController', () => {
       ),
     ];
 
-    // TODO: https://github.com/FractionalDev/jump-marketplace-api/issues/215
-    // assets[1].sellOrders = [
-    //   await createSellOrder({
-    //     assetId: assets[1].id,
-    //     partnerId: partner.id,
-    //     userId: user.id,
-    //   }),
-    // ];
+    assets[1].sellOrders = [
+      await createSellOrder({
+        assetId: assets[1].id,
+        partnerId: partner.id,
+        userId: user.id,
+      }),
+    ];
   });
 
   afterEach(async () => {
