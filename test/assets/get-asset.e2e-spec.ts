@@ -13,6 +13,7 @@ import { createImageMedia } from '../utils/media.utils';
 import { MediaTransformer } from 'modules/assets/transformers/media.transformer';
 import { createFile } from '../utils/file.utils';
 import * as testApp from '../utils/app.utils';
+import { createSellOrder } from '../utils/sell-order.utils';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -47,6 +48,15 @@ describe('AssetsController', () => {
       },
       partner,
     );
+
+    asset.sellOrders = [
+      await createSellOrder({
+        assetId: asset.id,
+        partnerId: partner.id,
+        userId: user.id,
+      }),
+    ];
+
     header = {
       'x-api-key': partner.apiKey,
     };
