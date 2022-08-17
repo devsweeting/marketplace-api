@@ -6,7 +6,6 @@ import { FileDownloadService } from 'modules/storage/file-download.service';
 import { UploadedFile } from 'adminjs';
 import { v4 } from 'uuid';
 import fs from 'fs';
-import os from 'os';
 
 @Injectable()
 export class StorageService {
@@ -28,17 +27,13 @@ export class StorageService {
   public async uploadFromUrls(records: { url: string }[], directory: string): Promise<File[]> {
     try {
       const pathList: any = await this.fileDownloadService.downloadAll(records);
-      console.log(pathList);
-      console.log('os temp memory', os.tmpdir());
 
       const files = pathList.map(async (el) => {
-        console.log('el inside loop', el);
         const object = await this.provider.upload(el, directory);
 
-        // fs.unlink(el, (err) => {
-        //   if (err) console.log(err);
-        // });
-
+        fs.unlink(el, (err) => {
+          if (err) new Error(`file ${el}: failed to be removed from memory`);
+        });
         return new File({ ...object, id: v4() }).save();
       });
       return Promise.all(files);
@@ -46,22 +41,6 @@ export class StorageService {
       throw new HttpException(`Error: ${error}`, HttpStatus.BAD_REQUEST);
     }
   }
-
-  // public async uploadFromUrls(records: { url: string }[], directory: string): Promise<File[]> {
-  //   try {
-  //     const pathList: any = await this.fileDownloadService.downloadAll(records);
-  //     console.log(pathList);
-
-  //     const files = pathList.map(async (el) => {
-  //       console.log('el inside loop', el);
-  //       const object = await this.provider.upload(el, directory);
-  //       return new File({ ...object, id: v4() }).save();
-  //     });
-  //     return Promise.all(files);
-  //   } catch (error) {
-  //     throw new HttpException(`Error: ${error}`, HttpStatus.BAD_REQUEST);
-  //   }
-  // }
 
   public async uploadAndSave(directory: string, rawFile: UploadedFile): Promise<File> {
     const object = await this.provider.uploadFromAdmin(directory, rawFile);
