@@ -257,9 +257,9 @@ export class AssetsService {
       LEFT JOIN sell_orders ON sell_orders."assetId" = partner_assets.id
       WHERE
           partner_assets."isDeleted" = FALSE AND partner_assets."deletedAt" IS NULL AND
-          sell_orders."isDeleted" = FALSE AND sell_orders."deletedAt" IS NULL
+          sell_orders."isDeleted" = FALSE AND sell_orders."deletedAt" IS NULL AND
+          partner_assets."attributesJson" -> $1 IS NOT NULL
       GROUP BY grouping
-      HAVING grouping IS NOT NULL
       ORDER BY total_cents DESC
       LIMIT 20;`,
       ['brand'], // TODO might need to make this extensible in the future
