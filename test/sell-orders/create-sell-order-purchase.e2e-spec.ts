@@ -125,7 +125,7 @@ describe('SellOrdersController -> Purchases', () => {
     });
 
     test('should return 404 if sell order does not exist', async () => {
-      SellOrder.delete({ id: sellOrder.id });
+      await SellOrder.delete({ id: sellOrder.id });
       const payload = { fractionsToPurchase: 10, fractionPriceCents: sellOrder.fractionPriceCents };
       await testApp.post(app, baseUrl, 404, null, payload, header);
     });
