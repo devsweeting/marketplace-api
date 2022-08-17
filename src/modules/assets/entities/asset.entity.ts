@@ -18,7 +18,7 @@ import {
 
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from '../../common/entities/base.model';
-import { Attribute, Label } from './';
+import { Label } from './';
 import { generateSlug } from 'modules/common/helpers/slug.helper';
 import { Partner } from 'modules/partners/entities';
 import { AssetDto, AttributeDto } from 'modules/assets/dto';

@@ -5,6 +5,7 @@ import { S3Provider } from 'modules/storage/providers/s3.provider';
 import { FileDownloadService } from 'modules/storage/file-download.service';
 import { UploadedFile } from 'adminjs';
 import { v4 } from 'uuid';
+import fs from 'fs';
 
 @Injectable()
 export class StorageService {
@@ -29,6 +30,10 @@ export class StorageService {
 
       const files = pathList.map(async (el) => {
         const object = await this.provider.upload(el, directory);
+
+        fs.unlink(el, (err) => {
+          if (err) new Error(`Failed to remove file ${el}: ${err}`);
+        });
         return new File({ ...object, id: v4() }).save();
       });
       return Promise.all(files);
