@@ -13,7 +13,6 @@ import {
   AssetNotFoundException,
   AttributeDuplicatedException,
   AssetFilterAttributeOverLimitException,
-  AssetFilterLabelOverLimitException,
   AssetSearchOverLimitException,
   PartnerHashIsInvalidException,
 } from 'modules/assets/exceptions';
