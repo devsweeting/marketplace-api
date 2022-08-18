@@ -9,7 +9,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request: any = ctx.getRequest<Request>();
     const status = exception.getStatus();
-    console.log('Exception', exception);
     if (process.env.NODE_ENV === 'STAGING' || process.env.NODE_ENV === 'PRODUCTION') {
       const rollbarLogger = new RollbarLogger({
         accessToken: process.env.ROLLBAR_TOKEN,

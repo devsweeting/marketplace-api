@@ -348,6 +348,8 @@ describe('AssetsController', () => {
       expect(asset).toBeDefined();
       expect(asset.name).toEqual(transferRequest.assets[0].name);
       expect(asset.media.length).toEqual(0);
+      expect(asset.description).toEqual(transferRequest.assets[0].description);
+      expect(asset.fractionQtyTotal).toEqual(transferRequest.assets[0].fractionQtyTotal);
     });
 
     test('should pass if refId is taken by another partner', async () => {

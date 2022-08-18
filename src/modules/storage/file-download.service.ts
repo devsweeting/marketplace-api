@@ -8,7 +8,6 @@ import http from 'http';
 import { ConfigService } from '@nestjs/config';
 import { Promise } from 'bluebird';
 
-//Should this be moved to a more common spot?
 const ALLOWABLE_IMAGE_CONTENT_TYPES = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp'];
 
 @Injectable()
