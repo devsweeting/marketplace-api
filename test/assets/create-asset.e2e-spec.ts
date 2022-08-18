@@ -220,6 +220,50 @@ describe('AssetsController', () => {
       expect(asset.fractionQtyTotal).toEqual(transferRequest.assets[0].fractionQtyTotal);
     });
 
+    test('should throw error if asset media is not an acceptable content-type', async () => {
+      const media = [
+        {
+          title: 'test',
+          description: 'description',
+          url: 'https://media.giphy.com/media/l3q2KRkOVYvi8WfU4/giphy.gif',
+          type: MediaTypeEnum.Image,
+        },
+        {
+          title: 'test webp',
+          description: 'description of a webp image',
+          url: 'https://www.gstatic.com/webp/gallery/1.webp',
+          type: MediaTypeEnum.Image,
+        },
+      ];
+      const transferRequest: any = {
+        user: {
+          refId: '1235',
+          email: 'steven@example.com',
+        },
+        assets: [
+          {
+            refId: '31',
+            media,
+            name: 'Example',
+            description: 'test',
+            fractionQtyTotal: 1000,
+          },
+        ],
+      };
+      const response = {
+        statusCode: 400,
+        message: `Error: HttpException: Error: Content-type image/gif for ${media[0].url} is not allowed. Use .png, .jpg, or .webp instead`,
+      };
+      await testApp.post(app, `/v1/assets`, 400, response, transferRequest, header);
+
+      const asset = await Asset.findOne({
+        where: { refId: '15' },
+        relations: ['media', 'media.file'],
+      });
+
+      expect(asset).toBeUndefined();
+    });
+
     test('should throw an error when url is wrong', async () => {
       const media = [
         {
@@ -261,7 +305,7 @@ describe('AssetsController', () => {
       expect(asset.description).toEqual(transferRequest.assets[0].description);
     });
 
-    test('should throw an error when the one of the url is fails ', async () => {
+    test('should throw an error when one of the url is fails ', async () => {
       const media = [
         {
           title: 'test',
@@ -304,8 +348,6 @@ describe('AssetsController', () => {
       expect(asset).toBeDefined();
       expect(asset.name).toEqual(transferRequest.assets[0].name);
       expect(asset.media.length).toEqual(0);
-      expect(asset.description).toEqual(transferRequest.assets[0].description);
-      expect(asset.fractionQtyTotal).toEqual(transferRequest.assets[0].fractionQtyTotal);
     });
 
     test('should pass if refId is taken by another partner', async () => {

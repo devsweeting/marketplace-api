@@ -6,9 +6,11 @@ import fs from 'fs';
 import https from 'https';
 import http from 'http';
 import { ConfigService } from '@nestjs/config';
+import { Promise } from 'bluebird';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const Promise = require('bluebird').Promise;
+//Should this be moved to a more common spot?
+const ALLOWABLE_IMAGE_CONTENT_TYPES = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp'];
+
 @Injectable()
 export class FileDownloadService {
   public constructor(private readonly configService: ConfigService) {}
@@ -26,6 +28,14 @@ export class FileDownloadService {
         if (response.statusCode !== 200) {
           reject(`Error: ${response.statusCode}`);
         }
+
+        const imageContentType = response.headers['content-type'];
+        if (imageContentType && !ALLOWABLE_IMAGE_CONTENT_TYPES.includes(imageContentType)) {
+          reject(
+            `Content-type ${imageContentType} for ${image} is not allowed. Use .png, .jpg, or .webp instead`,
+          );
+        }
+
         const ws = fs.createWriteStream(dest, { encoding: 'binary', flags: 'a+' });
         response
           .on('end', () => {
