@@ -8,7 +8,7 @@ import http from 'http';
 import { ConfigService } from '@nestjs/config';
 import { Promise } from 'bluebird';
 
-const ALLOWABLE_IMAGE_CONTENT_TYPES = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp'];
+const ACCEPTED_IMAGE_CONTENT_TYPES = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp'];
 
 @Injectable()
 export class FileDownloadService {
@@ -29,7 +29,7 @@ export class FileDownloadService {
         }
 
         const imageContentType = response.headers['content-type'];
-        if (imageContentType && !ALLOWABLE_IMAGE_CONTENT_TYPES.includes(imageContentType)) {
+        if (imageContentType && !ACCEPTED_IMAGE_CONTENT_TYPES.includes(imageContentType)) {
           reject(
             `Content-type ${imageContentType} for ${image} is not allowed. Use .png, .jpg, or .webp instead`,
           );

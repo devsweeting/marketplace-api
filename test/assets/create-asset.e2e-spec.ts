@@ -212,15 +212,14 @@ describe('AssetsController', () => {
       expect(asset).toBeDefined();
       expect(asset.name).toEqual(transferRequest.assets[0].name);
       expect(asset.media).toBeDefined();
-      expect(asset.media.length).toEqual(2);
+      expect(asset.media.length).toEqual(1);
       expect(asset.media[0].fileId).toBeDefined();
-      expect(asset.media[1]).toBeDefined();
-      expect(asset.media[1].file).toEqual(null);
+      expect(asset.media[1]).toBeUndefined();
       expect(asset.description).toEqual(transferRequest.assets[0].description);
       expect(asset.fractionQtyTotal).toEqual(transferRequest.assets[0].fractionQtyTotal);
     });
 
-    test('should throw error if asset media is not an acceptable content-type', async () => {
+    test('should throw error if media is not an acceptable content-type', async () => {
       const media = [
         {
           title: 'test',
@@ -257,11 +256,16 @@ describe('AssetsController', () => {
       await testApp.post(app, `/v1/assets`, 400, response, transferRequest, header);
 
       const asset = await Asset.findOne({
-        where: { refId: '15' },
+        where: { refId: '31' },
         relations: ['media', 'media.file'],
       });
 
-      expect(asset).toBeUndefined();
+      expect(asset).toBeDefined();
+      expect(asset.name).toEqual(transferRequest.assets[0].name);
+      expect(asset.media).toBeDefined();
+      expect(asset.media.length).toEqual(0);
+      expect(asset.description).toEqual(transferRequest.assets[0].description);
+      expect(asset.fractionQtyTotal).toEqual(transferRequest.assets[0].fractionQtyTotal);
     });
 
     test('should throw an error when url is wrong', async () => {
