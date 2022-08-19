@@ -26,12 +26,9 @@ export class StorageService {
 
   public async uploadFromUrls(records: { url: string }[], directory: string): Promise<File[]> {
     try {
-      // Download all images
       const pathList: any = await this.fileDownloadService.downloadAll(records);
-      //Upload all images to the s3 bucket
       const files = pathList.map(async (el) => {
         const object = await this.provider.upload(el, directory);
-        //remove system link to tmp images after upload
         fs.unlink(el, (err) => {
           if (err) new Error(`Failed to remove file ${el}: ${err}`);
         });
