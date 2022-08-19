@@ -124,13 +124,9 @@ export class MediaService {
   }
 
   public async createBulkMedia(assetId: string, data: MediaDto[]): Promise<Media[]> {
-    // Soft delete all previous media images the asset already had.
     await Media.bulkSoftDelete(assetId);
-    // Filter on only images
     const urls = data.filter((el) => el.type === MediaTypeEnum.Image);
-    // Download images and send to s3 bucket
     const files = await this.storageService.uploadFromUrls(urls, `assets/${assetId}`);
-    // Create media columns for the db
     const mediaData = urls.map((el, index) => {
       return {
         ...el,
@@ -140,7 +136,6 @@ export class MediaService {
         fileId: files[index]?.id,
       };
     });
-    //Save media files to the db
     await Media.createQueryBuilder('media').insert().into(Media).values(mediaData).execute();
     return Media.find({ where: { assetId, isDeleted: false } });
   }
