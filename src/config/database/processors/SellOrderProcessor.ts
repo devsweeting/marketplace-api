@@ -1,5 +1,6 @@
 import faker from '@faker-js/faker';
 import { SellOrder } from 'modules/sell-orders/entities';
+import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
 import { IProcessor } from 'typeorm-fixtures-cli';
 
 export default class SellOrderProcessor implements IProcessor<SellOrder> {
@@ -16,5 +17,11 @@ export default class SellOrderProcessor implements IProcessor<SellOrder> {
 
     obj.startTime = faker.date.past();
     obj.expireTime = faker.date.future();
+
+    obj.type = faker.helpers.randomize([SellOrderTypeEnum.standard, SellOrderTypeEnum.drop]);
+    if (obj.type === SellOrderTypeEnum.drop) {
+      obj.userFractionLimit = 1000;
+      obj.userFractionLimitEndTime = faker.date.future();
+    }
   }
 }
