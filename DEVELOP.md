@@ -16,6 +16,7 @@ This document outlines the "standard operating procedures" for this repository c
   * Create a pull request on github against the `develop` branch (default)
       * Ensure all tests have passed and branch is has no conflicts.
       * Select someone to review your code.  All code must have **at lease one approval** from another team member before merging.
+      * Use [a keyword](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) to link to the original ticket (e.g. "Closes #101") in the PR description
   * Wait for a code review.  If the reviewer requests changes make sure that they are addressed before merging.
   * Once the code has been approved and has passed all checks you may merge your branch.
 
