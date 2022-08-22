@@ -48,16 +48,16 @@ We are using TypeORM with NestJs, but prefer the **Active Record** pattern over 
 
 ### Modifying or Updating Models
 
-Manually create the migration with `yarn migration:create {MigrationName}` (`migration:generate` is currently broken, see #207)
+- Manually create the migration with `yarn migration:create {MigrationName}` (`migration:generate` is currently broken, see #207)
 	- ***Always*** use `DEFAULT` values for columns as it might break existing rows if you don't!
 	- Always `yarn build` after editing a migration so that it's picked up in the subsequent `yarn migration:up` or `down`
-Update the `entity`
-Update the `fixtures`
+- Update the `entity`
+- Update the `fixtures`
 	- Always `yarn build` before running `yarn fixtures`
-Modify DTO for `POST` and `PATCH`
-Modify Response
-Modify Transformer
-Update e2e tests
+- Modify DTO for `POST` and `PATCH`
+- Modify Response
+- Modify Transformer
+- Update e2e tests
 
 ### When creating a new model
 
