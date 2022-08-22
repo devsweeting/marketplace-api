@@ -69,7 +69,7 @@ export class SellOrdersService {
         );
       }
 
-      if (dto.userFractionLimit >= dto.fractionQty) {
+      if (dto.userFractionLimit > dto.fractionQty) {
         throw new InvalidUserFractionLimitException(
           'userFractionLimit must be less than or equal to fractionQty',
         );
