@@ -269,5 +269,30 @@ describe('SellOrdersController', () => {
       expect(sellOrder.userFractionLimit).toEqual(payload.userFractionLimit);
       expect(sellOrder.userFractionLimitEndTime).toEqual(payload.userFractionLimitEndTime);
     });
+
+    test('should return 201 when `drop` userFractionLimit == fractionQty', async () => {
+      const payload = {
+        ...basePayload,
+        type: 'drop',
+        fractionQty: 1000,
+        userFractionLimit: 1000,
+        userFractionLimitEndTime: faker.date.future(),
+      };
+      const expectedResponse = {
+        status: 201,
+        description: 'Sell order created',
+      };
+      await testApp.post(app, BASE_URL, 201, expectedResponse, payload, header);
+
+      const sellOrder = await SellOrder.findOne({
+        where: { partnerId: partner.id, assetId: asset.id },
+      });
+      expect(sellOrder).toBeDefined();
+      expect(sellOrder.fractionPriceCents).toEqual(String(payload.fractionPriceCents));
+      expect(sellOrder.fractionQtyAvailable).toEqual(payload.fractionQty);
+      expect(sellOrder.type).toEqual(SellOrderTypeEnum.drop);
+      expect(sellOrder.userFractionLimit).toEqual(payload.userFractionLimit);
+      expect(sellOrder.userFractionLimitEndTime).toEqual(payload.userFractionLimitEndTime);
+    });
   });
 });
