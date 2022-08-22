@@ -11,6 +11,7 @@ import * as testApp from '../utils/app.utils';
 import { SellOrder } from 'modules/sell-orders/entities';
 import { v4 } from 'uuid';
 import faker from '@faker-js/faker';
+import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
 
 describe('SellOrdersController', () => {
   let app: INestApplication;
@@ -18,7 +19,25 @@ describe('SellOrdersController', () => {
   let user: User;
   let asset: Asset;
   let header;
+  let basePayload;
   const BASE_URL = `/v1/sellorders`;
+
+  async function expect400(payload, msg) {
+    await expect4xx(400, 'Bad Request', payload, msg);
+  }
+
+  async function expect4xx(status: number, err: string, payload, msg) {
+    const response = {
+      error: err,
+      statusCode: status,
+      message: msg,
+    };
+    await testApp.post(app, BASE_URL, status, response, payload, header);
+    const sellOrder = await SellOrder.findOne({
+      where: { partnerId: partner.id, assetId: asset.id },
+    });
+    expect(sellOrder).not.toBeDefined();
+  }
 
   beforeAll(async () => {
     app = await createApp();
@@ -37,6 +56,14 @@ describe('SellOrdersController', () => {
     );
     header = {
       'x-api-key': partner.apiKey,
+    };
+    basePayload = {
+      assetId: asset.id,
+      email: user.email,
+      fractionQty: 100,
+      fractionPriceCents: 250,
+      expireTime: new Date(),
+      startTime: new Date(),
     };
   });
 
@@ -80,6 +107,9 @@ describe('SellOrdersController', () => {
       expect(sellOrder).toBeDefined();
       expect(sellOrder.fractionPriceCents).toEqual(String(payload.fractionPriceCents));
       expect(sellOrder.fractionQtyAvailable).toEqual(payload.fractionQty);
+      expect(sellOrder.type).toEqual(SellOrderTypeEnum.standard);
+      expect(sellOrder.userFractionLimit).toBeNull();
+      expect(sellOrder.userFractionLimitEndTime).toBeNull();
     });
     test('should create sell order', async () => {
       const payload = {
@@ -102,52 +132,28 @@ describe('SellOrdersController', () => {
       expect(sellOrder).toBeDefined();
       expect(sellOrder.fractionPriceCents).toEqual(String(payload.fractionPriceCents));
       expect(sellOrder.fractionQtyAvailable).toEqual(payload.fractionQty);
+      expect(sellOrder.type).toEqual(SellOrderTypeEnum.standard);
     });
 
     test('should throw an error when fractionQty is wrong', async () => {
       const payload = {
-        assetId: asset.id,
-        email: user.email,
+        ...basePayload,
         fractionQty: 'wrong',
-        fractionPriceCents: 1000,
-        expireTime: new Date(),
-        startTime: new Date(),
       };
-      const response = {
-        error: 'Bad Request',
-        statusCode: 400,
-        message: ['fractionQty must not be less than 0', 'fractionQty must be an integer number'],
-      };
-      await testApp.post(app, BASE_URL, 400, response, payload, header);
-
-      const sellOrder = await SellOrder.findOne({
-        where: { partnerId: partner.id, assetId: asset.id },
-      });
-      expect(sellOrder).not.toBeDefined();
+      await expect400(payload, [
+        'fractionQty must not be less than 1',
+        'fractionQty must be an integer number',
+      ]);
     });
     test('should throw an error when fractionPriceCents is wrong', async () => {
       const payload = {
-        assetId: asset.id,
-        email: user.email,
-        fractionQty: 1,
+        ...basePayload,
         fractionPriceCents: 'wrong',
-        expireTime: new Date(),
-        startTime: new Date(),
       };
-      const response = {
-        error: 'Bad Request',
-        statusCode: 400,
-        message: [
-          'fractionPriceCents must not be less than 0',
-          'fractionPriceCents must be an integer number',
-        ],
-      };
-      await testApp.post(app, BASE_URL, 400, response, payload, header);
-
-      const sellOrder = await SellOrder.findOne({
-        where: { partnerId: partner.id, assetId: asset.id },
-      });
-      expect(sellOrder).not.toBeDefined();
+      await expect400(payload, [
+        'fractionPriceCents must not be less than 1',
+        'fractionPriceCents must be an integer number',
+      ]);
     });
     test('should throw an error 404 when assetId is not found', async () => {
       const payload = {
@@ -190,6 +196,103 @@ describe('SellOrdersController', () => {
         where: { partnerId: partner.id, assetId: asset.id },
       });
       expect(sellOrder).not.toBeDefined();
+    });
+
+    test('should return 400 when `drop` type specified without `userFractionLimit`', async () => {
+      const payload = {
+        ...basePayload,
+        type: 'drop',
+      };
+      await expect400(
+        payload,
+        'INVALID_USER_FRACTION_LIMIT: userFractionLimit is required for `drop` type sell order',
+      );
+    });
+
+    test('should return 400 when userFractionLimit > fractionQty', async () => {
+      const payload = {
+        ...basePayload,
+        type: 'drop',
+        userFractionLimit: basePayload.fractionQty + 1,
+      };
+      await expect400(
+        payload,
+        'INVALID_USER_FRACTION_LIMIT: userFractionLimit must be less than or equal to fractionQty',
+      );
+    });
+
+    test('should return 400 when `drop` type specified without `userFractionLimitEndTime`', async () => {
+      const payload = {
+        ...basePayload,
+        type: 'drop',
+        userFractionLimit: 1,
+      };
+      await expect400(
+        payload,
+        'INVALID_USER_FRACTION_LIMIT_END_TIME: userFractionLimitEndTime is required for `drop` type sell order',
+      );
+    });
+
+    test('should return 400 when `drop` type specified with invalid `userFractionLimitEndTime`', async () => {
+      const payload = {
+        ...basePayload,
+        type: 'drop',
+        userFractionLimit: 1,
+        userFractionLimitEndTime: faker.date.past(),
+      };
+      await expect400(
+        payload,
+        'INVALID_USER_FRACTION_LIMIT_END_TIME: userFractionLimitEndTime must be greater than startTime',
+      );
+    });
+
+    test('should return 201 when `drop` type specified correctly', async () => {
+      const payload = {
+        ...basePayload,
+        type: 'drop',
+        userFractionLimit: 1,
+        userFractionLimitEndTime: faker.date.future(),
+      };
+      const expectedResponse = {
+        status: 201,
+        description: 'Sell order created',
+      };
+      await testApp.post(app, BASE_URL, 201, expectedResponse, payload, header);
+
+      const sellOrder = await SellOrder.findOne({
+        where: { partnerId: partner.id, assetId: asset.id },
+      });
+      expect(sellOrder).toBeDefined();
+      expect(sellOrder.fractionPriceCents).toEqual(String(payload.fractionPriceCents));
+      expect(sellOrder.fractionQtyAvailable).toEqual(payload.fractionQty);
+      expect(sellOrder.type).toEqual(SellOrderTypeEnum.drop);
+      expect(sellOrder.userFractionLimit).toEqual(payload.userFractionLimit);
+      expect(sellOrder.userFractionLimitEndTime).toEqual(payload.userFractionLimitEndTime);
+    });
+
+    test('should return 201 when `drop` userFractionLimit == fractionQty', async () => {
+      const payload = {
+        ...basePayload,
+        type: 'drop',
+        fractionQty: 1000,
+        userFractionLimit: 1000,
+        userFractionLimitEndTime: faker.date.future(),
+      };
+      const expectedResponse = {
+        status: 201,
+        description: 'Sell order created',
+      };
+      await testApp.post(app, BASE_URL, 201, expectedResponse, payload, header);
+
+      const sellOrder = await SellOrder.findOne({
+        where: { partnerId: partner.id, assetId: asset.id },
+      });
+      expect(sellOrder).toBeDefined();
+      expect(sellOrder.fractionPriceCents).toEqual(String(payload.fractionPriceCents));
+      expect(sellOrder.fractionQtyAvailable).toEqual(payload.fractionQty);
+      expect(sellOrder.type).toEqual(SellOrderTypeEnum.drop);
+      expect(sellOrder.userFractionLimit).toEqual(payload.userFractionLimit);
+      expect(sellOrder.userFractionLimitEndTime).toEqual(payload.userFractionLimitEndTime);
     });
   });
 });

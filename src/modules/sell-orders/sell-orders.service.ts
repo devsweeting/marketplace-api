@@ -7,7 +7,13 @@ import { User } from 'modules/users/entities';
 import { Pagination, paginate, IPaginationMeta } from 'nestjs-typeorm-paginate';
 import { ListSellOrderDto, SellOrderDto, SellOrderIdDto, SellOrderPurchaseDto } from './dto';
 import { SellOrder, SellOrderPurchase } from './entities';
-import { SellOrderNotFoundException } from './exceptions';
+import { SellOrderTypeEnum } from './enums/sell-order-type.enum';
+import {
+  InvalidUserFractionLimitEndTimeException,
+  InvalidUserFractionLimitException,
+  NotEnoughFractionsForSellOrderException,
+  SellOrderNotFoundException,
+} from './exceptions';
 
 @Injectable()
 export class SellOrdersService {
@@ -50,6 +56,36 @@ export class SellOrdersService {
     const user = await User.findOne({ email: dto.email, deletedAt: null, isDeleted: false });
     if (!user) {
       throw new UserNotFoundException();
+    }
+
+    if (asset.fractionQtyTotal < dto.fractionQty) {
+      throw new NotEnoughFractionsForSellOrderException();
+    }
+
+    if (dto.type === SellOrderTypeEnum.drop) {
+      if (!dto.userFractionLimit) {
+        throw new InvalidUserFractionLimitException(
+          'userFractionLimit is required for `drop` type sell order',
+        );
+      }
+
+      if (dto.userFractionLimit > dto.fractionQty) {
+        throw new InvalidUserFractionLimitException(
+          'userFractionLimit must be less than or equal to fractionQty',
+        );
+      }
+
+      if (!dto.userFractionLimitEndTime) {
+        throw new InvalidUserFractionLimitEndTimeException(
+          'userFractionLimitEndTime is required for `drop` type sell order',
+        );
+      }
+
+      if (dto.userFractionLimitEndTime <= dto.startTime) {
+        throw new InvalidUserFractionLimitEndTimeException(
+          'userFractionLimitEndTime must be greater than startTime',
+        );
+      }
     }
     const sellOrder = new SellOrder({ partnerId: partner.id, ...dto });
     return sellOrder.save();

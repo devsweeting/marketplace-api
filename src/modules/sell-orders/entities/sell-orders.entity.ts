@@ -63,6 +63,12 @@ export class SellOrder extends BaseModel implements BaseEntityInterface {
   @Column({ type: 'enum', enum: SellOrderTypeEnum, nullable: false })
   public type: SellOrderTypeEnum;
 
+  @Column({ type: 'timestamp', nullable: true })
+  public userFractionLimitEndTime?: Date;
+
+  @Column({ type: 'int', nullable: true })
+  public userFractionLimit?: number;
+
   public constructor(partial: Partial<SellOrder>) {
     super();
     Object.assign(this, partial);
