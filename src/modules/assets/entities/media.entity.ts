@@ -26,7 +26,7 @@ export class Media extends BaseModel implements BaseEntityInterface {
   public description: string;
 
   @Column({ nullable: false, default: '', length: 1024 })
-  public url: string;
+  public source_url: string;
 
   @Column({ nullable: false })
   public sortOrder: number;

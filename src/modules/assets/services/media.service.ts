@@ -175,7 +175,10 @@ export class MediaService {
         } else {
           file =
             el.type === MediaTypeEnum.Image
-              ? await this.storageService.uploadFromUrls([{ url: el.url }], `assets/${assetId}`)
+              ? await this.storageService.uploadFromUrls(
+                  [{ url: el.source_url }],
+                  `assets/${assetId}`,
+                )
               : null;
         }
         return { ...el, assetId: assetId, file, fileId: file?.id };
