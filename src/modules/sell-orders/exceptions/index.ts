@@ -22,3 +22,9 @@ export class NotEnoughFractionsForSellOrderException extends BadRequestException
     super(`NOT_ENOUGH_FRACTIONS_FOR_SELL_ORDER`);
   }
 }
+
+export class PurchaseLimitReached extends BadRequestException {
+  public constructor() {
+    super(`PURCHASE_LIMIT_REACHED`);
+  }
+}
