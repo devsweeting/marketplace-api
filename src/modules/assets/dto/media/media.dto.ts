@@ -31,7 +31,7 @@ export class MediaDto {
     required: true,
     example: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
   })
-  public url: string;
+  public url: string; //update to source_url
 
   @ApiProperty({ example: MediaTypeEnum.Image })
   @Transform(({ value }) => value.toUpperCase() as MediaTypeEnum)
