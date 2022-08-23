@@ -22,6 +22,17 @@ function headerForUser(user: User): Record<string, string> {
   return { Authorization: `Bearer ${generateOtpToken(user)}` };
 }
 
+async function expectCheck(
+  app: INestApplication,
+  status: number,
+  response: any,
+  sellOrder: SellOrder,
+  purchaser: User,
+) {
+  const url = `/v1/sellorders/${sellOrder.id}/check`;
+  await testApp.get(app, url, status, response, null, headerForUser(purchaser));
+}
+
 async function expectPurchaseSuccess(
   app: INestApplication,
   order: SellOrder,
@@ -131,9 +142,21 @@ describe('SellOrdersController -> Purchases', () => {
     });
 
     test('Should return 201 and purchase sell order', async () => {
+      let checkResponse = {
+        fractionsAvailableToPurchase: sellOrder.fractionQtyAvailable,
+        fractionsPurchased: 0,
+      };
+      await expectCheck(app, 200, checkResponse, sellOrder, buyer);
       const fractionsToPurchase = 10;
       const fractionPriceCents = sellOrder.fractionPriceCents;
       await expectPurchaseSuccess(app, sellOrder, fractionsToPurchase, fractionPriceCents, buyer);
+
+      await sellOrder.reload();
+      checkResponse = {
+        fractionsAvailableToPurchase: sellOrder.fractionQtyAvailable,
+        fractionsPurchased: fractionsToPurchase,
+      };
+      await expectCheck(app, 200, checkResponse, sellOrder, buyer);
     });
 
     test('Should return 201 when purchasing all available fractions, then return 400 on subsequent purchase request', async () => {
@@ -209,6 +232,11 @@ describe('SellOrdersController -> Purchases', () => {
     });
 
     test('should return 400 if user hits limit after successfully purchasing some shares', async () => {
+      const checkResponse = {
+        fractionsAvailableToPurchase: 10,
+        fractionsPurchased: 0,
+      };
+      await expectCheck(app, 200, checkResponse, dropSellOrder, buyer);
       const fractionsToPurchase = dropSellOrder.userFractionLimit;
       const fractionPriceCents = dropSellOrder.fractionPriceCents;
       await expectPurchaseSuccess(
@@ -219,6 +247,7 @@ describe('SellOrdersController -> Purchases', () => {
         buyer,
       );
 
+      await expectCheck(app, 400, null, dropSellOrder, buyer);
       const payload = {
         fractionsToPurchase: 1,
         fractionPriceCents: fractionPriceCents,

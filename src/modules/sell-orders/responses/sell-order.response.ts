@@ -36,3 +36,10 @@ export class SellOrderResponse {
 }
 
 export class SellOrderPurchaseResponse {}
+
+export class SellOrderCheckResponse {
+  @ApiProperty({ example: 100 })
+  fractionsPurchased: number;
+  @ApiProperty({ example: 100 })
+  fractionsAvailableToPurchase: number;
+}

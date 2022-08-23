@@ -2,7 +2,15 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
 import { User } from 'modules/users/entities';
-import { Column, Entity, JoinColumn, ManyToOne, RelationId, getConnection } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  RelationId,
+  getConnection,
+  EntityManager,
+} from 'typeorm';
 import { SellOrderIdDto, SellOrderPurchaseDto } from '../dto';
 import { SellOrderTypeEnum } from '../enums/sell-order-type.enum';
 import {
@@ -87,15 +95,7 @@ export class SellOrderPurchase extends BaseModel implements BaseEntityInterface 
             throw new PurchaseLimitReached();
           }
 
-          const query = await manager
-            .createQueryBuilder(SellOrderPurchase, 'sellOrderPurchase')
-            .select('sum(sellOrderPurchase.fractionQty)', 'total_purchased')
-            .where('sellOrderPurchase.userId = :userId', { userId: user.id })
-            .andWhere('sellOrderPurchase.sellOrderId = :sellOrderId', {
-              sellOrderId: sellOrder.id,
-            });
-
-          const totalPurchased = (await query.getRawOne()).total_purchased || 0;
+          const totalPurchased = await this.getTotalPurchased(user, sellOrder, manager);
           if (totalPurchased + purchaseDto.fractionsToPurchase > userLimit) {
             throw new PurchaseLimitReached();
           }
@@ -117,5 +117,20 @@ export class SellOrderPurchase extends BaseModel implements BaseEntityInterface 
   private constructor(partial: Partial<SellOrderPurchase>) {
     super();
     Object.assign(this, partial);
+  }
+
+  static async getTotalPurchased(
+    user: User,
+    order: SellOrder,
+    manager: EntityManager = getConnection().manager,
+  ): Promise<number> {
+    const query = await manager
+      .createQueryBuilder(SellOrderPurchase, 'sellOrderPurchase')
+      .select('sum(sellOrderPurchase.fractionQty)', 'total_purchased')
+      .where('sellOrderPurchase.userId = :userId', { userId: user.id })
+      .andWhere('sellOrderPurchase.sellOrderId = :sellOrderId', {
+        sellOrderId: order.id,
+      });
+    return (await query.getRawOne()).total_purchased || 0;
   }
 }

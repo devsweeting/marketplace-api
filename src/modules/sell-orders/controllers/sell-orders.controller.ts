@@ -21,7 +21,7 @@ import {
 import { SellOrdersService } from '../sell-orders.service';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
 import { generateSwaggerPaginatedSchema } from 'modules/common/helpers/generate-swagger-paginated-schema';
-import { SellOrderResponse } from '../responses/sell-order.response';
+import { SellOrderCheckResponse, SellOrderResponse } from '../responses/sell-order.response';
 import { SellOrderIdDto, SellOrderDto, ListSellOrderDto, SellOrderPurchaseDto } from '../dto';
 import { SellOrdersTransformer } from '../transformers/sell-orders.transformer';
 import { AuthGuard } from '@nestjs/passport';
@@ -30,6 +30,7 @@ import { Partner } from 'modules/partners/entities';
 import JwtOtpAuthGuard from 'modules/auth/guards/jwt-otp-auth.guard';
 import { GetUser } from 'modules/auth/decorators/get-user.decorator';
 import { User } from 'modules/users/entities/user.entity';
+import { SellOrderTypeEnum } from '../enums/sell-order-type.enum';
 
 @ApiTags('sellorders')
 @Controller({
@@ -126,5 +127,33 @@ export class SellOrdersController {
     @Body() dto: SellOrderPurchaseDto,
   ): Promise<void> {
     await this.sellOrdersService.purchase(user, params, dto);
+  }
+
+  @Get(':id/check')
+  @UseGuards(JwtOtpAuthGuard)
+  @ApiOperation({ summary: 'Check if user can purchase shares from sell order' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'User can purchase shares from sell order',
+  })
+  public async check(
+    @GetUser() user: User,
+    @Param() params: SellOrderIdDto,
+  ): Promise<SellOrderCheckResponse> {
+    const sellOrder = await this.sellOrdersService.getOne(params);
+    const fractionsPurchased = Number(await this.sellOrdersService.checkDrop(user, sellOrder));
+    let fractionsAvailableToPurchase: number;
+    if (
+      sellOrder.type == SellOrderTypeEnum.drop &&
+      sellOrder.userFractionLimitEndTime > new Date()
+    ) {
+      fractionsAvailableToPurchase = sellOrder.userFractionLimit - fractionsPurchased;
+    } else {
+      fractionsAvailableToPurchase = sellOrder.fractionQtyAvailable;
+    }
+    return {
+      fractionsPurchased,
+      fractionsAvailableToPurchase,
+    };
   }
 }
