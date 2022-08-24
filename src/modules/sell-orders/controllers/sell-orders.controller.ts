@@ -144,7 +144,7 @@ export class SellOrdersController {
     const fractionsPurchased = Number(await this.sellOrdersService.checkDrop(user, sellOrder));
     let fractionsAvailableToPurchase: number;
     if (
-      sellOrder.type == SellOrderTypeEnum.drop &&
+      sellOrder.type === SellOrderTypeEnum.drop &&
       sellOrder.userFractionLimitEndTime > new Date()
     ) {
       fractionsAvailableToPurchase = sellOrder.userFractionLimit - fractionsPurchased;
