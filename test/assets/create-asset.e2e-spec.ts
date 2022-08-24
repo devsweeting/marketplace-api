@@ -89,7 +89,8 @@ describe('AssetsController', () => {
         {
           title: 'test',
           description: 'description',
-          url: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+          source_url:
+            'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
           type: MediaTypeEnum.Image,
           sortOrder: 1,
         },
@@ -130,13 +131,15 @@ describe('AssetsController', () => {
         {
           title: 'test',
           description: 'description',
-          url: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+          source_url:
+            'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
           type: MediaTypeEnum.Image,
         },
         {
           title: 'test',
           description: 'description',
-          url: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+          source_url:
+            'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
           type: MediaTypeEnum.Image,
         },
       ];
@@ -178,13 +181,14 @@ describe('AssetsController', () => {
         {
           title: 'test',
           description: 'description',
-          url: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+          source_url:
+            'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
           type: MediaTypeEnum.Image,
         },
         {
           title: 'test',
           description: 'description',
-          url: 'https:',
+          source_url: 'https:',
           type: MediaTypeEnum.Youtube,
         },
       ];
@@ -212,10 +216,9 @@ describe('AssetsController', () => {
       expect(asset).toBeDefined();
       expect(asset.name).toEqual(transferRequest.assets[0].name);
       expect(asset.media).toBeDefined();
-      expect(asset.media.length).toEqual(2);
+      expect(asset.media.length).toEqual(1);
       expect(asset.media[0].fileId).toBeDefined();
-      expect(asset.media[1]).toBeDefined();
-      expect(asset.media[1].file).toEqual(null);
+      expect(asset.media[1]).not.toBeDefined();
       expect(asset.description).toEqual(transferRequest.assets[0].description);
       expect(asset.fractionQtyTotal).toEqual(transferRequest.assets[0].fractionQtyTotal);
     });
@@ -225,7 +228,7 @@ describe('AssetsController', () => {
         {
           title: 'test',
           description: 'description',
-          url: 'https:',
+          source_url: 'https:',
           type: MediaTypeEnum.Image,
         },
       ];
@@ -266,13 +269,14 @@ describe('AssetsController', () => {
         {
           title: 'test',
           description: 'description',
-          url: 'http://httpstatus:3999/500',
+          source_url: 'http://httpstatus:3999/500',
           type: MediaTypeEnum.Image,
         },
         {
           title: 'test',
           description: 'description',
-          url: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+          source_url:
+            'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
           type: MediaTypeEnum.Image,
         },
       ];

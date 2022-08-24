@@ -5,5 +5,5 @@ items:
     type: 'IMAGE'
     title: '{{lorem.words(4)}}'
     description: '{{lorem.words(4)}}'
-    url: '{{image.imageUrl}}'
+    source_url: '{{image.imageUrl}}'
     asset: '@asset($current)'

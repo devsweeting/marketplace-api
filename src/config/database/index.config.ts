@@ -64,7 +64,7 @@ const uploadMediaFile = async () => {
   await Promise.all(
     mediaToUpdate.map(async (el) => {
       const [file] = await service.uploadFromUrls(
-        [{ url: faker.random.arrayElement(urls) }],
+        [{ source_url: faker.random.arrayElement(urls) }],
         `assets/${el}`,
       );
       await Media.update(

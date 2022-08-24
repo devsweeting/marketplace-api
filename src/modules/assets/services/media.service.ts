@@ -101,7 +101,7 @@ export class MediaService {
     const data = { ...dto };
     if (dto.type === MediaTypeEnum.Image && dto.url) {
       const [file] = await this.storageService.uploadFromUrls(
-        [{ url: dto.url }],
+        [{ source_url: dto.url }],
         `assets/${media.assetId}`,
       );
 
@@ -127,8 +127,7 @@ export class MediaService {
     await Media.bulkSoftDelete(assetId);
     const urls = data.filter((el) => el.type === MediaTypeEnum.Image);
     const files = await this.storageService.uploadFromUrls(urls, `assets/${assetId}`);
-
-    const mediaData = data.map((el, index) => {
+    const mediaData = urls.map((el, index) => {
       return {
         ...el,
         sortOrder: index,
@@ -137,7 +136,6 @@ export class MediaService {
         fileId: files[index]?.id,
       };
     });
-
     await Media.createQueryBuilder('media').insert().into(Media).values(mediaData).execute();
     return Media.find({ where: { assetId, isDeleted: false } });
   }
@@ -176,7 +174,7 @@ export class MediaService {
           file =
             el.type === MediaTypeEnum.Image
               ? await this.storageService.uploadFromUrls(
-                  [{ url: el.source_url }],
+                  [{ source_url: el.source_url }],
                   `assets/${assetId}`,
                 )
               : null;

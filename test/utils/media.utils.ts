@@ -5,7 +5,7 @@ export const createVideoMedia = (data: Partial<Media>): Promise<Media> => {
   const media = new Media({
     title: 'Example',
     description: 'test description',
-    url: 'https://www.youtube.com/watch?v=4ZVdjRNBrnw',
+    source_url: 'https://www.youtube.com/watch?v=4ZVdjRNBrnw',
     type: MediaTypeEnum.Youtube,
     sortOrder: 1,
     ...data,
@@ -18,7 +18,8 @@ export const createImageMedia = (data: Partial<Media>): Promise<Media> => {
   const media = new Media({
     title: 'Example',
     description: 'test description',
-    url: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+    source_url:
+      'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
     type: MediaTypeEnum.Image,
     sortOrder: 1,
     ...data,
