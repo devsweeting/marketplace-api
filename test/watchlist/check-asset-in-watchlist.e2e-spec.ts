@@ -149,50 +149,35 @@ describe('WatchlistController', () => {
         });
     });
 
-    test('return inWatchlist: true if user has added asset to watchlist but asset is deleted: search by id', async () => {
+    test('should return 404 when asset is soft-deleted', async () => {
       const asset = await createAsset(
         {
           refId: '3',
-          name: 'Water',
-          description: 'test-water',
+          name: 'Waterskater',
+          description: 'test-waterskater',
         },
         partners[0],
       );
-      // TODO https://github.com/FractionalDev/jump-marketplace-api/issues/219
+      asset.isDeleted = true;
+      asset.deletedAt = new Date();
+      await asset.save();
 
       await createWatchlistAsset({ watchlistId: watchlist.id, assetId: asset.id });
 
-      return request(app.getHttpServer())
-        .get(`/v1/watchlist/check/${asset.slug}`)
-        .set({ Authorization: `Bearer ${generateOtpToken(users[0])}` })
-        .send()
-        .expect(200)
-        .expect(({ body }) => {
-          expect(body).toEqual({ assetId: asset.id, inWatchlist: true });
-        });
-    });
-
-    test('return inWatchlist: true if user has added asset to watchlist but asset is deleted: search by slug', async () => {
-      const asset = await createAsset(
-        {
-          refId: '4',
-          name: 'Water',
-          description: 'test-water',
-        },
-        partners[0],
-      );
-      // TODO https://github.com/FractionalDev/jump-marketplace-api/issues/219
-
-      await createWatchlistAsset({ watchlistId: watchlist.id, assetId: asset.id });
-
-      return request(app.getHttpServer())
-        .get(`/v1/watchlist/check/${asset.slug}`)
-        .set({ Authorization: `Bearer ${generateOtpToken(users[0])}` })
-        .send()
-        .expect(200)
-        .expect(({ body }) => {
-          expect(body).toEqual({ assetId: asset.id, inWatchlist: true });
-        });
+      for (const id of [asset.id, asset.slug]) {
+        await request(app.getHttpServer())
+          .get(`/v1/watchlist/check/${id}`)
+          .set({ Authorization: `Bearer ${generateOtpToken(users[0])}` })
+          .send()
+          .expect(404)
+          .expect(({ body }) => {
+            expect(body).toEqual({
+              error: 'Not Found',
+              message: 'ASSET_NOT_FOUND',
+              statusCode: 404,
+            });
+          });
+      }
     });
 
     test('return 404 if asset does not exist for wrong id ', () => {
