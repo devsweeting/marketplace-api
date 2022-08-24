@@ -228,13 +228,13 @@ describe('AssetsController', () => {
         {
           title: 'test',
           description: 'description',
-          url: 'https://media.giphy.com/media/l3q2KRkOVYvi8WfU4/giphy.gif',
+          source_url: 'https://media.giphy.com/media/l3q2KRkOVYvi8WfU4/giphy.gif',
           type: MediaTypeEnum.Image,
         },
         {
           title: 'test webp',
           description: 'description of a webp image',
-          url: 'https://www.gstatic.com/webp/gallery/1.webp',
+          source_url: 'https://www.gstatic.com/webp/gallery/1.webp',
           type: MediaTypeEnum.Image,
         },
       ];
@@ -255,7 +255,7 @@ describe('AssetsController', () => {
       };
       const response = {
         statusCode: 400,
-        message: `Error: HttpException: Error: Content-type image/gif for ${media[0].url} is not allowed. Use .png, .jpg, or .webp instead`,
+        message: `Error: HttpException: Error: Content-type image/gif for ${media[0].source_url} is not allowed. Use .png, .jpg, or .webp instead`,
       };
       await testApp.post(app, `/v1/assets`, 400, response, transferRequest, header);
 
