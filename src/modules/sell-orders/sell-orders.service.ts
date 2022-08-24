@@ -12,6 +12,7 @@ import {
   InvalidUserFractionLimitEndTimeException,
   InvalidUserFractionLimitException,
   NotEnoughFractionsForSellOrderException,
+  PurchaseLimitReached,
   SellOrderNotFoundException,
 } from './exceptions';
 
@@ -89,6 +90,16 @@ export class SellOrdersService {
     }
     const sellOrder = new SellOrder({ partnerId: partner.id, ...dto });
     return sellOrder.save();
+  }
+
+  public async checkDrop(user: User, order: SellOrder): Promise<number> {
+    const purchased = await SellOrderPurchase.getTotalPurchased(user, order);
+    if (order.type === SellOrderTypeEnum.drop && new Date() < order.userFractionLimitEndTime) {
+      if (purchased >= order.userFractionLimit) {
+        throw new PurchaseLimitReached();
+      }
+    }
+    return purchased;
   }
 
   public async deleteSellOrder(partner: Partner, dto: SellOrderIdDto): Promise<void> {

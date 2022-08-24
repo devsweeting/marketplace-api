@@ -33,6 +33,19 @@ export class SellOrderResponse {
 
   @ApiProperty({ example: 'standard' })
   public type: string;
+
+  @ApiProperty({ example: 1 })
+  public userFractionLimit?: number;
+
+  @ApiProperty({ example: '2023-01-21T14:26:40.548Z' })
+  public userFractionLimitEndTime?: Date;
 }
 
 export class SellOrderPurchaseResponse {}
+
+export class SellOrderCheckResponse {
+  @ApiProperty({ example: 100 })
+  fractionsPurchased: number;
+  @ApiProperty({ example: 100 })
+  fractionsAvailableToPurchase: number;
+}

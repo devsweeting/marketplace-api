@@ -19,6 +19,8 @@ export class SellOrdersTransformer {
       startTime: Number(sellOrder.startTime),
       deletedTime: Number(sellOrder.deletedTime),
       type: sellOrder.type,
+      userFractionLimit: sellOrder.userFractionLimit ? Number(sellOrder.userFractionLimit) : null,
+      userFractionLimitEndTime: sellOrder.userFractionLimitEndTime,
     };
   }
 
