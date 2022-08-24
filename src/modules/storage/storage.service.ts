@@ -30,10 +30,8 @@ export class StorageService {
   ): Promise<File[]> {
     try {
       const pathList: any = await this.fileDownloadService.downloadAll(records);
-
       const files = pathList.map(async (el) => {
         const object = await this.provider.upload(el, directory);
-
         fs.unlink(el, (err) => {
           if (err) new Error(`Failed to remove file ${el}: ${err}`);
         });

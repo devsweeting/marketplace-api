@@ -1,13 +1,24 @@
+import { InternalServerErrorException } from '@nestjs/common';
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
 import { User } from 'modules/users/entities';
-import { Column, Entity, JoinColumn, ManyToOne, RelationId, getConnection } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  RelationId,
+  getConnection,
+  EntityManager,
+} from 'typeorm';
 import { SellOrderIdDto, SellOrderPurchaseDto } from '../dto';
+import { SellOrderTypeEnum } from '../enums/sell-order-type.enum';
 import {
   SellOrderNotFoundException,
   NotEnoughAvailableException,
   PriceMismatchException,
   UserCannotPurchaseOwnOrderException,
+  PurchaseLimitReached,
 } from '../exceptions';
 import { SellOrder } from './sell-orders.entity';
 
@@ -67,6 +78,29 @@ export class SellOrderPurchase extends BaseModel implements BaseEntityInterface 
       if (sellOrder.expireTime < now) {
         throw new SellOrderNotFoundException();
       }
+
+      if (!sellOrder.type) {
+        throw new InternalServerErrorException('Sell order type is not set');
+      }
+      if (sellOrder.type === SellOrderTypeEnum.drop) {
+        if (!sellOrder.userFractionLimit) {
+          throw new InternalServerErrorException('User fraction limit is not set');
+        }
+        if (!sellOrder.userFractionLimitEndTime) {
+          throw new InternalServerErrorException('User fraction limit end time is not set');
+        }
+        if (now < sellOrder.userFractionLimitEndTime) {
+          const userLimit = Number(sellOrder.userFractionLimit);
+          if (purchaseDto.fractionsToPurchase > userLimit) {
+            throw new PurchaseLimitReached();
+          }
+
+          const totalPurchased = await this.getTotalPurchased(user, sellOrder, manager);
+          if (totalPurchased + purchaseDto.fractionsToPurchase > userLimit) {
+            throw new PurchaseLimitReached();
+          }
+        }
+      }
       const purchase = new SellOrderPurchase({
         userId: user.id,
         sellOrderId: sellOrder.id,
@@ -83,5 +117,20 @@ export class SellOrderPurchase extends BaseModel implements BaseEntityInterface 
   private constructor(partial: Partial<SellOrderPurchase>) {
     super();
     Object.assign(this, partial);
+  }
+
+  static async getTotalPurchased(
+    user: User,
+    order: SellOrder,
+    manager: EntityManager = getConnection().manager,
+  ): Promise<number> {
+    const query = await manager
+      .createQueryBuilder(SellOrderPurchase, 'sellOrderPurchase')
+      .select('sum(sellOrderPurchase.fractionQty)', 'total_purchased')
+      .where('sellOrderPurchase.userId = :userId', { userId: user.id })
+      .andWhere('sellOrderPurchase.sellOrderId = :sellOrderId', {
+        sellOrderId: order.id,
+      });
+    return (await query.getRawOne()).total_purchased || 0;
   }
 }
