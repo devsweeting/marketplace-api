@@ -14,7 +14,7 @@ export class MediaResponse {
   public description: string;
 
   @ApiProperty({ example: 'https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg' })
-  public url: string;
+  public sourceUrl: string;
 
   @ApiProperty({ example: '5c2481c4-c622-48a3-ae6d-657097c3d5e7' })
   public assetId: string;

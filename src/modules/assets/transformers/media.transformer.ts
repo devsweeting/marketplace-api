@@ -12,7 +12,7 @@ export class MediaTransformer {
       id: media.id,
       title: media.title,
       description: media.description,
-      url: media.url,
+      sourceUrl: media.sourceUrl,
       sortOrder: media.sortOrder,
       assetId: media.assetId,
       fileId: media.fileId,

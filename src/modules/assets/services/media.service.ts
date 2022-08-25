@@ -101,7 +101,7 @@ export class MediaService {
     const data = { ...dto };
     if (dto.type === MediaTypeEnum.Image && dto.url) {
       const [file] = await this.storageService.uploadFromUrls(
-        [{ url: dto.url }],
+        [{ sourceUrl: dto.url }],
         `assets/${media.assetId}`,
       );
 
@@ -173,7 +173,10 @@ export class MediaService {
         } else {
           file =
             el.type === MediaTypeEnum.Image
-              ? await this.storageService.uploadFromUrls([{ url: el.url }], `assets/${assetId}`)
+              ? await this.storageService.uploadFromUrls(
+                  [{ sourceUrl: el.sourceUrl }],
+                  `assets/${assetId}`,
+                )
               : null;
         }
         return { ...el, assetId: assetId, file, fileId: file?.id };

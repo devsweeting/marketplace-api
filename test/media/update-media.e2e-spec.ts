@@ -13,6 +13,7 @@ import { RoleEnum } from 'modules/users/enums/role.enum';
 import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
 import { createImageMedia } from '../utils/media.utils';
 import { createFile } from '../utils/file.utils';
+import { MediaDto } from 'modules/assets/dto/media/media.dto';
 
 describe('MediaController', () => {
   let app: INestApplication;
@@ -135,7 +136,7 @@ describe('MediaController', () => {
           expect(media).toBeDefined();
           expect(media.title).toEqual(dto.title);
           expect(media.fileId).toBeDefined();
-          expect(media.url).toEqual(dto.url);
+          expect(media.sourceUrl).toEqual(dto.url);
           expect(media.description).toEqual(dto.description);
         });
     });
@@ -159,7 +160,7 @@ describe('MediaController', () => {
           expect(media.title).toEqual(imageMedia.title);
           expect(media.description).toEqual(imageMedia.description);
           expect(media.fileId).toBeDefined();
-          expect(media.url).toEqual(dto.url);
+          expect(media.sourceUrl).toEqual(dto.url);
         });
     });
     test('should update file to null if type is youtube', () => {
@@ -182,7 +183,7 @@ describe('MediaController', () => {
           expect(media.title).toEqual(imageMedia.title);
           expect(media.description).toEqual(imageMedia.description);
           expect(media.fileId).toEqual(null);
-          expect(media.url).toEqual(dto.url);
+          expect(media.sourceUrl).toEqual(dto.url);
         });
     });
     test('should update sortOrder of a media object', () => {
@@ -206,7 +207,7 @@ describe('MediaController', () => {
     });
 
     test('should update the same media with field sortOrder for defined asset', async () => {
-      const dtoRequest: any = {
+      const dtoRequest: Partial<MediaDto> = {
         title: 'Example',
         description: 'test',
         type: MediaTypeEnum.Image,
@@ -229,7 +230,7 @@ describe('MediaController', () => {
             fileId: imageMedia.fileId,
             sortOrder: dtoRequest.sortOrder,
             title: dtoRequest.title,
-            url: imageMedia.url,
+            sourceUrl: imageMedia.sourceUrl,
             absoluteUrl: null,
           });
         });
@@ -256,8 +257,9 @@ describe('MediaController', () => {
         isDeleted: true,
       });
 
-      const dtoRequest: any = {
-        url: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+      const dtoRequest: MediaDto = {
+        sourceUrl:
+          'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
         title: 'Example',
         description: 'test',
         type: MediaTypeEnum.Image,

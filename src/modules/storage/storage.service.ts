@@ -24,7 +24,10 @@ export class StorageService {
     }
   }
 
-  public async uploadFromUrls(records: { url: string }[], directory: string): Promise<File[]> {
+  public async uploadFromUrls(
+    records: { sourceUrl: string }[],
+    directory: string,
+  ): Promise<File[]> {
     try {
       const pathList: any = await this.fileDownloadService.downloadAll(records);
       const files = pathList.map(async (el) => {
