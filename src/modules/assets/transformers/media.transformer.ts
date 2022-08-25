@@ -12,7 +12,7 @@ export class MediaTransformer {
       id: media.id,
       title: media.title,
       description: media.description,
-      url: media.sourceUrl, // --> maybe change it on the transformer
+      sourceUrl: media.sourceUrl,
       sortOrder: media.sortOrder,
       assetId: media.assetId,
       fileId: media.fileId,
