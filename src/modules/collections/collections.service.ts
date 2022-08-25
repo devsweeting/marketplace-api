@@ -52,7 +52,7 @@ export class CollectionsService {
     if (banner) {
       collection.banner = (
         await this.storageService.uploadFromUrls(
-          [{ source_url: banner }],
+          [{ sourceUrl: banner }],
           `collections/${collection.id}`,
         )
       )[0];
@@ -87,7 +87,7 @@ export class CollectionsService {
     if (banner) {
       const getCollection = await Collection.findOne(collection.id);
       const collectionBanner = await this.storageService.uploadFromUrls(
-        [{ source_url: banner }],
+        [{ sourceUrl: banner }],
         `collections/${collection.id}`,
       );
 

@@ -25,7 +25,7 @@ export class StorageService {
   }
 
   public async uploadFromUrls(
-    records: { source_url: string }[],
+    records: { sourceUrl: string }[],
     directory: string,
   ): Promise<File[]> {
     try {

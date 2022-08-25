@@ -89,7 +89,7 @@ describe('AssetsController', () => {
         {
           title: 'test',
           description: 'description',
-          source_url:
+          sourceUrl:
             'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
           type: MediaTypeEnum.Image,
           sortOrder: 1,
@@ -131,14 +131,14 @@ describe('AssetsController', () => {
         {
           title: 'test',
           description: 'description',
-          source_url:
+          sourceUrl:
             'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
           type: MediaTypeEnum.Image,
         },
         {
           title: 'test',
           description: 'description',
-          source_url:
+          sourceUrl:
             'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
           type: MediaTypeEnum.Image,
         },
@@ -181,14 +181,14 @@ describe('AssetsController', () => {
         {
           title: 'test',
           description: 'description',
-          source_url:
+          sourceUrl:
             'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
           type: MediaTypeEnum.Image,
         },
         {
           title: 'test',
           description: 'description',
-          source_url: 'https:',
+          sourceUrl: 'https:',
           type: MediaTypeEnum.Youtube,
         },
       ];
@@ -228,13 +228,13 @@ describe('AssetsController', () => {
         {
           title: 'test',
           description: 'description',
-          source_url: 'https://media.giphy.com/media/l3q2KRkOVYvi8WfU4/giphy.gif',
+          sourceUrl: 'https://media.giphy.com/media/l3q2KRkOVYvi8WfU4/giphy.gif',
           type: MediaTypeEnum.Image,
         },
         {
           title: 'test webp',
           description: 'description of a webp image',
-          source_url: 'https://www.gstatic.com/webp/gallery/1.webp',
+          sourceUrl: 'https://www.gstatic.com/webp/gallery/1.webp',
           type: MediaTypeEnum.Image,
         },
       ];
@@ -255,7 +255,7 @@ describe('AssetsController', () => {
       };
       const response = {
         statusCode: 400,
-        message: `Error: HttpException: Error: Content-type image/gif for ${media[0].source_url} is not allowed. Use .png, .jpg, or .webp instead`,
+        message: `Error: HttpException: Error: Content-type image/gif for ${media[0].sourceUrl} is not allowed. Use .png, .jpg, or .webp instead`,
       };
       await testApp.post(app, `/v1/assets`, 400, response, transferRequest, header);
 
@@ -277,7 +277,7 @@ describe('AssetsController', () => {
         {
           title: 'test',
           description: 'description',
-          source_url: 'https:',
+          sourceUrl: 'https:',
           type: MediaTypeEnum.Image,
         },
       ];
@@ -318,13 +318,13 @@ describe('AssetsController', () => {
         {
           title: 'test',
           description: 'description',
-          source_url: 'http://httpstatus:3999/500',
+          sourceUrl: 'http://httpstatus:3999/500',
           type: MediaTypeEnum.Image,
         },
         {
           title: 'test',
           description: 'description',
-          source_url:
+          sourceUrl:
             'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
           type: MediaTypeEnum.Image,
         },

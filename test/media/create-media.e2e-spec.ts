@@ -21,7 +21,7 @@ describe('MediaController', () => {
   const imageUrl =
     'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
   const dtoRequest: MediaDto = {
-    source_url: imageUrl,
+    sourceUrl: imageUrl,
     title: 'Example',
     description: 'test',
     type: MediaTypeEnum.Image,
@@ -91,7 +91,7 @@ describe('MediaController', () => {
 
     test('should create a new media object in the db', () => {
       const dto: MediaDto = {
-        source_url: 'https://avatars.githubusercontent.com/u/3612?v=4',
+        sourceUrl: 'https://avatars.githubusercontent.com/u/3612?v=4',
         title: 'Example',
         description: 'test',
         type: MediaTypeEnum.Image,
@@ -113,7 +113,7 @@ describe('MediaController', () => {
           expect(media).toBeDefined();
           expect(media.title).toEqual(dto.title);
           expect(media.fileId).toBeDefined();
-          expect(media.source_url).toEqual(dto.source_url);
+          expect(media.sourceUrl).toEqual(dto.sourceUrl);
           expect(media.description).toEqual(dto.description);
           expect(media.type).toEqual(dto.type);
           expect(media.file).toBeDefined();
@@ -127,7 +127,7 @@ describe('MediaController', () => {
       await createImageMedia({ assetId: asset.id, sortOrder: 1 });
 
       const dtoRequest: MediaDto = {
-        source_url: imageUrl,
+        sourceUrl: imageUrl,
         title: 'Example',
         description: 'test',
         type: MediaTypeEnum.Image,
@@ -154,7 +154,7 @@ describe('MediaController', () => {
       await createImageMedia({ assetId: asset.id, sortOrder: 1 });
 
       const dtoRequest: MediaDto = {
-        source_url: imageUrl,
+        sourceUrl: imageUrl,
         title: 'Example',
         description: 'test',
         type: MediaTypeEnum.Image,
@@ -184,7 +184,7 @@ describe('MediaController', () => {
       await createImageMedia({ assetId: newAsset.id, sortOrder: 1 });
 
       const dtoRequest: MediaDto = {
-        source_url: imageUrl,
+        sourceUrl: imageUrl,
         title: 'Example',
         description: 'test',
         type: MediaTypeEnum.Image,
@@ -230,8 +230,8 @@ describe('MediaController', () => {
           message: [
             'title must be shorter than or equal to 200 characters',
             'title should not be empty',
-            'source_url must be an URL address',
-            'source_url must be shorter than or equal to 1024 characters',
+            'sourceUrl must be an URL address',
+            'sourceUrl must be shorter than or equal to 1024 characters',
             'type must be a valid enum value',
             'type should not be empty',
             'sortOrder should not be empty',
@@ -250,7 +250,7 @@ describe('MediaController', () => {
       });
 
       const dtoRequest: any = {
-        source_url: imageUrl,
+        sourceUrl: imageUrl,
         title: 'Example',
         description: 'test',
         type: MediaTypeEnum.Image,

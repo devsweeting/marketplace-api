@@ -135,7 +135,7 @@ describe('MediaController', () => {
           expect(media).toBeDefined();
           expect(media.title).toEqual(dto.title);
           expect(media.fileId).toBeDefined();
-          expect(media.source_url).toEqual(dto.url);
+          expect(media.sourceUrl).toEqual(dto.url);
           expect(media.description).toEqual(dto.description);
         });
     });
@@ -159,7 +159,7 @@ describe('MediaController', () => {
           expect(media.title).toEqual(imageMedia.title);
           expect(media.description).toEqual(imageMedia.description);
           expect(media.fileId).toBeDefined();
-          expect(media.source_url).toEqual(dto.url);
+          expect(media.sourceUrl).toEqual(dto.url);
         });
     });
     test('should update file to null if type is youtube', () => {
@@ -182,7 +182,7 @@ describe('MediaController', () => {
           expect(media.title).toEqual(imageMedia.title);
           expect(media.description).toEqual(imageMedia.description);
           expect(media.fileId).toEqual(null);
-          expect(media.source_url).toEqual(dto.url);
+          expect(media.sourceUrl).toEqual(dto.url);
         });
     });
     test('should update sortOrder of a media object', () => {
@@ -229,7 +229,7 @@ describe('MediaController', () => {
             fileId: imageMedia.fileId,
             sortOrder: dtoRequest.sortOrder,
             title: dtoRequest.title,
-            url: imageMedia.source_url,
+            url: imageMedia.sourceUrl,
             absoluteUrl: null,
           });
         });

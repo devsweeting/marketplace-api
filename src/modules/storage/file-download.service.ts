@@ -47,8 +47,8 @@ export class FileDownloadService {
     });
   };
 
-  public async downloadAll(data: { source_url: string }[]) {
-    const urls = data.map((el) => el.source_url);
+  public async downloadAll(data: { sourceUrl: string }[]) {
+    const urls = data.map((el) => el.sourceUrl);
     const r = await Promise.map(urls, this.getImage, {
       concurrency: 100,
     })
