@@ -288,6 +288,18 @@ export class Asset extends BaseModel implements BaseEntityInterface {
     }
   }
 
+  public static async getAssetBySlugOrId(slug: string, id: string): Promise<Asset | undefined> {
+    const query = Asset.createQueryBuilder('asset');
+    if (id) {
+      query.where('asset.id = :id', { id });
+    } else {
+      query.where('asset.slug = :slug', { slug });
+    }
+    query.andWhere('asset.isDeleted = FALSE');
+    query.andWhere('asset.deletedAt IS NULL');
+    return query.getOne();
+  }
+
   public constructor(partial: Partial<Asset>) {
     super();
     Object.assign(this, partial);

@@ -67,16 +67,7 @@ export class WatchlistService extends BaseService {
     slug: string;
     user: User;
   }): Promise<WatchlistCheckAssetResponse> {
-    const asset = await Asset.findOne({
-      where: [
-        {
-          id: assetId,
-        },
-        {
-          slug: slug,
-        },
-      ],
-    });
+    const asset = await Asset.getAssetBySlugOrId(slug, assetId);
     if (!asset) {
       throw new AssetNotFoundException();
     }

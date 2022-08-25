@@ -13,6 +13,8 @@ import { Event } from 'modules/events/entities';
 import * as testApp from '../utils/app.utils';
 import { SellOrder } from 'modules/sell-orders/entities';
 import { createSellOrder } from '../utils/sell-order.utils';
+import { createImageMedia } from '../utils/media.utils';
+import { MediaTransformer } from 'modules/assets/transformers/media.transformer';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -367,37 +369,37 @@ describe('AssetsController', () => {
       return testApp.get(app, `/v1/assets?${params.toString()}`, 400, response);
     });
 
-    // TODO https://github.com/FractionalDev/jump-marketplace-api/issues/218
-    // test('should exclude deleted media', async () => {
-    //   const asset = await createAsset({ refId: '3', name: 'abc-1' }, partner);
+    test('should exclude deleted media', async () => {
+      const mediaTransformer = app.get(MediaTransformer);
+      const asset = await createAsset({ refId: '3', name: 'abc-1' }, partner);
 
-    //   const toBeDeleted = await createImageMedia({ asset: asset, sortOrder: 1 });
-    //   toBeDeleted.deletedAt = new Date();
-    //   toBeDeleted.isDeleted = true;
-    //   toBeDeleted.save();
-    //   const activeMedia = [
-    //     await createImageMedia({ asset: asset, sortOrder: 2 }),
-    //     await createImageMedia({ asset: asset, sortOrder: 3 }),
-    //   ];
+      const toBeDeleted = await createImageMedia({ asset: asset, sortOrder: 1 });
+      toBeDeleted.deletedAt = new Date();
+      toBeDeleted.isDeleted = true;
+      await toBeDeleted.save();
+      const activeMedia = [
+        await createImageMedia({ asset: asset, sortOrder: 2 }),
+        await createImageMedia({ asset: asset, sortOrder: 3 }),
+      ];
 
-    //   const assetWithMedia1 = await Asset.findOne(asset.id, { relations: ['media', 'partner'] });
+      const assetWithMedia1 = await Asset.findOne(asset.id, { relations: ['media', 'partner'] });
 
-    //   const response = {
-    //     meta: {
-    //       totalItems: 1,
-    //       itemCount: 1,
-    //       itemsPerPage: 25,
-    //       totalPages: 1,
-    //       currentPage: 1,
-    //     },
-    //     items: assetsTransformer.transformAll([
-    //       Object.assign(assetWithMedia1, { media: mediaTransformer.transformAll(activeMedia) }),
-    //     ]),
-    //   };
-    //   const params = new URLSearchParams({
-    //     search: 'abc',
-    //   });
-    //   return testApp.get(app, `/v1/assets?${params.toString()}`, 200, response);
-    // });
+      const response = {
+        meta: {
+          totalItems: 1,
+          itemCount: 1,
+          itemsPerPage: 25,
+          totalPages: 1,
+          currentPage: 1,
+        },
+        items: assetsTransformer.transformAll([
+          Object.assign(assetWithMedia1, { media: mediaTransformer.transformAll(activeMedia) }),
+        ]),
+      };
+      const params = new URLSearchParams({
+        search: 'abc',
+      });
+      return testApp.get(app, `/v1/assets?${params.toString()}`, 200, response);
+    });
   });
 });
