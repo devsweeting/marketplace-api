@@ -15,7 +15,7 @@ import { UsersService } from 'modules/users/users.service';
 import bcrypt from 'bcryptjs';
 import { TokenExpiredError } from 'jsonwebtoken';
 
-// NOTE - naming it RefreshTokenPayload with two properties: jti and sub which are the proper versions of the full claim that we passed into signAsync earlier, jwtid and subject respectively. These two properties will return the exact same values that were embedded when the token was signed.
+// NOTE - There properties are the full claim that we passed into signAsync earlier, It will return the exact same values that were embedded when the token was signed.
 export interface RefreshTokenPayload {
   // jti: number;
   // sub: number;
@@ -41,23 +41,23 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  public async generateAccessToken(user: { id: string; email: string; role: RoleEnum }) {
-    const accessToken = this.jwtService.sign({
+  public async generateAccessToken(user: { id: string; address: string; role: RoleEnum }) {
+    return this.jwtService.sign({
       id: user.id,
-      address: user.email, //this was address before
+      address: user.address, //this was address before
       role: user.role,
     });
-    console.log('generateAccessToken', accessToken);
-    return accessToken;
   }
 
   //should the above also look like this
   async getRefreshToken(user: { id: string; email: string; role: RoleEnum }) {
     const payload = { id: user.id, email: user.email, role: user.role };
-    const refreshToken = await this.jwtService.sign(payload, {
-      secret: process.env.JWT_REFRESH_TOKEN_SECRET,
-      expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME,
-    });
+    // const refreshToken = await this.jwtService.sign(payload, {
+    //   secret: process.env.JWT_REFRESH_TOKEN_SECRET,
+    //   expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME,
+    // });
+
+    const refreshToken = await this.jwtService.sign(payload);
     console.log('refreshToken', refreshToken);
     return refreshToken;
   }
@@ -73,13 +73,13 @@ export class AuthService {
     await user.save();
   }
 
-  async getNewAccessAndRefreshToken(user: { id: string; email: string; role: RoleEnum }) {
+  async getNewOtpTokenAndRefreshToken(user: { id: string; email: string; role: RoleEnum }) {
     const payload = { id: user.id, email: user.email, role: user.role };
     const refreshToken = await this.getRefreshToken(payload);
     await this.updateRefreshTokenInUser(refreshToken, payload.email);
 
     return {
-      accessToken: await this.generateAccessToken(payload), //should be address
+      otpToken: await this.generateOtpToken(payload), //should be address
       refreshToken: refreshToken,
     };
   }
@@ -96,6 +96,7 @@ export class AuthService {
 
   public async resolveRefreshToken(refresh_token: string): Promise<User> {
     const payload = await this.decodeRefreshToken(refresh_token);
+    console.log('resolveRefreshToken decoded', payload);
     const userId = payload.userId.toString();
 
     if (!userId) {

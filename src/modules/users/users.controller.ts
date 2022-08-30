@@ -49,15 +49,12 @@ export class UsersController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  public async login(@GetUser() user: User): Promise<{
-    accessToken: string;
-    refreshToken: string;
-  }> {
-    console.log('incoming login user', user);
-    return this.authService.getNewAccessAndRefreshToken(user);
+  public async login(@GetUser() user: User): Promise<string> {
+    // console.log('incoming login user', user);
+    // return this.authService.getNewAccessAndRefreshToken(user);
 
     //original
-    // return this.authService.generateAccessToken(user);
+    return this.authService.generateAccessToken(user);
   }
 
   @Get(':address/nonce')
