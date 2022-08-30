@@ -54,8 +54,10 @@ export class UsersController {
     refreshToken: string;
   }> {
     console.log('incoming login user', user);
-    // return this.authService.generateAccessToken(user);
     return this.authService.getNewAccessAndRefreshToken(user);
+
+    //original
+    // return this.authService.generateAccessToken(user);
   }
 
   @Get(':address/nonce')
@@ -68,7 +70,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiResponse({
     status: 200,
-    description: 'The found records', //what does this description mean
+    description: 'The found records',
     type: User,
   })
   public async getUsers(): Promise<UserResponse[]> {
@@ -151,7 +153,7 @@ export class UsersController {
   //we don't have a log out method
 
   @Post('/refresh')
-  // TODO Create a
+  // TODO Create this
   // @UseGuards(JwtRefreshGaurd)
   @ApiOperation({ summary: 'set a new token using the users refresh token' })
   @ApiBadRequestResponse({ description: 'Refresh token is invalid.' })
@@ -160,7 +162,6 @@ export class UsersController {
     const { user, accessToken } = await this.authService.createAccessTokenFromRefreshToken(
       dto.refresh_token,
     );
-    //I should return the user and the new accessToken
     return { user, accessToken };
   }
 }

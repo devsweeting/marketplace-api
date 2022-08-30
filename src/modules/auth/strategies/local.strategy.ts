@@ -9,7 +9,7 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
   constructor(private readonly authService: AuthService) {
     super({
       usernameField: 'address',
-      passwordField: 'signature', //is a signature different than a password?
+      passwordField: 'signature',
     });
   }
 

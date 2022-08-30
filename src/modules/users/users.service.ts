@@ -44,7 +44,7 @@ export class UsersService extends BaseService {
   }
 
   async create(userData: CreateUserDto): Promise<User> {
-    const nonce = this.passwordService.generateNonce(); //What are you if we don't use passwords
+    const nonce = this.passwordService.generateNonce();
     const newUser = new User({ ...userData, nonce });
     await newUser.save();
     return newUser;

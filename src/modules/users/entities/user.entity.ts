@@ -47,11 +47,7 @@ export class User extends BaseModel implements BaseEntityInterface {
 
   @Exclude({ toPlainOnly: true })
   @Column({ nullable: true })
-  public refreshToken?: string; //this should be hashed eventually
-
-  // @Exclude({ toPlainOnly: true })
-  // @Column({ nullable: true })
-  // public refreshTokenExpiration: string;
+  public refreshToken?: string; //this should be hashed
 
   @Column({
     type: 'enum',
