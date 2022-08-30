@@ -13,6 +13,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   public validate(payload: any) {
+    console.log('jwtstrategy:', payload);
     return Object.assign(
       payload.id && payload.address
         ? { id: payload.id, address: payload.address, role: payload.role }

@@ -44,7 +44,7 @@ export class UsersService extends BaseService {
   }
 
   async create(userData: CreateUserDto): Promise<User> {
-    const nonce = this.passwordService.generateNonce();
+    const nonce = this.passwordService.generateNonce(); //What are you if we don't use passwords
     const newUser = new User({ ...userData, nonce });
     await newUser.save();
     return newUser;
@@ -81,5 +81,9 @@ export class UsersService extends BaseService {
     }
     Object.assign(user, { isDeleted: true, deletedAt: new Date() });
     await user.save();
+  }
+
+  public async updateRefreshTokenInUser(user: User, refreshToken: string) {
+    return await User.update(user.id, { refreshToken });
   }
 }

@@ -31,6 +31,7 @@ import RoleGuard from 'modules/auth/guards/role.guard';
 import { RoleEnum } from './enums/role.enum';
 import { GetUser } from 'modules/auth/decorators/get-user.decorator';
 import { OtpService } from './services/otp.service';
+import { RefreshRequestDto } from './dto/refresh-request.dto';
 
 @ApiTags('users')
 @Controller({
@@ -48,8 +49,13 @@ export class UsersController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  public async login(@GetUser() user: User): Promise<string> {
-    return this.authService.generateToken(user);
+  public async login(@GetUser() user: User): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }> {
+    console.log('incoming login user', user);
+    // return this.authService.generateAccessToken(user);
+    return this.authService.getNewAccessAndRefreshToken(user);
   }
 
   @Get(':address/nonce')
@@ -62,7 +68,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiResponse({
     status: 200,
-    description: 'The found records',
+    description: 'The found records', //what does this description mean
     type: User,
   })
   public async getUsers(): Promise<UserResponse[]> {
@@ -140,5 +146,21 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   public async loginConfirm(@Body() dto: LoginConfirmDto) {
     return this.otpService.confirmOtpToken(dto);
+  }
+
+  //we don't have a log out method
+
+  @Post('/refresh')
+  // TODO Create a
+  // @UseGuards(JwtRefreshGaurd)
+  @ApiOperation({ summary: 'set a new token using the users refresh token' })
+  @ApiBadRequestResponse({ description: 'Refresh token is invalid.' })
+  @HttpCode(HttpStatus.OK)
+  public async refreshLogin(@Body() dto: RefreshRequestDto) {
+    const { user, accessToken } = await this.authService.createAccessTokenFromRefreshToken(
+      dto.refresh_token,
+    );
+    //I should return the user and the new accessToken
+    return { user, accessToken };
   }
 }

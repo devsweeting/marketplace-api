@@ -19,4 +19,14 @@ export class CreateUserDto {
   @IsNotEmpty()
   @MinLength(8)
   public password: string;
+
+  // Add the refreshToken property to this dto
+  @ApiProperty({
+    example: 'refresh token',
+    description: 'Refresh the access token',
+  })
+  @ApiProperty({ example: 'its a secret key' })
+  @IsString()
+  @IsNotEmpty()
+  public refreshToken: string;
 }
