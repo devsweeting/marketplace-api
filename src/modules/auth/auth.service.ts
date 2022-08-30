@@ -3,14 +3,14 @@ import { JwtService } from '@nestjs/jwt';
 import { Partner } from 'modules/partners/entities';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { User } from 'modules/users/entities/user.entity';
-import { PasswordService } from './password.service';
 import { IsNull } from 'typeorm';
 import * as ethUtil from 'ethereumjs-util';
+import { UsersService } from 'modules/users/users.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly passwordService: PasswordService,
+    private readonly userService: UsersService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -57,7 +57,7 @@ export class AuthService {
   }
 
   private async updateNonce(user: User): Promise<void> {
-    user.nonce = this.passwordService.generateNonce();
+    user.nonce = this.userService.generateNonce();
     await user.save();
   }
 

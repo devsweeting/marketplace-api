@@ -3,12 +3,11 @@ import { User } from './entities/user.entity';
 import { CreateUserDto, UpdateUserDto, CreateUserOtpDto } from './dto';
 
 import { BaseService } from '../common/services';
-import { PasswordService } from '../auth/password.service';
 import { UserNotFoundException } from '../common/exceptions/user-not-found.exception';
 
 @Injectable()
 export class UsersService extends BaseService {
-  public constructor(private readonly passwordService: PasswordService) {
+  public constructor() {
     super();
   }
 
@@ -44,7 +43,7 @@ export class UsersService extends BaseService {
   }
 
   async create(userData: CreateUserDto): Promise<User> {
-    const nonce = this.passwordService.generateNonce();
+    const nonce = this.generateNonce();
     const newUser = new User({ ...userData, nonce });
     await newUser.save();
     return newUser;
@@ -66,11 +65,15 @@ export class UsersService extends BaseService {
   }
 
   public async updateNonce(user: User): Promise<string> {
-    const nonce = this.passwordService.generateNonce();
+    const nonce = this.generateNonce();
     user.nonce = nonce;
     const updatedUser = await user.save();
 
     return updatedUser.nonce;
+  }
+
+  public generateNonce(): string {
+    return String(Math.floor(Math.random() * 1000000));
   }
 
   public async softDelete(id: string): Promise<void> {
