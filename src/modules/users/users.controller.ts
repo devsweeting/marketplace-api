@@ -29,7 +29,6 @@ import { AuthService } from 'modules/auth/auth.service';
 import JwtAuthGuard from 'modules/auth/guards/jwt-auth.guard';
 import RoleGuard from 'modules/auth/guards/role.guard';
 import { RoleEnum } from './enums/role.enum';
-import { GetUser } from 'modules/auth/decorators/get-user.decorator';
 import { OtpService } from './services/otp.service';
 
 @ApiTags('users')
@@ -38,19 +37,12 @@ import { OtpService } from './services/otp.service';
   version: '1',
 })
 export class UsersController {
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor(
     private readonly usersService: UsersService,
     private readonly userTransformer: UserTransformer,
     private readonly authService: AuthService,
     private readonly otpService: OtpService,
   ) {}
-
-  @UseGuards(LocalAuthGuard)
-  @Post('login')
-  public async login(@GetUser() user: User): Promise<string> {
-    return this.authService.generateToken(user);
-  }
 
   @Get(':address/nonce')
   public async getUserNonce(@Param('address') address): Promise<string> {
