@@ -14,14 +14,15 @@ import * as ethUtil from 'ethereumjs-util'; //Project has been moved -> https://
 import { UsersService } from 'modules/users/users.service';
 import bcrypt from 'bcryptjs';
 import { TokenExpiredError } from 'jsonwebtoken';
+import { ConfigService } from '@nestjs/config';
 
 // NOTE - There properties are the full claim that we passed into signAsync earlier, It will return the exact same values that were embedded when the token was signed.
 export interface RefreshTokenPayload {
-  // jti: number;
-  // sub: number;
   email: string;
-  userId: string;
+  id: string;
   role: RoleEnum;
+  iat: string;
+  exp: number;
 }
 
 @Injectable()
@@ -30,6 +31,7 @@ export class AuthService {
     private readonly passwordService: PasswordService,
     private readonly jwtService: JwtService,
     private userRepository: UsersService,
+    private configService: ConfigService,
   ) {}
 
   public validateApiKey(apiKey: string): Promise<Partner | null> {
@@ -50,36 +52,41 @@ export class AuthService {
   }
 
   //should the above also look like this
-  async getRefreshToken(user: { id: string; email: string; role: RoleEnum }) {
+  public async generateRefreshToken(user: { id: string; email: string; role: RoleEnum }) {
     const payload = { id: user.id, email: user.email, role: user.role };
+
+    //ERROR ENV variables not importing with configService
+    //
+    // console.log('JWT_REFRESH_SECRET', this.configService.get('jwt.default.jwtRefreshSecret'));
     // const refreshToken = await this.jwtService.sign(payload, {
-    //   secret: process.env.JWT_REFRESH_TOKEN_SECRET,
-    //   expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME,
+    //   secret: this.configService.get('jwt.default.jwtRefreshSecret'),
+    //   expiresIn: `${this.configService.get('jwt.default.jwtRefreshExpiresIn')}s`, //ERROR --> "expiresIn" should be a number of seconds or string representing a timespan
     // });
 
-    const refreshToken = await this.jwtService.sign(payload);
+    const refreshToken = await this.jwtService.sign(payload, {
+      secret: 'deftest',
+      expiresIn: `604800s`, //ERROR --> "expiresIn" should be a number of seconds or string representing a timespan
+    });
     console.log('refreshToken', refreshToken);
     return refreshToken;
   }
 
-  async updateRefreshTokenInUser(refreshToken: string, email: string) {
-    if (refreshToken) {
-      refreshToken = await bcrypt.hash(refreshToken, 10);
-    }
+  async updateRefreshTokenInUser(hashedRefreshToken: string, email: string) {
     const user = await User.findOne({
       where: { email, isDeleted: false, deletedAt: null },
     });
-    user.refreshToken = refreshToken;
+    user.refreshToken = hashedRefreshToken;
     await user.save();
   }
 
   async getNewOtpTokenAndRefreshToken(user: { id: string; email: string; role: RoleEnum }) {
     const payload = { id: user.id, email: user.email, role: user.role };
-    const refreshToken = await this.getRefreshToken(payload);
+    const refreshToken = await this.generateRefreshToken(payload);
+    // const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.updateRefreshTokenInUser(refreshToken, payload.email);
 
     return {
-      otpToken: await this.generateOtpToken(payload), //should be address
+      otpToken: await this.generateOtpToken(payload),
       refreshToken: refreshToken,
     };
   }
@@ -88,8 +95,12 @@ export class AuthService {
     refresh_token: string,
   ): Promise<{ accessToken: string; user: User }> {
     const user = await this.resolveRefreshToken(refresh_token);
+    console.log('user from resolved token', user);
 
     const accessToken = await this.generateAccessToken(user);
+    //I think this is failing because I should send an OTP token
+    //Could just retrun the same funciton as login/confirm instead
+    console.log('newly generated accessToken', accessToken);
 
     return { user, accessToken };
   }
@@ -97,14 +108,13 @@ export class AuthService {
   public async resolveRefreshToken(refresh_token: string): Promise<User> {
     const payload = await this.decodeRefreshToken(refresh_token);
     console.log('resolveRefreshToken decoded', payload);
-    const userId = payload.userId.toString();
+    const userId = payload.id.toString();
 
     if (!userId) {
       throw new UnprocessableEntityException('Refresh token malformed');
     }
 
     const user = await this.userRepository.findOne(userId);
-
     if (!user) {
       throw new UnprocessableEntityException('Refresh token malformed');
     }
@@ -112,9 +122,12 @@ export class AuthService {
     return user;
   }
 
-  private async decodeRefreshToken(token: string): Promise<RefreshTokenPayload> {
+  private async decodeRefreshToken(hashedToken: string): Promise<any> {
     try {
-      return this.jwtService.verify(token);
+      const refreshToken = this.jwtService.decode(hashedToken);
+      return refreshToken;
+      //could add checks for expiration here
+      //something like the below
     } catch (e) {
       if (e instanceof TokenExpiredError) {
         throw new UnprocessableEntityException('Refresh token expired');
@@ -123,10 +136,10 @@ export class AuthService {
       }
     }
   }
-
-  public verifyToken(token: string) {
-    return this.jwtService.verify(token);
-  }
+  //not used
+  // public verifyToken(token: string) {
+  //   return this.jwtService.verify(token);
+  // }
 
   private async verifyViaMeta(user: User, signature: string): Promise<boolean> {
     Logger.log(`AuthService.verifyViaMeta(${user}, ${signature})`);

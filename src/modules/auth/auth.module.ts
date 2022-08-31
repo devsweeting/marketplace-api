@@ -8,7 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtOtpStrategy } from './strategies/jwt-otp.strategy';
-// import { JwtRefreshTokenStrategy } from './strategies/jwt.refreshtoken.strategy';
+// import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { UsersService } from 'modules/users/users.service';
 
 @Module({

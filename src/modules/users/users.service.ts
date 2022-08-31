@@ -5,10 +5,13 @@ import { CreateUserDto, UpdateUserDto, CreateUserOtpDto } from './dto';
 import { BaseService } from '../common/services';
 import { PasswordService } from '../auth/password.service';
 import { UserNotFoundException } from '../common/exceptions/user-not-found.exception';
+// import { AuthService } from 'modules/auth/auth.service';
 
 @Injectable()
 export class UsersService extends BaseService {
-  public constructor(private readonly passwordService: PasswordService) {
+  public constructor(
+    private readonly passwordService: PasswordService, // private readonly authService: AuthService,
+  ) {
     super();
   }
 
@@ -81,9 +84,5 @@ export class UsersService extends BaseService {
     }
     Object.assign(user, { isDeleted: true, deletedAt: new Date() });
     await user.save();
-  }
-
-  public async updateRefreshTokenInUser(user: User, refreshToken: string) {
-    return await User.update(user.id, { refreshToken });
   }
 }

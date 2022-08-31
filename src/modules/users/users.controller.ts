@@ -27,6 +27,7 @@ import { UserTransformer } from './transformers/user.transformer';
 import { LocalAuthGuard } from 'modules/auth/guards/local-auth.guard';
 import { AuthService } from 'modules/auth/auth.service';
 import JwtAuthGuard from 'modules/auth/guards/jwt-auth.guard';
+import JwtRefreshTokenGuard from 'modules/auth/guards/jwt-refresh.guard';
 import RoleGuard from 'modules/auth/guards/role.guard';
 import { RoleEnum } from './enums/role.enum';
 import { GetUser } from 'modules/auth/decorators/get-user.decorator';
@@ -144,21 +145,23 @@ export class UsersController {
   @ApiBadRequestResponse({ description: 'Token is invalid.' })
   @HttpCode(HttpStatus.OK)
   public async loginConfirm(@Body() dto: LoginConfirmDto) {
-    return this.otpService.confirmOtpToken(dto);
+    const returnResponse = await this.otpService.confirmOtpToken(dto);
+    return returnResponse;
   }
 
   //we don't have a log out method
 
-  @Post('/refresh')
-  // TODO Create this
-  // @UseGuards(JwtRefreshGaurd)
+  @Post('login/refresh')
+  // @UseGuards(JwtRefreshTokenGuard)
   @ApiOperation({ summary: 'set a new token using the users refresh token' })
   @ApiBadRequestResponse({ description: 'Refresh token is invalid.' })
   @HttpCode(HttpStatus.OK)
   public async refreshLogin(@Body() dto: RefreshRequestDto) {
+    console.log('login/refresh', dto);
     const { user, accessToken } = await this.authService.createAccessTokenFromRefreshToken(
-      dto.refresh_token,
+      dto.refreshToken,
     );
+    // console.log('user returned', user);
     return { user, accessToken };
   }
 }

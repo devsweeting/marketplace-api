@@ -1,6 +1,11 @@
 import { IsNotEmpty } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class RefreshRequestDto {
-  @IsNotEmpty({ message: 'The refresh token is required' })
-  readonly refresh_token: string;
+  @ApiProperty({
+    example: 'Im_a_duck',
+    description: 'refresh token',
+  })
+  @IsNotEmpty({ message: 'Refresh token is required' })
+  public refreshToken: string;
 }

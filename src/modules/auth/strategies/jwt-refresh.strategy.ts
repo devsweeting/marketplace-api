@@ -3,12 +3,12 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 @Injectable()
-export class JwtRefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
+export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   constructor() {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), //Read up on this line
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_REFRESH_SECRET, //what is this line
+      secretOrKey: process.env.JWT_REFRESH_SECRET,
       passReqToCallback: true, //passes request body to validate function
     });
   }
@@ -22,9 +22,10 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-ref
     if (req.body.refreshToken != (await user).refreshtoken) {
       throw new UnauthorizedException();
     }
-    if (new Date() > new Date((await user).refreshtokenexpires)) {
-      throw new UnauthorizedException();
-    }
+    //expiration date doesn't expire on the user table
+    // if (new Date() > new Date((await user).refreshtokenexpires)) {
+    //   throw new UnauthorizedException();
+    // }
     return { userId: payload.sub, username: payload.username };
   }
 }
