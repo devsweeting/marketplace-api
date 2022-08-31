@@ -145,7 +145,7 @@ export class UsersController {
   @ApiBadRequestResponse({ description: 'Token is invalid.' })
   @HttpCode(HttpStatus.OK)
   public async loginConfirm(@Body() dto: LoginConfirmDto) {
-    const returnResponse = await this.otpService.confirmOtpToken(dto);
+    const returnResponse = await this.otpService.confirmUserLogin(dto);
     return returnResponse;
   }
 
@@ -153,12 +153,12 @@ export class UsersController {
 
   @Post('login/refresh')
   // @UseGuards(JwtRefreshTokenGuard)
-  @ApiOperation({ summary: 'set a new token using the users refresh token' })
+  @ApiOperation({ summary: 'Create a new access token using the users refresh token' })
   @ApiBadRequestResponse({ description: 'Refresh token is invalid.' })
   @HttpCode(HttpStatus.OK)
   public async refreshLogin(@Body() dto: RefreshRequestDto) {
     console.log('login/refresh', dto);
-    const { user, accessToken } = await this.authService.createAccessTokenFromRefreshToken(
+    const { user, accessToken } = await this.authService.createNewAccessTokensFromRefreshToken(
       dto.refreshToken,
     );
     // console.log('user returned', user);

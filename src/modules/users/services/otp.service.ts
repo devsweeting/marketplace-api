@@ -85,7 +85,7 @@ export class OtpService extends BaseService {
     return otpToken;
   }
 
-  public async confirmOtpToken({ token, metadata }: LoginConfirmDto) {
+  public async confirmUserLogin({ token, metadata }: LoginConfirmDto) {
     const otpToken = await this.markTokenUsed(token);
 
     const user = await this.userService.createOrUpdateFromOtp({
@@ -97,6 +97,6 @@ export class OtpService extends BaseService {
       metadata,
     }).save();
 
-    return this.authService.getNewOtpTokenAndRefreshToken(user);
+    return this.authService.createLoginTokens(user);
   }
 }
