@@ -14,13 +14,12 @@ import bcrypt from 'bcryptjs';
 import { TokenExpiredError } from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 
-// NOTE - There properties are the full claim that we passed into signAsync earlier, It will return the exact same values that were embedded when the token was signed.
 export interface RefreshTokenPayload {
   email: string;
   userId: string;
   role: RoleEnum;
   iat: string; //iat — Issued At Claim. Time at which the token was issued by the issuer for use.
-  exp: number; //exp — Expiry Claim. for the token after which the token will not be considered valid.
+  exp: number; //exp — Expiry Claim. how long until it will not be considered valid.
 }
 import * as ethUtil from 'ethereumjs-util';
 
@@ -39,7 +38,7 @@ export class AuthService {
   public async generateAccessToken(user: { id: string; email: string; role: RoleEnum }) {
     return this.jwtService.sign({
       id: user.id,
-      email: user.email, //this was address before
+      email: user.email,
       role: user.role,
     });
   }
@@ -62,7 +61,7 @@ export class AuthService {
     const user = await User.findOne({
       where: { email, isDeleted: false, deletedAt: null },
     });
-    // if no refreshToken is passed, update the user's refreshToken to null
+    // if no refreshToken is passed it will remove the current refresh token.
     user.refreshToken = !!refreshToken ? refreshToken : null;
     await user.save();
   }
@@ -100,7 +99,6 @@ export class AuthService {
       const refreshToken = this.jwtService.verify(encodedRefreshToken);
       console.log('refreshToken', refreshToken);
 
-      //Maybe there's a better place for these checks, Like a guard
       const userId = refreshToken.userId;
       if (!userId) {
         throw new UnprocessableEntityException('Refresh token malformed');

@@ -22,10 +22,6 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
     if (req.body.refreshToken != (await user).refreshtoken) {
       throw new UnauthorizedException();
     }
-    //expiration date doesn't expire on the user table
-    // if (new Date() > new Date((await user).refreshtokenexpires)) {
-    //   throw new UnauthorizedException();
-    // }
     return { userId: payload.sub, username: payload.username };
   }
 }

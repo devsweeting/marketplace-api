@@ -4,7 +4,6 @@ import { CreateUserDto, UpdateUserDto, CreateUserOtpDto } from './dto';
 
 import { BaseService } from '../common/services';
 import { UserNotFoundException } from '../common/exceptions/user-not-found.exception';
-// import { AuthService } from 'modules/auth/auth.service';
 
 @Injectable()
 export class UsersService extends BaseService {

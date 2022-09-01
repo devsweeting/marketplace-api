@@ -135,19 +135,16 @@ export class UsersController {
     return returnResponse;
   }
 
-  //we don't have a log out method
-
   @Post('login/refresh')
+  // @UseGuards(JwtAuthGuard)
   // @UseGuards(JwtRefreshTokenGuard)
   @ApiOperation({ summary: 'Create a new access token using the users refresh token' })
   @ApiBadRequestResponse({ description: 'Refresh token is invalid.' })
   @HttpCode(HttpStatus.OK)
   public async refreshLogin(@Body() dto: RefreshRequestDto) {
-    console.log('login/refresh', dto);
     const { user, accessToken } = await this.authService.createNewAccessTokensFromRefreshToken(
       dto.refreshToken,
     );
-    // console.log('user returned', user);
     return { user, accessToken };
   }
 }
