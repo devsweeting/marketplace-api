@@ -12,9 +12,10 @@ import { RoleEnum } from 'modules/users/enums/role.enum';
 import { User } from 'modules/users/entities/user.entity';
 import { IsNull } from 'typeorm';
 import { UsersService } from 'modules/users/users.service';
-import bcrypt from 'bcryptjs';
+// import bcrypt from 'bcryptjs';
 import { TokenExpiredError } from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
+import * as ethUtil from 'ethereumjs-util';
 
 export interface RefreshTokenPayload {
   email: string;
@@ -23,7 +24,6 @@ export interface RefreshTokenPayload {
   iat: string; //Issued At Claim.
   exp: number; //Expiry Claim.
 }
-import * as ethUtil from 'ethereumjs-util';
 
 @Injectable()
 export class AuthService {
@@ -49,9 +49,8 @@ export class AuthService {
     const payload = { userId: user.id, email: user.email, role: user.role };
 
     const refreshToken = await this.jwtService.sign(payload, {
-      secret: this.configService.get('jwt.default.jwtRefreshSecret'), // ERROR ENV variables not importing with configService, this is undefined but still passing verficication
+      secret: 'im_a_duck', //this.configService.get('jwt.default.jwtRefreshSecret'), // ERROR ENV variables not importing in
       expiresIn: '7d', //TEMP
-      //   expiresIn: `${this.configService.get('jwt.default.jwtRefreshExpiresIn')}s`, //ERROR --> "expiresIn" should be a number of seconds or string representing a timespan
     });
     return refreshToken;
   }

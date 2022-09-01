@@ -26,6 +26,7 @@ import { User } from './entities/user.entity';
 import { UserTransformer } from './transformers/user.transformer';
 import { AuthService } from 'modules/auth/auth.service';
 import JwtAuthGuard from 'modules/auth/guards/jwt-auth.guard';
+import JwtRefreshTokenGuard from 'modules/auth/guards/jwt-refresh.guard';
 import RoleGuard from 'modules/auth/guards/role.guard';
 import { RoleEnum } from './enums/role.enum';
 import { OtpService } from './services/otp.service';
@@ -142,9 +143,11 @@ export class UsersController {
   @ApiBadRequestResponse({ description: 'Refresh token is invalid.' })
   @HttpCode(HttpStatus.OK)
   public async refreshLogin(@Body() dto: RefreshRequestDto) {
+    console.log('login/refresh', dto);
     const { user, accessToken } = await this.authService.createNewAccessTokensFromRefreshToken(
       dto.refreshToken,
     );
+    console.log('SUCCESS', user, accessToken);
     return { user, accessToken };
   }
 }
