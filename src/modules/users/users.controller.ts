@@ -24,13 +24,10 @@ import { UserResponse } from './interfaces/user.interface';
 import { CreateUserDto, LoginConfirmDto, LoginRequestDto, UpdateUserDto } from './dto';
 import { User } from './entities/user.entity';
 import { UserTransformer } from './transformers/user.transformer';
-import { LocalAuthGuard } from 'modules/auth/guards/local-auth.guard';
 import { AuthService } from 'modules/auth/auth.service';
 import JwtAuthGuard from 'modules/auth/guards/jwt-auth.guard';
-import JwtRefreshTokenGuard from 'modules/auth/guards/jwt-refresh.guard';
 import RoleGuard from 'modules/auth/guards/role.guard';
 import { RoleEnum } from './enums/role.enum';
-import { GetUser } from 'modules/auth/decorators/get-user.decorator';
 import { OtpService } from './services/otp.service';
 import { RefreshRequestDto } from './dto/refresh-request.dto';
 
@@ -40,23 +37,12 @@ import { RefreshRequestDto } from './dto/refresh-request.dto';
   version: '1',
 })
 export class UsersController {
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor(
     private readonly usersService: UsersService,
     private readonly userTransformer: UserTransformer,
     private readonly authService: AuthService,
     private readonly otpService: OtpService,
   ) {}
-
-  @UseGuards(LocalAuthGuard)
-  @Post('login')
-  public async login(@GetUser() user: User): Promise<string> {
-    // console.log('incoming login user', user);
-    // return this.authService.getNewAccessAndRefreshToken(user);
-
-    //original
-    return this.authService.generateAccessToken(user);
-  }
 
   @Get(':address/nonce')
   public async getUserNonce(@Param('address') address): Promise<string> {

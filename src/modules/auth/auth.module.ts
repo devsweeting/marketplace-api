@@ -2,13 +2,10 @@ import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { PassportModule } from '@nestjs/passport';
 import { ApiKeyStrategy } from './strategies/apiKey.strategy';
-import { PasswordService } from './password.service';
-import { LocalStrategy } from './strategies/local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtOtpStrategy } from './strategies/jwt-otp.strategy';
-// import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { UsersService } from 'modules/users/users.service';
 
 @Module({
@@ -25,15 +22,7 @@ import { UsersService } from 'modules/users/users.service';
       }),
     }),
   ],
-  providers: [
-    AuthService,
-    ApiKeyStrategy,
-    LocalStrategy,
-    JwtStrategy,
-    JwtOtpStrategy,
-    PasswordService,
-    UsersService,
-  ],
-  exports: [AuthService, PasswordService, UsersService],
+  providers: [AuthService, ApiKeyStrategy, JwtStrategy, JwtOtpStrategy, UsersService],
+  exports: [AuthService, UsersService],
 })
 export class AuthModule {}

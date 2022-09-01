@@ -8,9 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Partner } from 'modules/partners/entities';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { User } from 'modules/users/entities/user.entity';
-import { PasswordService } from './password.service';
 import { IsNull } from 'typeorm';
-import * as ethUtil from 'ethereumjs-util'; //Project has been moved -> https://github.com/ethereumjs/ethereumjs-util;
 import { UsersService } from 'modules/users/users.service';
 import bcrypt from 'bcryptjs';
 import { TokenExpiredError } from 'jsonwebtoken';
@@ -24,11 +22,12 @@ export interface RefreshTokenPayload {
   iat: string; //iat — Issued At Claim. Time at which the token was issued by the issuer for use.
   exp: number; //exp — Expiry Claim. for the token after which the token will not be considered valid.
 }
+import * as ethUtil from 'ethereumjs-util';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly passwordService: PasswordService,
+    private readonly userService: UsersService,
     private readonly jwtService: JwtService,
     private userRepository: UsersService,
     private configService: ConfigService,
@@ -144,7 +143,7 @@ export class AuthService {
   }
 
   private async updateNonce(user: User): Promise<void> {
-    user.nonce = this.passwordService.generateNonce();
+    user.nonce = this.userService.generateNonce();
     await user.save();
   }
 
