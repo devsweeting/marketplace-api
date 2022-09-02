@@ -47,10 +47,9 @@ export class AuthService {
 
   public async generateRefreshToken(user: { id: string; email: string; role: RoleEnum }) {
     const payload = { userId: user.id, email: user.email, role: user.role };
-
     const refreshToken = await this.jwtService.sign(payload, {
-      secret: 'im_a_duck', //this.configService.get('jwt.default.jwtRefreshSecret'), // ERROR ENV variables not importing in
-      expiresIn: '7d', //TEMP
+      secret: this.configService.get('jwt.default.jwtRefreshSecret'),
+      expiresIn: this.configService.get('jwt.default.jwtRefreshExpiresIn'), // ERROR ENV variables not importing in
     });
     return refreshToken;
   }
@@ -93,7 +92,9 @@ export class AuthService {
   ): Promise<{ refreshToken: RefreshTokenPayload; user: User }> {
     try {
       //Check if a token is expired
-      const refreshToken = this.jwtService.verify(encodedRefreshToken);
+      const refreshToken = this.jwtService.verify(encodedRefreshToken, {
+        secret: this.configService.get('jwt.default.jwtRefreshSecret'),
+      });
       console.log('refreshToken', refreshToken);
 
       const userId = refreshToken.userId;
