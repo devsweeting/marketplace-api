@@ -95,7 +95,6 @@ export class AuthService {
       const refreshToken = this.jwtService.verify(encodedRefreshToken, {
         secret: this.configService.get('jwt.default.jwtRefreshSecret'),
       });
-      console.log('refreshToken', refreshToken);
 
       const userId = refreshToken.userId;
       if (!userId) {

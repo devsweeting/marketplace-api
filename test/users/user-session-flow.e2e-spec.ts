@@ -8,11 +8,16 @@ import { clearAllData, createApp } from '@/test/utils/app.utils';
 describe('UserController (e2e)', () => {
   let app: INestApplication;
 
+  const RealDate = Date;
+
   beforeAll(async () => {
+    global.Date.now = jest.fn(() => new Date('2022-09-01T10:20:30Z').getTime());
     app = await createApp();
   });
 
   afterAll(async () => {
+    global.Date = RealDate;
+
     await clearAllData(), await app.close();
   });
 
@@ -141,7 +146,7 @@ describe('UserController (e2e)', () => {
       expect(loggedInUser.refreshToken).toBeDefined();
     });
 
-    test('should test that a refresh token returns a new access token for login', async () => {
+    test('should test that a refresh token returns a new access token for login.', async () => {
       const email = 'dev@jump.co';
       //sends the email for login
       await request(app.getHttpServer())
@@ -169,14 +174,47 @@ describe('UserController (e2e)', () => {
         .send({ refreshToken: loggedInUser.refreshToken })
         .expect(200)
         .expect(({ body }) => {
-          console.log('test body', body);
           //expect(body.user).toEqual(loggedInUser); //FAIL Dates return a string "", the other doesn't.
           expect(body.accessToken).toBeDefined();
         });
 
       const userRefreshed = await User.findOne(loggedInUser.id);
-      // expect(oldRefresh).not.toEqual(userRefreshed.refreshToken);
-      console.log('userRefreshed', userRefreshed);
+      expect(userRefreshed.refreshToken).toBeNull();
+    });
+
+    test('should test that a request is denied if the refresh token is expired.', async () => {
+      const email = 'dev@jump.co';
+
+      //sends the email for login
+      await request(app.getHttpServer())
+        .post(`/v1/users/login/request`)
+        .send({ email })
+        .expect(200);
+
+      //logs the otp token
+      const userOtp = await UserOtp.findOne({ email });
+
+      // Signs the user in using the OTP token
+      await request(app.getHttpServer())
+        .post(`/v1/users/login/confirm`)
+        .send({ token: userOtp.token, metadata: { ip: '0.0.0.0' } })
+        .expect(200); //should return an access token.
+
+      const loggedInUser = await User.findOne({ email });
+      expect(loggedInUser.refreshToken).toBeDefined();
+
+      //move time forward past the 7d expiration
+      global.Date.now = jest.fn(() => new Date('2022-09-08T10:20:30Z').getTime());
+
+      //Send a new request to the /refresh endpoint
+      await request(app.getHttpServer())
+        .post(`/v1/users/login/refresh`)
+        .send({ refreshToken: loggedInUser.refreshToken })
+        .expect(422)
+        .expect((request) => {
+          const error = JSON.parse(request.text);
+          expect(error.message).toBe('Refresh token expired');
+        });
     });
   });
 });
