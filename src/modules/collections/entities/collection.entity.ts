@@ -111,7 +111,7 @@ export class Collection extends BaseModel implements BaseEntityInterface {
     }
   }
 
-  public constructor(partial: Partial<Collection>) {
+  public constructor(partial: Partial<Collection> = {}) {
     super();
     Object.assign(this, partial);
   }

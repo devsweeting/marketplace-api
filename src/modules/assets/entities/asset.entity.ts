@@ -300,7 +300,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
     return query.getOne();
   }
 
-  public constructor(partial: Partial<Asset>) {
+  public constructor(partial: Partial<Asset> = {}) {
     super();
     Object.assign(this, partial);
   }

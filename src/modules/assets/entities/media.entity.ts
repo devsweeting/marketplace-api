@@ -47,7 +47,7 @@ export class Media extends BaseModel implements BaseEntityInterface {
   @RelationId((media: Media) => media.asset)
   public assetId: string;
 
-  public constructor(partial: Partial<Media>) {
+  public constructor(partial: Partial<Media> = {}) {
     super();
     Object.assign(this, partial);
   }

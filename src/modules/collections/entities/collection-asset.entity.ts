@@ -45,7 +45,7 @@ export class CollectionAsset extends BaseEntity {
   @Column({ default: false })
   public isDeleted: boolean | false;
 
-  public constructor(partial: Partial<CollectionAsset>) {
+  public constructor(partial: Partial<CollectionAsset> = {}) {
     super();
     Object.assign(this, partial);
   }

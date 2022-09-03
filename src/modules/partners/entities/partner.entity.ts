@@ -91,7 +91,7 @@ export class Partner extends BaseModel implements BaseEntityInterface {
     return result;
   }
 
-  public constructor(partial: Partial<Partner>) {
+  public constructor(partial: Partial<Partner> = {}) {
     super();
     Object.assign(this, partial);
   }

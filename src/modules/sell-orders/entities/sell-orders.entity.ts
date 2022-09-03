@@ -69,7 +69,7 @@ export class SellOrder extends BaseModel implements BaseEntityInterface {
   @Column({ type: 'int', nullable: true })
   public userFractionLimit?: number;
 
-  public constructor(partial: Partial<SellOrder>) {
+  public constructor(partial: Partial<SellOrder> = {}) {
     super();
     Object.assign(this, partial);
   }

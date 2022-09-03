@@ -37,7 +37,7 @@ export class Attribute extends BaseModel implements BaseEntityInterface {
   @RelationId((attribute: Attribute) => attribute.asset)
   public assetId: string;
 
-  public constructor(partial: Partial<Attribute>) {
+  public constructor(partial: Partial<Attribute> = {}) {
     super();
     Object.assign(this, partial);
   }

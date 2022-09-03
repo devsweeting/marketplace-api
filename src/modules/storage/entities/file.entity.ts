@@ -26,7 +26,7 @@ export class File extends BaseModel implements BaseEntityInterface {
   @Column({ name: 'absoluteUrl', nullable: true })
   public absoluteUrl: string;
 
-  public constructor(partial: Partial<File>) {
+  public constructor(partial: Partial<File> = {}) {
     super();
     Object.assign(this, partial);
   }
