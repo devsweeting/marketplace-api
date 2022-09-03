@@ -53,13 +53,10 @@ export class SellOrderPurchase extends BaseModel implements BaseEntityInterface 
   ): Promise<SellOrderPurchase> {
     const now = new Date();
     const purchase = await getConnection().transaction(async (manager) => {
-      const sellOrder = await manager.findOne(
-        SellOrder,
-        { id: idDto.id, isDeleted: false },
-        {
-          lock: { mode: 'pessimistic_write' },
-        },
-      );
+      const sellOrder = await manager.findOne(SellOrder, {
+        where: { id: idDto.id, isDeleted: false },
+        lock: { mode: 'pessimistic_write' },
+      });
       if (!sellOrder) {
         throw new SellOrderNotFoundException();
       }

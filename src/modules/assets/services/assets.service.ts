@@ -217,7 +217,7 @@ export class AssetsService {
   }
 
   public async recordTransferRequest(partnerId: string, dto: TransferRequestDto): Promise<void> {
-    const partner: Partner = await Partner.findOne(partnerId);
+    const partner: Partner = await Partner.findOneBy({ id: partnerId });
 
     Logger.log(`Partner ${partner.name} received transfer request`);
 
@@ -230,7 +230,7 @@ export class AssetsService {
         }
         if (assetDto.collection) {
           const collection = assetDto.collection.id
-            ? await Collection.findOne(assetDto.collection.id)
+            ? await Collection.findOneBy({ id: assetDto.collection.id })
             : await Collection.findOne({ where: { slug: assetDto.collection.id } });
           if (!collection) {
             throw new CollectionNotFoundException();

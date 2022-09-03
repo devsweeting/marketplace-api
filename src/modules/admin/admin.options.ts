@@ -29,7 +29,7 @@ import createMediaResource from './resources/media/media.resource';
 AdminJS.registerAdapter({ Database, Resource });
 
 const createAdmin = async (configService: ConfigService) => {
-  if ((await User.count({ role: RoleEnum.SUPER_ADMIN })) === 0) {
+  if ((await User.countBy({ role: RoleEnum.SUPER_ADMIN })) === 0) {
     const new_admin = User.create({
       email: configService.get('admin.default.adminEmail'),
       address: configService.get('admin.default.adminAddress'),

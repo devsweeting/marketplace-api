@@ -85,7 +85,7 @@ export class CollectionsService {
     await collection.save();
 
     if (banner) {
-      const getCollection = await Collection.findOne(collection.id);
+      const getCollection = await Collection.findOneBy({ id: collection.id });
       const collectionBanner = await this.storageService.uploadFromUrls(
         [{ sourceUrl: banner }],
         `collections/${collection.id}`,

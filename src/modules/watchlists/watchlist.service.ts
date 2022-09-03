@@ -22,7 +22,7 @@ export class WatchlistService extends BaseService {
   }
 
   private async getAsset(id: string): Promise<Asset> {
-    const asset = await Asset.findOne(id, { where: { isDeleted: false, deletedAt: null } });
+    const asset = await Asset.findOne({ where: { id, isDeleted: false, deletedAt: null } });
     if (!asset) {
       throw new AssetNotFoundException();
     }
