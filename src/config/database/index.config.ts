@@ -2,7 +2,7 @@ import * as path from 'path';
 import { Builder, fixturesIterator, Loader, Parser, Resolver } from 'typeorm-fixtures-cli/dist';
 import { createConnection, getRepository } from 'typeorm';
 import { NestFactory } from '@nestjs/core';
-import faker from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 
 import { AppModule } from '../../app.module';
 import { StorageService } from '../../modules/storage/storage.service';
@@ -36,7 +36,7 @@ const loadFixtures = async (fixturesPath: string) => {
 
     const resolver = new Resolver();
     const fixtures = resolver.resolve(loader.fixtureConfigs);
-    const builder = new Builder(connection, new Parser());
+    const builder = new Builder(connection, new Parser(), false);
 
     for (const fixture of fixturesIterator(fixtures)) {
       const entity = await builder.build(fixture);
@@ -64,7 +64,7 @@ const uploadMediaFile = async () => {
   await Promise.all(
     mediaToUpdate.map(async (el) => {
       const [file] = await service.uploadFromUrls(
-        [{ sourceUrl: faker.random.arrayElement(urls) }],
+        [{ sourceUrl: faker.helpers.arrayElement(urls) }],
         `assets/${el}`,
       );
       await Media.update(

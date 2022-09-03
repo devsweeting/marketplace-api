@@ -1,4 +1,4 @@
-import faker from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 import { IProcessor } from 'typeorm-fixtures-cli';
 import { Media } from 'modules/assets/entities/media.entity';
 
