@@ -22,11 +22,11 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "bundle": "rimraf public/*.{js,map} && parcel build src/modules/admin/pages/*.html --dist-dir public",
     "bundle:dev": "parcel src/modules/admin/pages/*.html --dist-dir public",
-    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js -f dist/config/ormconfig",
-    "migration:create": "yarn typeorm migration:create -d src/config/database/migrations -n $NAME",
-    "migration:generate": "yarn typeorm migration:generate -d src/config/database/migrations -n $NAME",
+    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/.bin/typeorm -d ./src/config/database/cli-data-source.ts",
+    "migration:create": "yarn typeorm migration:create src/config/database/migrations/$NAME",
+    "migration:generate": "yarn typeorm migration:generate src/config/database/migrations/$NAME",
     "migration:up": "yarn typeorm migration:run",
-    "migration:down": "yarn typeorm  migration:revert",
+    "migration:down": "yarn typeorm migration:revert",
     "migration:show": "yarn typeorm migration:show"
   },
   "dependencies": {
