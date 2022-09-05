@@ -10,7 +10,7 @@ import { createAsset } from '../utils/asset.utils';
 import * as testApp from '../utils/app.utils';
 import { SellOrder } from 'modules/sell-orders/entities';
 import { v4 } from 'uuid';
-import faker from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
 
 describe('SellOrdersController', () => {

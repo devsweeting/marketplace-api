@@ -76,12 +76,10 @@ describe('WatchlistController', () => {
           expect(body).toEqual({ status: 201, description: 'Asset was added to watchlist' });
         })
         .then(async () => {
-          const watchlist = await Watchlist.findOne(
-            { user },
-            {
-              relations: ['watchlistAssets'],
-            },
-          );
+          const watchlist = await Watchlist.findOne({
+            where: { userId: user.id },
+            relations: ['watchlistAssets'],
+          });
           expect(watchlist).toBeDefined();
           expect(watchlist.watchlistAssets).toBeDefined();
           expect(watchlist.watchlistAssets[0].assetId).toEqual(asset.id);
@@ -130,12 +128,10 @@ describe('WatchlistController', () => {
         expect(body).toEqual({ status: 201, description: 'Asset was added to watchlist' });
       })
       .then(async () => {
-        const watchlist = await Watchlist.findOne(
-          { user },
-          {
-            relations: ['watchlistAssets'],
-          },
-        );
+        const watchlist = await Watchlist.findOne({
+          where: { userId: user.id },
+          relations: ['watchlistAssets'],
+        });
         expect(watchlist).toBeDefined();
         expect(watchlist.watchlistAssets).toBeDefined();
         expect(watchlist.watchlistAssets.length).toEqual(2);
@@ -165,12 +161,10 @@ describe('WatchlistController', () => {
         expect(body).toEqual({ status: 201, description: 'Asset was added to watchlist' });
       })
       .then(async () => {
-        const watchlist = await Watchlist.findOne(
-          { user },
-          {
-            relations: ['watchlistAssets'],
-          },
-        );
+        const watchlist = await Watchlist.findOne({
+          where: { userId: user.id },
+          relations: ['watchlistAssets'],
+        });
         expect(watchlist).toBeDefined();
         expect(watchlist.watchlistAssets).toBeDefined();
         expect(watchlist.watchlistAssets.length).toEqual(1);
@@ -205,12 +199,10 @@ describe('WatchlistController', () => {
         });
       })
       .then(async () => {
-        const watchlist = await Watchlist.findOne(
-          { user },
-          {
-            relations: ['watchlistAssets'],
-          },
-        );
+        const watchlist = await Watchlist.findOne({
+          where: { userId: user.id },
+          relations: ['watchlistAssets'],
+        });
         expect(watchlist).toBeDefined();
         expect(watchlist.watchlistAssets).toBeDefined();
         expect(watchlist.watchlistAssets.length).toEqual(1);
@@ -233,12 +225,10 @@ describe('WatchlistController', () => {
         });
       })
       .then(async () => {
-        const watchlist = await Watchlist.findOne(
-          { user },
-          {
-            relations: ['watchlistAssets'],
-          },
-        );
+        const watchlist = await Watchlist.findOne({
+          where: { userId: user.id },
+          relations: ['watchlistAssets'],
+        });
         expect(watchlist).not.toBeDefined();
       });
   });
@@ -266,12 +256,10 @@ describe('WatchlistController', () => {
         });
       })
       .then(async () => {
-        const watchlist = await Watchlist.findOne(
-          { user },
-          {
-            relations: ['watchlistAssets'],
-          },
-        );
+        const watchlist = await Watchlist.findOne({
+          where: { userId: user.id },
+          relations: ['watchlistAssets'],
+        });
         expect(watchlist).toBeDefined();
         expect(watchlist.watchlistAssets).toBeDefined();
         expect(watchlist.watchlistAssets.length).toEqual(1);
@@ -312,12 +300,10 @@ describe('WatchlistController', () => {
         });
       })
       .then(async () => {
-        const watchlist = await Watchlist.findOne(
-          { user },
-          {
-            relations: ['watchlistAssets'],
-          },
-        );
+        const watchlist = await Watchlist.findOne({
+          where: { userId: user.id },
+          relations: ['watchlistAssets'],
+        });
         expect(watchlist).toBeDefined();
         expect(watchlist.watchlistAssets).toBeDefined();
         expect(watchlist.watchlistAssets.length).toEqual(5);

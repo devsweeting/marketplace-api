@@ -111,7 +111,7 @@ export class SellOrderPurchase extends BaseModel implements BaseEntityInterface 
     return purchase;
   }
 
-  private constructor(partial: Partial<SellOrderPurchase>) {
+  public constructor(partial: Partial<SellOrderPurchase> = {}) {
     super();
     Object.assign(this, partial);
   }

@@ -69,7 +69,7 @@ describe('UsersController', () => {
           });
         })
         .then(async () => {
-          const updatedUser = await User.findOne(user.id);
+          const updatedUser = await User.findOneBy({ id: user.id });
           expect(updatedUser).toBeDefined();
         });
     });
@@ -96,7 +96,7 @@ describe('UsersController', () => {
           });
         })
         .then(async () => {
-          const updatedUser = await User.findOne(user.id);
+          const updatedUser = await User.findOneBy({ id: user.id });
           expect(updatedUser).toBeDefined();
         });
     });

@@ -31,7 +31,7 @@ describe('UserController (e2e)', () => {
         .expect(200);
 
       // OtpRecord created
-      const userOtp = await UserOtp.findOne({ email });
+      const userOtp = await UserOtp.findOneBy({ email });
       expect(userOtp.email).toBe(email);
 
       // confirm
@@ -40,9 +40,9 @@ describe('UserController (e2e)', () => {
         .send({ token: userOtp.token, metadata: { ip: '0.0.0.0' } })
         .expect(200);
 
-      const createUser = await User.findOne({ email });
+      const createUser = await User.findOneBy({ email });
       expect(createUser.email).toBe(email);
-      expect(await UserLogin.count({ where: { user: createUser } })).toBe(1);
+      expect(await UserLogin.count({ where: { userId: createUser.id } })).toBe(1);
     });
 
     test('should return 429 for too many requests', async () => {
@@ -82,7 +82,7 @@ describe('UserController (e2e)', () => {
         .expect(200);
 
       // OtpRecord created
-      const userOtp = await UserOtp.findOne({ email: email.toLowerCase() });
+      const userOtp = await UserOtp.findOneBy({ email: email.toLowerCase() });
       expect(userOtp).toBeDefined();
       expect(userOtp.email).toBe(email.toLowerCase());
 
@@ -92,9 +92,9 @@ describe('UserController (e2e)', () => {
         .send({ token: userOtp.token, metadata: { ip: '0.0.0.0' } })
         .expect(200);
 
-      const createUser = await User.findOne({ email: email.toLowerCase() });
+      const createUser = await User.findOneBy({ email: email.toLowerCase() });
       expect(createUser.email).toBe(email.toLowerCase());
-      expect(await UserLogin.count({ where: { user: createUser } })).toBe(1);
+      expect(await UserLogin.count({ where: { userId: createUser.id } })).toBe(1);
     });
 
     test('should success if email has uppercase and lowercase letters', async () => {
@@ -105,7 +105,7 @@ describe('UserController (e2e)', () => {
         .expect(200);
 
       // OtpRecord created
-      const userOtp = await UserOtp.findOne({ email: email.toLowerCase() });
+      const userOtp = await UserOtp.findOneBy({ email: email.toLowerCase() });
       expect(userOtp).toBeDefined();
       expect(userOtp.email).toBe(email.toLowerCase());
       // confirm
@@ -114,9 +114,9 @@ describe('UserController (e2e)', () => {
         .send({ token: userOtp.token, metadata: { ip: '0.0.0.0' } })
         .expect(200);
 
-      const createUser = await User.findOne({ email: email.toLowerCase() });
+      const createUser = await User.findOneBy({ email: email.toLowerCase() });
       expect(createUser.email).toBe(email.toLowerCase());
-      expect(await UserLogin.count({ where: { user: createUser } })).toBe(1);
+      expect(await UserLogin.count({ where: { userId: createUser.id } })).toBe(1);
     });
   });
 });
