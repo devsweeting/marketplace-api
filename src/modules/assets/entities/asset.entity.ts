@@ -4,7 +4,6 @@ import {
   Brackets,
   Column,
   Entity,
-  getConnection,
   Index,
   JoinColumn,
   Like,
@@ -33,6 +32,9 @@ import { AssetsDuplicatedException } from '../exceptions/assets-duplicated.excep
 import { decodeHashId } from 'modules/common/helpers/hash-id.helper';
 import { ConfigService } from '@nestjs/config';
 import { SellOrder } from 'modules/sell-orders/entities';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from '@/src/app.module';
 
 export class AssetAttributes {
   constructor(attrs: AttributeDto[]) {
@@ -139,7 +141,8 @@ export class Asset extends BaseModel implements BaseEntityInterface {
         description: dto.description,
         fractionQtyTotal: dto.fractionQtyTotal,
       });
-      await getConnection().transaction(async (txMgr) => {
+
+      await this.getRepository().manager.transaction(async (txMgr) => {
         if (dto.attributes) {
           asset.attributes = new AssetAttributes(dto.attributes);
         }
