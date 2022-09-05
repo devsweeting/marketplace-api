@@ -37,7 +37,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from '@/src/app.module';
 
 export class AssetAttributes {
-  constructor(attrs: AttributeDto[]) {
+  constructor(attrs: AttributeDto[] = []) {
     for (const attr of attrs) {
       this.add(attr.trait, attr.value);
     }
@@ -143,9 +143,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
       });
 
       await this.getRepository().manager.transaction(async (txMgr) => {
-        if (dto.attributes) {
-          asset.attributes = new AssetAttributes(dto.attributes);
-        }
+        asset.attributes = new AssetAttributes(dto.attributes);
         await txMgr.save(asset);
         const event = new Event({ fromAccount: partner.accountOwnerId, asset: asset });
         await txMgr.save(event);
