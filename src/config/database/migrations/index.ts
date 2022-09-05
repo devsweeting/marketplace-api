@@ -12,6 +12,7 @@ import { CreateSellOrderPurchasesTable1660164905288 } from './1660164905288-Crea
 import { ModifySellOrderDateColumns1660760132910 } from './1660760132910-ModifySellOrderDateColumns';
 import { AddDropLimits1660941495793 } from './1660941495793-AddDropLimits';
 import { RenameUrlToSourceUrl1661270005764 } from './1661293286632-RenameUrlToSourceUrl';
+import { TypeormUpgrade1662344844000 } from './1662344844000-TypeormUpgrade';
 
 export const migrations = [
   Init1652279127303,
@@ -28,4 +29,5 @@ export const migrations = [
   ModifySellOrderDateColumns1660760132910,
   AddDropLimits1660941495793,
   RenameUrlToSourceUrl1661270005764,
+  TypeormUpgrade1662344844000,
 ];

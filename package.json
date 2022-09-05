@@ -22,12 +22,12 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "bundle": "rimraf public/*.{js,map} && parcel build src/modules/admin/pages/*.html --dist-dir public",
     "bundle:dev": "parcel src/modules/admin/pages/*.html --dist-dir public",
-    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/.bin/typeorm -d ./src/config/database/cli-data-source.ts",
-    "migration:create": "yarn typeorm migration:create src/config/database/migrations/$NAME",
-    "migration:generate": "yarn typeorm migration:generate src/config/database/migrations/$NAME",
-    "migration:up": "yarn typeorm migration:run",
-    "migration:down": "yarn typeorm migration:revert",
-    "migration:show": "yarn typeorm migration:show"
+    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/.bin/typeorm",
+    "migration:create": "sh -c 'yarn typeorm migration:create ./src/config/database/migrations/$0'",
+    "migration:generate": "sh -c 'yarn typeorm migration:generate -d ./src/config/database/cli-data-source.ts ./src/config/database/migrations/$0'",
+    "migration:up": "yarn typeorm migration:run -d ./src/config/database/cli-data-source.ts",
+    "migration:down": "yarn typeorm migration:revert -d ./src/config/database/cli-data-source.ts",
+    "migration:show": "yarn typeorm migration:show -d ./src/config/database/cli-data-source.ts"
   },
   "dependencies": {
     "@adminjs/design-system": "^2.2.4",
