@@ -63,6 +63,8 @@ export class AssetAttributes {
   unique: true,
   where: '"deletedAt" IS NOT NULL',
 })
+@Index('ts_name_idx', { synchronize: false })
+@Index('ts_description_idx', { synchronize: false })
 export class Asset extends BaseModel implements BaseEntityInterface {
   @Index()
   @Column({ nullable: false, length: 100 })
@@ -72,12 +74,30 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   @Column({ length: 200, nullable: false })
   public name: string;
 
+  @Column({
+    type: 'tsvector',
+    generatedType: 'STORED',
+    asExpression: `to_tsvector('english', name)`,
+    nullable: true,
+    readonly: true,
+  })
+  public readonly ts_name?: string;
+
   @Index()
   @Column({ nullable: false, unique: true })
   public slug: string;
 
   @Column({ type: 'text', nullable: true })
   public description: string;
+
+  @Column({
+    type: 'tsvector',
+    generatedType: 'STORED',
+    asExpression: `to_tsvector('english', description)`,
+    nullable: true,
+    readonly: true,
+  })
+  public readonly ts_description?: string;
 
   @ManyToOne(() => Partner, (partner) => partner.assets)
   @JoinColumn({ name: 'partnerId' })
