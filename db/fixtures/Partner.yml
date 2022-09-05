@@ -5,6 +5,6 @@ items:
     apiKey: 'ca03na188ame03u1d78620de67282882'
     accountOwnerId: '@user1'
   partner{2..5}:
-    name: '{{company.companyName}}'
+    name: '{{company.name}}'
     apiKey: 'd2e621a6646a4211768cd68e26f21228'
     accountOwnerId: '@user($current)'

@@ -1,7 +1,8 @@
 import * as path from 'path';
 import { Builder, fixturesIterator, Loader, Parser, Resolver } from 'typeorm-fixtures-cli/dist';
-import { createConnection, getRepository } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { NestFactory } from '@nestjs/core';
+import { INestApplicationContext } from '@nestjs/common';
 import { faker } from '@faker-js/faker';
 
 import { AppModule } from '../../app.module';
@@ -24,42 +25,40 @@ const urls = [
 
 const mediaToUpdate = [];
 
-const loadFixtures = async (fixturesPath: string) => {
-  let connection;
-  let app;
+let app: INestApplicationContext | undefined;
 
+const loadFixtures = async (fixturesPath: string) => {
   try {
-    connection = await createConnection();
+    app ??= await NestFactory.createApplicationContext(AppModule);
+    const dataSource = app.get(DataSource);
 
     const loader = new Loader();
     loader.load(path.resolve(fixturesPath));
 
     const resolver = new Resolver();
     const fixtures = resolver.resolve(loader.fixtureConfigs);
-    const builder = new Builder(connection, new Parser(), false);
+    const builder = new Builder(dataSource, new Parser(), false);
 
     for (const fixture of fixturesIterator(fixtures)) {
       const entity = await builder.build(fixture);
-      if (entity.constructor.name === 'Media') {
+      if (entity instanceof Media) {
         mediaToUpdate.push(entity.asset.id);
       }
 
-      await getRepository(entity.constructor.name).save(entity);
+      await dataSource.getRepository(entity.constructor.name).save(entity);
     }
   } catch (err) {
     throw err;
   } finally {
     if (app) {
-      if (connection) {
-        await connection.close();
-      }
       await app.close();
+      app = undefined;
     }
   }
 };
 
 const uploadMediaFile = async () => {
-  const app = await NestFactory.createApplicationContext(AppModule);
+  app ??= await NestFactory.createApplicationContext(AppModule);
   const service = app.get<StorageService>(StorageService);
   await Promise.all(
     mediaToUpdate.map(async (el) => {
@@ -77,7 +76,18 @@ const uploadMediaFile = async () => {
   );
 };
 
-loadFixtures('./db/fixtures')
-  .then(uploadMediaFile)
-  .then(() => console.log('Fixtures are successfully loaded.'))
-  .catch((err) => console.log(err));
+const start = async () => {
+  try {
+    await loadFixtures('./db/fixtures');
+    await uploadMediaFile();
+    console.log('Fixtures are successfully loaded.');
+  } catch (err) {
+    console.log(err);
+  } finally {
+    if (app) {
+      await app.close();
+    }
+  }
+};
+
+void start();
