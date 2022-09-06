@@ -7,7 +7,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtOtpStrategy } from './strategies/jwt-otp.strategy';
 import { UsersService } from 'modules/users/users.service';
-import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 
 @Module({
   imports: [
@@ -23,14 +22,7 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
       }),
     }),
   ],
-  providers: [
-    AuthService,
-    ApiKeyStrategy,
-    JwtStrategy,
-    JwtOtpStrategy,
-    JwtRefreshStrategy,
-    UsersService,
-  ],
+  providers: [AuthService, ApiKeyStrategy, JwtStrategy, JwtOtpStrategy, UsersService],
   exports: [AuthService, UsersService],
 })
 export class AuthModule {}

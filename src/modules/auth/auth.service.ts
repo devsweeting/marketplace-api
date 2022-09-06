@@ -12,7 +12,6 @@ import { RoleEnum } from 'modules/users/enums/role.enum';
 import { User } from 'modules/users/entities/user.entity';
 import { IsNull } from 'typeorm';
 import { UsersService } from 'modules/users/users.service';
-// import bcrypt from 'bcryptjs';
 import { TokenExpiredError } from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import * as ethUtil from 'ethereumjs-util';
@@ -21,6 +20,7 @@ export interface RefreshTokenPayload {
   email: string;
   userId: string;
   role: RoleEnum;
+  assignedAt: Date;
   iat: string; //Issued At Claim.
   exp: number; //Expiry Claim.
 }
@@ -46,10 +46,10 @@ export class AuthService {
   }
 
   public async generateRefreshToken(user: { id: string; email: string; role: RoleEnum }) {
-    const payload = { userId: user.id, email: user.email, role: user.role };
+    const payload = { userId: user.id, email: user.email, role: user.role, assignedAt: Date.now() };
     const refreshToken = await this.jwtService.sign(payload, {
       secret: this.configService.get('jwt.default.jwtRefreshSecret'),
-      expiresIn: this.configService.get('jwt.default.jwtRefreshExpiresIn'), // ERROR ENV variables not importing in
+      expiresIn: this.configService.get('jwt.default.jwtRefreshExpiresIn'),
     });
     return refreshToken;
   }
@@ -64,9 +64,8 @@ export class AuthService {
   }
 
   async createLoginTokens(user: { id: string; email: string; role: RoleEnum }) {
-    const payload = { id: user.id, email: user.email, role: user.role };
+    const payload = { id: user.id, email: user.email, role: user.role, assignedAt: Date.now() };
     const refreshToken = await this.generateRefreshToken(payload);
-    // const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.updateRefreshTokenInUser(payload.email, refreshToken);
 
     return {
@@ -77,14 +76,14 @@ export class AuthService {
 
   public async createNewAccessTokensFromRefreshToken(
     refreshToken: string,
-  ): Promise<{ accessToken: string; user: User }> {
+  ): Promise<{ user: User; accessToken: string; refreshToken: string }> {
     // validate refresh token.
     const { user } = await this.resolveRefreshToken(refreshToken);
 
-    //Once refreshToken is used expire it until the user signs in again
-    await this.updateRefreshTokenInUser(user.email, null);
     const accessToken = await this.generateAccessToken(user);
-    return { user, accessToken };
+    const newRefreshToken = await this.generateRefreshToken(user);
+    await this.updateRefreshTokenInUser(user.email, newRefreshToken);
+    return { user, accessToken, refreshToken: newRefreshToken };
   }
 
   private async resolveRefreshToken(
@@ -102,6 +101,7 @@ export class AuthService {
       }
 
       const user = await this.userRepository.findOne(userId);
+
       if (!user) {
         throw new HttpException('User with this id does not exist', HttpStatus.NOT_FOUND);
       }

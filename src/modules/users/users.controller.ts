@@ -26,7 +26,6 @@ import { User } from './entities/user.entity';
 import { UserTransformer } from './transformers/user.transformer';
 import { AuthService } from 'modules/auth/auth.service';
 import JwtAuthGuard from 'modules/auth/guards/jwt-auth.guard';
-import JwtRefreshTokenGuard from 'modules/auth/guards/jwt-refresh.guard';
 import RoleGuard from 'modules/auth/guards/role.guard';
 import { RoleEnum } from './enums/role.enum';
 import { OtpService } from './services/otp.service';
@@ -137,15 +136,10 @@ export class UsersController {
   }
 
   @Post('login/refresh')
-  // @UseGuards(JwtAuthGuard)
-  // @UseGuards(JwtRefreshTokenGuard)
   @ApiOperation({ summary: 'Create a new access token using the users refresh token' })
   @ApiBadRequestResponse({ description: 'Refresh token is invalid.' })
   @HttpCode(HttpStatus.OK)
   public async refreshLogin(@Body() dto: RefreshRequestDto) {
-    const { user, accessToken } = await this.authService.createNewAccessTokensFromRefreshToken(
-      dto.refreshToken,
-    );
-    return { user, accessToken };
+    return await this.authService.createNewAccessTokensFromRefreshToken(dto.refreshToken);
   }
 }
