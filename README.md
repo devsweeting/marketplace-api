@@ -21,7 +21,7 @@ You can override your environment variables in file `.env.local`, but it's not n
  1. Open this repository in VSCode
  2. Follow the VSCode prompt to "Reopen in container"
  3. Using the VSCode terminal (which is attached to the container):
-     - `yarn bundle`
+     - `yarn build`
      - `yarn migration:up`
      - `yarn fixtures`
      - `yarn start:dev`
@@ -31,6 +31,12 @@ You can override your environment variables in file `.env.local`, but it's not n
 This repository uses [devcontainers](https://code.visualstudio.com/docs/remote/containers) to bootstrap the development environment. Because this is a VSCode-specific feature, that is what's expected here. If you prefer another editor, you will need to figure out the docker-compose setup yourself.
 
 See `.devcontainer/devcontainer.json` for specifics.
+
+### Migrations
+
+- Use `yarn migration:create <migration name>` to create an empty migration
+- Use `yarn migration:generate <migration name>` to automatically generate a migration based on source code changes
+- After creating/generating a migration you'll have to manually import it in `src/database/migrations/index.ts` and add it to the `migrations` array for TypeOrm to detect it
 
 ## API Docs
 
