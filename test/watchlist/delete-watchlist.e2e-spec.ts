@@ -132,7 +132,7 @@ describe('WatchlistController', () => {
           const persistedWatchlistAsset = await WatchlistAsset.findOne({
             where: { assetId: asset.id, watchlistId: watchlist.id, isDeleted: false },
           });
-          expect(persistedWatchlistAsset).toBeUndefined();
+          expect(persistedWatchlistAsset).toBeNull();
         });
     });
   });

@@ -229,7 +229,7 @@ describe('WatchlistController', () => {
           where: { userId: user.id },
           relations: ['watchlistAssets'],
         });
-        expect(watchlist).not.toBeDefined();
+        expect(watchlist).toBeNull();
       });
   });
   test('throw asset not found exception if asset does not exists', async () => {

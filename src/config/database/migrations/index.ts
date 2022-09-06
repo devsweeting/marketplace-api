@@ -13,7 +13,7 @@ import { ModifySellOrderDateColumns1660760132910 } from './1660760132910-ModifyS
 import { AddDropLimits1660941495793 } from './1660941495793-AddDropLimits';
 import { RenameUrlToSourceUrl1661270005764 } from './1661293286632-RenameUrlToSourceUrl';
 import { UpdateTypeOrmMetadata1662416585994 } from './1662416585994-UpdateTypeOrmMetadata';
-import { TypeOrmUpgrade1662411952192 } from './1662411952192-TypeOrmUpgrade';
+import { FixSellOrder1662423096730 } from './1662423096730-FixSellOrder';
 
 export const migrations = [
   Init1652279127303,
@@ -31,5 +31,5 @@ export const migrations = [
   AddDropLimits1660941495793,
   RenameUrlToSourceUrl1661270005764,
   UpdateTypeOrmMetadata1662416585994,
-  TypeOrmUpgrade1662411952192,
+  FixSellOrder1662423096730,
 ];

@@ -24,7 +24,7 @@ export class SellOrderPurchase extends BaseModel implements BaseEntityInterface 
   @JoinColumn({ name: 'sellOrderId' })
   public sellOrder: SellOrder;
 
-  @Column({ type: 'string', nullable: true })
+  @Column({ type: 'string', nullable: false })
   @RelationId((sellOrderPurchase: SellOrderPurchase) => sellOrderPurchase.user)
   public userId: string;
 

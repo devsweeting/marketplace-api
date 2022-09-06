@@ -36,7 +36,7 @@ describe('SellOrdersController', () => {
     const sellOrder = await SellOrder.findOne({
       where: { partnerId: partner.id, assetId: asset.id },
     });
-    expect(sellOrder).not.toBeDefined();
+    expect(sellOrder).toBeNull();
   }
 
   beforeAll(async () => {
@@ -174,7 +174,7 @@ describe('SellOrdersController', () => {
       const sellOrder = await SellOrder.findOne({
         where: { partnerId: partner.id, assetId: asset.id },
       });
-      expect(sellOrder).not.toBeDefined();
+      expect(sellOrder).toBeNull();
     });
     test('should throw an error 404 when email is not found', async () => {
       const payload = {
@@ -195,7 +195,7 @@ describe('SellOrdersController', () => {
       const sellOrder = await SellOrder.findOne({
         where: { partnerId: partner.id, assetId: asset.id },
       });
-      expect(sellOrder).not.toBeDefined();
+      expect(sellOrder).toBeNull();
     });
 
     test('should return 400 when `drop` type specified without `userFractionLimit`', async () => {

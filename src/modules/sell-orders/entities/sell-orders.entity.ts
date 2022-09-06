@@ -45,7 +45,7 @@ export class SellOrder extends BaseModel implements BaseEntityInterface {
   @Column({ type: 'bigint', nullable: false })
   public fractionQty: number;
 
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'int', nullable: false, default: 0 })
   public fractionQtyAvailable: number;
 
   @Column({ type: 'bigint', nullable: false })
@@ -60,7 +60,12 @@ export class SellOrder extends BaseModel implements BaseEntityInterface {
   @Column({ type: 'bigint', nullable: false, default: 0 })
   public deletedTime: number;
 
-  @Column({ type: 'enum', enum: SellOrderTypeEnum, nullable: false })
+  @Column({
+    type: 'enum',
+    enum: SellOrderTypeEnum,
+    nullable: false,
+    default: SellOrderTypeEnum.standard,
+  })
   public type: SellOrderTypeEnum;
 
   @Column({ type: 'timestamp', nullable: true })

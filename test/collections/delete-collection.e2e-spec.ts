@@ -56,7 +56,7 @@ describe('CollectionsController', () => {
           const persistedCollection = await Collection.findOne({
             where: { id: collection.id, isDeleted: false },
           });
-          expect(persistedCollection).toBeUndefined();
+          expect(persistedCollection).toBeNull();
         });
     });
   });

@@ -105,7 +105,7 @@ describe('SellOrdersController', () => {
       const persistedSellOrder = await SellOrder.findOne({
         where: { id: sellOrder.id, isDeleted: false },
       });
-      expect(persistedSellOrder).toBeUndefined();
+      expect(persistedSellOrder).toBeNull();
     });
   });
 });

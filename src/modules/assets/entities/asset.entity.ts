@@ -107,10 +107,10 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   @RelationId((asset: Asset) => asset.partner)
   public partnerId: string;
 
-  @Column({ type: 'jsonb', nullable: false, name: 'attributesJson' })
+  @Column({ type: 'jsonb', nullable: false, name: 'attributesJson', default: [] })
   public attributes: AssetAttributes;
 
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'int', nullable: false, default: 0 })
   public fractionQtyTotal: number;
 
   @OneToMany(() => Label, (label) => label.asset)
