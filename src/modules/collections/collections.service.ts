@@ -19,7 +19,12 @@ export class CollectionsService {
 
   public async getOne({ id, slug }: { id: string; slug: string }): Promise<Collection> {
     const query = Collection.createQueryBuilder('collection')
-      .leftJoinAndMapMany('collection.assets', 'collection.assets', 'assets')
+      .leftJoinAndMapMany(
+        'collection.collectionAssets',
+        'collection.collectionAssets',
+        'collectionAssets',
+      )
+      .leftJoinAndMapOne('collectionAssets.asset', 'collectionAssets.asset', 'asset')
       .leftJoinAndMapOne('collection.banner', 'collection.banner', 'banner')
       .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
       .andWhere('asset.deletedAt IS NULL');

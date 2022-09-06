@@ -6,7 +6,9 @@ import {
   Entity,
   Index,
   JoinColumn,
+  JoinTable,
   Like,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   OneToOne,
@@ -24,7 +26,7 @@ import { AssetDto, AttributeDto } from 'modules/assets/dto';
 import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 import { Event } from 'modules/events/entities';
 import { Token } from './token.entity';
-import { CollectionAsset } from 'modules/collections/entities';
+import { Collection, CollectionAsset } from 'modules/collections/entities';
 import { AttributeLteMustBeGreaterThanGteException } from '../exceptions/attribute-lte-greater-than-gte.exception';
 import { Media } from './media.entity';
 import { POSTGRES_DUPE_KEY_ERROR } from 'modules/common/constants';

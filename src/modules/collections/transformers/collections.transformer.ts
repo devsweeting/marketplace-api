@@ -17,6 +17,8 @@ export class CollectionsTransformer {
   ) {}
 
   public transform(collection: Collection): CollectionResponse {
+    const assets = collection.collectionAssets?.map((ca) => ca.asset);
+
     return {
       id: collection.id,
       name: collection.name,
@@ -25,7 +27,7 @@ export class CollectionsTransformer {
       slug: collection.slug,
       createdAt: collection.createdAt.toISOString(),
       updatedAt: collection.updatedAt.toISOString(),
-      assets: collection.assets ? this.transformAllAssets(collection.assets) : [],
+      assets: assets ? this.transformAllAssets(assets) : [],
     };
   }
 
