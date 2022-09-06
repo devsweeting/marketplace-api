@@ -178,7 +178,6 @@ describe('UserController (e2e)', () => {
         .send({ refreshToken: createdRefreshToken })
         .expect(200)
         .expect(({ body }) => {
-          console.log('returned response', body);
           expect(body.accessToken).toBeDefined();
           expect(body.refreshToken).toBeDefined();
           expect(body.refreshToken).not.toEqual(createdRefreshToken);
