@@ -1,4 +1,4 @@
-import faker from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 import { SellOrder } from 'modules/sell-orders/entities';
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
 

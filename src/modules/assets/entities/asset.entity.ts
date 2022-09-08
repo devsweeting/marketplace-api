@@ -4,10 +4,11 @@ import {
   Brackets,
   Column,
   Entity,
-  getConnection,
   Index,
   JoinColumn,
+  JoinTable,
   Like,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   OneToOne,
@@ -25,7 +26,7 @@ import { AssetDto, AttributeDto } from 'modules/assets/dto';
 import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 import { Event } from 'modules/events/entities';
 import { Token } from './token.entity';
-import { CollectionAsset } from 'modules/collections/entities';
+import { Collection, CollectionAsset } from 'modules/collections/entities';
 import { AttributeLteMustBeGreaterThanGteException } from '../exceptions/attribute-lte-greater-than-gte.exception';
 import { Media } from './media.entity';
 import { POSTGRES_DUPE_KEY_ERROR } from 'modules/common/constants';
@@ -33,9 +34,12 @@ import { AssetsDuplicatedException } from '../exceptions/assets-duplicated.excep
 import { decodeHashId } from 'modules/common/helpers/hash-id.helper';
 import { ConfigService } from '@nestjs/config';
 import { SellOrder } from 'modules/sell-orders/entities';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from '@/src/app.module';
 
 export class AssetAttributes {
-  constructor(attrs: AttributeDto[]) {
+  constructor(attrs: AttributeDto[] = []) {
     for (const attr of attrs) {
       this.add(attr.trait, attr.value);
     }
@@ -61,6 +65,8 @@ export class AssetAttributes {
   unique: true,
   where: '"deletedAt" IS NOT NULL',
 })
+@Index('ts_name_idx', { synchronize: false })
+@Index('ts_description_idx', { synchronize: false })
 export class Asset extends BaseModel implements BaseEntityInterface {
   @Index()
   @Column({ nullable: false, length: 100 })
@@ -70,12 +76,30 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   @Column({ length: 200, nullable: false })
   public name: string;
 
+  @Column({
+    type: 'tsvector',
+    generatedType: 'STORED',
+    asExpression: `to_tsvector('english', name)`,
+    nullable: true,
+    readonly: true,
+  })
+  public readonly ts_name?: string;
+
   @Index()
   @Column({ nullable: false, unique: true })
   public slug: string;
 
   @Column({ type: 'text', nullable: true })
   public description: string;
+
+  @Column({
+    type: 'tsvector',
+    generatedType: 'STORED',
+    asExpression: `to_tsvector('english', description)`,
+    nullable: true,
+    readonly: true,
+  })
+  public readonly ts_description?: string;
 
   @ManyToOne(() => Partner, (partner) => partner.assets)
   @JoinColumn({ name: 'partnerId' })
@@ -85,10 +109,10 @@ export class Asset extends BaseModel implements BaseEntityInterface {
   @RelationId((asset: Asset) => asset.partner)
   public partnerId: string;
 
-  @Column({ type: 'jsonb', nullable: false, name: 'attributesJson' })
+  @Column({ type: 'jsonb', nullable: false, name: 'attributesJson', default: [] })
   public attributes: AssetAttributes;
 
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'int', nullable: false, default: 0 })
   public fractionQtyTotal: number;
 
   @OneToMany(() => Label, (label) => label.asset)
@@ -139,10 +163,9 @@ export class Asset extends BaseModel implements BaseEntityInterface {
         description: dto.description,
         fractionQtyTotal: dto.fractionQtyTotal,
       });
-      await getConnection().transaction(async (txMgr) => {
-        if (dto.attributes) {
-          asset.attributes = new AssetAttributes(dto.attributes);
-        }
+
+      await this.getRepository().manager.transaction(async (txMgr) => {
+        asset.attributes = new AssetAttributes(dto.attributes);
         await txMgr.save(asset);
         const event = new Event({ fromAccount: partner.accountOwnerId, asset: asset });
         await txMgr.save(event);
@@ -300,7 +323,7 @@ export class Asset extends BaseModel implements BaseEntityInterface {
     return query.getOne();
   }
 
-  public constructor(partial: Partial<Asset>) {
+  public constructor(partial: Partial<Asset> = {}) {
     super();
     Object.assign(this, partial);
   }

@@ -72,7 +72,7 @@ export class Event extends BaseModel implements BaseEntityInterface {
     return query;
   }
 
-  public constructor(partial: Partial<Event>) {
+  public constructor(partial: Partial<Event> = {}) {
     super();
     Object.assign(this, partial);
   }

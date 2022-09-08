@@ -3,6 +3,6 @@ items:
   contract{1..200}:
     address: 509a050f573be0d5e01a73c3726e17161729558b22
     name: '{{random.word}}'
-    image: '{{random.image}}'
+    image: '{{image.image}}'
     description: '{{lorem.sentence}}'
     externalUrl: '{{internet.url}}'

@@ -114,7 +114,7 @@ describe('MediaController', () => {
           const persistedMedia = await Media.findOne({
             where: { id: media.id, isDeleted: false },
           });
-          expect(persistedMedia).toBeUndefined();
+          expect(persistedMedia).toBeNull();
         });
     });
   });

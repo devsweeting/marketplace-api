@@ -24,7 +24,7 @@ export class UserOtp extends BaseModel implements BaseEntityInterface {
     });
   }
 
-  constructor(partial: Partial<UserOtp>) {
+  constructor(partial: Partial<UserOtp> = {}) {
     super();
     Object.assign(this, partial);
   }
