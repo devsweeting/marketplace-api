@@ -28,7 +28,7 @@ export class EventsService {
   }
 
   public async recordEventRequest(assetId: string, dto: EventRequestDto): Promise<Event> {
-    const asset: Asset = await Asset.findOne(assetId);
+    const asset: Asset = await Asset.findOneBy({ id: assetId });
     if (!asset) {
       throw new AssetNotFoundException();
     }

@@ -46,8 +46,7 @@ describe('UserController (e2e)', () => {
 
       const createUser = await User.findOne({ email });
       expect(createUser.email).toBe(email);
-
-      expect(await UserLogin.count({ where: { user: createUser } })).toBe(1);
+      expect(await UserLogin.count({ where: { userId: createUser.id } })).toBe(1);
     });
 
     test('should return 429 for too many requests', async () => {
@@ -99,7 +98,7 @@ describe('UserController (e2e)', () => {
 
       const createUser = await User.findOne({ email: email.toLowerCase() });
       expect(createUser.email).toBe(email.toLowerCase());
-      expect(await UserLogin.count({ where: { user: createUser } })).toBe(1);
+      expect(await UserLogin.count({ where: { userId: createUser.id } })).toBe(1);
     });
 
     test('should success if email has uppercase and lowercase letters', async () => {
@@ -121,7 +120,7 @@ describe('UserController (e2e)', () => {
 
       const createUser = await User.findOne({ email: email.toLowerCase() });
       expect(createUser.email).toBe(email.toLowerCase());
-      expect(await UserLogin.count({ where: { user: createUser } })).toBe(1);
+      expect(await UserLogin.count({ where: { userId: createUser.id } })).toBe(1);
     });
 
     test('should test that a user is assigned a refresh token on succcessful login', async () => {

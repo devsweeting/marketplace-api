@@ -24,7 +24,7 @@ export class Token extends BaseModel {
   @RelationId((token: Token) => token.contract)
   public contractId: string;
 
-  public constructor(partial: Partial<Token>) {
+  public constructor(partial: Partial<Token> = {}) {
     super();
     Object.assign(this, partial);
   }

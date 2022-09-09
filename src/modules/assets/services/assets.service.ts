@@ -7,7 +7,7 @@ import { IPaginationMeta, paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { UpdateAssetDto } from 'modules/assets/dto/update-asset.dto';
 import { RefAlreadyTakenException } from 'modules/common/exceptions/ref-already-taken.exception';
 import { StorageService } from 'modules/storage/storage.service';
-import { getManager, Not } from 'typeorm';
+import { EntityManager, Not } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import {
   AssetNotFoundException,
@@ -41,6 +41,7 @@ export class AssetsService {
     private readonly storageService: StorageService,
     private readonly configService: ConfigService,
     private readonly mediaService: MediaService,
+    private readonly entityManager: EntityManager,
   ) {}
 
   public async getList(params: ListAssetsDto): Promise<Pagination<Asset>> {
@@ -217,7 +218,7 @@ export class AssetsService {
   }
 
   public async recordTransferRequest(partnerId: string, dto: TransferRequestDto): Promise<void> {
-    const partner: Partner = await Partner.findOne(partnerId);
+    const partner: Partner = await Partner.findOneBy({ id: partnerId });
 
     Logger.log(`Partner ${partner.name} received transfer request`);
 
@@ -230,7 +231,7 @@ export class AssetsService {
         }
         if (assetDto.collection) {
           const collection = assetDto.collection.id
-            ? await Collection.findOne(assetDto.collection.id)
+            ? await Collection.findOneBy({ id: assetDto.collection.id })
             : await Collection.findOne({ where: { slug: assetDto.collection.id } });
           if (!collection) {
             throw new CollectionNotFoundException();
@@ -248,7 +249,7 @@ export class AssetsService {
   public async getTrending(): Promise<TrendingMarket[]> {
     // Using a raw SQL query here is easier than using the ORM especially
     // when we need to group by the attributesJson column
-    const result = await getManager().query(
+    const result = await this.entityManager.query(
       `
       SELECT
           partner_assets."attributesJson" -> $1 AS grouping,

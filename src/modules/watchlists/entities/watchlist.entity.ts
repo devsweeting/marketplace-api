@@ -27,7 +27,7 @@ export class Watchlist extends BaseModel implements BaseEntityInterface {
   @OneToMany(() => WatchlistAsset, (watchlistAsset) => watchlistAsset.watchlist)
   public watchlistAssets: WatchlistAsset[];
 
-  constructor(partial: Partial<Watchlist>) {
+  constructor(partial: Partial<Watchlist> = {}) {
     super();
     Object.assign(this, partial);
   }

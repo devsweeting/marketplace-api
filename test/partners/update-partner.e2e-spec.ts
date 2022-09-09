@@ -69,7 +69,10 @@ describe('PartnerController', () => {
           });
         })
         .then(async () => {
-          const updatedPartner = await Partner.findOne(partner.id, { relations: ['members'] });
+          const updatedPartner = await Partner.findOne({
+            where: { id: partner.id },
+            relations: ['members'],
+          });
           expect(updatedPartner).toBeDefined();
           expect(updatedPartner.members.length).toEqual(2);
           const u1 = await User.findOne({ where: { email: payload.emails[0] } });
@@ -99,7 +102,10 @@ describe('PartnerController', () => {
           });
         })
         .then(async () => {
-          const updatedPartner = await Partner.findOne(partner.id, { relations: ['members'] });
+          const updatedPartner = await Partner.findOne({
+            where: { id: partner.id },
+            relations: ['members'],
+          });
           expect(updatedPartner).toBeDefined();
           expect(updatedPartner.members.length).toEqual(0);
         });

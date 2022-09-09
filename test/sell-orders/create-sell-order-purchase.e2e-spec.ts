@@ -12,7 +12,7 @@ import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
 import { createSellOrder } from '../utils/sell-order.utils';
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
 import { generateOtpToken } from '../utils/jwt.utils';
-import faker from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 
 function urlFor(order: SellOrder): string {
   return `/v1/sellorders/${order.id}/purchase`;
@@ -46,7 +46,7 @@ async function expectPurchaseSuccess(
   await testApp.post(app, urlFor(order), 201, null, payload, headerForUser(purchaser));
   await order.reload();
   expect(order.fractionQtyAvailable).toBe(initialQty - fractionsToPurchase);
-  const purchase = await SellOrderPurchase.findOne({ sellOrderId: order.id });
+  const purchase = await SellOrderPurchase.findOneBy({ sellOrderId: order.id });
   expect(purchase).toBeDefined();
   expect(purchase.fractionQty).toBe(fractionsToPurchase);
   expect(purchase.fractionPriceCents).toBe(fractionPriceCents);

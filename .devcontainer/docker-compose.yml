@@ -18,6 +18,8 @@ services:
   postgres:
     container_name: jump-database
     image: postgres
+    ports:
+      - 5432:5432
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password

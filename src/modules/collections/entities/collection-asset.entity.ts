@@ -6,32 +6,38 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Generated,
+  Index,
   JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Collection } from '.';
+import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 
-@Entity({ name: 'collections_assets', synchronize: false })
-export class CollectionAsset extends BaseEntity {
-  @PrimaryGeneratedColumn('uuid')
-  @IsUUID()
-  public id: string;
-
-  @Column({ primary: true, type: 'uuid' })
+@Entity('collections_assets')
+export class CollectionAsset extends BaseEntity implements BaseEntityInterface {
+  @Index()
+  @PrimaryColumn({ type: 'uuid' })
   public collectionId: string;
 
-  @Column({ primary: true, type: 'uuid' })
-  public assetId: string;
-
-  @ManyToOne(() => Collection)
+  @ManyToOne(() => Collection, (collection) => collection.collectionAssets)
   @JoinColumn({ name: 'collectionId' })
   public collection: Collection;
 
-  @ManyToOne(() => Asset)
+  @Index()
+  @PrimaryColumn({ type: 'uuid' })
+  public assetId: string;
+
+  @ManyToOne(() => Asset, (asset) => asset.collectionAssets)
   @JoinColumn({ name: 'assetId' })
   public asset: Asset;
+
+  @IsUUID()
+  @Column()
+  @Generated('uuid')
+  public id: string;
 
   @UpdateDateColumn()
   public updatedAt: Date;
@@ -45,7 +51,7 @@ export class CollectionAsset extends BaseEntity {
   @Column({ default: false })
   public isDeleted: boolean | false;
 
-  public constructor(partial: Partial<CollectionAsset>) {
+  public constructor(partial: Partial<CollectionAsset> = {}) {
     super();
     Object.assign(this, partial);
   }

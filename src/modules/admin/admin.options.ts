@@ -8,7 +8,7 @@ import createPartnerResource from './resources/partner/partner.resource';
 import createUserResource from './resources/user/user.resource';
 import { SessionEntity, TypeormStore } from 'typeorm-store';
 import { Session } from 'modules/auth/session/session.entity';
-import { getRepository } from 'typeorm';
+import { DataSource } from 'typeorm';
 import createContractResource from 'modules/admin/resources/contract/contract.resource';
 import createEventResource from './resources/events/event.resource';
 import locale from './locale';
@@ -29,7 +29,7 @@ import createMediaResource from './resources/media/media.resource';
 AdminJS.registerAdapter({ Database, Resource });
 
 const createAdmin = async (configService: ConfigService) => {
-  if ((await User.count({ role: RoleEnum.SUPER_ADMIN })) === 0) {
+  if ((await User.countBy({ role: RoleEnum.SUPER_ADMIN })) === 0) {
     const new_admin = User.create({
       email: configService.get('admin.default.adminEmail'),
       address: configService.get('admin.default.adminAddress'),
@@ -107,9 +107,10 @@ export const getSessionOptions = async (
   serviceAccessor: ServiceAccessor,
 ): Promise<SessionOptionsInterface> => {
   const configService = serviceAccessor.getService(ConfigService);
+  const dataSource = serviceAccessor.getService(DataSource);
 
   return {
     secret: configService.get('admin.default.sessionSecret'),
-    store: new TypeormStore({ repository: getRepository<SessionEntity>(Session) }),
+    store: new TypeormStore({ repository: dataSource.getRepository<SessionEntity>(Session) }),
   };
 };

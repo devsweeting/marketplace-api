@@ -68,7 +68,7 @@ export class User extends BaseModel implements BaseEntityInterface {
   @OneToOne(() => Watchlist, (watchlist) => watchlist.user, { nullable: true })
   public watchlist: Watchlist | null;
 
-  constructor(partial: Partial<User>) {
+  constructor(partial: Partial<User> = {}) {
     super();
     Object.assign(this, partial);
   }

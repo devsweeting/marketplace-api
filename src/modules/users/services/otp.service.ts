@@ -32,8 +32,8 @@ export class OtpService extends BaseService {
     );
 
     // count number of requests in last 1 hr
-    const requestCountIn1Hour = await UserOtp.count({
-      createdAt: MoreThanOrEqual(subHours(new Date(), 1).toISOString()),
+    const requestCountIn1Hour = await UserOtp.countBy({
+      createdAt: MoreThanOrEqual(subHours(new Date(), 1)),
       email,
     });
     if (requestCountIn1Hour > this.configService.get('common.default.maxOtpRequestPerHour')) {
