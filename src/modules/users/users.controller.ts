@@ -30,6 +30,7 @@ import RoleGuard from 'modules/auth/guards/role.guard';
 import { RoleEnum } from './enums/role.enum';
 import { OtpService } from './services/otp.service';
 import { RefreshRequestDto } from './dto/refresh-request.dto';
+import { JwtRefreshGaurd } from 'modules/auth/guards/jwt-refresh.guard';
 
 @ApiTags('users')
 @Controller({
@@ -136,10 +137,12 @@ export class UsersController {
   }
 
   @Post('login/refresh')
+  @UseGuards(JwtRefreshGaurd)
   @ApiOperation({ summary: 'Create a new access token using the users refresh token' })
   @ApiBadRequestResponse({ description: 'Refresh token is invalid.' })
   @HttpCode(HttpStatus.OK)
   public async refreshLogin(@Body() dto: RefreshRequestDto) {
-    return await this.authService.createNewAccessTokensFromRefreshToken(dto.refreshToken);
+    const response = await this.authService.createNewAccessTokensFromRefreshToken(dto.refreshToken);
+    return response;
   }
 }

@@ -208,14 +208,13 @@ describe('UserController (e2e)', () => {
       //move time forward past the 7d expiration
       global.Date.now = jest.fn(() => new Date('2022-09-08T10:20:30Z').getTime());
 
-      //Send a new request to the /refresh endpoint
       await request(app.getHttpServer())
         .post(`/v1/users/login/refresh`)
         .send({ refreshToken: loggedInUser.refreshToken })
-        .expect(422)
+        .expect(401)
         .expect((request) => {
           const error = JSON.parse(request.text);
-          expect(error.message).toBe('Refresh token expired');
+          expect(error.message).toBe('Unauthorized');
         });
     });
   });

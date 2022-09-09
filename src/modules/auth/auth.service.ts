@@ -58,9 +58,9 @@ export class AuthService {
     const user = await User.findOne({
       where: { email, isDeleted: false, deletedAt: null },
     });
-    // Remove refreshToken if null
-    user.refreshToken = !!refreshToken ? refreshToken : null;
-    await user.save();
+    user.refreshToken = refreshToken ? refreshToken : null;
+    Object.assign(user, { refreshToken });
+    return await user.save();
   }
 
   async createLoginTokens(user: { id: string; email: string; role: RoleEnum }) {
@@ -79,11 +79,11 @@ export class AuthService {
   ): Promise<{ user: User; accessToken: string; refreshToken: string }> {
     // validate refresh token.
     const { user } = await this.resolveRefreshToken(refreshToken);
-
     const accessToken = await this.generateAccessToken(user);
+
     const newRefreshToken = await this.generateRefreshToken(user);
-    await this.updateRefreshTokenInUser(user.email, newRefreshToken);
-    return { user, accessToken, refreshToken: newRefreshToken };
+    const updatedUser = await this.updateRefreshTokenInUser(user.email, newRefreshToken);
+    return { user: updatedUser, accessToken, refreshToken: newRefreshToken };
   }
 
   private async resolveRefreshToken(
@@ -101,11 +101,14 @@ export class AuthService {
       }
 
       const user = await this.userRepository.findOne(userId);
-
       if (!user) {
         throw new HttpException('User with this id does not exist', HttpStatus.NOT_FOUND);
       }
 
+      //check if the token in the request matches the token on the user
+      if (encodedRefreshToken !== user.refreshToken) {
+        throw new UnauthorizedException('Invalid token');
+      }
       return { user, refreshToken };
     } catch (e) {
       if (e instanceof TokenExpiredError) {
