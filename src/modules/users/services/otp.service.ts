@@ -33,9 +33,10 @@ export class OtpService extends BaseService {
 
     // count number of requests in last 1 hr
     const requestCountIn1Hour = await UserOtp.count({
-      createdAt: MoreThanOrEqual(subHours(new Date(), 1).toISOString()),
-      email,
+      where: { createdAt: MoreThanOrEqual(subHours(new Date(), 1)) },
     });
+
+    console.log(requestCountIn1Hour);
     if (requestCountIn1Hour > this.configService.get('common.default.maxOtpRequestPerHour')) {
       throw new TooManyRequestException(
         `You cannot more than ${this.configService.get(
@@ -80,9 +81,8 @@ export class OtpService extends BaseService {
     }
 
     // Update token
-    otpToken.used = true;
-    await otpToken.save();
-    return otpToken;
+    Object.assign(otpToken, { used: true });
+    return await otpToken.save();
   }
 
   public async confirmUserLogin({ token, metadata }: LoginConfirmDto) {
