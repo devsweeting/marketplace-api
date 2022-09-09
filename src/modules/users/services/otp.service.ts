@@ -80,13 +80,14 @@ export class OtpService extends BaseService {
     }
 
     // Update token
-    otpToken.used = true;
-    await otpToken.save();
-    return otpToken;
+    Object.assign(otpToken, { used: true });
+    return await otpToken.save();
   }
 
   public async confirmUserLogin({ token, metadata }: LoginConfirmDto) {
     const otpToken = await this.markTokenUsed(token);
+
+    console.log('after marktoenused', otpToken);
 
     const user = await this.userService.createOrUpdateFromOtp({
       email: otpToken.email,

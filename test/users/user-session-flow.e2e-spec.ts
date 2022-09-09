@@ -134,6 +134,7 @@ describe('UserController (e2e)', () => {
 
       //logs the otp password
       const userOtp = await UserOtp.findOne({ email });
+      console.log('userOtp before', userOtp);
 
       // confirm the user signs in and API returns a refresh token
       await request(app.getHttpServer())
@@ -142,7 +143,6 @@ describe('UserController (e2e)', () => {
         .expect(200);
 
       const loggedInUser = await User.findOne({ email });
-      //expect(userOtp.used).toBeTruthy(); //POTENTIAL ERROR? - The OTP token should be marked as used after login confirmation.
       expect(loggedInUser.refreshToken).toBeDefined();
     });
 
