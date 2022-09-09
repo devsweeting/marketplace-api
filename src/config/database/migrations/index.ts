@@ -14,6 +14,7 @@ import { AddDropLimits1660941495793 } from './1660941495793-AddDropLimits';
 import { RenameUrlToSourceUrl1661270005764 } from './1661293286632-RenameUrlToSourceUrl';
 import { UpdateTypeOrmMetadata1662416585994 } from './1662416585994-UpdateTypeOrmMetadata';
 import { FixSellOrder1662423096730 } from './1662423096730-FixSellOrder';
+import { addRefreshTokenColumnOnUser1661837188323 } from './1661837188323-addRefreshTokenColumnOnUser';
 
 export const migrations = [
   Init1652279127303,
@@ -32,4 +33,5 @@ export const migrations = [
   RenameUrlToSourceUrl1661270005764,
   UpdateTypeOrmMetadata1662416585994,
   FixSellOrder1662423096730,
+  addRefreshTokenColumnOnUser1661837188323,
 ];
