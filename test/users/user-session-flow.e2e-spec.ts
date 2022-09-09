@@ -35,7 +35,7 @@ describe('UserController (e2e)', () => {
         .expect(200);
 
       // OtpRecord created
-      const userOtp = await UserOtp.findOne({ email });
+      const userOtp = await UserOtp.findOne({ where: { email } });
       expect(userOtp.email).toBe(email);
 
       // confirm
@@ -44,7 +44,7 @@ describe('UserController (e2e)', () => {
         .send({ token: userOtp.token, metadata: { ip: '0.0.0.0' } })
         .expect(200);
 
-      const createUser = await User.findOne({ email });
+      const createUser = await User.findOne({ where: { email } });
       expect(createUser.email).toBe(email);
       expect(await UserLogin.count({ where: { userId: createUser.id } })).toBe(1);
     });
@@ -86,7 +86,7 @@ describe('UserController (e2e)', () => {
         .expect(200);
 
       // OtpRecord created
-      const userOtp = await UserOtp.findOne({ email: email.toLowerCase() });
+      const userOtp = await UserOtp.findOne({ where: { email: email.toLowerCase() } });
       expect(userOtp).toBeDefined();
       expect(userOtp.email).toBe(email.toLowerCase());
 
@@ -96,7 +96,7 @@ describe('UserController (e2e)', () => {
         .send({ token: userOtp.token, metadata: { ip: '0.0.0.0' } })
         .expect(200);
 
-      const createUser = await User.findOne({ email: email.toLowerCase() });
+      const createUser = await User.findOne({ where: { email: email.toLowerCase() } });
       expect(createUser.email).toBe(email.toLowerCase());
       expect(await UserLogin.count({ where: { userId: createUser.id } })).toBe(1);
     });
@@ -109,7 +109,7 @@ describe('UserController (e2e)', () => {
         .expect(200);
 
       // OtpRecord created
-      const userOtp = await UserOtp.findOne({ email: email.toLowerCase() });
+      const userOtp = await UserOtp.findOne({ where: { email: email.toLowerCase() } });
       expect(userOtp).toBeDefined();
       expect(userOtp.email).toBe(email.toLowerCase());
       // confirm
@@ -118,7 +118,7 @@ describe('UserController (e2e)', () => {
         .send({ token: userOtp.token, metadata: { ip: '0.0.0.0' } })
         .expect(200);
 
-      const createUser = await User.findOne({ email: email.toLowerCase() });
+      const createUser = await User.findOne({ where: { email: email.toLowerCase() } });
       expect(createUser.email).toBe(email.toLowerCase());
       expect(await UserLogin.count({ where: { userId: createUser.id } })).toBe(1);
     });
@@ -132,8 +132,7 @@ describe('UserController (e2e)', () => {
         .expect(200);
 
       //logs the otp password
-      const userOtp = await UserOtp.findOne({ email });
-      console.log('userOtp before', userOtp);
+      const userOtp = await UserOtp.findOne({ where: { email } });
 
       // confirm the user signs in and API returns a refresh token
       await request(app.getHttpServer())
@@ -141,7 +140,7 @@ describe('UserController (e2e)', () => {
         .send({ token: userOtp.token, metadata: { ip: '0.0.0.0' } })
         .expect(200);
 
-      const loggedInUser = await User.findOne({ email });
+      const loggedInUser = await User.findOne({ where: { email } });
       expect(loggedInUser.refreshToken).toBeDefined();
     });
 
@@ -154,7 +153,7 @@ describe('UserController (e2e)', () => {
         .expect(200);
 
       //logs the otp token
-      const userOtp = await UserOtp.findOne({ email });
+      const userOtp = await UserOtp.findOne({ where: { email } });
 
       // Signs the user in using the OTP token
       await request(app.getHttpServer())
@@ -162,7 +161,7 @@ describe('UserController (e2e)', () => {
         .send({ token: userOtp.token, metadata: { ip: '0.0.0.0' } })
         .expect(200); //should return an access token.
 
-      const loggedInUser = await User.findOne({ email });
+      const loggedInUser = await User.findOne({ where: { email } });
       const createdRefreshToken = loggedInUser.refreshToken;
 
       //move time forward for a unique signature
@@ -193,7 +192,7 @@ describe('UserController (e2e)', () => {
         .expect(200);
 
       //logs the otp token
-      const userOtp = await UserOtp.findOne({ email });
+      const userOtp = await UserOtp.findOne({ where: { email } });
 
       // Signs the user in using the OTP token
       await request(app.getHttpServer())
@@ -201,7 +200,7 @@ describe('UserController (e2e)', () => {
         .send({ token: userOtp.token, metadata: { ip: '0.0.0.0' } })
         .expect(200); //should return an access token.
 
-      const loggedInUser = await User.findOne({ email });
+      const loggedInUser = await User.findOne({ where: { email } });
       expect(loggedInUser.refreshToken).toBeDefined();
 
       //move time forward past the 7d expiration

@@ -36,7 +36,6 @@ export class OtpService extends BaseService {
       where: { createdAt: MoreThanOrEqual(subHours(new Date(), 1)) },
     });
 
-    console.log(requestCountIn1Hour);
     if (requestCountIn1Hour > this.configService.get('common.default.maxOtpRequestPerHour')) {
       throw new TooManyRequestException(
         `You cannot more than ${this.configService.get(
