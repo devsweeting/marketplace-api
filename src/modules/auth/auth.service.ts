@@ -66,9 +66,10 @@ export class AuthService {
   async createLoginTokens(user: { id: string; email: string; role: RoleEnum }) {
     const payload = { id: user.id, email: user.email, role: user.role, assignedAt: Date.now() };
     const refreshToken = await this.generateRefreshToken(payload);
-    await this.updateRefreshTokenInUser(payload.email, refreshToken);
+    const updatedUser = await this.updateRefreshTokenInUser(payload.email, refreshToken);
 
     return {
+      user: updatedUser,
       accessToken: await this.generateAccessToken(payload),
       refreshToken: refreshToken,
     };

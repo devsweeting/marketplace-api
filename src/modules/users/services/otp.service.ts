@@ -97,6 +97,6 @@ export class OtpService extends BaseService {
       metadata,
     }).save();
 
-    return this.authService.createLoginTokens(user);
+    return await this.authService.createLoginTokens(user);
   }
 }
