@@ -80,8 +80,9 @@ export class OtpService extends BaseService {
     }
 
     // Update token
-    Object.assign(otpToken, { used: true });
-    return await otpToken.save();
+    otpToken.used = true;
+    await otpToken.save();
+    return otpToken;
   }
 
   public async confirmUserLogin({ token, metadata }: LoginConfirmDto) {
