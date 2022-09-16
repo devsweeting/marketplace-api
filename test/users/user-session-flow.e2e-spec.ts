@@ -11,12 +11,12 @@ describe('UserController (e2e)', () => {
   const RealDate = Date;
 
   beforeAll(async () => {
+    jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate'] });
     app = await createApp();
   });
 
   afterAll(async () => {
-    global.Date = RealDate;
-
+    jest.useRealTimers();
     await clearAllData(), await app.close();
   });
 
@@ -25,7 +25,7 @@ describe('UserController (e2e)', () => {
       await User.delete({});
       await UserOtp.delete({});
       await UserLogin.delete({});
-      global.Date.now = jest.fn(() => new Date('2022-09-01T10:20:30Z').getTime());
+      jest.setSystemTime(new Date('2022-09-01T10:20:30Z'));
     });
     test('should success', async () => {
       const email = 'danny@gmail.com';
@@ -123,7 +123,7 @@ describe('UserController (e2e)', () => {
       expect(await UserLogin.count({ where: { userId: createUser.id } })).toBe(1);
     });
 
-    test('should test that a user is assigned a refresh token on succcessful login', async () => {
+    test('should test that a user is assigned a refresh token on successful login', async () => {
       const email = 'dev@jump.co';
       //sends the email for login
       await request(app.getHttpServer())
@@ -165,7 +165,7 @@ describe('UserController (e2e)', () => {
       const createdRefreshToken = loggedInUser.refreshToken;
 
       //move time forward for a unique signature
-      global.Date.now = jest.fn(() => new Date('2022-09-05T10:20:30Z').getTime());
+      jest.setSystemTime(new Date('2022-09-05T10:20:30Z'));
 
       //Check that the refresh token is assigned in user table.
       expect(createdRefreshToken).toBeDefined();
