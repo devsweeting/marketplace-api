@@ -7,16 +7,19 @@ import { ConfigService } from '@nestjs/config';
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;
-
-  const RealDate = Date;
-
+  const realJwtExp = process.env.JWT_EXPIRATION_TIME;
+  const realRefreshExp = process.env.JWT_REFRESH_EXPIRATION_TIME;
   beforeAll(async () => {
     jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate'] });
+    process.env.JWT_EXPIRATION_TIME = '60';
+    process.env.JWT_REFRESH_EXPIRATION_TIME = '7d';
     app = await createApp();
   });
 
   afterAll(async () => {
     jest.useRealTimers();
+    process.env.JWT_EXPIRATION_TIME = realJwtExp;
+
     await clearAllData(), await app.close();
   });
 
