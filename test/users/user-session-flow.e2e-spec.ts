@@ -147,6 +147,48 @@ describe('UserController (e2e)', () => {
       expect(loggedInUser.refreshToken).toBeDefined();
     });
 
+    test('should allow user to sign into multiple devices, assigning a different refresh token to each session', async () => {
+      const email = 'dev@jump.co';
+      //sends the email for login
+      await request(app.getHttpServer())
+        .post(`/v1/users/login/request`)
+        .send({ email })
+        .expect(200);
+
+      //logs the otp password
+      const userOtp = await UserOtp.findOne({ where: { email } });
+
+      // confirm the user signs in and API returns a refresh token
+      await request(app.getHttpServer())
+        .post(`/v1/users/login/confirm`)
+        .send({ token: userOtp.token, metadata: { ip: '0.0.0.0' } })
+        .expect(200);
+
+      const loggedInUser = await User.findOne({ where: { email } });
+      expect(loggedInUser.refreshToken).toBeDefined();
+
+      //Sign in again on a "different device"
+
+      //sends the email for login
+      await request(app.getHttpServer())
+        .post(`/v1/users/login/request`)
+        .send({ email })
+        .expect(200);
+
+      //logs the otp password
+      const userOtp2 = await UserOtp.findOne({ where: { email } });
+
+      // confirm the user signs in and API returns a refresh token
+      await request(app.getHttpServer())
+        .post(`/v1/users/login/confirm`)
+        .send({ token: userOtp2.token, metadata: { ip: '1.1.1.1' } })
+        .expect(200);
+
+      const loggedInUser2 = await User.findOne({ where: { email } });
+      expect(loggedInUser2.refreshToken).toBeDefined();
+      expect(loggedInUser.refreshToken).not.toEqual(loggedInUser2.refreshToken);
+    });
+
     test('should test that a refresh token returns a new access token for login.', async () => {
       const email = 'dev@jump.co';
       //sends the email for login
