@@ -30,7 +30,8 @@ import RoleGuard from 'modules/auth/guards/role.guard';
 import { RoleEnum } from './enums/role.enum';
 import { OtpService } from './services/otp.service';
 import { UserPortfolio } from './services/user-portfolio.service';
-import { userPortfolioIdDto } from './dto/user-portfolio.dto';
+import { currentUser } from './decorators/currentUser.decorator';
+import { PortfolioResponse } from './interfaces/portfolio-response.interface';
 
 @ApiTags('users')
 @Controller({
@@ -64,18 +65,15 @@ export class UsersController {
     return this.userTransformer.transformAllUsers(users);
   }
 
-  @Get('/portfolio/:id')
+  @Get('portfolio')
   @UseGuards(JwtAuthGuard)
   @ApiResponse({
     status: 200,
-    description: 'returns users purchased assets',
+    description: 'returns the users purchased assets and active sell orders',
     type: User,
   })
-  public async getPortfolio(@Param() params: userPortfolioIdDto): Promise<any> {
-    // TODO can I have the authgaurd automatically return the user information
-    const user = await this.usersService.findOne(params.id);
-    const response = await this.userPortfolio.getUserPurchases(user);
-    return response;
+  public async getPortfolio(@currentUser() user: User): Promise<PortfolioResponse> {
+    return await this.userPortfolio.getUserPurchases(user);
   }
 
   @Get(':id')

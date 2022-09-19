@@ -6,9 +6,7 @@ import {
   Entity,
   Index,
   JoinColumn,
-  JoinTable,
   Like,
-  ManyToMany,
   ManyToOne,
   OneToMany,
   OneToOne,
@@ -26,7 +24,7 @@ import { AssetDto, AttributeDto } from 'modules/assets/dto';
 import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 import { Event } from 'modules/events/entities';
 import { Token } from './token.entity';
-import { Collection, CollectionAsset } from 'modules/collections/entities';
+import { CollectionAsset } from 'modules/collections/entities';
 import { AttributeLteMustBeGreaterThanGteException } from '../exceptions/attribute-lte-greater-than-gte.exception';
 import { Media } from './media.entity';
 import { POSTGRES_DUPE_KEY_ERROR } from 'modules/common/constants';
@@ -34,9 +32,6 @@ import { AssetsDuplicatedException } from '../exceptions/assets-duplicated.excep
 import { decodeHashId } from 'modules/common/helpers/hash-id.helper';
 import { ConfigService } from '@nestjs/config';
 import { SellOrder } from 'modules/sell-orders/entities';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from '@/src/app.module';
 
 export class AssetAttributes {
   constructor(attrs: AttributeDto[] = []) {

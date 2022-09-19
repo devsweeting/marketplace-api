@@ -106,7 +106,7 @@ describe('SellOrdersController', () => {
       );
 
       await request(app.getHttpServer())
-        .get(PORTFOLIO_URL + buyer.id)
+        .get(PORTFOLIO_URL)
         .set(headers)
         .expect(200)
         .expect((res) => {
@@ -123,12 +123,24 @@ describe('SellOrdersController', () => {
       const headers = { Authorization: `Bearer ${generateOtpToken(seller)}` };
 
       await request(app.getHttpServer())
-        .get(PORTFOLIO_URL + seller.id)
+        .get(PORTFOLIO_URL)
         .set(headers)
         .expect(200)
         .expect((res) => {
           expect(res.body.sellOrderHistory.length).toEqual(2);
           //TODO - expand this more
+        });
+    });
+
+    test('should error if no user info is provided in the headers', async () => {
+      const headers = { Authorization: `this token wont work` };
+
+      await request(app.getHttpServer())
+        .get(PORTFOLIO_URL)
+        .set(headers)
+        .expect(401)
+        .expect((res) => {
+          expect(res.body.message).toBe('Unauthorized');
         });
     });
   });

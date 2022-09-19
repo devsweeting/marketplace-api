@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { BaseService } from 'modules/common/services';
 import { SellOrdersService } from 'modules/sell-orders/sell-orders.service';
 import { User } from '../entities';
+import { PortfolioResponse } from '../interfaces/portfolio-response.interface';
 
 @Injectable()
 export class UserPortfolio extends BaseService {
@@ -9,13 +10,13 @@ export class UserPortfolio extends BaseService {
     super();
   }
 
-  public async getUserPurchases(user: User): Promise<any> {
+  public async getUserPurchases(user: User): Promise<PortfolioResponse> {
     const { userPurchaseDetails, userSellOrders } =
       await this.sellOrderService.returnAllUserPurchases(user);
     return this.createUserPortfolio(userPurchaseDetails, userSellOrders);
   }
 
-  public createUserPortfolio = (sellOrderPurchaseHistory, userSellOrders) => {
+  public createUserPortfolio = (sellOrderPurchaseHistory, userSellOrders): PortfolioResponse => {
     let totalCostSpentInCents = 0;
     let totalUnits = 0;
     const purchaseHistory = [];
