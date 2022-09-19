@@ -13,6 +13,7 @@ import { createSellOrder, expectPurchaseSuccess } from '../utils/sell-order.util
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
 import * as testApp from '../utils/app.utils';
 import { generateOtpToken } from '../utils/jwt.utils';
+import { faker } from '@faker-js/faker';
 
 describe('SellOrdersController', () => {
   const initialQty = 10000;
@@ -26,14 +27,6 @@ describe('SellOrdersController', () => {
   let buyer: User;
 
   const PORTFOLIO_URL = `/v1/users/portfolio/`;
-  // const GET_USER_URL = `/v1/users/`;
-
-  // async function expectSignInSuccess(url, user) {
-  //   return request(app.getHttpServer())
-  //     .get(url)
-  //     .set({ Authorization: `Bearer ${generateToken(user)}` })
-  //     .expect(200);
-  // }
 
   beforeAll(async () => {
     app = await createApp();
@@ -98,9 +91,15 @@ describe('SellOrdersController', () => {
     test('should return all sell order purchases for the buyer', async () => {
       const headers = { Authorization: `Bearer ${generateOtpToken(buyer)}` };
       //buyer purchases 2 different assets from seller.
-      console.log('sellOrder', sellOrder);
-      await expectPurchaseSuccess(app, sellOrder, 10, sellOrder.fractionPriceCents, buyer, headers);
-      await expectPurchaseSuccess(
+      const purchase = await expectPurchaseSuccess(
+        app,
+        sellOrder,
+        10,
+        sellOrder.fractionPriceCents,
+        buyer,
+        headers,
+      );
+      const purchase2 = await expectPurchaseSuccess(
         app,
         sellOrder2,
         20,
@@ -110,7 +109,41 @@ describe('SellOrdersController', () => {
       );
 
       // await sellOrder.reload();
-      const expectedResponse = { status: 'it works' };
+      const expectedResponse = {
+        totalCostSpentInCents: 3000,
+        totalUnits: 30,
+        purchaseHistory: [
+          {
+            purchaseTotal: 1000,
+            id: purchase.id,
+            updatedAt: purchase.updatedAt,
+            createdAt: purchase.createdAt,
+            deletedAt: null,
+            isDeleted: false,
+            sellOrderId: sellOrder.id,
+            userId: buyer.id,
+            fractionQty: 10,
+            fractionPriceCents: 100,
+            assetId: asset.id,
+            asset: asset,
+          },
+          {
+            purchaseTotal: 2000,
+            id: purchase.id,
+            updatedAt: purchase2.updatedAt,
+            createdAt: purchase2.createdAt,
+            deletedAt: null,
+            isDeleted: false,
+            sellOrderId: sellOrder2.id,
+            userId: buyer.id,
+            fractionQty: 20,
+            fractionPriceCents: 100,
+            assetId: asset2.id,
+            asset: asset2,
+          },
+        ],
+        sellOrderHistory: [],
+      };
       await testApp.get(app, PORTFOLIO_URL + buyer.id, 200, expectedResponse, {}, headers);
     });
   });

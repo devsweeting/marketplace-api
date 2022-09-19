@@ -37,6 +37,7 @@ export async function expectPurchaseSuccess(
   expect(purchase).toBeDefined();
   expect(purchase.fractionQty).toBe(fractionsToPurchase);
   expect(purchase.fractionPriceCents).toBe(fractionPriceCents);
+  return purchase;
 }
 
 export function urlFor(order: SellOrder): string {

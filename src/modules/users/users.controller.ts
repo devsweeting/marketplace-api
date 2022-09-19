@@ -74,7 +74,9 @@ export class UsersController {
   public async getPortfolio(@Param() params: userPortfolioIdDto): Promise<any> {
     //TODO is there a way to find the logged in user without passing an ID param?
     const user = await this.usersService.findOne(params.id);
-    return this.userPortfolio.getUserPurchases(user);
+    const response = await this.userPortfolio.getUserPurchases(user);
+    console.log('response', response);
+    return response;
   }
 
   @Get(':id')
