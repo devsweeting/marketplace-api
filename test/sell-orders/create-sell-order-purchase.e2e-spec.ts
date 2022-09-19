@@ -8,19 +8,16 @@ import { RoleEnum } from 'modules/users/enums/role.enum';
 import { Asset } from 'modules/assets/entities';
 import { createAsset } from '../utils/asset.utils';
 import * as testApp from '../utils/app.utils';
-import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
-import { createSellOrder } from '../utils/sell-order.utils';
+import { SellOrder } from 'modules/sell-orders/entities';
+import {
+  createSellOrder,
+  expectPurchaseSuccess,
+  headerForUser,
+  urlFor,
+} from '../utils/sell-order.utils';
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
 import { generateOtpToken } from '../utils/jwt.utils';
 import { faker } from '@faker-js/faker';
-
-function urlFor(order: SellOrder): string {
-  return `/v1/sellorders/${order.id}/purchase`;
-}
-
-function headerForUser(user: User): Record<string, string> {
-  return { Authorization: `Bearer ${generateOtpToken(user)}` };
-}
 
 async function expectCheck(
   app: INestApplication,
@@ -31,25 +28,6 @@ async function expectCheck(
 ) {
   const url = `/v1/sellorders/${sellOrder.id}/check`;
   await testApp.get(app, url, status, response, null, headerForUser(purchaser));
-}
-
-async function expectPurchaseSuccess(
-  app: INestApplication,
-  order: SellOrder,
-  fractionsToPurchase: number,
-  fractionPriceCents: number,
-  purchaser: User,
-) {
-  await order.reload();
-  const initialQty = order.fractionQtyAvailable;
-  const payload = { fractionsToPurchase, fractionPriceCents };
-  await testApp.post(app, urlFor(order), 201, null, payload, headerForUser(purchaser));
-  await order.reload();
-  expect(order.fractionQtyAvailable).toBe(initialQty - fractionsToPurchase);
-  const purchase = await SellOrderPurchase.findOneBy({ sellOrderId: order.id });
-  expect(purchase).toBeDefined();
-  expect(purchase.fractionQty).toBe(fractionsToPurchase);
-  expect(purchase.fractionPriceCents).toBe(fractionPriceCents);
 }
 
 describe('SellOrdersController -> Purchases', () => {

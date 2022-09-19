@@ -323,6 +323,14 @@ export class Asset extends BaseModel implements BaseEntityInterface {
     return query.getOne();
   }
 
+  public static async getAssetsByIds(assetIds: string[]): Promise<Asset[] | undefined> {
+    const query = Asset.createQueryBuilder('asset');
+    query.andWhere('asset.isDeleted = FALSE');
+    query.andWhere('asset.deletedAt IS NULL');
+    query.andWhereInIds(assetIds);
+    return query.getMany();
+  }
+
   public constructor(partial: Partial<Asset> = {}) {
     super();
     Object.assign(this, partial);

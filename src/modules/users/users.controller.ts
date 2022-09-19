@@ -24,12 +24,13 @@ import { UserResponse } from './interfaces/user.interface';
 import { CreateUserDto, LoginConfirmDto, LoginRequestDto, UpdateUserDto } from './dto';
 import { User } from './entities/user.entity';
 import { UserTransformer } from './transformers/user.transformer';
-import { LocalAuthGuard } from 'modules/auth/guards/local-auth.guard';
 import { AuthService } from 'modules/auth/auth.service';
 import JwtAuthGuard from 'modules/auth/guards/jwt-auth.guard';
 import RoleGuard from 'modules/auth/guards/role.guard';
 import { RoleEnum } from './enums/role.enum';
 import { OtpService } from './services/otp.service';
+import { UserPortfolio } from './services/user-portfolio.service';
+import { userPortfolioIdDto } from './dto/user-portfolio.dto';
 
 @ApiTags('users')
 @Controller({
@@ -42,6 +43,7 @@ export class UsersController {
     private readonly userTransformer: UserTransformer,
     private readonly authService: AuthService,
     private readonly otpService: OtpService,
+    private readonly userPortfolio: UserPortfolio,
   ) {}
 
   @Get(':address/nonce')
@@ -60,6 +62,19 @@ export class UsersController {
   public async getUsers(): Promise<UserResponse[]> {
     const users = await this.usersService.findAll();
     return this.userTransformer.transformAllUsers(users);
+  }
+
+  @Get('/portfolio/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({
+    status: 200,
+    description: 'returns users urchased assets',
+    type: User,
+  })
+  public async getPortfolio(@Param() params: userPortfolioIdDto): Promise<any> {
+    //TODO is there a way to find the logged in user without passing an ID param?
+    const user = await this.usersService.findOne(params.id);
+    return this.userPortfolio.getUserPurchases(user);
   }
 
   @Get(':id')
