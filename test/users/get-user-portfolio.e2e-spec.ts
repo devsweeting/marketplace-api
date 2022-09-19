@@ -11,9 +11,8 @@ import { createAsset } from '../utils/asset.utils';
 import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
 import { createSellOrder, expectPurchaseSuccess } from '../utils/sell-order.utils';
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
-import * as testApp from '../utils/app.utils';
 import { generateOtpToken } from '../utils/jwt.utils';
-import { faker } from '@faker-js/faker';
+import request from 'supertest';
 
 describe('SellOrdersController', () => {
   const initialQty = 10000;
@@ -108,43 +107,18 @@ describe('SellOrdersController', () => {
         headers,
       );
 
-      // await sellOrder.reload();
-      const expectedResponse = {
-        totalCostSpentInCents: 3000,
-        totalUnits: 30,
-        purchaseHistory: [
-          {
-            purchaseTotal: 1000,
-            id: purchase.id,
-            updatedAt: purchase.updatedAt,
-            createdAt: purchase.createdAt,
-            deletedAt: null,
-            isDeleted: false,
-            sellOrderId: sellOrder.id,
-            userId: buyer.id,
-            fractionQty: 10,
-            fractionPriceCents: 100,
-            assetId: asset.id,
-            asset: asset,
-          },
-          {
-            purchaseTotal: 2000,
-            id: purchase.id,
-            updatedAt: purchase2.updatedAt,
-            createdAt: purchase2.createdAt,
-            deletedAt: null,
-            isDeleted: false,
-            sellOrderId: sellOrder2.id,
-            userId: buyer.id,
-            fractionQty: 20,
-            fractionPriceCents: 100,
-            assetId: asset2.id,
-            asset: asset2,
-          },
-        ],
-        sellOrderHistory: [],
-      };
-      await testApp.get(app, PORTFOLIO_URL + buyer.id, 200, expectedResponse, {}, headers);
+      await request(app.getHttpServer())
+        .get(PORTFOLIO_URL + buyer.id)
+        .set(headers)
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.totalUnits).toBe(purchase.fractionQty + purchase2.fractionQty);
+          expect(res.body.totalCostSpentInCents).toEqual(
+            purchase.fractionQty * purchase.fractionPriceCents +
+              purchase2.fractionQty * purchase2.fractionPriceCents,
+          );
+          expect(res.body.sellOrderHistory.length).toEqual(0);
+        });
     });
   });
 });
