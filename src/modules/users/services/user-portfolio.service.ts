@@ -17,19 +17,19 @@ export class UserPortfolio extends BaseService {
   }
 
   public createUserPortfolio = (sellOrderPurchaseHistory, userSellOrders): PortfolioResponse => {
-    let totalCostSpentInCents = 0;
+    let totalValueInCents = 0;
     let totalUnits = 0;
     const purchaseHistory = [];
     const sellOrderHistory = userSellOrders ? userSellOrders : null;
 
     for (const sellOrderPurchase of sellOrderPurchaseHistory) {
       const purchaseTotal = sellOrderPurchase.fractionQty * sellOrderPurchase.fractionPriceCents;
-      totalCostSpentInCents += purchaseTotal;
+      totalValueInCents += purchaseTotal;
       totalUnits += sellOrderPurchase.fractionQty;
       const purchase = { purchaseTotal, ...sellOrderPurchase };
       purchaseHistory.push(purchase);
     }
 
-    return { totalCostSpentInCents, totalUnits, purchaseHistory, sellOrderHistory };
+    return { totalValueInCents, totalUnits, purchaseHistory, sellOrderHistory };
   };
 }
