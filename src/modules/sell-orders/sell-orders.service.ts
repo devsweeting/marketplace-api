@@ -135,7 +135,9 @@ export class SellOrdersService {
 
     //get all sell orders created by the user.
     const userSellOrders = await SellOrder.createQueryBuilder('sellOrder')
-      .whereInIds(user.id)
+      .where('sellOrder.userId = :userId', {
+        userId: user.id,
+      })
       .andWhere('sellOrder.isDeleted = :isDeleted AND sellOrder.deletedAt IS NULL', {
         isDeleted: false,
       })

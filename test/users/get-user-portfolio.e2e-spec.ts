@@ -29,9 +29,6 @@ describe('SellOrdersController', () => {
 
   beforeAll(async () => {
     app = await createApp();
-  });
-
-  beforeEach(async () => {
     seller = await createUser({ email: 'seller@test.com', role: RoleEnum.USER });
     buyer = await createUser({ email: 'buyer@test.com', role: RoleEnum.USER });
     partner = await createPartner({
@@ -73,6 +70,7 @@ describe('SellOrdersController', () => {
   });
 
   afterEach(async () => {
+    await SellOrderPurchase.delete({});
     jest.clearAllMocks();
   });
 
@@ -118,6 +116,19 @@ describe('SellOrdersController', () => {
               purchase2.fractionQty * purchase2.fractionPriceCents,
           );
           expect(res.body.sellOrderHistory.length).toEqual(0);
+        });
+    });
+
+    test('should return all active sell orders for a seller', async () => {
+      const headers = { Authorization: `Bearer ${generateOtpToken(seller)}` };
+
+      await request(app.getHttpServer())
+        .get(PORTFOLIO_URL + seller.id)
+        .set(headers)
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.sellOrderHistory.length).toEqual(2);
+          //TODO - expand this more
         });
     });
   });

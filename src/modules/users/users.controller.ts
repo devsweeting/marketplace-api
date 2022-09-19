@@ -68,14 +68,13 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiResponse({
     status: 200,
-    description: 'returns users urchased assets',
+    description: 'returns users purchased assets',
     type: User,
   })
   public async getPortfolio(@Param() params: userPortfolioIdDto): Promise<any> {
-    //TODO is there a way to find the logged in user without passing an ID param?
+    // TODO can I have the authgaurd automatically return the user information
     const user = await this.usersService.findOne(params.id);
     const response = await this.userPortfolio.getUserPurchases(user);
-    console.log('response', response);
     return response;
   }
 
