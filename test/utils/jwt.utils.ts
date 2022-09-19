@@ -5,17 +5,10 @@ const jwtService = new JwtService({
   privateKey: process.env.JWT_SECRET,
 });
 
-export const generateOtpToken = (user: User): string =>
-  jwtService.sign({
-    id: user.id,
-    email: user.email,
-    role: user.role,
-  });
-
 export const generateToken = (user: User): string =>
   jwtService.sign({
     id: user.id,
-    address: user.address,
+    email: user.email,
     role: user.role,
   });
 

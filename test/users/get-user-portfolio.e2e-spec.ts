@@ -11,7 +11,7 @@ import { createAsset } from '../utils/asset.utils';
 import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
 import { createSellOrder, expectPurchaseSuccess } from '../utils/sell-order.utils';
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
-import { generateOtpToken } from '../utils/jwt.utils';
+import { generateToken } from '../utils/jwt.utils';
 import request from 'supertest';
 
 describe('SellOrdersController', () => {
@@ -86,7 +86,7 @@ describe('SellOrdersController', () => {
 
   describe(`GET V1 /`, () => {
     test('should return all sell order purchases for the buyer', async () => {
-      const headers = { Authorization: `Bearer ${generateOtpToken(buyer)}` };
+      const headers = { Authorization: `Bearer ${generateToken(buyer)}` };
       //buyer purchases 2 different assets from seller.
       const purchase = await expectPurchaseSuccess(
         app,
@@ -111,7 +111,7 @@ describe('SellOrdersController', () => {
         .expect(200)
         .expect((res) => {
           expect(res.body.totalUnits).toBe(purchase.fractionQty + purchase2.fractionQty);
-          expect(res.body.totalCostSpentInCents).toEqual(
+          expect(res.body.totalValueInCents).toEqual(
             purchase.fractionQty * purchase.fractionPriceCents +
               purchase2.fractionQty * purchase2.fractionPriceCents,
           );
@@ -120,7 +120,7 @@ describe('SellOrdersController', () => {
     });
 
     test('should return all active sell orders for a seller', async () => {
-      const headers = { Authorization: `Bearer ${generateOtpToken(seller)}` };
+      const headers = { Authorization: `Bearer ${generateToken(seller)}` };
 
       await request(app.getHttpServer())
         .get(PORTFOLIO_URL)
@@ -132,8 +132,8 @@ describe('SellOrdersController', () => {
         });
     });
 
-    test('should error if no user info is provided in the headers', async () => {
-      const headers = { Authorization: `this token wont work` };
+    test('should error if request is sent with improper authorization', async () => {
+      const headers = { Authorization: `improper authorization` };
 
       await request(app.getHttpServer())
         .get(PORTFOLIO_URL)

@@ -16,7 +16,7 @@ import {
   urlFor,
 } from '../utils/sell-order.utils';
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
-import { generateOtpToken } from '../utils/jwt.utils';
+import { generateToken } from '../utils/jwt.utils';
 import { faker } from '@faker-js/faker';
 
 async function expectCheck(
@@ -92,7 +92,7 @@ describe('SellOrdersController -> Purchases', () => {
     order: SellOrder,
     purchaser: User,
   ) {
-    const headers = { Authorization: `Bearer ${generateOtpToken(purchaser)}` };
+    const headers = { Authorization: `Bearer ${generateToken(purchaser)}` };
     const expected = {
       error: err,
       message: msg,

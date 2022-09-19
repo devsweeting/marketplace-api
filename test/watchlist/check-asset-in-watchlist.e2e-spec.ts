@@ -10,7 +10,7 @@ import { createAsset } from '../utils/asset.utils';
 import { Asset } from 'modules/assets/entities';
 import { createPartner } from '../utils/partner.utils';
 import { Partner } from 'modules/partners/entities';
-import { generateNonce, generateOtpToken } from '../utils/jwt.utils';
+import { generateNonce, generateToken } from '../utils/jwt.utils';
 import { v4 } from 'uuid';
 
 describe('WatchlistController', () => {
@@ -108,7 +108,7 @@ describe('WatchlistController', () => {
     test('return inWatchlist: false if user has not added asset to watchlist for id', () => {
       return request(app.getHttpServer())
         .get(`/v1/watchlist/check/${assets[1].id}`)
-        .set({ Authorization: `Bearer ${generateOtpToken(users[1])}` })
+        .set({ Authorization: `Bearer ${generateToken(users[1])}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -119,7 +119,7 @@ describe('WatchlistController', () => {
     test('return inWatchlist: false if user has not added asset to watchlist for slug', () => {
       return request(app.getHttpServer())
         .get(`/v1/watchlist/check/${assets[1].slug}`)
-        .set({ Authorization: `Bearer ${generateOtpToken(users[1])}` })
+        .set({ Authorization: `Bearer ${generateToken(users[1])}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -130,7 +130,7 @@ describe('WatchlistController', () => {
     test('return inWatchlist: true if user has added asset to watchlist for id', () => {
       return request(app.getHttpServer())
         .get(`/v1/watchlist/check/${assets[0].id}`)
-        .set({ Authorization: `Bearer ${generateOtpToken(users[0])}` })
+        .set({ Authorization: `Bearer ${generateToken(users[0])}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -141,7 +141,7 @@ describe('WatchlistController', () => {
     test('return inWatchlist: true if user has added asset to watchlist for slug', () => {
       return request(app.getHttpServer())
         .get(`/v1/watchlist/check/${assets[0].slug}`)
-        .set({ Authorization: `Bearer ${generateOtpToken(users[0])}` })
+        .set({ Authorization: `Bearer ${generateToken(users[0])}` })
         .send()
         .expect(200)
         .expect(({ body }) => {
@@ -167,7 +167,7 @@ describe('WatchlistController', () => {
       for (const id of [asset.id, asset.slug]) {
         await request(app.getHttpServer())
           .get(`/v1/watchlist/check/${id}`)
-          .set({ Authorization: `Bearer ${generateOtpToken(users[0])}` })
+          .set({ Authorization: `Bearer ${generateToken(users[0])}` })
           .send()
           .expect(404)
           .expect(({ body }) => {
@@ -183,7 +183,7 @@ describe('WatchlistController', () => {
     test('return 404 if asset does not exist for wrong id ', () => {
       return request(app.getHttpServer())
         .get(`/v1/watchlist/check/${v4()}`)
-        .set({ Authorization: `Bearer ${generateOtpToken(users[0])}` })
+        .set({ Authorization: `Bearer ${generateToken(users[0])}` })
         .send()
         .expect(404);
     });
@@ -191,7 +191,7 @@ describe('WatchlistController', () => {
     test('return 404 if asset does not exist for wrong slug ', () => {
       return request(app.getHttpServer())
         .get(`/v1/watchlist/check/wrong-slug`)
-        .set({ Authorization: `Bearer ${generateOtpToken(users[0])}` })
+        .set({ Authorization: `Bearer ${generateToken(users[0])}` })
         .send()
         .expect(404);
     });

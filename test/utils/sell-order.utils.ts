@@ -4,7 +4,7 @@ import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
 import { User } from 'modules/users/entities';
 import * as testApp from '../utils/app.utils';
-import { generateOtpToken } from './jwt.utils';
+import { generateToken } from './jwt.utils';
 
 export const createSellOrder = (data: Partial<SellOrder>): Promise<SellOrder> => {
   const sellOrder = new SellOrder({
@@ -45,5 +45,5 @@ export function urlFor(order: SellOrder): string {
 }
 
 export function headerForUser(user: User): Record<string, string> {
-  return { Authorization: `Bearer ${generateOtpToken(user)}` };
+  return { Authorization: `Bearer ${generateToken(user)}` };
 }
