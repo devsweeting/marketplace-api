@@ -34,9 +34,6 @@ jobs:
       - name: 'Generate API Version Label'
         run: echo VERSION_LABEL=build-develop-$(date +%s) >> $GITHUB_ENV
 
-      - name: 'Generate Admin Version Label'
-        run: echo VERSION_LABEL_ADMIN=build-develop-admin-$(date +%s) >> $GITHUB_ENV
-
       - name: 'Deploy API to Elastic Beanstalk'
         uses: einaregilsson/beanstalk-deploy@v20
         with:

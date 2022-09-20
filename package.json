@@ -30,11 +30,6 @@
     "migration:show": "yarn typeorm migration:show -d ./src/config/database/cli-data-source.ts"
   },
   "dependencies": {
-    "@adminjs/design-system": "^2.2.4",
-    "@adminjs/express": "^4.0.3",
-    "@adminjs/logger": "^2.2.0",
-    "@adminjs/typeorm": "^3.0.2",
-    "@adminjs/upload": "^2.0.2",
     "@nestjs-modules/mailer": "^1.6.1",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^1.1.5",
@@ -49,7 +44,6 @@
     "@ntegral/nestjs-sentry": "^3.0.7",
     "@sentry/node": "^7.8.1",
     "@sentry/tracing": "^7.8.1",
-    "adminjs": "^5.10.3",
     "aws-sdk": "^2.1095.0",
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.7.2",

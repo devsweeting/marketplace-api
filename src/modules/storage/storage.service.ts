@@ -3,7 +3,6 @@ import { File } from 'modules/storage/entities/file.entity';
 import { ProviderInterface } from 'modules/storage/interfaces/provider.interface';
 import { S3Provider } from 'modules/storage/providers/s3.provider';
 import { FileDownloadService } from 'modules/storage/file-download.service';
-import { UploadedFile } from 'adminjs';
 import { v4 } from 'uuid';
 import fs from 'fs';
 
@@ -41,11 +40,6 @@ export class StorageService {
     } catch (error) {
       throw new HttpException(`Error: ${error}`, HttpStatus.BAD_REQUEST);
     }
-  }
-
-  public async uploadAndSave(directory: string, rawFile: UploadedFile): Promise<File> {
-    const object = await this.provider.uploadFromAdmin(directory, rawFile);
-    return new File({ ...object, id: v4() }).save();
   }
 
   public getUrl(file: File): string {
