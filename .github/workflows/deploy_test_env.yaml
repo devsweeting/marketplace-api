@@ -66,6 +66,6 @@ jobs:
             Details: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
 
             Code Deployed: https://github.com/${{github.repository}}/tree/test
-          SLACK_TITLE: "API & Admin Deployment: Test Environment"
+          SLACK_TITLE: "API Deployment: Test Environment"
           SLACK_WEBHOOK: ${{ secrets.SLACK_DEPLOYMENTS_WEBHOOK_URL }}
           SLACK_FOOTER: "Powered by our GitHub automated deploys"
