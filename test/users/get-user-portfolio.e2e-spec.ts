@@ -110,12 +110,14 @@ describe('SellOrdersController', () => {
         .set(headers)
         .expect(200)
         .expect((res) => {
+          console.log('res', res.body.purchaseHistory[0].asset);
           expect(res.body.totalUnits).toBe(purchase.fractionQty + purchase2.fractionQty);
           expect(res.body.totalValueInCents).toEqual(
             purchase.fractionQty * purchase.fractionPriceCents +
               purchase2.fractionQty * purchase2.fractionPriceCents,
           );
           expect(res.body.sellOrderHistory.length).toEqual(0);
+          expect(res.body.purchaseHistory[0]).toHaveProperty('asset');
         });
     });
 

@@ -32,6 +32,7 @@ import { AssetsDuplicatedException } from '../exceptions/assets-duplicated.excep
 import { decodeHashId } from 'modules/common/helpers/hash-id.helper';
 import { ConfigService } from '@nestjs/config';
 import { SellOrder } from 'modules/sell-orders/entities';
+import { AssetNotFoundException } from '../exceptions';
 
 export class AssetAttributes {
   constructor(attrs: AttributeDto[] = []) {
@@ -318,12 +319,34 @@ export class Asset extends BaseModel implements BaseEntityInterface {
     return query.getOne();
   }
 
-  public static async getAssetsByIds(assetIds: string[]): Promise<Asset[] | undefined> {
-    const query = Asset.createQueryBuilder('asset');
-    query.andWhere('asset.isDeleted = FALSE');
-    query.andWhere('asset.deletedAt IS NULL');
-    query.andWhereInIds(assetIds);
-    return query.getMany();
+  public static async getManyAssetsByIds(assetIds: string[]): Promise<Asset[] | undefined> {
+    const query = Asset.createQueryBuilder('asset')
+      .leftJoinAndMapMany(
+        'asset.media',
+        'asset.media',
+        'media',
+        'media.isDeleted = FALSE AND media.deletedAt IS NULL',
+      )
+      .leftJoinAndMapOne('media.file', 'media.file', 'file')
+      .leftJoinAndMapMany(
+        'asset.sellOrders',
+        'asset.sellOrders',
+        'sellOrders',
+        'sellOrders.isDeleted = FALSE',
+      )
+
+      .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
+      .andWhere('asset.deletedAt IS NULL')
+      .orderBy('media.sortOrder', 'ASC');
+
+    if (assetIds) {
+      query.andWhereInIds(assetIds);
+      const assets = await query.getMany();
+      if (!assets) {
+        throw new AssetNotFoundException();
+      }
+      return assets;
+    }
   }
 
   public constructor(partial: Partial<Asset> = {}) {

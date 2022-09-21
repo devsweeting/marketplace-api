@@ -168,36 +168,6 @@ export class AssetsService {
     return asset;
   }
 
-  public async getManyAssetsByIds({ assetIds }: { assetIds: string[] }): Promise<Asset[]> {
-    const query = Asset.createQueryBuilder('asset')
-      .leftJoinAndMapMany(
-        'asset.media',
-        'asset.media',
-        'media',
-        'media.isDeleted = FALSE AND media.deletedAt IS NULL',
-      )
-      .leftJoinAndMapOne('media.file', 'media.file', 'file')
-      .leftJoinAndMapMany(
-        'asset.sellOrders',
-        'asset.sellOrders',
-        'sellOrders',
-        'sellOrders.isDeleted = FALSE',
-      )
-
-      .andWhere('asset.isDeleted = :isDeleted', { isDeleted: false })
-      .andWhere('asset.deletedAt IS NULL')
-      .orderBy('media.sortOrder', 'ASC');
-
-    if (assetIds) {
-      query.andWhereInIds(assetIds);
-      const assets = await query.getMany();
-      if (!assets) {
-        throw new AssetNotFoundException();
-      }
-      return assets;
-    }
-  }
-
   public async updateAsset(partner: Partner, id: string, dto: UpdateAssetDto): Promise<Asset> {
     const asset = await Asset.findOne({
       where: { id, partnerId: partner.id },

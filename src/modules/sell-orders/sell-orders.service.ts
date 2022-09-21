@@ -122,17 +122,6 @@ export class SellOrdersService {
       .where('sellOrderPurchases.userId = :id', { id: user.id })
       .getMany();
 
-    //get all asset details from purchases.
-    const purchasedAssets = await Asset.getAssetsByIds(
-      userSellOrderPurchases.map((purchase) => purchase.assetId),
-    );
-
-    //combine purchases and asset details
-    const userPurchaseHistory = userSellOrderPurchases.map((purchase) => ({
-      ...purchase,
-      asset: { ...purchasedAssets.find((asset) => asset.id === purchase.assetId) },
-    }));
-
     //get all sell orders created by the user.
     const userSellOrders = await SellOrder.createQueryBuilder('sellOrder')
       .where('sellOrder.userId = :userId', {
@@ -142,6 +131,17 @@ export class SellOrdersService {
         isDeleted: false,
       })
       .getMany();
+
+    //get all asset details from purchases.
+    const purchasedAssets = await Asset.getManyAssetsByIds(
+      userSellOrderPurchases.map((purchase) => purchase.assetId),
+    );
+
+    //combine purchases and asset details
+    const userPurchaseHistory = userSellOrderPurchases.map((purchase) => ({
+      ...purchase,
+      asset: { ...purchasedAssets.find((asset) => asset.id === purchase.assetId) },
+    }));
 
     return { userPurchaseDetails: userPurchaseHistory, userSellOrders };
   }
