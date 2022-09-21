@@ -54,7 +54,10 @@ export const validate =
         errors.url = { message: 'Url or File is required' };
         errors.file = { message: 'Url or File is required' };
       }
-      const getAsset = await Asset.findOne(payload.assetId, { relations: ['media'] });
+      const getAsset = await Asset.findOne({
+        where: { id: payload.assetId },
+        relations: ['media'],
+      });
 
       if (getAsset.media.length > configService.get('asset.default.maxMediaNumber')) {
         errors.assetId = {

@@ -382,7 +382,10 @@ describe('AssetsController', () => {
         await createImageMedia({ asset: asset, sortOrder: 3 }),
       ];
 
-      const assetWithMedia1 = await Asset.findOne(asset.id, { relations: ['media', 'partner'] });
+      const assetWithMedia1 = await Asset.findOne({
+        where: { id: asset.id },
+        relations: ['media', 'partner'],
+      });
 
       const response = {
         meta: {

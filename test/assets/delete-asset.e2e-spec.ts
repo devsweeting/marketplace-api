@@ -96,7 +96,7 @@ describe('AssetsController', () => {
         where: { id: asset.id, isDeleted: false },
       });
 
-      expect(persistedAsset).toBeUndefined();
+      expect(persistedAsset).toBeNull();
     });
   });
 });

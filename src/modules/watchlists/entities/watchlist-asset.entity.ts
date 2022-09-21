@@ -23,7 +23,7 @@ export class WatchlistAsset extends BaseModel implements BaseEntityInterface {
   @RelationId((watchlistAsset: WatchlistAsset) => watchlistAsset.asset)
   public assetId: string;
 
-  constructor(partial: Partial<WatchlistAsset>) {
+  constructor(partial: Partial<WatchlistAsset> = {}) {
     super();
     Object.assign(this, partial);
   }

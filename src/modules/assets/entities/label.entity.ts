@@ -32,7 +32,7 @@ export class Label extends BaseModel implements BaseEntityInterface {
     });
   }
 
-  public constructor(partial: Partial<Label>) {
+  public constructor(partial: Partial<Label> = {}) {
     super();
     Object.assign(this, partial);
   }

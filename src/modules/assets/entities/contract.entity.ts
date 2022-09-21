@@ -50,7 +50,7 @@ export class Contract extends BaseModel implements BaseEntityInterface {
     }
   }
 
-  public constructor(partial: Partial<Contract>) {
+  public constructor(partial: Partial<Contract> = {}) {
     super();
     Object.assign(this, partial);
   }

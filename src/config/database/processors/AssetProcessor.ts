@@ -1,4 +1,4 @@
-import faker from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 import { IProcessor } from 'typeorm-fixtures-cli';
 import { Asset } from 'modules/assets/entities';
 
@@ -10,12 +10,12 @@ export default class AssetProcessor implements IProcessor<Asset> {
   postProcess(name: string, obj: { [key: string]: any }): void {
     obj.fractionQtyTotal = faker.datatype.number({ min: 10000, max: 100000 });
     obj.attributes = {};
-    obj.attributes['category'] = [faker.helpers.randomize(['Baseball', 'Basketball'])];
-    obj.attributes['grading service'] = [faker.helpers.randomize(['BGS', 'PSA'])];
+    obj.attributes['category'] = [faker.helpers.arrayElement(['Baseball', 'Basketball'])];
+    obj.attributes['grading service'] = [faker.helpers.arrayElement(['BGS', 'PSA'])];
     obj.attributes['grade'] = [faker.datatype.number({ min: 0, max: 10 })];
     obj.attributes['year'] = [faker.datatype.number({ min: 1900, max: 2023 })];
     obj.attributes['brand'] = [
-      faker.helpers.randomize([
+      faker.helpers.arrayElement([
         'Michael Jordan',
         'Stephen Curry',
         'Tiger Woods',

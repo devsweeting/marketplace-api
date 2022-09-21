@@ -16,7 +16,7 @@ export class UsersService extends BaseService {
   }
 
   public async findOne(id: string): Promise<User> {
-    const user = await User.findOne(id, { where: { isDeleted: false } });
+    const user = await User.findOne({ where: { id, isDeleted: false } });
     if (user) {
       return user;
     }
@@ -52,7 +52,7 @@ export class UsersService extends BaseService {
   async createOrUpdateFromOtp(userData: CreateUserOtpDto): Promise<User> {
     let user = await User.findOne({ where: { email: userData.email } });
     if (!user) {
-      user = await User.create(userData);
+      user = new User(userData);
       await user.save();
     }
     return user;

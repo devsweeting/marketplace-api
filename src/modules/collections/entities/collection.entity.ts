@@ -47,20 +47,6 @@ export class Collection extends BaseModel implements BaseEntityInterface {
   @OneToMany(() => CollectionAsset, (collectionAsset) => collectionAsset.collection)
   public collectionAssets: CollectionAsset[];
 
-  @ManyToMany(() => Asset, (asset) => asset.collectionAssets, { eager: false })
-  @JoinTable({
-    name: 'collections_assets',
-    joinColumn: {
-      name: 'collectionId',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'assetId',
-      referencedColumnName: 'id',
-    },
-  })
-  public assets: Asset[];
-
   @BeforeInsert()
   public async beforeInsert(): Promise<void> {
     const collectionsCount = await Asset.count({
@@ -79,10 +65,15 @@ export class Collection extends BaseModel implements BaseEntityInterface {
   public static list(params: ListCollectionsDto): SelectQueryBuilder<Collection> {
     const query = Collection.createQueryBuilder('collection')
       .leftJoinAndMapMany(
-        'collection.assets',
-        'collection.assets',
-        'assets',
-        'assets.isDeleted = FALSE',
+        'collection.collectionAssets',
+        'collection.collectionAssets',
+        'collectionAssets',
+      )
+      .leftJoinAndMapOne(
+        'collectionAssets.asset',
+        'collectionAssets.asset',
+        'asset',
+        'asset.isDeleted = FALSE',
       )
       .leftJoinAndMapOne('collection.banner', 'collection.banner', 'banner')
       .where('collection.isDeleted = :isDeleted', { isDeleted: false })
@@ -111,7 +102,7 @@ export class Collection extends BaseModel implements BaseEntityInterface {
     }
   }
 
-  public constructor(partial: Partial<Collection>) {
+  public constructor(partial: Partial<Collection> = {}) {
     super();
     Object.assign(this, partial);
   }

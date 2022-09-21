@@ -45,7 +45,7 @@ export class SellOrdersService {
   }
 
   public async createSellOrder(partner, dto: SellOrderDto): Promise<SellOrder> {
-    const asset = await Asset.findOne({
+    const asset = await Asset.findOneBy({
       id: dto.assetId,
       partnerId: partner.id,
       deletedAt: null,
@@ -54,7 +54,7 @@ export class SellOrdersService {
     if (!asset) {
       throw new AssetNotFoundException();
     }
-    const user = await User.findOne({ email: dto.email, deletedAt: null, isDeleted: false });
+    const user = await User.findOneBy({ email: dto.email, deletedAt: null, isDeleted: false });
     if (!user) {
       throw new UserNotFoundException();
     }

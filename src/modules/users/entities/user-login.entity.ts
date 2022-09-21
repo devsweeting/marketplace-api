@@ -20,7 +20,7 @@ export class UserLogin extends BaseModel implements BaseEntityInterface {
   @RelationId((userLogin: UserLogin) => userLogin.user)
   public userId?: string;
 
-  constructor(partial: Partial<User>) {
+  constructor(partial: Partial<User> = {}) {
     super();
     Object.assign(this, partial);
   }
