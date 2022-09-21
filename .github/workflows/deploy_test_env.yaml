@@ -54,7 +54,6 @@ jobs:
           CLUSTER_NAME: jumpco-cluster-test
         run: |
           aws ecs update-service --cluster $CLUSTER_NAME --service api-test --force-new-deployment
-          aws ecs update-service --cluster $CLUSTER_NAME --service admin-test --force-new-deployment
       - name: Slack Notification
         if: ${{ always() }}
         uses: rtCamp/action-slack-notify@v2
