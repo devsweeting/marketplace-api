@@ -4,6 +4,8 @@ import { UserLogin, UserOtp } from 'modules/users/entities';
 import request from 'supertest';
 import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { ConfigService } from '@nestjs/config';
+import { UserRefresh } from 'modules/users/entities/user-refresh.entity';
+import { hasUncaughtExceptionCaptureCallback } from 'process';
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;
@@ -141,7 +143,9 @@ describe('UserController (e2e)', () => {
         .expect(200);
 
       const loggedInUser = await User.findOne({ where: { email } });
-      expect(loggedInUser.refreshToken).toBeDefined();
+      const refreshToken = await UserRefresh.findOne({ where: { userId: loggedInUser.id } });
+      expect(refreshToken.userId).toMatch(loggedInUser.id);
+      expect(refreshToken.isExpired).toBeFalsy();
     });
 
     test('should test that a refresh token returns a new access token for login.', async () => {
@@ -162,24 +166,28 @@ describe('UserController (e2e)', () => {
         .expect(200); //should return an access token.
 
       const loggedInUser = await User.findOne({ where: { email } });
-      const createdRefreshToken = loggedInUser.refreshToken;
+      const token = await UserRefresh.findOne({ where: { userId: loggedInUser.id } });
 
       //move time forward for a unique signature
       global.Date.now = jest.fn(() => new Date('2022-09-05T10:20:30Z').getTime());
 
       //Check that the refresh token is assigned in user table.
-      expect(createdRefreshToken).toBeDefined();
+      expect(token).toBeDefined();
 
       //Send a new request to the /refresh endpoint
       await request(app.getHttpServer())
         .post(`/v1/users/login/refresh`)
-        .send({ refreshToken: createdRefreshToken })
+        .send({ refreshToken: token.refreshToken })
         .expect(200)
         .expect(({ body }) => {
           expect(body.accessToken).toBeDefined();
           expect(body.refreshToken).toBeDefined();
-          expect(body.refreshToken).not.toEqual(createdRefreshToken);
+          expect(body.refreshToken).not.toEqual(token.refreshToken);
         });
+
+      //check that the first assigned refresh token is marked as expired.
+      await token.reload();
+      expect(token.isExpired).toBeTruthy();
     });
 
     test('should test that a request is denied if the refresh token is expired.', async () => {
@@ -201,14 +209,14 @@ describe('UserController (e2e)', () => {
         .expect(200); //should return an access token.
 
       const loggedInUser = await User.findOne({ where: { email } });
-      expect(loggedInUser.refreshToken).toBeDefined();
+      const token = await UserRefresh.findOne({ where: { userId: loggedInUser.id } });
 
       //move time forward past the 7d expiration
       global.Date.now = jest.fn(() => new Date('2022-09-08T10:20:30Z').getTime());
 
       await request(app.getHttpServer())
         .post(`/v1/users/login/refresh`)
-        .send({ refreshToken: loggedInUser.refreshToken })
+        .send({ refreshToken: token.refreshToken })
         .expect(401)
         .expect((request) => {
           const error = JSON.parse(request.text);

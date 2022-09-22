@@ -5,3 +5,9 @@ export class OtpTokenInvalidException extends BadRequestException {
     super('OTP_TOKEN_INVALID');
   }
 }
+
+export class RefreshTokenInvalidException extends BadRequestException {
+  public constructor() {
+    super('REFRESH_TOKEN_INVALID');
+  }
+}

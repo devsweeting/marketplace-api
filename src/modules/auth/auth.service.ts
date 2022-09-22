@@ -15,6 +15,7 @@ import { UsersService } from 'modules/users/users.service';
 import { TokenExpiredError } from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import * as ethUtil from 'ethereumjs-util';
+import { UserRefresh } from 'modules/users/entities/user-refresh.entity';
 
 export interface RefreshTokenPayload {
   email: string;
@@ -54,19 +55,27 @@ export class AuthService {
     return refreshToken;
   }
 
-  async updateRefreshTokenInUser(email: string, refreshToken?: string) {
-    const user = await User.findOne({
-      where: { email, isDeleted: false, deletedAt: null },
-    });
-    user.refreshToken = refreshToken ? refreshToken : null;
-    Object.assign(user, { refreshToken });
-    return await user.save();
+  async updateRefreshTokenForUser(
+    userId: string,
+    newRefreshToken: string,
+    oldRefreshToken?: string,
+  ) {
+    //invalidate the succesfully used token
+    if (oldRefreshToken) {
+      await UserRefresh.markTokenExpired(oldRefreshToken);
+    }
+    // create new refresh token entry
+    const userRefresh = await UserRefresh.create({
+      userId,
+      refreshToken: newRefreshToken,
+    }).save();
+    return userRefresh;
   }
 
   async createLoginTokens(user: { id: string; email: string; role: RoleEnum }) {
     const payload = { id: user.id, email: user.email, role: user.role, assignedAt: Date.now() };
     const refreshToken = await this.generateRefreshToken(payload);
-    const updatedUser = await this.updateRefreshTokenInUser(payload.email, refreshToken);
+    const updatedUser = await this.updateRefreshTokenForUser(payload.id, refreshToken);
 
     return {
       user: updatedUser,
@@ -77,26 +86,26 @@ export class AuthService {
 
   public async createNewAccessTokensFromRefreshToken(
     refreshToken: string,
-  ): Promise<{ user: User; accessToken: string; refreshToken: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     // validate refresh token.
-    const { user } = await this.resolveRefreshToken(refreshToken);
+    const { user, usedRefreshToken } = await this.resolveRefreshToken(refreshToken);
     const accessToken = await this.generateAccessToken(user);
 
     const newRefreshToken = await this.generateRefreshToken(user);
-    const updatedUser = await this.updateRefreshTokenInUser(user.email, newRefreshToken);
-    return { user: updatedUser, accessToken, refreshToken: newRefreshToken };
+    await this.updateRefreshTokenForUser(user.id, newRefreshToken, usedRefreshToken);
+    return { accessToken, refreshToken: newRefreshToken };
   }
 
   private async resolveRefreshToken(
-    encodedRefreshToken: string,
-  ): Promise<{ refreshToken: RefreshTokenPayload; user: User }> {
+    reqRefreshToken: string,
+  ): Promise<{ usedRefreshToken: string; user: User }> {
     try {
-      //Check if a token is expired
-      const refreshToken = this.jwtService.verify(encodedRefreshToken, {
+      //Check if the token is expired
+      const decodedToken = this.jwtService.verify(reqRefreshToken, {
         secret: this.configService.get('jwt.default.jwtRefreshSecret'),
       });
 
-      const userId = refreshToken.userId;
+      const userId = decodedToken.userId;
       if (!userId) {
         throw new UnprocessableEntityException('Refresh token malformed');
       }
@@ -106,11 +115,13 @@ export class AuthService {
         throw new HttpException('User with this id does not exist', HttpStatus.NOT_FOUND);
       }
 
-      //check if the token in the request matches the token on the user
-      if (encodedRefreshToken !== user.refreshToken) {
+      //check if the token in the request matches tokens in the database
+      const userToken = await UserRefresh.findToken(reqRefreshToken);
+      if (reqRefreshToken !== userToken.refreshToken) {
         throw new UnauthorizedException('Invalid token');
       }
-      return { user, refreshToken };
+
+      return { user, usedRefreshToken: reqRefreshToken };
     } catch (e) {
       if (e instanceof TokenExpiredError) {
         throw new UnprocessableEntityException('Refresh token expired');

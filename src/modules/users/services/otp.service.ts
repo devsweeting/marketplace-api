@@ -8,7 +8,7 @@ import { MailService } from 'modules/mail/mail.service';
 import { MoreThanOrEqual } from 'typeorm';
 import { LoginConfirmDto, LoginRequestDto } from '../dto';
 import { UserLogin, UserOtp } from '../entities';
-import { OtpTokenInvalidException } from '../exceptions/otp-token-invalid.exception';
+import { OtpTokenInvalidException } from '../exceptions/token-invalid.exception';
 import { UsersService } from '../users.service';
 import { v4 } from 'uuid';
 @Injectable()

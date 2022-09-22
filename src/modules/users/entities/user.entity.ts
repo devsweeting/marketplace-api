@@ -45,10 +45,6 @@ export class User extends BaseModel implements BaseEntityInterface {
   })
   public nonce: string;
 
-  @Exclude({ toPlainOnly: true })
-  @Column({ nullable: true })
-  public refreshToken?: string;
-
   @Column({
     type: 'enum',
     enum: RoleEnum,
