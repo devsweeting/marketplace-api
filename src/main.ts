@@ -8,7 +8,6 @@ import validationPipe from 'modules/common/pipes/validation.pipe';
 import { SanitizePipe } from 'modules/common/pipes/sanitize.pipe';
 import path from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import setUpAdminJS from 'modules/admin/admin.config';
 import { VersioningType } from '@nestjs/common';
 
 async function bootstrap() {
@@ -32,14 +31,10 @@ async function bootstrap() {
     setupSwagger(app);
   }
 
-  if (process.env.NODE_ENV == 'DEVELOP' || process.env.NODE_ENV == 'ADMIN') {
-    await setUpAdminJS(app);
-  }
-
   const port = configService.get('server.default.port');
   app.useGlobalFilters(new HttpExceptionFilter());
   app.setViewEngine('hbs');
-  app.setBaseViewsDir(path.join(__dirname, 'modules', 'admin', 'views'));
+  app.setBaseViewsDir(path.join(__dirname, 'modules', 'views'));
 
   await app.listen(port);
 

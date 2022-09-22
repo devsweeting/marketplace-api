@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { UploadedFile } from 'adminjs';
 import { Partner } from 'modules/partners/entities';
 import { StorageService } from 'modules/storage/storage.service';
 import { Not } from 'typeorm';
@@ -140,50 +139,8 @@ export class MediaService {
     return Media.find({ where: { assetId, isDeleted: false } });
   }
 
-  public async updateAssetMedia(
-    assetId: string,
-    mediaToAdd: Media[],
-    mediaIdsToRemove: string[],
-    mediaToUpdate: Partial<Media>[],
-  ): Promise<void> {
-    if (mediaIdsToRemove.length) {
-      await this.detachAssetMedia(assetId, mediaIdsToRemove);
-    }
-    if (mediaToAdd.length) {
-      await this.attachAssetMedia(assetId, mediaToAdd);
-    }
-    if (mediaToUpdate.length) {
-      await this.bulkUpdateMedia(assetId, mediaToUpdate);
-    }
-  }
-
   public async detachAssetMedia(assetId: string, mediaIdsToRemove: string[]): Promise<void> {
     await Media.bulkSoftDelete(assetId, mediaIdsToRemove);
-  }
-
-  public async attachAssetMedia(assetId: string, mediaToAdd: Media[]): Promise<void> {
-    const mediaData = await Promise.all(
-      mediaToAdd.map(async (el) => {
-        let file;
-        if (el.file[0]) {
-          file = await this.storageService.uploadAndSave(
-            `assets/${assetId}/`,
-            el.file[0] as unknown as UploadedFile,
-          );
-        } else {
-          file =
-            el.type === MediaTypeEnum.Image
-              ? await this.storageService.uploadFromUrls(
-                  [{ sourceUrl: el.sourceUrl }],
-                  `assets/${assetId}`,
-                )
-              : null;
-        }
-        return { ...el, assetId: assetId, file, fileId: file?.id };
-      }),
-    );
-
-    await Media.createQueryBuilder('media').insert().into(Media).values(mediaData).execute();
   }
 
   public async bulkUpdateMedia(assetId: string, mediaToUpdate: Partial<Media>[]): Promise<void> {

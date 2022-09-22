@@ -33,4 +33,3 @@ ecr: ## Build new container image and push to ECR
 deploy: ecr ## Build new container image, push to ECR and deploy to ECS
 	export AWS_PROFILE=jump${ENV}
 	aws ecs update-service --cluster jumpco-cluster-${ENV} --service api-${ENV} --force-new-deployment
-	aws ecs update-service --cluster jumpco-cluster-${ENV} --service admin-${ENV} --force-new-deployment
