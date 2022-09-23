@@ -1,4 +1,6 @@
 import { InternalServerErrorException } from '@nestjs/common';
+import { Asset } from 'modules/assets/entities';
+import { AssetNotFoundException } from 'modules/assets/exceptions';
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
 import { User } from 'modules/users/entities';
@@ -38,6 +40,14 @@ export class SellOrderPurchase extends BaseModel implements BaseEntityInterface 
   @Column({ type: 'int', nullable: false })
   public fractionPriceCents: number;
 
+  @Column({ type: 'string', nullable: false })
+  @RelationId((sellOrderPurchase: SellOrderPurchase) => sellOrderPurchase.asset)
+  public assetId: string;
+
+  @ManyToOne(() => Asset)
+  @JoinColumn({ name: 'assetId' })
+  public asset?: Asset;
+
   static async from(
     user: User,
     idDto: SellOrderIdDto,
@@ -71,6 +81,10 @@ export class SellOrderPurchase extends BaseModel implements BaseEntityInterface 
       if (!sellOrder.type) {
         throw new InternalServerErrorException('Sell order type is not set');
       }
+
+      if (!sellOrder.assetId) {
+        throw new AssetNotFoundException();
+      }
       if (sellOrder.type === SellOrderTypeEnum.drop) {
         if (!sellOrder.userFractionLimit) {
           throw new InternalServerErrorException('User fraction limit is not set');
@@ -93,6 +107,7 @@ export class SellOrderPurchase extends BaseModel implements BaseEntityInterface 
       const purchase = new SellOrderPurchase({
         userId: user.id,
         sellOrderId: sellOrder.id,
+        assetId: sellOrder.assetId,
         fractionQty: purchaseDto.fractionsToPurchase,
         fractionPriceCents: purchaseDto.fractionPriceCents,
       });
