@@ -24,7 +24,7 @@
 
 	// Uncomment the next line if you want to keep your containers running after VS Code shuts down.
 	// "shutdownAction": "none",
-
+	
 	// Uncomment the next line to run commands after the container is created - for example installing curl.
 	"postCreateCommand": ".devcontainer/postCreateCommand.sh",
 	"customizations": {
@@ -33,7 +33,8 @@
 				"dbaeumer.vscode-eslint",
 				"ms-vscode.vscode-typescript-next",
 				"gamunu.vscode-yarn",
-				"GitHub.vscode-pull-request-github"
+				"GitHub.vscode-pull-request-github",
+				"Orta.vscode-jest"
 			]
 		}
 	}

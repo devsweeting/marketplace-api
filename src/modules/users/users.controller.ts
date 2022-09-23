@@ -31,6 +31,9 @@ import { RoleEnum } from './enums/role.enum';
 import { OtpService } from './services/otp.service';
 import { RefreshRequestDto } from './dto/refresh-request.dto';
 import { JwtRefreshGaurd } from 'modules/auth/guards/jwt-refresh.guard';
+import { UserPortfolio } from './services/user-portfolio.service';
+import { currentUser } from './decorators/currentUser.decorator';
+import { PortfolioResponse } from './interfaces/portfolio-response.interface';
 
 @ApiTags('users')
 @Controller({
@@ -43,6 +46,7 @@ export class UsersController {
     private readonly userTransformer: UserTransformer,
     private readonly authService: AuthService,
     private readonly otpService: OtpService,
+    private readonly userPortfolio: UserPortfolio,
   ) {}
 
   @Get(':address/nonce')
@@ -61,6 +65,17 @@ export class UsersController {
   public async getUsers(): Promise<UserResponse[]> {
     const users = await this.usersService.findAll();
     return this.userTransformer.transformAllUsers(users);
+  }
+
+  @Get('portfolio')
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({
+    status: 200,
+    description: 'returns the users purchased assets and active sell orders',
+    type: User,
+  })
+  public async getPortfolio(@currentUser() user: User): Promise<PortfolioResponse> {
+    return await this.userPortfolio.getUserPurchases(user);
   }
 
   @Get(':id')

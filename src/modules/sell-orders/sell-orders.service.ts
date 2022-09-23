@@ -115,4 +115,34 @@ export class SellOrdersService {
   ): Promise<SellOrderPurchase> {
     return SellOrderPurchase.from(user, dto, purchaseDto);
   }
+
+  async returnAllUserPurchases(user: User): Promise<any> {
+    //get all user purchases.
+    const userSellOrderPurchases = await SellOrderPurchase.createQueryBuilder('sellOrderPurchases')
+      .where('sellOrderPurchases.userId = :id', { id: user.id })
+      .getMany();
+
+    //get all sell orders created by the user.
+    const userSellOrders = await SellOrder.createQueryBuilder('sellOrder')
+      .where('sellOrder.userId = :userId', {
+        userId: user.id,
+      })
+      .andWhere('sellOrder.isDeleted = :isDeleted AND sellOrder.deletedAt IS NULL', {
+        isDeleted: false,
+      })
+      .getMany();
+
+    //get all asset details from purchases.
+    const purchasedAssets = await Asset.getManyAssetsByIds(
+      userSellOrderPurchases.map((purchase) => purchase.assetId),
+    );
+
+    //combine purchases and asset details
+    const userPurchaseHistory = userSellOrderPurchases.map((purchase) => ({
+      ...purchase,
+      asset: { ...purchasedAssets.find((asset) => asset.id === purchase.assetId) },
+    }));
+
+    return { userPurchaseDetails: userPurchaseHistory, userSellOrders };
+  }
 }

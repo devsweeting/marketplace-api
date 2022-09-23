@@ -16,6 +16,7 @@ This document outlines the "standard operating procedures" for this repository c
   * Create a pull request on github against the `develop` branch (default)
       * Ensure all tests have passed and branch is has no conflicts.
       * Select someone to review your code.  All code must have **at lease one approval** from another team member before merging.
+      * Use [a keyword](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) to link to the original ticket (e.g. "Closes #101") in the PR description
   * Wait for a code review.  If the reviewer requests changes make sure that they are addressed before merging.
   * Once the code has been approved and has passed all checks you may merge your branch.
 
@@ -45,3 +46,24 @@ This project uses _prettier_ and _eslint_.  Code that doesn't pass linting is no
 ## Data Models
 
 We are using TypeORM with NestJs, but prefer the **Active Record** pattern over Data Mapper.
+
+### Modifying or Updating Models
+
+- Manually create the migration with `yarn migration:create {MigrationName}` (`migration:generate` is currently broken, see #207)
+	- ***Always*** use `DEFAULT` values for columns as it might break existing rows if you don't!
+	- Always `yarn build` after editing a migration so that it's picked up in the subsequent `yarn migration:up` or `down`
+- Update the `entity`
+- Update the `fixtures`
+	- Always `yarn build` before running `yarn fixtures`
+- Modify DTO for `POST` and `PATCH`
+- Modify Response
+- Modify Transformer
+- Update e2e tests
+
+### When creating a new model
+
+Add to `database.config.ts`
+
+### TypeORM debugging
+
+Print all queries with `TYPEORM_LOGGING=all`

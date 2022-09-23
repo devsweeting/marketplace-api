@@ -15,6 +15,7 @@ import { RenameUrlToSourceUrl1661270005764 } from './1661293286632-RenameUrlToSo
 import { UpdateTypeOrmMetadata1662416585994 } from './1662416585994-UpdateTypeOrmMetadata';
 import { FixSellOrder1662423096730 } from './1662423096730-FixSellOrder';
 import { CreateRefreshTokenTable1663795468354 } from './1663795468354-CreateRefreshTokenTable';
+import { AddAssetIdToSellOrderPurchase1663352346588 } from './1663352346588-AddAssetIdToSellOrderPurchase';
 
 export const migrations = [
   Init1652279127303,
@@ -34,4 +35,5 @@ export const migrations = [
   UpdateTypeOrmMetadata1662416585994,
   FixSellOrder1662423096730,
   CreateRefreshTokenTable1663795468354,
+  AddAssetIdToSellOrderPurchase1663352346588,
 ];
