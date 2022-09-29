@@ -110,7 +110,6 @@ describe('SellOrdersController', () => {
         .set(headers)
         .expect(200)
         .expect((res) => {
-          console.log('res', res.body.purchaseHistory[0].asset);
           expect(res.body.totalUnits).toBe(purchase.fractionQty + purchase2.fractionQty);
           expect(res.body.totalValueInCents).toEqual(
             purchase.fractionQty * purchase.fractionPriceCents +

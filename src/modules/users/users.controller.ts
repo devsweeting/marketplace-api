@@ -31,7 +31,7 @@ import { RoleEnum } from './enums/role.enum';
 import { OtpService } from './services/otp.service';
 import { UserPortfolio } from './services/user-portfolio.service';
 import { currentUser } from './decorators/currentUser.decorator';
-import { PortfolioResponse } from './interfaces/portfolio-response.interface';
+import { PortfolioTransformer } from './transformers/portfolio.transformer';
 
 @ApiTags('users')
 @Controller({
@@ -42,9 +42,9 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly userTransformer: UserTransformer,
-    private readonly authService: AuthService,
     private readonly otpService: OtpService,
     private readonly userPortfolio: UserPortfolio,
+    private readonly portfolioTransformer: PortfolioTransformer,
   ) {}
 
   @Get(':address/nonce')
@@ -72,8 +72,12 @@ export class UsersController {
     description: 'returns the users purchased assets and active sell orders',
     type: User,
   })
-  public async getPortfolio(@currentUser() user: User): Promise<PortfolioResponse> {
-    return await this.userPortfolio.getUserPurchases(user);
+  // : Promise<PortfolioResponseApi>
+  public async getPortfolio(@currentUser() user: User) {
+    const userPortfolio = await this.userPortfolio.createUserPortfolio(user);
+    const response = this.portfolioTransformer.transformPaginated(userPortfolio);
+    console.log('getPortfolio', response);
+    return this.portfolioTransformer.transformPaginated(userPortfolio);
   }
 
   @Get(':id')
