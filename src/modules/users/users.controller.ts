@@ -24,7 +24,6 @@ import { UserResponse } from './interfaces/user.interface';
 import { CreateUserDto, LoginConfirmDto, LoginRequestDto, UpdateUserDto } from './dto';
 import { User } from './entities/user.entity';
 import { UserTransformer } from './transformers/user.transformer';
-import { AuthService } from 'modules/auth/auth.service';
 import JwtAuthGuard from 'modules/auth/guards/jwt-auth.guard';
 import RoleGuard from 'modules/auth/guards/role.guard';
 import { RoleEnum } from './enums/role.enum';
@@ -72,7 +71,6 @@ export class UsersController {
     description: 'returns the users purchased assets and active sell orders',
     type: User,
   })
-  // : Promise<PortfolioResponseApi>
   public async getPortfolio(@currentUser() user: User) {
     const userPortfolio = await this.userPortfolio.createUserPortfolio(user);
     const response = this.portfolioTransformer.transformPaginated(userPortfolio);
