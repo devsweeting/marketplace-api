@@ -20,6 +20,7 @@ import { WatchlistsModule } from './modules/watchlists/watchlists.module';
 import { SellOrdersModule } from './modules/sell-orders/sell-orders.module';
 import LogsMiddleware from './middleware/logs.middleware';
 import { SentryModule } from '@ntegral/nestjs-sentry';
+import { PortfolioModule } from './modules/portfolio/portfolio.module';
 
 const modules = [];
 
@@ -80,6 +81,7 @@ if (process.env.NODE_ENV === 'STAGING' || process.env.NODE_ENV === 'PRODUCTION')
     HealthModule,
     SellOrdersModule,
     ...modules,
+    PortfolioModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -13,8 +13,10 @@ import { createSellOrder, expectPurchaseSuccess } from '../utils/sell-order.util
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
 import { generateToken } from '../utils/jwt.utils';
 import request from 'supertest';
+import { PortfolioTransformer } from 'modules/portfolio/portfolio.transformer';
+import { PortfolioResponse } from 'modules/users/interfaces/portfolio-response.interface';
 
-describe('SellOrdersController', () => {
+describe('PortfolioController', () => {
   const initialQty = 10000;
   let app: INestApplication;
   let partner: Partner;
@@ -24,11 +26,13 @@ describe('SellOrdersController', () => {
   let sellOrder2: SellOrder;
   let seller: User;
   let buyer: User;
+  let portfolioTransformer: PortfolioTransformer;
 
-  const PORTFOLIO_URL = `/v1/users/portfolio/`;
+  const PORTFOLIO_URL = `/v1/portfolio/`;
 
   beforeAll(async () => {
     app = await createApp();
+    portfolioTransformer = app.get(PortfolioTransformer);
     seller = await createUser({ email: 'seller@test.com', role: RoleEnum.USER });
     buyer = await createUser({ email: 'buyer@test.com', role: RoleEnum.USER });
     partner = await createPartner({
@@ -87,6 +91,7 @@ describe('SellOrdersController', () => {
   describe(`GET V1 /`, () => {
     test('should return all sell order purchases for the buyer', async () => {
       const headers = { Authorization: `Bearer ${generateToken(buyer)}` };
+      console.log('headers', headers);
       //buyer purchases 2 different assets from seller.
       const purchase = await expectPurchaseSuccess(
         app,
@@ -105,18 +110,28 @@ describe('SellOrdersController', () => {
         headers,
       );
 
+      const result: PortfolioResponse = {
+        totalValueInCents:
+          purchase.fractionQty * purchase.fractionPriceCents +
+          purchase2.fractionQty * purchase2.fractionPriceCents,
+        totalUnits: purchase.fractionQty + purchase2.fractionQty,
+        purchaseHistory: [
+          Object.assign(purchase, { asset: asset }),
+          Object.assign(purchase2, { asset: asset2 }),
+        ],
+        sellOrderHistory: [],
+      };
+
       await request(app.getHttpServer())
         .get(PORTFOLIO_URL)
         .set(headers)
         .expect(200)
         .expect((res) => {
-          expect(res.body.totalUnits).toBe(purchase.fractionQty + purchase2.fractionQty);
-          expect(res.body.totalValueInCents).toEqual(
-            purchase.fractionQty * purchase.fractionPriceCents +
-              purchase2.fractionQty * purchase2.fractionPriceCents,
-          );
+          expect(res.body.totalUnits).toBe(result.totalUnits);
+          expect(res.body.totalValueInCents).toEqual(result.totalValueInCents);
           expect(res.body.sellOrderHistory.length).toEqual(0);
           expect(res.body.purchaseHistory[0]).toHaveProperty('asset');
+          expect(res.body).toEqual(portfolioTransformer.transformPortfolio(result));
         });
     });
 

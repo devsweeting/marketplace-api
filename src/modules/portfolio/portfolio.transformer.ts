@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config/dist/config.service';
 import { encodeHashId } from 'modules/common/helpers/hash-id.helper';
 import { AttributeTransformer } from 'modules/assets/transformers/attribute.transformer';
 import { MediaTransformer } from 'modules/assets/transformers/media.transformer';
-import { PortfolioResponse } from '../interfaces/portfolio-response.interface';
+import { PortfolioResponse } from '../users/interfaces/portfolio-response.interface';
 import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
 import { WatchlistAssetResponse } from 'modules/watchlists/responses/watchlist.response';
 
@@ -22,7 +22,12 @@ export class PortfolioTransformer {
 
   public transformAll(orders: SellOrderPurchase[] | SellOrder[]) {
     return orders.map((order) => {
-      return { ...order, asset: this.transformAsset(order.asset) };
+      return {
+        ...order,
+        updatedAt: order.updatedAt.toISOString(),
+        asset: this.transformAsset(order.asset),
+        createdAt: order.createdAt.toISOString(),
+      };
     });
   }
 
@@ -41,7 +46,7 @@ export class PortfolioTransformer {
     };
   }
 
-  public transformPaginated(portfolio: PortfolioResponse) {
+  public transformPortfolio(portfolio: PortfolioResponse) {
     return {
       ...portfolio,
       purchaseHistory: this.transformAll(portfolio.purchaseHistory),
