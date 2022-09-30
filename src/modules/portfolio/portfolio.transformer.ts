@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config/dist/config.service';
 import { encodeHashId } from 'modules/common/helpers/hash-id.helper';
 import { AttributeTransformer } from 'modules/assets/transformers/attribute.transformer';
 import { MediaTransformer } from 'modules/assets/transformers/media.transformer';
-import { PortfolioResponse } from '../users/interfaces/portfolio-response.interface';
+import { PortfolioResponse } from './interfaces/portfolio-response.interface';
 import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
 import { WatchlistAssetResponse } from 'modules/watchlists/responses/watchlist.response';
 
