@@ -130,7 +130,7 @@ describe('PortfolioController', () => {
           expect(res.body.totalValueInCents).toEqual(result.totalValueInCents);
           expect(res.body.sellOrderHistory.length).toEqual(0);
           expect(res.body.purchaseHistory[0]).toHaveProperty('asset');
-          expect(res.body).toEqual(portfolioTransformer.transformPortfolio(result));
+          expect(res.body).toStrictEqual(portfolioTransformer.transformPortfolio(result));
         });
     });
 
@@ -153,7 +153,7 @@ describe('PortfolioController', () => {
         .expect(200)
         .expect((res) => {
           expect(res.body.sellOrderHistory.length).toEqual(2);
-          expect(res.body).toEqual(portfolioTransformer.transformPortfolio(result));
+          expect(res.body).toStrictEqual(portfolioTransformer.transformPortfolio(result));
         });
     });
 
