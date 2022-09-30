@@ -91,7 +91,6 @@ describe('PortfolioController', () => {
   describe(`GET V1 /`, () => {
     test('should return all sell order purchases for the buyer', async () => {
       const headers = { Authorization: `Bearer ${generateToken(buyer)}` };
-      console.log('headers', headers);
       //buyer purchases 2 different assets from seller.
       const purchase = await expectPurchaseSuccess(
         app,
@@ -138,13 +137,23 @@ describe('PortfolioController', () => {
     test('should return all active sell orders for a seller', async () => {
       const headers = { Authorization: `Bearer ${generateToken(seller)}` };
 
+      const result: PortfolioResponse = {
+        totalValueInCents: 0,
+        totalUnits: 0,
+        purchaseHistory: [],
+        sellOrderHistory: [
+          Object.assign(sellOrder, { asset: asset }),
+          Object.assign(sellOrder2, { asset: asset2 }),
+        ],
+      };
+
       await request(app.getHttpServer())
         .get(PORTFOLIO_URL)
         .set(headers)
         .expect(200)
         .expect((res) => {
           expect(res.body.sellOrderHistory.length).toEqual(2);
-          //TODO - expand this more
+          expect(res.body).toEqual(portfolioTransformer.transformPortfolio(result));
         });
     });
 
