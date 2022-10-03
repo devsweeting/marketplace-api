@@ -25,8 +25,8 @@ export class PortfolioTransformer {
       return {
         ...order,
         updatedAt: order.updatedAt.toISOString(),
-        asset: this.transformAsset(order.asset),
         createdAt: order.createdAt.toISOString(),
+        asset: this.transformAsset(order.asset),
       };
     });
   }
