@@ -111,8 +111,9 @@ describe('AssetsController', () => {
           },
         ],
       };
-      await testApp.post(app, `/v1/assets`, 201, null, transferRequest, header);
+      const postTest = await testApp.post(app, `/v1/assets`, 201, null, transferRequest, header);
 
+      console.log('post test', postTest);
       const asset = await Asset.findOne({
         where: { refId: '1232' },
         relations: ['media', 'media.file'],

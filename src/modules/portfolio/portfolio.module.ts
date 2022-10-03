@@ -20,7 +20,6 @@ import { PortfolioController } from './controllers/portfolio.controller';
     PortfolioTransformer,
     AttributeTransformer,
     MediaTransformer,
-    StorageService,
     S3Provider,
     FileDownloadService,
   ],
