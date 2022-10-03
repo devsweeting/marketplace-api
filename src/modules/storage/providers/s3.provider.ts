@@ -74,7 +74,8 @@ export class S3Provider implements ProviderInterface {
       Bucket: bucket,
     };
     try {
-      await s3.headBucket(options).promise();
+      const buckets = s3.headBucket(options).promise();
+      console.log('buckets', buckets);
       return true;
     } catch (error) {
       if (error.statusCode === 404) {
