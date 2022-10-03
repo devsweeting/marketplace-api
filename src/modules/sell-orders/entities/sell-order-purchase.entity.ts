@@ -4,7 +4,15 @@ import { AssetNotFoundException } from 'modules/assets/exceptions';
 import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
 import { User } from 'modules/users/entities';
-import { Column, Entity, JoinColumn, ManyToOne, RelationId, EntityManager } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  RelationId,
+  EntityManager,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { SellOrderIdDto, SellOrderPurchaseDto } from '../dto';
 import { SellOrderTypeEnum } from '../enums/sell-order-type.enum';
 import {
@@ -136,5 +144,17 @@ export class SellOrderPurchase extends BaseModel implements BaseEntityInterface 
         sellOrderId: order.id,
       });
     return (await query.getRawOne()).total_purchased || 0;
+  }
+
+  static async getUserPurchases(user: User): Promise<SelectQueryBuilder<SellOrderPurchase>> {
+    //get all user purchases.
+    const purchaseHistory = SellOrderPurchase.createQueryBuilder('SellOrderPurchase')
+      .leftJoinAndMapOne('SellOrderPurchase.asset', 'SellOrderPurchase.asset', 'asset')
+      .leftJoinAndMapMany('asset.labels', 'asset.labels', 'labels')
+      .leftJoinAndMapMany('asset.media', 'asset.media', 'media')
+      .leftJoinAndMapOne('media.file', 'media.file', 'file')
+      .where('SellOrderPurchase.userId = :userId', { userId: user.id });
+
+    return purchaseHistory;
   }
 }

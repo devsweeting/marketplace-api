@@ -24,16 +24,13 @@ import { UserResponse } from './interfaces/user.interface';
 import { CreateUserDto, LoginConfirmDto, LoginRequestDto, UpdateUserDto } from './dto';
 import { User } from './entities/user.entity';
 import { UserTransformer } from './transformers/user.transformer';
-import { AuthService } from 'modules/auth/auth.service';
 import JwtAuthGuard from 'modules/auth/guards/jwt-auth.guard';
 import RoleGuard from 'modules/auth/guards/role.guard';
 import { RoleEnum } from './enums/role.enum';
 import { OtpService } from './services/otp.service';
 import { RefreshRequestDto } from './dto/refresh-request.dto';
 import { JwtRefreshGaurd } from 'modules/auth/guards/jwt-refresh.guard';
-import { UserPortfolio } from './services/user-portfolio.service';
-import { currentUser } from './decorators/currentUser.decorator';
-import { PortfolioResponse } from './interfaces/portfolio-response.interface';
+import { AuthService } from 'modules/auth/auth.service';
 
 @ApiTags('users')
 @Controller({
@@ -44,9 +41,8 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly userTransformer: UserTransformer,
-    private readonly authService: AuthService,
     private readonly otpService: OtpService,
-    private readonly userPortfolio: UserPortfolio,
+    private readonly authService: AuthService,
   ) {}
 
   @Get(':address/nonce')
@@ -65,17 +61,6 @@ export class UsersController {
   public async getUsers(): Promise<UserResponse[]> {
     const users = await this.usersService.findAll();
     return this.userTransformer.transformAllUsers(users);
-  }
-
-  @Get('portfolio')
-  @UseGuards(JwtAuthGuard)
-  @ApiResponse({
-    status: 200,
-    description: 'returns the users purchased assets and active sell orders',
-    type: User,
-  })
-  public async getPortfolio(@currentUser() user: User): Promise<PortfolioResponse> {
-    return await this.userPortfolio.getUserPurchases(user);
   }
 
   @Get(':id')

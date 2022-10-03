@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Asset } from 'modules/assets/entities';
 import { AssetNotFoundException } from 'modules/assets/exceptions';
 import { UserNotFoundException } from 'modules/common/exceptions/user-not-found.exception';
+import { BaseService } from 'modules/common/services';
 import { Partner } from 'modules/partners/entities';
 import { User } from 'modules/users/entities';
 import { Pagination, paginate, IPaginationMeta } from 'nestjs-typeorm-paginate';
@@ -17,7 +18,7 @@ import {
 } from './exceptions';
 
 @Injectable()
-export class SellOrdersService {
+export class SellOrdersService extends BaseService {
   public getList(params: ListSellOrderDto): Promise<Pagination<SellOrder>> {
     return paginate<SellOrder, IPaginationMeta>(SellOrder.list(params), {
       page: params.page,
@@ -116,14 +117,12 @@ export class SellOrdersService {
     return SellOrderPurchase.from(user, dto, purchaseDto);
   }
 
-  async returnAllUserPurchases(user: User): Promise<any> {
-    //get all user purchases.
-    const userSellOrderPurchases = await SellOrderPurchase.createQueryBuilder('sellOrderPurchases')
-      .where('sellOrderPurchases.userId = :id', { id: user.id })
-      .getMany();
-
-    //get all sell orders created by the user.
-    const userSellOrders = await SellOrder.createQueryBuilder('sellOrder')
+  async getUserSellOrders(user: User): Promise<SellOrder[]> {
+    return await SellOrder.createQueryBuilder('sellOrder')
+      .leftJoinAndMapOne('sellOrder.asset', 'sellOrder.asset', 'asset')
+      .leftJoinAndMapMany('asset.labels', 'asset.labels', 'labels')
+      .leftJoinAndMapMany('asset.media', 'asset.media', 'media')
+      .leftJoinAndMapOne('media.file', 'media.file', 'file')
       .where('sellOrder.userId = :userId', {
         userId: user.id,
       })
@@ -131,18 +130,5 @@ export class SellOrdersService {
         isDeleted: false,
       })
       .getMany();
-
-    //get all asset details from purchases.
-    const purchasedAssets = await Asset.getManyAssetsByIds(
-      userSellOrderPurchases.map((purchase) => purchase.assetId),
-    );
-
-    //combine purchases and asset details
-    const userPurchaseHistory = userSellOrderPurchases.map((purchase) => ({
-      ...purchase,
-      asset: { ...purchasedAssets.find((asset) => asset.id === purchase.assetId) },
-    }));
-
-    return { userPurchaseDetails: userPurchaseHistory, userSellOrders };
   }
 }
