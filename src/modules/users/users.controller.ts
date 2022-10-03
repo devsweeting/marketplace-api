@@ -28,6 +28,9 @@ import JwtAuthGuard from 'modules/auth/guards/jwt-auth.guard';
 import RoleGuard from 'modules/auth/guards/role.guard';
 import { RoleEnum } from './enums/role.enum';
 import { OtpService } from './services/otp.service';
+import { RefreshRequestDto } from './dto/refresh-request.dto';
+import { JwtRefreshGaurd } from 'modules/auth/guards/jwt-refresh.guard';
+import { AuthService } from 'modules/auth/auth.service';
 
 @ApiTags('users')
 @Controller({
@@ -39,6 +42,7 @@ export class UsersController {
     private readonly usersService: UsersService,
     private readonly userTransformer: UserTransformer,
     private readonly otpService: OtpService,
+    private readonly authService: AuthService,
   ) {}
 
   @Get(':address/nonce')
@@ -128,6 +132,17 @@ export class UsersController {
   @ApiBadRequestResponse({ description: 'Token is invalid.' })
   @HttpCode(HttpStatus.OK)
   public async loginConfirm(@Body() dto: LoginConfirmDto) {
-    return this.otpService.confirmOtpToken(dto);
+    const returnResponse = await this.otpService.confirmUserLogin(dto);
+    return returnResponse;
+  }
+
+  @Post('login/refresh')
+  @UseGuards(JwtRefreshGaurd)
+  @ApiOperation({ summary: 'Create a new access token using the users refresh token' })
+  @ApiBadRequestResponse({ description: 'Refresh token is invalid.' })
+  @HttpCode(HttpStatus.OK)
+  public async refreshLogin(@Body() dto: RefreshRequestDto) {
+    const response = await this.authService.createNewAccessTokensFromRefreshToken(dto.refreshToken);
+    return response;
   }
 }

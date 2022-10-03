@@ -5,10 +5,12 @@ items:
     firstName: '{{name.firstName}}'
     lastName: '{{name.lastName}}'
     address: '{{lorem.word}}'
+    refreshToken: 'abcd1234'
     role: 'SUPER_ADMIN'
   user{2..10}:
     email: '{{internet.email}}'
     firstName: '{{name.firstName}}'
     lastName: '{{name.lastName}}'
     address: '{{lorem.word}}'
+    refreshToken: 'abcd1234'
     role: 'USER'

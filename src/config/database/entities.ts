@@ -8,6 +8,7 @@ import { Collection, CollectionAsset } from 'modules/collections/entities';
 import { Log } from 'modules/log/entities/log.entity';
 import { Watchlist, WatchlistAsset } from 'modules/watchlists/entities';
 import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
+import { UserRefresh } from 'modules/users/entities/user-refresh.entity';
 
 export const entities = [
   Asset,
@@ -29,6 +30,7 @@ export const entities = [
   WatchlistAsset,
   UserOtp,
   UserLogin,
+  UserRefresh,
   SellOrder,
   SellOrderPurchase,
 ];

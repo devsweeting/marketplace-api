@@ -50,19 +50,58 @@ export class S3Provider implements ProviderInterface {
     return `${this.configService.get('aws.default.cloudFrontDomain')}/${file.path}`;
   }
 
+  // public async ensureBucket() {
+  //   const s3 = await this.getS3();
+  //   console.log('s3', s3);
+  //   const bucket: string = this.configService.get('aws.default.s3Bucket');
+  //   const foo = await s3.listBuckets().promise();
+  //   console.log('FOO', foo);
+  //   if (!foo.Buckets.map((b) => b.Name).includes(bucket)) {
+  //     const params = {
+  //       Bucket: bucket,
+  //     };
+  //     await s3.createBucket(params).promise();
+  //   }
+  // }
+
   public async ensureBucket() {
     const s3 = await this.getS3();
+    console.log('s3', s3);
     const bucket: string = this.configService.get('aws.default.s3Bucket');
     const foo = await s3.listBuckets().promise();
     console.log('FOO', foo);
-    Logger.log('Foo', foo);
-    if (!foo.Buckets.map((b) => b.Name).includes(bucket)) {
-      const params = {
-        Bucket: bucket,
-      };
-      await s3.createBucket(params).promise();
+    const options = {
+      Bucket: bucket,
+    };
+    try {
+      await s3.headBucket(options).promise();
+      return true;
+    } catch (error) {
+      if (error.statusCode === 404) {
+        return false;
+      }
+      throw error;
     }
   }
+
+  // public async checkBucketExists() {
+  //   const bucket: string = this.configService.get('aws.default.s3Bucket');
+  //   const s3 = await this.getS3();
+  //   console.log('s3', s3);
+  //   const options = {
+  //     Bucket: bucket,
+  //   };
+  //   try {
+  //     const buckets = await s3.headBucket(options).promise();
+  //     console.log('buckets', buckets);
+  //     return true;
+  //   } catch (error) {
+  //     if (error.statusCode === 404) {
+  //       return false;
+  //     }
+  //     throw error;
+  //   }
+  // }
 
   private async s3Upload(filePath: string, key: string): Promise<AwsUploadResponseInterface> {
     const bucket: string = this.configService.get('aws.default.s3Bucket');

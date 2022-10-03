@@ -15,8 +15,6 @@ export class StorageService {
   ) {}
 
   public onModuleInit() {
-    console.log('NODE_ENV', process.env.NODE_ENV);
-    Logger.log('NODE_ENV', process.env.NODE_ENV);
     if (
       process.env.NODE_ENV.toUpperCase() === 'DEVELOP' ||
       process.env.NODE_ENV.toUpperCase() === 'TEST'
@@ -40,8 +38,6 @@ export class StorageService {
       });
       return Promise.all(files);
     } catch (error) {
-      console.log('Error:', error);
-      Logger.log(`Error: ${error}`);
       throw new HttpException(`Error: ${error}`, HttpStatus.BAD_REQUEST);
     }
   }
