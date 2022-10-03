@@ -36,10 +36,10 @@ export class PortfolioTransformer {
       return {
         ...order,
         updatedAt: order.updatedAt.toISOString(),
-        asset: this.transformAsset(order.asset),
         createdAt: order.createdAt.toISOString(),
         startTime: order.startTime.toISOString(),
         expireTime: order.expireTime.toISOString(),
+        asset: this.transformAsset(order.asset),
       };
     });
   }
