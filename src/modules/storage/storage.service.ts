@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { File } from 'modules/storage/entities/file.entity';
 import { ProviderInterface } from 'modules/storage/interfaces/provider.interface';
 import { S3Provider } from 'modules/storage/providers/s3.provider';
