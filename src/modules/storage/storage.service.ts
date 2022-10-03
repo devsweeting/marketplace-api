@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { File } from 'modules/storage/entities/file.entity';
 import { ProviderInterface } from 'modules/storage/interfaces/provider.interface';
 import { S3Provider } from 'modules/storage/providers/s3.provider';
@@ -15,6 +15,8 @@ export class StorageService {
   ) {}
 
   public onModuleInit() {
+    console.log('NODE_ENV', process.env.NODE_ENV);
+    Logger.log('NODE_ENV', process.env.NODE_ENV);
     if (
       process.env.NODE_ENV.toUpperCase() === 'DEVELOP' ||
       process.env.NODE_ENV.toUpperCase() === 'TEST'
@@ -38,6 +40,8 @@ export class StorageService {
       });
       return Promise.all(files);
     } catch (error) {
+      console.log('Error:', error);
+      Logger.log(`Error: ${error}`);
       throw new HttpException(`Error: ${error}`, HttpStatus.BAD_REQUEST);
     }
   }

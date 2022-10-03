@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { S3 } from 'aws-sdk';
 import fs from 'fs';
@@ -54,6 +54,8 @@ export class S3Provider implements ProviderInterface {
     const s3 = await this.getS3();
     const bucket: string = this.configService.get('aws.default.s3Bucket');
     const foo = await s3.listBuckets().promise();
+    console.log('FOO', foo);
+    Logger.log('Foo', foo);
     if (!foo.Buckets.map((b) => b.Name).includes(bucket)) {
       const params = {
         Bucket: bucket,

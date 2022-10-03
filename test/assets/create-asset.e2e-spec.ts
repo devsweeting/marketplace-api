@@ -43,6 +43,7 @@ describe('AssetsController', () => {
 
   afterAll(async () => {
     await clearAllData();
+    await testApp.clearAllData();
   });
 
   describe(`POST V1 /assets`, () => {
