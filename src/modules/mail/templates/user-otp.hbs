@@ -3,14 +3,69 @@
 
 <head>
   <title>{{ content.subject }}</title>
+  <style>
+    body {
+      margin: 50px;
+      display: flex;
+      justify-content: center;
+      background-color:#ececec; 
+    }
+    .container {
+      max-width:800px;   
+      font-family: Arial, Helvetica, sans-serif;
+      background-color:#fff; 
+      padding:20px;
+      border-radius: 5px;
+        
+      font-size:1.6rem;
+    }
+    .token-container {
+      background-color:#fff4ad; 
+      padding:30px;
+      border-radius: 5px;
+      font-size:2rem;
+      margin-bottom: 100px;
+    }
+    .button {
+      position: relative;
+
+      display: block;
+      padding: 20px 30px;
+
+      overflow: hidden;
+
+      border-width: 0;
+      outline: none;
+      border-radius: 5px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .6);
+      
+      background-color: #111827;
+      color: #fff;
+      font-size:1.2rem;
+      transition: background-color .3s;
+      text-decoration: none
+    }
+    .button:visited {
+    color: #9bbbff;
+    
+    }
+
+  </style>
 </head>
 
 <body>
-  <div>
-    <p>Hello,</p>
-    <p>To continue to login to your account, please follow this link. This link expires in {{ content.expireInHumanReadable }}:</p>
-    <p><a href="{{content.host}}/login?token={{content.token}}">{{content.host}}/login?token={{content.token}}</a></p>
+  <div class="container">
+    <p style="font-size:3em;">Hello,</p>
+    <p style="font-size:2rem;font-weight:800">Please use the verification code below on the login window:<p>
+    <div class="token-container"> 
+      <p> {{content.token}} </p>
+    </div>
+    <p >Or click this link to login:</p>
+    <a href="{{content.host}}/login?token={{content.token}}" class="button"  >Login Now</a>
+    <p>This token expires {{ content.expireInHumanReadable }}<p>
+     <hr>
     <p>If you did not request a login, you may disregard this email.</p>
+    
   </div>
 </body>
 

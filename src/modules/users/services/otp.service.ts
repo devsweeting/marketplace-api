@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { addMinutes, formatDistance, subHours } from 'date-fns';
+import { addMinutes, formatDistance, formatDistanceToNow, subHours } from 'date-fns';
 import { AuthService } from 'modules/auth/auth.service';
 import { TooManyRequestException } from 'modules/common/exceptions/too-many-request.exception';
 import { BaseService } from 'modules/common/services';
@@ -63,7 +63,7 @@ export class OtpService extends BaseService {
       emailTo: userOtp.email,
       content: {
         subject: 'Your login information',
-        expireInHumanReadable: formatDistance(Date.now(), new Date(userOtp.expiresAt), {
+        expireInHumanReadable: formatDistanceToNow(new Date(userOtp.expiresAt), {
           addSuffix: true,
         }),
         token: userOtp.token,
