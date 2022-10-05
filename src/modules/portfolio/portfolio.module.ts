@@ -7,6 +7,7 @@ import { AttributeTransformer } from 'modules/assets/transformers/attribute.tran
 import { PortfolioService } from './portfolio.service';
 import { StorageModule } from 'modules/storage/storage.module';
 import { PortfolioController } from './controllers/portfolio.controller';
+import { SellOrdersTransformer } from 'modules/sell-orders/transformers/sell-orders.transformer';
 
 @Module({
   imports: [StorageModule],
@@ -17,6 +18,7 @@ import { PortfolioController } from './controllers/portfolio.controller';
     PortfolioTransformer,
     AttributeTransformer,
     MediaTransformer,
+    SellOrdersTransformer,
   ],
   controllers: [PortfolioController],
   exports: [],

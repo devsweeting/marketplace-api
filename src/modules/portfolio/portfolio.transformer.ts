@@ -7,6 +7,7 @@ import { MediaTransformer } from 'modules/assets/transformers/media.transformer'
 import { IPortfolioResponse } from './interfaces/portfolio-response.interface';
 import { WatchlistAssetResponse } from 'modules/watchlists/responses/watchlist.response';
 import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
+import { SellOrdersTransformer } from 'modules/sell-orders/transformers/sell-orders.transformer';
 
 export type PortfolioResponseApi = {
   totalValueInCents: number;
@@ -27,6 +28,7 @@ export class PortfolioTransformer {
     private readonly configService: ConfigService,
     private readonly attributeTransformer: AttributeTransformer,
     private readonly mediaTransformer: MediaTransformer,
+    private readonly sellOrderTransformer: SellOrdersTransformer,
   ) {}
 
   public transformSellOrderPurchase(orders): SellOrderPurchaseAssetApi {
