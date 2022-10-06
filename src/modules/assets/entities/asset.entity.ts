@@ -21,7 +21,6 @@ import { Label } from './';
 import { generateSlug } from 'modules/common/helpers/slug.helper';
 import { Partner } from 'modules/partners/entities';
 import { AssetDto, AttributeDto } from 'modules/assets/dto';
-import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 import { Event } from 'modules/events/entities';
 import { Token } from './token.entity';
 import { CollectionAsset } from 'modules/collections/entities';
@@ -33,6 +32,7 @@ import { decodeHashId } from 'modules/common/helpers/hash-id.helper';
 import { ConfigService } from '@nestjs/config';
 import { SellOrder } from 'modules/sell-orders/entities';
 import { AssetNotFoundException } from '../exceptions';
+import { IAssetListArgs } from '../interfaces/IAssetListArgs';
 
 export class AssetAttributes {
   constructor(attrs: AttributeDto[] = []) {
@@ -176,7 +176,7 @@ export class Asset extends BaseModel implements IBaseEntity {
   }
 
   public static list(
-    params: ListAssetsDto,
+    params: IAssetListArgs,
     configService: ConfigService,
   ): SelectQueryBuilder<Asset> {
     const query = Asset.createQueryBuilder('asset')

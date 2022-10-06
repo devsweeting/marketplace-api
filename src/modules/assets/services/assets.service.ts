@@ -22,6 +22,7 @@ import { CollectionNotFoundException } from 'modules/collections/exceptions/coll
 import { decodeHashId } from 'modules/common/helpers/hash-id.helper';
 import { validate as isValidUUID } from 'uuid';
 import { AssetAttributes } from '../entities/asset.entity';
+import type { IAssetListArgs } from '../interfaces/IAssetListArgs';
 
 // TODO find a better place for this to live
 export class TrendingMarket {
@@ -44,7 +45,8 @@ export class AssetsService {
     private readonly entityManager: EntityManager,
   ) {}
 
-  public async getList(params: ListAssetsDto): Promise<Pagination<Asset>> {
+  public async getList(params: IAssetListArgs): Promise<Pagination<Asset>> {
+    // TODO update getList to get teh users assets
     if (params.partner) {
       const decodedHash = decodeHashId(
         params.partner,

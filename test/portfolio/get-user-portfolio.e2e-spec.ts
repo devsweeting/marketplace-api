@@ -44,6 +44,10 @@ describe('PortfolioController', () => {
         refId: '1',
         name: 'ferret',
         description: 'test-ferret',
+        attributes: [
+          { trait: 'Category', value: 'Baseball' },
+          { trait: 'Grade', value: '10' },
+        ],
       },
       partner,
     );
@@ -52,6 +56,10 @@ describe('PortfolioController', () => {
         refId: '2',
         name: 'Cat',
         description: 'test-cat',
+        attributes: [
+          { trait: 'Category', value: 'Baseball' },
+          { trait: 'Grade', value: '10' },
+        ],
       },
       partner,
     );

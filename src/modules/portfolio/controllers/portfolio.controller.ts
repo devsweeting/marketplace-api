@@ -5,6 +5,7 @@ import JwtAuthGuard from 'modules/auth/guards/jwt-auth.guard';
 import { User } from 'modules/users/entities';
 import { currentUser } from 'modules/users/decorators/currentUser.decorator';
 import { PortfolioTransformer } from '../portfolio.transformer';
+import { generateSwaggerPaginatedSchema } from 'modules/common/helpers/generate-swagger-paginated-schema';
 
 @ApiTags('portfolio')
 @Controller({
@@ -23,6 +24,7 @@ export class PortfolioController {
   @ApiResponse({
     status: 200,
     description: 'returns the users purchased assets and active sell orders',
+    // schema: generateSwaggerPaginatedSchema(PortfolioResponse)
   })
   public async getPortfolio(@currentUser() user: User) {
     const userPortfolio = await this.portfolioService.createUserPortfolio(user);
