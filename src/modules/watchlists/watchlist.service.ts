@@ -40,7 +40,7 @@ export class WatchlistService extends BaseService {
     const relations = await this.getRelations(assetIds);
 
     const items = results.items.map((item: WatchlistAsset) => {
-      const relation = relations.find((el) => el.id === item.id);
+      const relation = relations.find((el) => el.id === item.assetId);
       item.asset.labels = relation?.labels || [];
       item.asset.media = relation?.media.length > 0 ? [relation.media[0]] : [];
       return item;
