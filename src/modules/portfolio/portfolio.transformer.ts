@@ -28,31 +28,31 @@ export class PortfolioTransformer {
   ) {}
 
   public transformSellOrderPurchase(orders): SellOrderPurchaseAssetApi {
-    const history = [];
-    for (const order of orders) {
-      const item = Object.assign(order, {
+    const purchases = orders.map((order) => {
+      return Object.assign(order, {
         updatedAt: order.updatedAt.toISOString(),
         createdAt: order.createdAt.toISOString(),
         asset: this.transformAsset(order.asset),
       });
-      history.push(item);
-    }
-    return history ?? [];
+    });
+    return purchases.sort(function (a, b) {
+      return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf();
+    });
   }
 
   public transformSellOrder(orders): SellOrderAssetApi {
-    const history = [];
-    for (const order of orders) {
-      const item = Object.assign(order, {
+    const sellOrders = orders.map((order) => {
+      return Object.assign(order, {
         updatedAt: order.updatedAt.toISOString(),
         createdAt: order.createdAt.toISOString(),
         startTime: order.startTime.toISOString(),
         expireTime: order.expireTime.toISOString(),
         asset: this.transformAsset(order.asset),
       });
-      history.push(item);
-    }
-    return history ?? [];
+    });
+    return sellOrders.sort(function (a, b) {
+      return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf();
+    });
   }
 
   public transformAsset(asset: Asset): PortfolioAssetResponse {
