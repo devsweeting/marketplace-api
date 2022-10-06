@@ -4,13 +4,20 @@ import { ConfigService } from '@nestjs/config/dist/config.service';
 import { encodeHashId } from 'modules/common/helpers/hash-id.helper';
 import { AttributeTransformer } from 'modules/assets/transformers/attribute.transformer';
 import { MediaTransformer } from 'modules/assets/transformers/media.transformer';
-import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
-import { WatchlistAssetResponse } from 'modules/watchlists/responses/watchlist.response';
 import { PortfolioResponse } from './interfaces/portfolio-response.interface';
+import {
+  IPortfolioResponseAPI,
+  PortfolioAssetResponse,
+  SellOrderAssetApi,
+  SellOrderPurchaseAssetApi,
+} from './responses/portfolio.response';
 
-export type PortfolioResponseApi = SellOrderPurchase & { asset: WatchlistAssetResponse };
-
-export type SellOrderAssetApi = SellOrderPurchase & { asset: WatchlistAssetResponse };
+export type PortfolioResponseApi = {
+  totalValueInCents: number;
+  totalUnits: number;
+  purchaseHistory: SellOrderPurchaseAssetApi[];
+  sellOrderHistory: SellOrderAssetApi[];
+};
 
 @Injectable()
 export class PortfolioTransformer {
@@ -20,31 +27,35 @@ export class PortfolioTransformer {
     private readonly mediaTransformer: MediaTransformer,
   ) {}
 
-  public transformSellOrderPurchase(orders: SellOrderPurchase[]) {
-    return orders.map((order) => {
-      return {
-        ...order,
+  public transformSellOrderPurchase(orders): SellOrderPurchaseAssetApi {
+    const history = [];
+    for (const order of orders) {
+      const item = Object.assign(order, {
         updatedAt: order.updatedAt.toISOString(),
         createdAt: order.createdAt.toISOString(),
         asset: this.transformAsset(order.asset),
-      };
-    });
+      });
+      history.push(item);
+    }
+    return history ?? [];
   }
 
-  public transformSellOrder(orders: SellOrder[]) {
-    return orders.map((order) => {
-      return {
-        ...order,
+  public transformSellOrder(orders): SellOrderAssetApi {
+    const history = [];
+    for (const order of orders) {
+      const item = Object.assign(order, {
         updatedAt: order.updatedAt.toISOString(),
         createdAt: order.createdAt.toISOString(),
         startTime: order.startTime.toISOString(),
         expireTime: order.expireTime.toISOString(),
         asset: this.transformAsset(order.asset),
-      };
-    });
+      });
+      history.push(item);
+    }
+    return history ?? [];
   }
 
-  public transformAsset(asset: Asset): WatchlistAssetResponse {
+  public transformAsset(asset: Asset): PortfolioAssetResponse {
     return {
       id: asset.id,
       name: asset.name,
@@ -59,11 +70,10 @@ export class PortfolioTransformer {
     };
   }
 
-  public transformPortfolio(portfolio: PortfolioResponse) {
-    return {
-      ...portfolio,
+  public transformPortfolio(portfolio: PortfolioResponse): IPortfolioResponseAPI {
+    return Object.assign(portfolio, {
       purchaseHistory: this.transformSellOrderPurchase(portfolio.purchaseHistory),
       sellOrderHistory: this.transformSellOrder(portfolio.sellOrderHistory),
-    };
+    });
   }
 }

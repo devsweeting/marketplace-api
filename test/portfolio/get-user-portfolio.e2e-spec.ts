@@ -14,7 +14,7 @@ import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enu
 import { generateToken } from '../utils/jwt.utils';
 import request from 'supertest';
 import { PortfolioTransformer } from 'modules/portfolio/portfolio.transformer';
-import { PortfolioResponse } from 'modules/portfolio/interfaces/portfolio-response.interface';
+import { IPortfolioResponseAPI } from 'modules/portfolio/responses/portfolio.response';
 
 describe('PortfolioController', () => {
   const initialQty = 10000;
