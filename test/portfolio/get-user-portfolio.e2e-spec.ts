@@ -109,7 +109,7 @@ describe('PortfolioController', () => {
         headers,
       );
 
-      const result: PortfolioResponse = {
+      const result = portfolioTransformer.transformPortfolio({
         totalValueInCents:
           purchase.fractionQty * purchase.fractionPriceCents +
           purchase2.fractionQty * purchase2.fractionPriceCents,
@@ -119,7 +119,7 @@ describe('PortfolioController', () => {
           Object.assign(purchase2, { asset: asset2 }),
         ],
         sellOrderHistory: [],
-      };
+      });
 
       await request(app.getHttpServer())
         .get(PORTFOLIO_URL)
@@ -130,14 +130,14 @@ describe('PortfolioController', () => {
           expect(res.body.totalValueInCents).toEqual(result.totalValueInCents);
           expect(res.body.sellOrderHistory.length).toEqual(0);
           expect(res.body.purchaseHistory[0]).toHaveProperty('asset');
-          expect(res.body).toMatchObject(portfolioTransformer.transformPortfolio(result));
+          expect(res.body).toMatchObject(result);
         });
     });
 
     test('should return all active sell orders for a seller', async () => {
       const headers = { Authorization: `Bearer ${generateToken(seller)}` };
 
-      const result: PortfolioResponse = {
+      const result = portfolioTransformer.transformPortfolio({
         totalValueInCents: 0,
         totalUnits: 0,
         purchaseHistory: [],
@@ -145,7 +145,7 @@ describe('PortfolioController', () => {
           Object.assign(sellOrder, { asset: asset }),
           Object.assign(sellOrder2, { asset: asset2 }),
         ],
-      };
+      });
 
       await request(app.getHttpServer())
         .get(PORTFOLIO_URL)
@@ -153,7 +153,7 @@ describe('PortfolioController', () => {
         .expect(200)
         .expect((res) => {
           expect(res.body.sellOrderHistory.length).toEqual(2);
-          expect(res.body).toMatchObject(portfolioTransformer.transformPortfolio(result));
+          expect(res.body).toMatchObject(result);
         });
     });
 
