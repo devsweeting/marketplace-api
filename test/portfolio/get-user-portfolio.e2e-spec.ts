@@ -126,6 +126,8 @@ describe('PortfolioController', () => {
         .set(headers)
         .expect(200)
         .expect((res) => {
+          console.log(res.body);
+          console.log(result);
           expect(res.body.totalUnits).toBe(result.totalUnits);
           expect(res.body.totalValueInCents).toEqual(result.totalValueInCents);
           expect(res.body.sellOrderHistory.length).toEqual(0);
