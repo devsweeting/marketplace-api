@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 import { SortEnum } from '../enums/sort.enum';
 import { ListDto } from 'modules/common/dto/list.dto';
 
@@ -33,4 +33,10 @@ export class ListAssetsDto extends ListDto {
   @IsNotEmpty()
   @IsOptional()
   public partner: string;
+
+  @ApiPropertyOptional({ description: 'comma seperated list' })
+  @IsNotEmpty()
+  @IsOptional()
+  @MaxLength(930)
+  public asset_ids?: string;
 }

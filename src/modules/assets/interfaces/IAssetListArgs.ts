@@ -8,6 +8,7 @@ export interface IAssetListArgs {
   attr_lte?: object;
   partner?: string;
   user_id?: string;
+  asset_ids?: string;
   page?: number;
   limit?: number;
   order?: 'ASC' | 'DESC';

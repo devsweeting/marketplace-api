@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseArrayPipe,
   Patch,
   Post,
   Query,
@@ -57,8 +58,13 @@ export class AssetsController {
     description: 'List of assets',
     schema: generateSwaggerPaginatedSchema(AssetResponse),
   })
-  public async list(@Query() params: ListAssetsDto): Promise<PaginatedResponse<AssetResponse>> {
-    const list = await this.assetsService.getList(params);
+  public async list(
+    @Query()
+    params: ListAssetsDto,
+    @Query('asset_ids', new ParseArrayPipe({ items: String, separator: ',' }))
+    asset_ids: string[],
+  ): Promise<PaginatedResponse<AssetResponse>> {
+    const list = await this.assetsService.getList(params, asset_ids);
 
     return this.assetsTransformer.transformPaginated(list);
   }
