@@ -22,7 +22,7 @@ export type RequestMethod = 'get' | 'post' | 'delete' | 'patch';
 
 let app: INestApplication;
 
-interface MockProvider {
+interface IMockProvider {
   provide: Injectable;
   useValue: object;
 }
@@ -45,7 +45,7 @@ export const configureTestApp = (
   return appInstance;
 };
 
-export const createApp = async (providers: MockProvider[] = []): Promise<INestApplication> => {
+export const createApp = async (providers: IMockProvider[] = []): Promise<INestApplication> => {
   const module = Test.createTestingModule({
     imports: [AppModule, AuthModule],
   });

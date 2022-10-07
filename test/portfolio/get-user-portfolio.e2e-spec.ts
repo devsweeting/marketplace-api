@@ -14,7 +14,7 @@ import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enu
 import { generateToken } from '../utils/jwt.utils';
 import request from 'supertest';
 import { PortfolioTransformer } from 'modules/portfolio/portfolio.transformer';
-import { PortfolioResponse } from 'modules/portfolio/interfaces/portfolio-response.interface';
+import { IPortfolioResponse } from 'modules/portfolio/interfaces/portfolio-response.interface';
 
 describe('PortfolioController', () => {
   const initialQty = 10000;
@@ -109,7 +109,7 @@ describe('PortfolioController', () => {
         headers,
       );
 
-      const result: PortfolioResponse = {
+      const result: IPortfolioResponse = {
         totalValueInCents:
           purchase.fractionQty * purchase.fractionPriceCents +
           purchase2.fractionQty * purchase2.fractionPriceCents,
@@ -137,7 +137,7 @@ describe('PortfolioController', () => {
     test('should return all active sell orders for a seller', async () => {
       const headers = { Authorization: `Bearer ${generateToken(seller)}` };
 
-      const result: PortfolioResponse = {
+      const result: IPortfolioResponse = {
         totalValueInCents: 0,
         totalUnits: 0,
         purchaseHistory: [],

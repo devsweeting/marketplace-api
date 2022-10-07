@@ -1,11 +1,11 @@
-import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
+import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
 import { User } from 'modules/users/entities/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Partner } from './partner.entity';
 
 @Entity('partners_members_users')
-export class PartnerMemberUser extends BaseModel implements BaseEntityInterface {
+export class PartnerMemberUser extends BaseModel implements IBaseEntity {
   @Column()
   public partnerId: string;
 

@@ -14,10 +14,10 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Collection } from '.';
-import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
+import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 
 @Entity('collections_assets')
-export class CollectionAsset extends BaseEntity implements BaseEntityInterface {
+export class CollectionAsset extends BaseEntity implements IBaseEntity {
   @Index()
   @PrimaryColumn({ type: 'uuid' })
   public collectionId: string;

@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, RelationId } from 'typeorm';
 
-import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
+import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from '../../common/entities/base.model';
 import { Asset } from '.';
 import { MediaTypeEnum } from '../enums/media-type.enum';
@@ -11,7 +11,7 @@ import { File } from 'modules/storage/entities/file.entity';
     sortOrder: 'ASC',
   },
 })
-export class Media extends BaseModel implements BaseEntityInterface {
+export class Media extends BaseModel implements IBaseEntity {
   @Column({
     type: 'enum',
     enum: MediaTypeEnum,

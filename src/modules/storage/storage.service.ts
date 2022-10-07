@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { File } from 'modules/storage/entities/file.entity';
-import { ProviderInterface } from 'modules/storage/interfaces/provider.interface';
+import { IAwsProvider } from 'modules/storage/interfaces/provider.interface';
 import { S3Provider } from 'modules/storage/providers/s3.provider';
 import { FileDownloadService } from 'modules/storage/file-download.service';
 import { v4 } from 'uuid';
@@ -10,7 +10,7 @@ import fs from 'fs';
 export class StorageService {
   public constructor(
     @Inject(S3Provider)
-    private readonly provider: ProviderInterface,
+    private readonly provider: IAwsProvider,
     private readonly fileDownloadService: FileDownloadService,
   ) {}
 

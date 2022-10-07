@@ -1,12 +1,12 @@
 import { Column, Entity, JoinColumn, ManyToOne, RelationId } from 'typeorm';
 
-import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
+import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
 import { User } from '.';
 import { UserLoginMetadata } from '../interfaces/user-login-metadata';
 
 @Entity('user_logins')
-export class UserLogin extends BaseModel implements BaseEntityInterface {
+export class UserLogin extends BaseModel implements IBaseEntity {
   @Column({
     type: 'jsonb',
   })

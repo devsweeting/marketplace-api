@@ -1,13 +1,13 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, RelationId } from 'typeorm';
 
-import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
+import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
 import { User } from './user.entity';
 import { RefreshTokenInvalidException } from '../exceptions/token-invalid.exception';
 import { TokenNotFoundException } from 'modules/assets/exceptions';
 
 @Entity('user_refresh')
-export class UserRefresh extends BaseModel implements BaseEntityInterface {
+export class UserRefresh extends BaseModel implements IBaseEntity {
   @Index()
   @PrimaryColumn({ nullable: false })
   public refreshToken: string;

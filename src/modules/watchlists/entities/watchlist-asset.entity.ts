@@ -1,12 +1,12 @@
 import { Column, Entity, JoinColumn, ManyToOne, RelationId } from 'typeorm';
 
-import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
+import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
 import { Asset } from 'modules/assets/entities';
 import { Watchlist } from './watchlist.entity';
 
 @Entity('watchlist_assets')
-export class WatchlistAsset extends BaseModel implements BaseEntityInterface {
+export class WatchlistAsset extends BaseModel implements IBaseEntity {
   @ManyToOne(() => Watchlist, { eager: false, nullable: false })
   @JoinColumn({ name: 'watchlistId', referencedColumnName: 'id' })
   public watchlist: Watchlist;
