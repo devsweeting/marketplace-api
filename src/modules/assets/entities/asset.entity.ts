@@ -190,6 +190,11 @@ export class Asset extends BaseModel implements IBaseEntity {
       });
     }
 
+    if (params.asset_ids) {
+      const ids = params.asset_ids;
+      query.andWhere('id IN (:...ids)', { ids });
+    }
+
     if (params.query) {
       query.andWhere(
         new Brackets((b) => {

@@ -1,8 +1,7 @@
-import { Injectable, Logger, ParseArrayPipe } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Partner } from 'modules/partners/entities';
 import { Asset, Attribute, Label, Media, Token } from 'modules/assets/entities';
 import { TransferRequestDto } from 'modules/assets/dto';
-import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 import { IPaginationMeta, paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { UpdateAssetDto } from 'modules/assets/dto/update-asset.dto';
 import { RefAlreadyTakenException } from 'modules/common/exceptions/ref-already-taken.exception';
@@ -45,11 +44,11 @@ export class AssetsService {
     private readonly entityManager: EntityManager,
   ) {}
 
-  public async getList(params: IAssetListArgs, asset_ids?: string[]): Promise<Pagination<Asset>> {
+  public async getList(params: IAssetListArgs): Promise<Pagination<Asset>> {
     // TODO update getList to get teh users assets
 
-    if (asset_ids) {
-      console.log('console', asset_ids);
+    if (params.asset_ids && typeof params.asset_ids === 'string') {
+      params.asset_ids = params.asset_ids.split(',');
     }
     if (params.partner) {
       const decodedHash = decodeHashId(

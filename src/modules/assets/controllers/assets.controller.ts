@@ -61,10 +61,11 @@ export class AssetsController {
   public async list(
     @Query()
     params: ListAssetsDto,
-    @Query('asset_ids', new ParseArrayPipe({ items: String, separator: ',' }))
-    asset_ids: string[],
+    // @Query('asset_ids', new ParseArrayPipe({ optional: true, items: String, separator: ',' }))
+    // asset_ids: string[] | undefined,
   ): Promise<PaginatedResponse<AssetResponse>> {
-    const list = await this.assetsService.getList(params, asset_ids);
+    // const asset_ids = undefined;
+    const list = await this.assetsService.getList(params);
 
     return this.assetsTransformer.transformPaginated(list);
   }

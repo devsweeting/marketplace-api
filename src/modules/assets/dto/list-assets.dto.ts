@@ -36,7 +36,7 @@ export class ListAssetsDto extends ListDto {
 
   @ApiPropertyOptional({ description: 'comma seperated list' })
   @IsNotEmpty()
-  @IsOptional()
   @MaxLength(930)
+  @IsOptional()
   public asset_ids?: string;
 }
