@@ -1,8 +1,8 @@
 import { Request } from 'express';
 import { User } from 'modules/users/entities/user.entity';
 
-interface RequestWithUser extends Request {
+interface IRequestWithUser extends Request {
   user: User;
 }
 
-export default RequestWithUser;
+export default IRequestWithUser;

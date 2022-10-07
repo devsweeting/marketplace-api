@@ -1,6 +1,6 @@
 import { Column, Entity, Index, OneToMany, OneToOne, Unique } from 'typeorm';
 
-import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
+import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
 import { Exclude } from 'class-transformer';
 import { Validate } from 'class-validator';
@@ -11,7 +11,7 @@ import { Watchlist } from '../../watchlists/entities/watchlist.entity';
 
 @Entity('users')
 @Unique('USER_EMAIL_UNIQUE', ['email'])
-export class User extends BaseModel implements BaseEntityInterface {
+export class User extends BaseModel implements IBaseEntity {
   @Index()
   @Column({ nullable: false })
   @Validate(EmailValidator)

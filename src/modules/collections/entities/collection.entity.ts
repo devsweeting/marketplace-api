@@ -6,16 +6,14 @@ import {
   Entity,
   Index,
   JoinColumn,
-  JoinTable,
   Like,
-  ManyToMany,
   ManyToOne,
   OneToMany,
   RelationId,
   SelectQueryBuilder,
 } from 'typeorm';
 
-import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
+import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from '../../common/entities/base.model';
 import { ListCollectionsDto } from '../dto/list-collections.dto';
 import { File } from 'modules/storage/entities/file.entity';
@@ -24,7 +22,7 @@ import { Asset } from 'modules/assets/entities';
 import { CollectionAsset } from './collection-asset.entity';
 
 @Entity('collections')
-export class Collection extends BaseModel implements BaseEntityInterface {
+export class Collection extends BaseModel implements IBaseEntity {
   @Index()
   @Column({ length: 50, nullable: false })
   public name: string;

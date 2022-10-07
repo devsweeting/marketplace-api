@@ -1,4 +1,4 @@
-export interface BaseEntityInterface {
+export interface IBaseEntity {
   id: string; // uuid
   createdAt: Date;
   updatedAt: Date;

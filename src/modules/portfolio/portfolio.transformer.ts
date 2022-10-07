@@ -6,7 +6,7 @@ import { AttributeTransformer } from 'modules/assets/transformers/attribute.tran
 import { MediaTransformer } from 'modules/assets/transformers/media.transformer';
 import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
 import { WatchlistAssetResponse } from 'modules/watchlists/responses/watchlist.response';
-import { PortfolioResponse } from './interfaces/portfolio-response.interface';
+import { IPortfolioResponse } from './interfaces/portfolio-response.interface';
 
 export type PortfolioResponseApi = SellOrderPurchase & { asset: WatchlistAssetResponse };
 
@@ -59,7 +59,7 @@ export class PortfolioTransformer {
     };
   }
 
-  public transformPortfolio(portfolio: PortfolioResponse) {
+  public transformPortfolio(portfolio: IPortfolioResponse) {
     return {
       ...portfolio,
       purchaseHistory: this.transformSellOrderPurchase(portfolio.purchaseHistory),

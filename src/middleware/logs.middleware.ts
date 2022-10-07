@@ -1,13 +1,13 @@
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { Response, NextFunction } from 'express';
 import { format } from 'date-fns';
-import RequestWithUser from 'modules/auth/interfaces/request-with-user.interface';
+import IRequestWithUser from 'modules/auth/interfaces/request-with-user.interface';
 
 @Injectable()
 class LogsMiddleware implements NestMiddleware {
   private readonly logger = new Logger('HTTP');
 
-  use(request: RequestWithUser, response: Response, next: NextFunction) {
+  use(request: IRequestWithUser, response: Response, next: NextFunction) {
     response.on('finish', () => {
       const { method, originalUrl, ip } = request;
       const { statusCode, statusMessage } = response;

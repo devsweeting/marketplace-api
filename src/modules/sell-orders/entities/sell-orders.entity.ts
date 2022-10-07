@@ -8,7 +8,7 @@ import {
   SelectQueryBuilder,
 } from 'typeorm';
 
-import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
+import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from '../../common/entities/base.model';
 import { ListSellOrderDto } from '../dto';
 import { Partner } from 'modules/partners/entities';
@@ -17,7 +17,7 @@ import { Asset } from 'modules/assets/entities';
 import { SellOrderTypeEnum } from '../enums/sell-order-type.enum';
 
 @Entity('sell_orders')
-export class SellOrder extends BaseModel implements BaseEntityInterface {
+export class SellOrder extends BaseModel implements IBaseEntity {
   @Column({ type: 'string', nullable: true })
   @RelationId((sellOrder: SellOrder) => sellOrder.user)
   public userId: string;

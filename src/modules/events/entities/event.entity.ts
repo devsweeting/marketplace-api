@@ -8,7 +8,7 @@ import {
   SelectQueryBuilder,
 } from 'typeorm';
 
-import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
+import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from '../../common/entities/base.model';
 import { Asset } from 'modules/assets/entities/asset.entity';
 import { EventTypeEnum } from '../enums/event-type.enum';
@@ -17,7 +17,7 @@ import { ListEventsDto } from '../dto/list-events.dto';
 
 @Entity('asset_events')
 @Index(['assetId', 'createdAt'])
-export class Event extends BaseModel implements BaseEntityInterface {
+export class Event extends BaseModel implements IBaseEntity {
   @Column({ nullable: false })
   public fromAccount: string;
 

@@ -1,10 +1,10 @@
 import { Column, Entity, Index, MoreThanOrEqual } from 'typeorm';
 
-import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
+import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
 
 @Entity('user_otps')
-export class UserOtp extends BaseModel implements BaseEntityInterface {
+export class UserOtp extends BaseModel implements IBaseEntity {
   @Index()
   @Column({ nullable: false })
   public email: string;

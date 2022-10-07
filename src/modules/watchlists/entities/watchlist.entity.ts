@@ -8,14 +8,14 @@ import {
   SelectQueryBuilder,
 } from 'typeorm';
 
-import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
+import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
 import { User } from 'modules/users/entities/user.entity';
 import { WatchlistAsset } from './watchlist-asset.entity';
 import { ListWatchlistDto } from '../dto';
 
 @Entity('watchlist')
-export class Watchlist extends BaseModel implements BaseEntityInterface {
+export class Watchlist extends BaseModel implements IBaseEntity {
   @OneToOne(() => User, (user) => user.watchlist, { nullable: false })
   @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
   public user: User;
