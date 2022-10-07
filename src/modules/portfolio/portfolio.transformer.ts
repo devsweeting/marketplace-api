@@ -4,12 +4,9 @@ import { ConfigService } from '@nestjs/config/dist/config.service';
 import { encodeHashId } from 'modules/common/helpers/hash-id.helper';
 import { AttributeTransformer } from 'modules/assets/transformers/attribute.transformer';
 import { MediaTransformer } from 'modules/assets/transformers/media.transformer';
-import {
-  PortfolioAssetResponse,
-  SellOrderAssetApi,
-  SellOrderPurchaseAssetApi,
-} from './responses/portfolio.response';
 import { IPortfolioResponse } from './interfaces/portfolio-response.interface';
+import { WatchlistAssetResponse } from 'modules/watchlists/responses/watchlist.response';
+import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
 
 export type PortfolioResponseApi = {
   totalValueInCents: number;
@@ -17,6 +14,12 @@ export type PortfolioResponseApi = {
   purchaseHistory: SellOrderPurchaseAssetApi[];
   sellOrderHistory: SellOrderAssetApi[];
 };
+
+export type SellOrderPurchaseAssetApi =
+  | Array<SellOrderPurchase & { asset: WatchlistAssetResponse }>
+  | [];
+
+export type SellOrderAssetApi = Array<SellOrder & { asset: WatchlistAssetResponse }> | [];
 
 @Injectable()
 export class PortfolioTransformer {
@@ -28,12 +31,11 @@ export class PortfolioTransformer {
 
   public transformSellOrderPurchase(orders): SellOrderPurchaseAssetApi {
     const purchases = orders.map((order) => {
-      return {
-        ...order,
+      return Object.assign(order, {
         updatedAt: order.updatedAt.toISOString(),
         createdAt: order.createdAt.toISOString(),
         asset: this.transformAsset(order.asset),
-      };
+      });
     });
     return purchases.sort(function (a, b) {
       return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf();
@@ -42,21 +44,20 @@ export class PortfolioTransformer {
 
   public transformSellOrder(orders): SellOrderAssetApi {
     const sellOrders = orders.map((order) => {
-      return {
-        ...order,
+      return Object.assign(order, {
         updatedAt: order.updatedAt.toISOString(),
         createdAt: order.createdAt.toISOString(),
         startTime: order.startTime.toISOString(),
         expireTime: order.expireTime.toISOString(),
         asset: this.transformAsset(order.asset),
-      };
+      });
     });
     return sellOrders.sort(function (a, b) {
       return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf();
     });
   }
 
-  public transformAsset(asset: Asset): PortfolioAssetResponse {
+  public transformAsset(asset: Asset): WatchlistAssetResponse {
     return {
       id: asset.id,
       name: asset.name,

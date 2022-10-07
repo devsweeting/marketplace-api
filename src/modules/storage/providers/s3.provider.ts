@@ -54,18 +54,18 @@ export class S3Provider implements IAwsProvider {
     const s3 = await this.getS3();
     const bucket: string = this.configService.get('aws.default.s3Bucket');
     const foo = await s3.listBuckets().promise();
-    console.log('foo', foo);
     if (!foo.Buckets.map((b) => b.Name).includes(bucket)) {
       const params = {
         Bucket: bucket,
       };
-      await s3.createBucket(params, function (err, data) {
-        if (err) {
-          throw new Error('Bucket has been created already' + err);
-        } else {
-          console.log('Bucket Created Successfully', data);
-        }
-      });
+      await s3.createBucket(params).promise();
+      // await s3.createBucket(params, function (err, data) {
+      //   if (err) {
+      //     throw new Error('Bucket has been created already' + err);
+      //   } else {
+      //     console.log('Bucket Created Successfully', data);
+      //   }
+      // });
     }
   }
 
