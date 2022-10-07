@@ -1,7 +1,7 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { Asset } from 'modules/assets/entities';
 import { AssetNotFoundException } from 'modules/assets/exceptions';
-import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
+import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
 import { User } from 'modules/users/entities';
 import {
@@ -25,7 +25,7 @@ import {
 import { SellOrder } from './sell-orders.entity';
 
 @Entity('sell_order_purchases')
-export class SellOrderPurchase extends BaseModel implements BaseEntityInterface {
+export class SellOrderPurchase extends BaseModel implements IBaseEntity {
   @Column({ type: 'string', nullable: false })
   @RelationId((sellOrderPurchase: SellOrderPurchase) => sellOrderPurchase.sellOrder)
   public sellOrderId: string;

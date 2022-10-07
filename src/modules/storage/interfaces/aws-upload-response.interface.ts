@@ -1,4 +1,4 @@
-export interface AwsUploadResponseInterface {
+export interface IAwsUploadResponse {
   ETag: string;
   VersionId: string;
   Location: string;

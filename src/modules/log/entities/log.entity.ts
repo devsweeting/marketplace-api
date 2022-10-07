@@ -1,11 +1,11 @@
 import { Column, Entity, JoinColumn, ManyToOne, RelationId } from 'typeorm';
 
-import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
+import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from '../../common/entities/base.model';
 import { User } from 'modules/users/entities/user.entity';
 
 @Entity('logs')
-export class Log extends BaseModel implements BaseEntityInterface {
+export class Log extends BaseModel implements IBaseEntity {
   @Column({ length: 128, nullable: false })
   public action: string;
 

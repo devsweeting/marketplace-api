@@ -1,11 +1,11 @@
 import { Column, Entity, Index, IsNull, JoinColumn, ManyToOne, RelationId } from 'typeorm';
 
-import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
+import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from '../../common/entities/base.model';
 import { Asset } from 'modules/assets/entities/asset.entity';
 
 @Entity('asset_labels')
-export class Label extends BaseModel implements BaseEntityInterface {
+export class Label extends BaseModel implements IBaseEntity {
   @Index()
   @Column({ length: 100, nullable: false })
   public name: string;

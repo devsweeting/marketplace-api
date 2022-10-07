@@ -1,4 +1,4 @@
-export default interface MailInfo {
+export default interface IMailInfo {
   emailTo: string;
   template: string;
   content: any;

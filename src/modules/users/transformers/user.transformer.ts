@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { UserResponse } from '../interfaces/user.interface';
+import { IUserResponse } from '../interfaces/user.interface';
 import { User } from '../entities/user.entity';
 
 @Injectable()
 export class UserTransformer {
-  public transform(user: User): UserResponse {
+  public transform(user: User): IUserResponse {
     return {
       id: user.id,
       refId: user.refId,
@@ -15,7 +15,7 @@ export class UserTransformer {
     };
   }
 
-  public transformAllUsers(users: User[]): UserResponse[] {
+  public transformAllUsers(users: User[]): IUserResponse[] {
     return users?.map((user) => this.transform(user));
   }
 }

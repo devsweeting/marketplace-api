@@ -17,7 +17,7 @@ import { ConfigService } from '@nestjs/config';
 import * as ethUtil from 'ethereumjs-util';
 import { UserRefresh } from 'modules/users/entities/user-refresh.entity';
 
-export interface RefreshTokenPayload {
+export interface IRefreshTokenPayload {
   email: string;
   userId: string;
   role: RoleEnum;
@@ -101,7 +101,7 @@ export class AuthService {
   ): Promise<{ usedRefreshToken: string; user: User }> {
     try {
       //Check if the token is expired
-      const decodedToken = this.jwtService.verify(reqRefreshToken, {
+      const decodedToken: IRefreshTokenPayload = this.jwtService.verify(reqRefreshToken, {
         secret: this.configService.get('jwt.default.jwtRefreshSecret'),
       });
 

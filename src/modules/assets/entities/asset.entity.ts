@@ -15,7 +15,7 @@ import {
   SelectQueryBuilder,
 } from 'typeorm';
 
-import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
+import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from '../../common/entities/base.model';
 import { Label } from './';
 import { generateSlug } from 'modules/common/helpers/slug.helper';
@@ -63,7 +63,7 @@ export class AssetAttributes {
 })
 @Index('ts_name_idx', { synchronize: false })
 @Index('ts_description_idx', { synchronize: false })
-export class Asset extends BaseModel implements BaseEntityInterface {
+export class Asset extends BaseModel implements IBaseEntity {
   @Index()
   @Column({ nullable: false, length: 100 })
   public refId: string;
