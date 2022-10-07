@@ -14,6 +14,10 @@ export default class AssetProcessor implements IProcessor<Asset> {
     obj.attributes['grading service'] = [faker.helpers.arrayElement(['BGS', 'PSA'])];
     obj.attributes['grade'] = [faker.datatype.number({ min: 0, max: 10 })];
     obj.attributes['year'] = [faker.datatype.number({ min: 1900, max: 2023 })];
+    obj.attributes['card number'] = ['#' + faker.datatype.number({ min: 1, max: 999 }).toString()];
+    obj.attributes['producer'] = [
+      faker.helpers.arrayElement(['Panini', 'Topps', 'Fleer', 'Upper Deck']),
+    ];
     obj.attributes['brand'] = [
       faker.helpers.arrayElement([
         'Michael Jordan',
