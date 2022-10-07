@@ -59,13 +59,6 @@ export class S3Provider implements IAwsProvider {
         Bucket: bucket,
       };
       await s3.createBucket(params).promise();
-      // await s3.createBucket(params, function (err, data) {
-      //   if (err) {
-      //     throw new Error('Bucket has been created already' + err);
-      //   } else {
-      //     console.log('Bucket Created Successfully', data);
-      //   }
-      // });
     }
   }
 
