@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { addMinutes, formatDistance, formatDistanceToNow, subHours } from 'date-fns';
+import { addMinutes, formatDistanceToNow, subHours } from 'date-fns';
 import { AuthService } from 'modules/auth/auth.service';
 import { TooManyRequestException } from 'modules/common/exceptions/too-many-request.exception';
 import { BaseService } from 'modules/common/services';
