@@ -109,7 +109,7 @@ describe('PortfolioController', () => {
         headers,
       );
 
-      const result: IPortfolioResponse = {
+      const mockResult: IPortfolioResponse = {
         totalValueInCents:
           purchase.fractionQty * purchase.fractionPriceCents +
           purchase2.fractionQty * purchase2.fractionPriceCents,
@@ -126,24 +126,24 @@ describe('PortfolioController', () => {
         .set(headers)
         .expect(200)
         .expect((res) => {
-          expect(res.body.totalUnits).toBe(result.totalUnits);
-          expect(res.body.totalValueInCents).toEqual(result.totalValueInCents);
+          expect(res.body.totalUnits).toBe(mockResult.totalUnits);
+          expect(res.body.totalValueInCents).toEqual(mockResult.totalValueInCents);
           expect(res.body.sellOrderHistory.length).toEqual(0);
           expect(res.body.purchaseHistory[0]).toHaveProperty('asset');
-          expect(res.body).toStrictEqual(portfolioTransformer.transformPortfolio(result));
+          expect(res.body).toMatchObject(portfolioTransformer.transformPortfolio(mockResult));
         });
     });
 
     test('should return all active sell orders for a seller', async () => {
       const headers = { Authorization: `Bearer ${generateToken(seller)}` };
 
-      const result: IPortfolioResponse = {
+      const mockResult: IPortfolioResponse = {
         totalValueInCents: 0,
         totalUnits: 0,
         purchaseHistory: [],
         sellOrderHistory: [
-          Object.assign(sellOrder, { asset: asset }),
           Object.assign(sellOrder2, { asset: asset2 }),
+          Object.assign(sellOrder, { asset: asset }),
         ],
       };
 
@@ -153,7 +153,7 @@ describe('PortfolioController', () => {
         .expect(200)
         .expect((res) => {
           expect(res.body.sellOrderHistory.length).toEqual(2);
-          expect(res.body).toStrictEqual(portfolioTransformer.transformPortfolio(result));
+          expect(res.body).toMatchObject(portfolioTransformer.transformPortfolio(mockResult));
         });
     });
 
