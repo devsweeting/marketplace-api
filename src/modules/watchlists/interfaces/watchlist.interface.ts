@@ -1,5 +1,5 @@
 import { AssetResponse } from 'modules/assets/responses/asset.response';
 
-export interface WatchlistInterface {
+export interface IWatchlist {
   assets: AssetResponse[];
 }

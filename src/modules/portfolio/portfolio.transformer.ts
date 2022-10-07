@@ -4,13 +4,12 @@ import { ConfigService } from '@nestjs/config/dist/config.service';
 import { encodeHashId } from 'modules/common/helpers/hash-id.helper';
 import { AttributeTransformer } from 'modules/assets/transformers/attribute.transformer';
 import { MediaTransformer } from 'modules/assets/transformers/media.transformer';
-import { PortfolioResponse } from './interfaces/portfolio-response.interface';
 import {
-  IPortfolioResponseAPI,
   PortfolioAssetResponse,
   SellOrderAssetApi,
   SellOrderPurchaseAssetApi,
 } from './responses/portfolio.response';
+import { IPortfolioResponse } from './interfaces/portfolio-response.interface';
 
 export type PortfolioResponseApi = {
   totalValueInCents: number;
@@ -72,7 +71,7 @@ export class PortfolioTransformer {
     };
   }
 
-  public transformPortfolio(portfolio: PortfolioResponse): IPortfolioResponseAPI {
+  public transformPortfolio(portfolio: IPortfolioResponse) {
     return {
       ...portfolio,
       purchaseHistory: this.transformSellOrderPurchase(portfolio.purchaseHistory),

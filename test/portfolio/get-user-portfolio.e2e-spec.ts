@@ -14,7 +14,7 @@ import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enu
 import { generateToken } from '../utils/jwt.utils';
 import request from 'supertest';
 import { PortfolioTransformer } from 'modules/portfolio/portfolio.transformer';
-import { IPortfolioResponseAPI } from 'modules/portfolio/responses/portfolio.response';
+import { IPortfolioResponse } from 'modules/portfolio/interfaces/portfolio-response.interface';
 
 describe('PortfolioController', () => {
   const initialQty = 10000;
@@ -109,7 +109,7 @@ describe('PortfolioController', () => {
         headers,
       );
 
-      const result = portfolioTransformer.transformPortfolio({
+      const result: IPortfolioResponse = {
         totalValueInCents:
           purchase.fractionQty * purchase.fractionPriceCents +
           purchase2.fractionQty * purchase2.fractionPriceCents,
@@ -119,7 +119,7 @@ describe('PortfolioController', () => {
           Object.assign(purchase2, { asset: asset2 }),
         ],
         sellOrderHistory: [],
-      });
+      };
 
       await request(app.getHttpServer())
         .get(PORTFOLIO_URL)
@@ -137,7 +137,7 @@ describe('PortfolioController', () => {
     test('should return all active sell orders for a seller', async () => {
       const headers = { Authorization: `Bearer ${generateToken(seller)}` };
 
-      const result = portfolioTransformer.transformPortfolio({
+      const result: IPortfolioResponse = {
         totalValueInCents: 0,
         totalUnits: 0,
         purchaseHistory: [],
@@ -145,7 +145,7 @@ describe('PortfolioController', () => {
           Object.assign(sellOrder, { asset: asset }),
           Object.assign(sellOrder2, { asset: asset2 }),
         ],
-      });
+      };
 
       await request(app.getHttpServer())
         .get(PORTFOLIO_URL)

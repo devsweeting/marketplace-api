@@ -6,12 +6,12 @@ import path from 'path';
 import mime from 'mime-types';
 import { StorageEnum } from 'modules/storage/enums/storage.enum';
 import { UploadResponseDto } from 'modules/storage/dto/upload-response.dto';
-import { AwsUploadResponseInterface } from 'modules/storage/interfaces/aws-upload-response.interface';
+import { IAwsUploadResponse } from 'modules/storage/interfaces/aws-upload-response.interface';
 import { File } from 'modules/storage/entities/file.entity';
-import { ProviderInterface } from 'modules/storage/interfaces/provider.interface';
+import { IAwsProvider } from 'modules/storage/interfaces/provider.interface';
 
 @Injectable()
-export class S3Provider implements ProviderInterface {
+export class S3Provider implements IAwsProvider {
   public constructor(private readonly configService: ConfigService) {}
 
   public async upload(filePath: string, directory: string): Promise<UploadResponseDto> {
@@ -69,7 +69,7 @@ export class S3Provider implements ProviderInterface {
     }
   }
 
-  private async s3Upload(filePath: string, key: string): Promise<AwsUploadResponseInterface> {
+  private async s3Upload(filePath: string, key: string): Promise<IAwsUploadResponse> {
     const bucket: string = this.configService.get('aws.default.s3Bucket');
     const s3 = await this.getS3();
     const tmpFile = await fs.createReadStream(filePath);
@@ -81,7 +81,7 @@ export class S3Provider implements ProviderInterface {
         Body: tmpFile,
         ACL: 'public-read',
       })
-      .promise()) as AwsUploadResponseInterface;
+      .promise()) as IAwsUploadResponse;
   }
 
   private getS3(): S3 {

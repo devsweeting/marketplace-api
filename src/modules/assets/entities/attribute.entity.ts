@@ -1,10 +1,10 @@
 import { BaseModel } from '../../common/entities/base.model';
 import { Column, Entity, IsNull, JoinColumn, ManyToOne, RelationId } from 'typeorm';
 import { Asset } from './';
-import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
+import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 
 @Entity('asset_attributes')
-export class Attribute extends BaseModel implements BaseEntityInterface {
+export class Attribute extends BaseModel implements IBaseEntity {
   @Column({
     length: 50,
     nullable: false,

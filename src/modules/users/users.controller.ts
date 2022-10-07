@@ -20,7 +20,7 @@ import {
   ApiTooManyRequestsResponse,
 } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-import { UserResponse } from './interfaces/user.interface';
+import { IUserResponse } from './interfaces/user.interface';
 import { CreateUserDto, LoginConfirmDto, LoginRequestDto, UpdateUserDto } from './dto';
 import { User } from './entities/user.entity';
 import { UserTransformer } from './transformers/user.transformer';
@@ -58,7 +58,7 @@ export class UsersController {
     description: 'The found records',
     type: User,
   })
-  public async getUsers(): Promise<UserResponse[]> {
+  public async getUsers(): Promise<IUserResponse[]> {
     const users = await this.usersService.findAll();
     return this.userTransformer.transformAllUsers(users);
   }
@@ -70,7 +70,7 @@ export class UsersController {
     description: 'The found record',
   })
   @ApiNotFoundResponse()
-  public async getUser(@Param('id') id): Promise<UserResponse> {
+  public async getUser(@Param('id') id): Promise<IUserResponse> {
     const user = await this.usersService.findOne(id);
     return this.userTransformer.transform(user);
   }
@@ -79,7 +79,7 @@ export class UsersController {
   @UseGuards(RoleGuard([RoleEnum.SUPER_ADMIN]))
   @HttpCode(201)
   @ApiOperation({ summary: 'Create user' })
-  public async create(@Body() userData: CreateUserDto): Promise<UserResponse> {
+  public async create(@Body() userData: CreateUserDto): Promise<IUserResponse> {
     const user = await this.usersService.create(userData);
     return this.userTransformer.transform(user);
   }
@@ -89,7 +89,7 @@ export class UsersController {
   @HttpCode(200)
   @ApiOperation({ summary: 'Update user' })
   @ApiNotFoundResponse()
-  public async update(@Param('id') id, @Body() userData: UpdateUserDto): Promise<UserResponse> {
+  public async update(@Param('id') id, @Body() userData: UpdateUserDto): Promise<IUserResponse> {
     const user = await this.usersService.update(id, userData);
     return this.userTransformer.transform(user);
   }

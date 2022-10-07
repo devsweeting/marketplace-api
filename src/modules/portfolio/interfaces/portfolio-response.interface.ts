@@ -1,6 +1,6 @@
 import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
 
-export interface PortfolioResponse {
+export interface IPortfolioResponse {
   totalValueInCents: number;
   totalUnits: number;
   purchaseHistory: SellOrderPurchase[];

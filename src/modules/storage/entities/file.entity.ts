@@ -1,10 +1,10 @@
 import { Column, Entity } from 'typeorm';
 import { BaseModel } from 'modules/common/entities/base.model';
-import { BaseEntityInterface } from 'modules/common/entities/base.entity.interface';
+import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { StorageEnum } from 'modules/storage/enums/storage.enum';
 
 @Entity('files')
-export class File extends BaseModel implements BaseEntityInterface {
+export class File extends BaseModel implements IBaseEntity {
   @Column()
   public name: string;
 

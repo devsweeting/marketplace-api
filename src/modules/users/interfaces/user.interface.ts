@@ -1,6 +1,6 @@
 import { RoleEnum } from '../enums/role.enum';
 
-export interface UserResponse {
+export interface IUserResponse {
   id: string;
   refId: string;
   email: string;
