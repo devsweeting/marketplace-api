@@ -1,8 +1,8 @@
-import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
+import { Asset } from 'modules/assets/entities';
 
 export interface IPortfolioResponse {
   totalValueInCents: number;
   totalUnits: number;
-  purchaseHistory: SellOrderPurchase[];
-  sellOrderHistory: SellOrder[];
+  assetPurchaseHistory: Asset[];
+  assetSellOrderHistory: Asset[];
 }

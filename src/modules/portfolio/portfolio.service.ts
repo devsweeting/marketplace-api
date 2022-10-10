@@ -15,11 +15,13 @@ export class PortfolioService extends BaseService {
   }
 
   public async getUserPortfolio(user: User): Promise<IPortfolioResponse> {
-    const sellOrderHistory = await this.sellOrderService.getUserSellOrders(user);
-    const purchaseHistory = await this.sellOrderPurchaseService.getUserPurchases(user);
+    const assetSellOrderHistory = await this.sellOrderService.getAssetsWithUserSellOrders(user);
+    const assetPurchaseHistory = await this.sellOrderPurchaseService.getAssetsWithUserPurchases(
+      user,
+    );
     const { totalValueInCents, totalUnits } = await this.sellOrderPurchaseService.getTotalPurchased(
       user,
     );
-    return { totalValueInCents, totalUnits, purchaseHistory, sellOrderHistory };
+    return { totalValueInCents, totalUnits, assetPurchaseHistory, assetSellOrderHistory };
   }
 }

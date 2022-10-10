@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Asset } from 'modules/assets/entities';
 import { BaseService } from 'modules/common/services';
 import { User } from 'modules/users/entities';
 import { SellOrder, SellOrderPurchase } from './entities';
@@ -24,6 +25,22 @@ export class SellOrdersPurchaseService extends BaseService {
       .getMany();
 
     return { sellOrderHistory };
+  }
+
+  async getAssetsWithUserPurchases(user: User): Promise<Asset[]> {
+    return await Asset.createQueryBuilder('asset')
+      .leftJoinAndMapMany('asset.sellOrders', 'asset.sellOrders', 'sellOrders')
+      .leftJoinAndMapMany('asset.labels', 'asset.labels', 'labels')
+      .leftJoinAndMapMany('asset.media', 'asset.media', 'media')
+      .leftJoinAndMapOne('media.file', 'media.file', 'file')
+      .where('sellOrders.userId = :userId', {
+        userId: user.id,
+      })
+      .andWhere('sellOrders.isDeleted = :isDeleted AND sellOrders.deletedAt IS NULL', {
+        isDeleted: false,
+      })
+
+      .getMany();
   }
 
   async getTotalPurchased(user: User): Promise<any> {

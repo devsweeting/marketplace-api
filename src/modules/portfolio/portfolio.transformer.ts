@@ -8,6 +8,8 @@ import { IPortfolioResponse } from './interfaces/portfolio-response.interface';
 import { WatchlistAssetResponse } from 'modules/watchlists/responses/watchlist.response';
 import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
 import { SellOrdersTransformer } from 'modules/sell-orders/transformers/sell-orders.transformer';
+import { AssetResponse } from 'modules/assets/responses/asset.response';
+import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
 
 export type PortfolioResponseApi = {
   totalValueInCents: number;
@@ -29,63 +31,43 @@ export class PortfolioTransformer {
     private readonly attributeTransformer: AttributeTransformer,
     private readonly mediaTransformer: MediaTransformer,
     private readonly sellOrderTransformer: SellOrdersTransformer,
+    private readonly assetsTransformer: AssetsTransformer,
   ) {}
 
-  public transformSellOrderPurchase(orders): SellOrderPurchaseAssetApi {
-    const purchases = orders.map((order) => {
-      return Object.assign(order, {
-        updatedAt: order.updatedAt.toISOString(),
-        createdAt: order.createdAt.toISOString(),
-        asset: this.transformAsset(order.asset),
-      });
-    });
-    return purchases.sort(function (a, b) {
-      return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf();
-    });
-  }
+  // public transformSellOrderPurchase(orders): SellOrderPurchaseAssetApi {
+  //   const purchases = orders.map((order) => {
+  //     return Object.assign(order, {
+  //       updatedAt: order.updatedAt.toISOString(),
+  //       createdAt: order.createdAt.toISOString(),
+  //       // asset: this.transformAsset(order.asset),
+  //     });
+  //   });
+  //   return purchases.sort(function (a, b) {
+  //     return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf();
+  //   });
+  // }
 
-  public transformSellOrder(orders): SellOrderAssetApi {
-    const sellOrders = orders.map((order) => {
-      return Object.assign(order, {
-        updatedAt: order.updatedAt.toISOString(),
-        createdAt: order.createdAt.toISOString(),
-        startTime: order.startTime.toISOString(),
-        expireTime: order.expireTime.toISOString(),
-        asset: this.transformAsset(order.asset),
-      });
-    });
-    return sellOrders.sort(function (a, b) {
-      return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf();
-    });
-  }
-
-  public transformAsset(asset: Asset): WatchlistAssetResponse {
-    return {
-      id: asset.id,
-      name: asset.name,
-      description: asset.description,
-      media: asset.media?.length ? this.mediaTransformer.transformAll(asset?.media) : null,
-      refId: asset.refId,
-      slug: asset.slug,
-      createdAt: asset.createdAt.toISOString(),
-      updatedAt: asset.updatedAt.toISOString(),
-      attributes: this.attributeTransformer.transformAll(asset.attributes),
-      partner: encodeHashId(asset.partnerId, this.configService.get('common.default.hashIdSalt')),
-    };
-  }
+  // public transformSellOrder(orders): SellOrderAssetApi {
+  //   const sellOrders = orders.map((order) => {
+  //     return Object.assign(order, {
+  //       updatedAt: order.updatedAt.toISOString(),
+  //       createdAt: order.createdAt.toISOString(),
+  //       startTime: order.startTime.toISOString(),
+  //       expireTime: order.expireTime.toISOString(),
+  //       // asset: this.transformAsset(order.asset),
+  //     });
+  //   });
+  //   return sellOrders.sort(function (a, b) {
+  //     return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf();
+  //   });
+  // }
 
   public transformPortfolio(portfolio: IPortfolioResponse) {
+    // console.log(portfolio.purchaseHistory);
     return {
       ...portfolio,
-      purchaseHistory: this.getAssets(portfolio.purchaseHistory),
-      sellOrderHistory: this.getAssets(portfolio.sellOrderHistory),
+      purchaseHistory: this.assetsTransformer.transformAll(portfolio.assetPurchaseHistory),
+      sellOrderHistory: this.assetsTransformer.transformAll(portfolio.assetSellOrderHistory),
     };
-  }
-
-  public async getAssets(sellorders: SellOrder[] | SellOrderPurchase[]) {
-    const assetIds: string[] = sellorders.map((sellorder) => {
-      return sellorder.id;
-    });
-    console.log(assetIds);
   }
 }
