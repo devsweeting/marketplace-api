@@ -77,8 +77,15 @@ export class PortfolioTransformer {
   public transformPortfolio(portfolio: IPortfolioResponse) {
     return {
       ...portfolio,
-      purchaseHistory: this.transformSellOrderPurchase(portfolio.purchaseHistory),
-      sellOrderHistory: this.transformSellOrder(portfolio.sellOrderHistory),
+      purchaseHistory: this.getAssets(portfolio.purchaseHistory),
+      sellOrderHistory: this.getAssets(portfolio.sellOrderHistory),
     };
+  }
+
+  public async getAssets(sellorders: SellOrder[] | SellOrderPurchase[]) {
+    const assetIds: string[] = sellorders.map((sellorder) => {
+      return sellorder.id;
+    });
+    console.log(assetIds);
   }
 }

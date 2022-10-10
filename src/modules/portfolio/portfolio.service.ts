@@ -14,7 +14,7 @@ export class PortfolioService extends BaseService {
     super();
   }
 
-  public async createUserPortfolio(user: User): Promise<IPortfolioResponse> {
+  public async getUserPortfolio(user: User): Promise<IPortfolioResponse> {
     const sellOrderHistory = await this.sellOrderService.getUserSellOrders(user);
     const purchaseHistory = await this.sellOrderPurchaseService.getUserPurchases(user);
     const { totalValueInCents, totalUnits } = await this.sellOrderPurchaseService.getTotalPurchased(

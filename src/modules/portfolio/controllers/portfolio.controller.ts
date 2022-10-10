@@ -27,7 +27,7 @@ export class PortfolioController {
     // schema: generateSwaggerPaginatedSchema(PortfolioResponse)
   })
   public async getPortfolio(@currentUser() user: User) {
-    const userPortfolio = await this.portfolioService.createUserPortfolio(user);
+    const userPortfolio = await this.portfolioService.getUserPortfolio(user);
     return this.portfolioTransformer.transformPortfolio(userPortfolio);
   }
 }
