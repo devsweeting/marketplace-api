@@ -7,6 +7,7 @@ import { v4 } from 'uuid';
 
 import { createCollection } from '../utils/collection.utils';
 import { Collection } from 'modules/collections/entities';
+import { StatusCodes } from 'http-status-codes';
 
 describe('CollectionsController', () => {
   let app: INestApplication;
@@ -38,7 +39,7 @@ describe('CollectionsController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections/${collection.id}`)
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual(collectionsTransformer.transform(collection));
         });
@@ -48,12 +49,12 @@ describe('CollectionsController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections/123`)
         .send()
-        .expect(404)
+        .expect(StatusCodes.NOT_FOUND)
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Not Found',
             message: 'COLLECTION_NOT_FOUND',
-            statusCode: 404,
+            statusCode: StatusCodes.NOT_FOUND,
           });
         });
     });
@@ -62,12 +63,12 @@ describe('CollectionsController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections/${v4()}`)
         .send()
-        .expect(404)
+        .expect(StatusCodes.NOT_FOUND)
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Not Found',
             message: 'COLLECTION_NOT_FOUND',
-            statusCode: 404,
+            statusCode: StatusCodes.NOT_FOUND,
           });
         });
     });

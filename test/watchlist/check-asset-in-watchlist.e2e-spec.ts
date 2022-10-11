@@ -12,6 +12,7 @@ import { createPartner } from '../utils/partner.utils';
 import { Partner } from 'modules/partners/entities';
 import { generateNonce, generateToken } from '../utils/jwt.utils';
 import { v4 } from 'uuid';
+import { StatusCodes } from 'http-status-codes';
 
 describe('WatchlistController', () => {
   let app: INestApplication;
@@ -72,21 +73,24 @@ describe('WatchlistController', () => {
 
   describe(`GET V1 /watchlist`, () => {
     test('should throw 401 exception if asset does not exist and auth token is missing', () => {
-      return request(app.getHttpServer()).get(`/v1/watchlist/check/${v4()}`).send().expect(401);
+      return request(app.getHttpServer())
+        .get(`/v1/watchlist/check/${v4()}`)
+        .send()
+        .expect(StatusCodes.UNAUTHORIZED);
     });
 
     test('should throw 401 exception if auth token is missing for id', () => {
       return request(app.getHttpServer())
         .get(`/v1/watchlist/check/${assets[0].id}`)
         .send({})
-        .expect(401);
+        .expect(StatusCodes.UNAUTHORIZED);
     });
 
     test('should throw 401 exception if auth token is missing for slug', () => {
       return request(app.getHttpServer())
         .get(`/v1/watchlist/check/${assets[0].slug}`)
         .send({})
-        .expect(401);
+        .expect(StatusCodes.UNAUTHORIZED);
     });
 
     test('should throw 401 exception if token is invalid for id', () => {
@@ -94,7 +98,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist/check/${assets[0].id}`)
         .set({ Authorization: `Bearer wrong` })
         .send({})
-        .expect(401);
+        .expect(StatusCodes.UNAUTHORIZED);
     });
 
     test('should throw 401 exception if token is invalid for slug', () => {
@@ -102,7 +106,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist/check/${assets[0].slug}`)
         .set({ Authorization: `Bearer wrong` })
         .send({})
-        .expect(401);
+        .expect(StatusCodes.UNAUTHORIZED);
     });
 
     test('return inWatchlist: false if user has not added asset to watchlist for id', () => {
@@ -110,7 +114,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist/check/${assets[1].id}`)
         .set({ Authorization: `Bearer ${generateToken(users[1])}` })
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({ assetId: assets[1].id, inWatchlist: false });
         });
@@ -121,7 +125,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist/check/${assets[1].slug}`)
         .set({ Authorization: `Bearer ${generateToken(users[1])}` })
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({ assetId: assets[1].id, inWatchlist: false });
         });
@@ -132,7 +136,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist/check/${assets[0].id}`)
         .set({ Authorization: `Bearer ${generateToken(users[0])}` })
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({ assetId: assets[0].id, inWatchlist: true });
         });
@@ -143,7 +147,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist/check/${assets[0].slug}`)
         .set({ Authorization: `Bearer ${generateToken(users[0])}` })
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({ assetId: assets[0].id, inWatchlist: true });
         });
@@ -169,12 +173,12 @@ describe('WatchlistController', () => {
           .get(`/v1/watchlist/check/${id}`)
           .set({ Authorization: `Bearer ${generateToken(users[0])}` })
           .send()
-          .expect(404)
+          .expect(StatusCodes.NOT_FOUND)
           .expect(({ body }) => {
             expect(body).toEqual({
               error: 'Not Found',
               message: 'ASSET_NOT_FOUND',
-              statusCode: 404,
+              statusCode: StatusCodes.NOT_FOUND,
             });
           });
       }
@@ -185,7 +189,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist/check/${v4()}`)
         .set({ Authorization: `Bearer ${generateToken(users[0])}` })
         .send()
-        .expect(404);
+        .expect(StatusCodes.NOT_FOUND);
     });
 
     test('return 404 if asset does not exist for wrong slug ', () => {
@@ -193,7 +197,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist/check/wrong-slug`)
         .set({ Authorization: `Bearer ${generateToken(users[0])}` })
         .send()
-        .expect(404);
+        .expect(StatusCodes.NOT_FOUND);
     });
   });
 });

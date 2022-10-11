@@ -12,6 +12,8 @@ import { createSellOrder, expectPurchaseSuccess } from '../utils/sell-order.util
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
 import { generateToken } from '../utils/jwt.utils';
 import request from 'supertest';
+import { PortfolioTransformer } from 'modules/portfolio/portfolio.transformer';
+import { IPortfolioResponse } from 'modules/portfolio/interfaces/portfolio-response.interface';
 import { createUserAsset } from '../utils/user';
 import { UserAsset } from 'modules/users/entities/user-assets.entity';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
@@ -145,14 +147,49 @@ describe('PortfolioController', () => {
         buyer,
         headers,
       );
-      buyerUserAsset.quantityOwned = unitsToBuyFromAsset1;
-      buyerUserAsset2.quantityOwned = unitsToBuyFromAsset2;
-      asset.userAsset = buyerUserAsset;
-      asset2.userAsset = buyerUserAsset2;
+
+      const mockResult: IPortfolioResponse = {
+        totalValueInCents:
+          purchase.fractionQty * purchase.fractionPriceCents +
+          purchase2.fractionQty * purchase2.fractionPriceCents,
+        totalUnits: purchase.fractionQty + purchase2.fractionQty,
+        purchaseHistory: [
+          Object.assign(purchase, { asset: asset }),
+          Object.assign(purchase2, { asset: asset2 }),
+        ],
+        sellOrderHistory: [],
+      };
+
       await request(app.getHttpServer())
         .get(PORTFOLIO_URL)
         .set(headers)
         .expect(200)
+        .expect((res) => {
+          expect(res.body.totalUnits).toBe(mockResult.totalUnits);
+          expect(res.body.totalValueInCents).toEqual(mockResult.totalValueInCents);
+          expect(res.body.sellOrderHistory.length).toEqual(0);
+          expect(res.body.purchaseHistory[0]).toHaveProperty('asset');
+          expect(res.body).toMatchObject(portfolioTransformer.transformPortfolio(mockResult));
+        });
+    });
+
+    test('should return all active sell orders for a seller', async () => {
+      const headers = { Authorization: `Bearer ${generateToken(seller)}` };
+
+      const mockResult: IPortfolioResponse = {
+        totalValueInCents: 0,
+        totalUnits: 0,
+        purchaseHistory: [],
+        sellOrderHistory: [
+          Object.assign(sellOrder2, { asset: asset2 }),
+          Object.assign(sellOrder, { asset: asset }),
+        ],
+      };
+      const mockResultTransformed = portfolioTransformer.transformPortfolio(mockResult);
+      await request(app.getHttpServer())
+        .get(PORTFOLIO_URL)
+        .set(headers)
+        .expect(StatusCodes.OK)
         .expect((res) => {
           expect(res.body.totalUnits).toBe(unitsToBuyFromAsset1 + unitsToBuyFromAsset2);
           expect(res.body.totalValueInCents).toEqual(
@@ -188,7 +225,7 @@ describe('PortfolioController', () => {
       await request(app.getHttpServer())
         .get(PORTFOLIO_URL)
         .set(headers)
-        .expect(401)
+        .expect(StatusCodes.UNAUTHORIZED)
         .expect((res) => {
           expect(res.body.message).toBe('Unauthorized');
         });

@@ -33,5 +33,8 @@ module.exports = {
     '@typescript-eslint/no-misused-promises': 'error',
     "@typescript-eslint/no-unused-vars": "error",
     "no-console": "warn",
+    "no-magic-numbers": ["warn", { "ignoreArrayIndexes": true }],
+    "yoda": "error",
+    "consistent-return": "warn",
   },
 };

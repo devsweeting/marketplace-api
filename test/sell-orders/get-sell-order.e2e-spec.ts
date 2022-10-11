@@ -13,6 +13,7 @@ import { SellOrder } from 'modules/sell-orders/entities';
 import { v4 } from 'uuid';
 import { createSellOrder } from '../utils/sell-order.utils';
 import { SellOrdersTransformer } from 'modules/sell-orders/transformers/sell-orders.transformer';
+import { StatusCodes } from 'http-status-codes';
 
 describe('SellOrdersController', () => {
   let app: INestApplication;
@@ -73,33 +74,47 @@ describe('SellOrdersController', () => {
 
   describe(`GET V1 /`, () => {
     test('should throw 401 exception if auth token is missing', () => {
-      return testApp.get(app, BASE_URL + sellOrder.id, 401, null, {}, {});
+      return testApp.get(app, BASE_URL + sellOrder.id, StatusCodes.UNAUTHORIZED, null, {}, {});
     });
     test('should throw 401 exception if auth token is wrong', () => {
       const customHeader = { 'x-api-key': 'invalid key' };
-      return testApp.get(app, BASE_URL + sellOrder.id, 401, null, {}, customHeader);
+      return testApp.get(
+        app,
+        BASE_URL + sellOrder.id,
+        StatusCodes.UNAUTHORIZED,
+        null,
+        {},
+        customHeader,
+      );
     });
     test('should throw 401 exception if auth token is wrong and sell order id not found', () => {
       const customHeader = { 'x-api-key': 'invalid key' };
-      return testApp.get(app, BASE_URL + v4(), 401, null, {}, customHeader);
+      return testApp.get(app, BASE_URL + v4(), StatusCodes.UNAUTHORIZED, null, {}, customHeader);
     });
     test('should throw 404 exception if sell order id not found', () => {
-      return testApp.get(app, BASE_URL + v4(), 404, null, {}, header);
+      return testApp.get(app, BASE_URL + v4(), StatusCodes.NOT_FOUND, null, {}, header);
     });
     test('should return sell order for owner', async () => {
       const expectedResponse = {
         ...sellOrdersTransformer.transform(sellOrder),
       };
-      await testApp.get(app, BASE_URL + sellOrder.id, 200, expectedResponse, {}, header);
+      await testApp.get(app, BASE_URL + sellOrder.id, StatusCodes.OK, expectedResponse, {}, header);
     });
     test('should throw 404 error for the sell order another owner', async () => {
       const customHeader = { 'x-api-key': anotherPartner.apiKey };
       const expectedResponse = {
         error: 'Not Found',
         message: 'SELL_ORDER_NOT_FOUND',
-        statusCode: 404,
+        statusCode: StatusCodes.NOT_FOUND,
       };
-      await testApp.get(app, BASE_URL + sellOrder.id, 404, expectedResponse, {}, customHeader);
+      await testApp.get(
+        app,
+        BASE_URL + sellOrder.id,
+        StatusCodes.NOT_FOUND,
+        expectedResponse,
+        {},
+        customHeader,
+      );
     });
   });
 });

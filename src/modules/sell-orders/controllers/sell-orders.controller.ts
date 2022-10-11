@@ -32,6 +32,7 @@ import JwtOtpAuthGuard from 'modules/auth/guards/jwt-otp-auth.guard';
 import { GetUser } from 'modules/auth/decorators/get-user.decorator';
 import { User } from 'modules/users/entities/user.entity';
 import { SellOrderTypeEnum } from '../enums/sell-order-type.enum';
+import { StatusCodes } from 'http-status-codes';
 
 @ApiTags('sellorders')
 @Controller({
@@ -92,7 +93,7 @@ export class SellOrdersController {
       throw e;
     }
     return {
-      status: 201,
+      status: StatusCodes.CREATED,
       description: 'Sell order created',
     };
   }

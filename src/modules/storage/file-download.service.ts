@@ -7,6 +7,7 @@ import https from 'https';
 import http from 'http';
 import { ConfigService } from '@nestjs/config';
 import { Promise } from 'bluebird';
+import { StatusCodes } from 'http-status-codes';
 
 const ACCEPTED_IMAGE_CONTENT_TYPES = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp'];
 
@@ -24,7 +25,7 @@ export class FileDownloadService {
     const downloader = image.startsWith('https') ? https : http;
     return new Promise((resolve, reject) => {
       downloader.get(options, (response) => {
-        if (response.statusCode !== 200) {
+        if (response.statusCode !== StatusCodes.OK) {
           reject(`Error: ${response.statusCode}`);
         }
 

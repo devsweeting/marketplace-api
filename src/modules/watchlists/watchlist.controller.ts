@@ -32,6 +32,7 @@ import { WatchlistAssetResponse } from './responses/watchlist.response';
 import { WatchlistTransformer } from './transformers/watchlist.transformer';
 import { WatchlistService } from './watchlist.service';
 import { validate as isValidUUID } from 'uuid';
+import { StatusCodes } from 'http-status-codes';
 @ApiTags('watchlist')
 @Controller({
   path: 'watchlist',
@@ -77,7 +78,7 @@ export class WatchlistController {
       throw new InternalServerErrorException();
     }
     return {
-      status: 201,
+      status: StatusCodes.CREATED,
       description: 'Asset was added to watchlist',
     };
   }

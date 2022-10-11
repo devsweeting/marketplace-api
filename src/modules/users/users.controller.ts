@@ -31,6 +31,7 @@ import { OtpService } from './services/otp.service';
 import { RefreshRequestDto } from './dto/refresh-request.dto';
 import { JwtRefreshGaurd } from 'modules/auth/guards/jwt-refresh.guard';
 import { AuthService } from 'modules/auth/auth.service';
+import { StatusCodes } from 'http-status-codes';
 
 @ApiTags('users')
 @Controller({
@@ -54,7 +55,7 @@ export class UsersController {
   @Get()
   @UseGuards(JwtAuthGuard)
   @ApiResponse({
-    status: 200,
+    status: StatusCodes.OK,
     description: 'The found records',
     type: User,
   })
@@ -66,7 +67,7 @@ export class UsersController {
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   @ApiResponse({
-    status: 200,
+    status: StatusCodes.OK,
     description: 'The found record',
   })
   @ApiNotFoundResponse()
@@ -77,7 +78,7 @@ export class UsersController {
 
   @Post()
   @UseGuards(RoleGuard([RoleEnum.SUPER_ADMIN]))
-  @HttpCode(201)
+  @HttpCode(StatusCodes.CREATED)
   @ApiOperation({ summary: 'Create user' })
   public async create(@Body() userData: CreateUserDto): Promise<IUserResponse> {
     const user = await this.usersService.create(userData);
@@ -86,7 +87,7 @@ export class UsersController {
 
   @Patch(':id')
   @UseGuards(RoleGuard([RoleEnum.SUPER_ADMIN, RoleEnum.ADMIN]))
-  @HttpCode(200)
+  @HttpCode(StatusCodes.OK)
   @ApiOperation({ summary: 'Update user' })
   @ApiNotFoundResponse()
   public async update(@Param('id') id, @Body() userData: UpdateUserDto): Promise<IUserResponse> {
@@ -96,7 +97,7 @@ export class UsersController {
 
   @Delete(':id')
   @UseGuards(RoleGuard([RoleEnum.SUPER_ADMIN]))
-  @HttpCode(200)
+  @HttpCode(StatusCodes.OK)
   @ApiOperation({ summary: 'Delete user' })
   @ApiResponse({ status: HttpStatus.NO_CONTENT })
   @ApiNotFoundResponse()
@@ -118,7 +119,7 @@ export class UsersController {
     await this.otpService.sendOtpToken(dto);
 
     return {
-      status: 200,
+      status: StatusCodes.OK,
       description: 'Email was sent.',
     };
   }

@@ -5,6 +5,7 @@ import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { generateToken } from '../utils/jwt.utils';
+import { StatusCodes } from 'http-status-codes';
 
 describe('UsersController', () => {
   let app: INestApplication;
@@ -33,7 +34,7 @@ describe('UsersController', () => {
         .patch(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             id: user.id,
@@ -60,9 +61,9 @@ describe('UsersController', () => {
         .patch(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
-        .expect(400)
+        .expect(StatusCodes.BAD_REQUEST)
         .expect({
-          statusCode: 400,
+          statusCode: StatusCodes.BAD_REQUEST,
           message: ['email must be an email'],
           error: 'Bad Request',
         });
@@ -76,9 +77,9 @@ describe('UsersController', () => {
         .patch(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
-        .expect(400)
+        .expect(StatusCodes.BAD_REQUEST)
         .expect({
-          statusCode: 400,
+          statusCode: StatusCodes.BAD_REQUEST,
           message: ['property password should not exist'],
           error: 'Bad Request',
         });
@@ -96,7 +97,7 @@ describe('UsersController', () => {
         .patch(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             id: user.id,
@@ -123,9 +124,9 @@ describe('UsersController', () => {
         .patch(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
-        .expect(400)
+        .expect(StatusCodes.BAD_REQUEST)
         .expect({
-          statusCode: 400,
+          statusCode: StatusCodes.BAD_REQUEST,
           message: ['email must be an email'],
           error: 'Bad Request',
         });
@@ -139,9 +140,9 @@ describe('UsersController', () => {
         .patch(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
-        .expect(400)
+        .expect(StatusCodes.BAD_REQUEST)
         .expect({
-          statusCode: 400,
+          statusCode: StatusCodes.BAD_REQUEST,
           message: ['property password should not exist'],
           error: 'Bad Request',
         });

@@ -6,6 +6,7 @@ import request from 'supertest';
 import { createApp } from '../utils/app.utils';
 import { createUser } from '../utils/create-user';
 import { generateToken } from '../utils/jwt.utils';
+import { StatusCodes } from 'http-status-codes';
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;
@@ -28,18 +29,18 @@ describe('UserController (e2e)', () => {
       return request(app.getHttpServer())
         .get(`/v1/users`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
-        .expect(200);
+        .expect(StatusCodes.OK);
     });
 
     test('return status 401 for unauthorized user', async () => {
-      return request(app.getHttpServer()).get(`/v1/users`).expect(401);
+      return request(app.getHttpServer()).get(`/v1/users`).expect(StatusCodes.UNAUTHORIZED);
     });
 
     test('should list all users', async () => {
       await request(app.getHttpServer())
         .get('/v1/users')
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body.length).toEqual(4);
 

@@ -13,6 +13,7 @@ import { createUser } from '../utils/create-user';
 import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
 import * as testApp from '../utils/app.utils';
 import { AssetAttributes } from 'modules/assets/entities/asset.entity';
+import { StatusCodes } from 'http-status-codes';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -59,9 +60,16 @@ describe('AssetsController', () => {
     test('should throw 401 exception if auth token is missing', () => {
       const response = {
         message: 'Unauthorized',
-        statusCode: 401,
+        statusCode: StatusCodes.UNAUTHORIZED,
       };
-      return testApp.patch(app, `/v1/assets/${asset.id}`, 401, response, {}, {});
+      return testApp.patch(
+        app,
+        `/v1/assets/${asset.id}`,
+        StatusCodes.UNAUTHORIZED,
+        response,
+        {},
+        {},
+      );
     });
 
     test('should throw 401 exception if token is invalid', () => {
@@ -70,18 +78,25 @@ describe('AssetsController', () => {
       };
       const response = {
         message: 'Unauthorized',
-        statusCode: 401,
+        statusCode: StatusCodes.UNAUTHORIZED,
       };
-      return testApp.patch(app, `/v1/assets/${asset.id}`, 401, response, {}, customHeader);
+      return testApp.patch(
+        app,
+        `/v1/assets/${asset.id}`,
+        StatusCodes.UNAUTHORIZED,
+        response,
+        {},
+        customHeader,
+      );
     });
 
     test('should throw 404 exception if asset does not exist', async () => {
       const response = {
         error: 'Not Found',
         message: 'ASSET_NOT_FOUND',
-        statusCode: 404,
+        statusCode: StatusCodes.NOT_FOUND,
       };
-      return testApp.patch(app, `/v1/assets/${v4()}`, 404, response, {}, header);
+      return testApp.patch(app, `/v1/assets/${v4()}`, StatusCodes.NOT_FOUND, response, {}, header);
     });
 
     test('should throw 404 exception if assets belongs to another partner', async () => {
@@ -94,9 +109,16 @@ describe('AssetsController', () => {
       const response = {
         error: 'Not Found',
         message: 'ASSET_NOT_FOUND',
-        statusCode: 404,
+        statusCode: StatusCodes.NOT_FOUND,
       };
-      return testApp.patch(app, `/v1/assets/${anotherAsset.id}`, 404, response, {}, header);
+      return testApp.patch(
+        app,
+        `/v1/assets/${anotherAsset.id}`,
+        StatusCodes.NOT_FOUND,
+        response,
+        {},
+        header,
+      );
     });
 
     test('should update refId', async () => {
@@ -108,7 +130,7 @@ describe('AssetsController', () => {
         refId: payload.refId,
         updatedAt: expect.any(String),
       };
-      await testApp.patch(app, `/v1/assets/${asset.id}`, 200, response, payload, header);
+      await testApp.patch(app, `/v1/assets/${asset.id}`, StatusCodes.OK, response, payload, header);
 
       await asset.reload();
       expect(asset.refId).toEqual(payload.refId);
@@ -123,7 +145,7 @@ describe('AssetsController', () => {
         updatedAt: expect.any(String),
       };
 
-      await testApp.patch(app, `/v1/assets/${asset.id}`, 200, response, payload, header);
+      await testApp.patch(app, `/v1/assets/${asset.id}`, StatusCodes.OK, response, payload, header);
     });
 
     test('should throw 409 exception if refId is already taken', async () => {
@@ -139,9 +161,16 @@ describe('AssetsController', () => {
       const response = {
         error: 'Conflict',
         message: 'REF_ALREADY_TAKEN',
-        statusCode: 409,
+        statusCode: StatusCodes.CONFLICT,
       };
-      await testApp.patch(app, `/v1/assets/${asset.id}`, 409, response, payload, header);
+      await testApp.patch(
+        app,
+        `/v1/assets/${asset.id}`,
+        StatusCodes.CONFLICT,
+        response,
+        payload,
+        header,
+      );
     });
 
     test('should update media', async () => {
@@ -157,7 +186,7 @@ describe('AssetsController', () => {
         ],
       };
 
-      await testApp.patch(app, `/v1/assets/${asset.id}`, 200, null, payload, header);
+      await testApp.patch(app, `/v1/assets/${asset.id}`, StatusCodes.OK, null, payload, header);
 
       const updatedAsset = await Asset.findOne({
         where: { id: asset.id },
@@ -183,7 +212,7 @@ describe('AssetsController', () => {
         updatedAt: expect.any(String),
       };
 
-      await testApp.patch(app, `/v1/assets/${asset.id}`, 200, response, payload, header);
+      await testApp.patch(app, `/v1/assets/${asset.id}`, StatusCodes.OK, response, payload, header);
 
       await asset.reload();
       expect(asset.name).toEqual(payload.name);
@@ -220,7 +249,7 @@ describe('AssetsController', () => {
         updatedAt: expect.any(String),
       };
 
-      await testApp.patch(app, `/v1/assets/${asset.id}`, 200, response, payload, header);
+      await testApp.patch(app, `/v1/assets/${asset.id}`, StatusCodes.OK, response, payload, header);
 
       await asset.reload();
       expect(asset.description).toEqual(payload.description);
@@ -235,7 +264,7 @@ describe('AssetsController', () => {
       };
       const originalAttributes = asset.attributes;
 
-      await testApp.patch(app, `/v1/assets/${asset.id}`, 200, response, payload, header);
+      await testApp.patch(app, `/v1/assets/${asset.id}`, StatusCodes.OK, response, payload, header);
 
       await asset.reload();
       expect(asset.attributes).toEqual(originalAttributes);
@@ -251,7 +280,7 @@ describe('AssetsController', () => {
         attributes: payload.attributes,
       };
 
-      await testApp.patch(app, `/v1/assets/${asset.id}`, 200, response, payload, header);
+      await testApp.patch(app, `/v1/assets/${asset.id}`, StatusCodes.OK, response, payload, header);
 
       await asset.reload();
       expect(asset.attributes).toEqual({});
@@ -273,7 +302,7 @@ describe('AssetsController', () => {
         updatedAt: expect.any(String),
         attributes: payload.attributes,
       };
-      await testApp.patch(app, `/v1/assets/${asset.id}`, 200, response, payload, header);
+      await testApp.patch(app, `/v1/assets/${asset.id}`, StatusCodes.OK, response, payload, header);
       await asset.reload();
 
       expect(asset.attributes).toEqual(new AssetAttributes(payload.attributes));

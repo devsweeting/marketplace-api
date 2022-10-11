@@ -18,6 +18,7 @@ import {
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
 import { generateToken } from '../utils/jwt.utils';
 import { faker } from '@faker-js/faker';
+import { StatusCodes } from 'http-status-codes';
 import { createUserAsset } from '../utils/user';
 import { UserAsset } from 'modules/users/entities/user-assets.entity';
 
@@ -118,11 +119,11 @@ describe('SellOrdersController -> Purchases', () => {
   }
 
   async function expect400(payload, msg: string, order: SellOrder, purchaser: User = buyer) {
-    await expect4xx(400, payload, 'Bad Request', msg, order, purchaser);
+    await expect4xx(StatusCodes.BAD_REQUEST, payload, 'Bad Request', msg, order, purchaser);
   }
 
   async function expect404(payload, msg: string, order: SellOrder, purchaser: User = buyer) {
-    await expect4xx(404, payload, 'Not Found', msg, order, purchaser);
+    await expect4xx(StatusCodes.NOT_FOUND, payload, 'Not Found', msg, order, purchaser);
   }
 
   afterEach(async () => {
@@ -132,7 +133,7 @@ describe('SellOrdersController -> Purchases', () => {
 
   describe(`Sell Order purchases`, () => {
     test('should throw 401 exception if jwt is missing', () => {
-      return testApp.post(app, urlFor(sellOrder), 401, null, {}, {});
+      return testApp.post(app, urlFor(sellOrder), StatusCodes.UNAUTHORIZED, null, {}, {});
     });
 
     test('Should return 201 and purchase sell order', async () => {
@@ -140,7 +141,7 @@ describe('SellOrdersController -> Purchases', () => {
         fractionsAvailableToPurchase: sellOrder.fractionQtyAvailable,
         fractionsPurchased: 0,
       };
-      await expectCheck(app, 200, checkResponse, sellOrder, buyer);
+      await expectCheck(app, StatusCodes.OK, checkResponse, sellOrder, buyer);
       const fractionsToPurchase = 10;
       const fractionPriceCents = sellOrder.fractionPriceCents;
       await expectPurchaseSuccess(
@@ -158,7 +159,7 @@ describe('SellOrdersController -> Purchases', () => {
         fractionsAvailableToPurchase: sellOrder.fractionQtyAvailable,
         fractionsPurchased: fractionsToPurchase,
       };
-      await expectCheck(app, 200, checkResponse, sellOrder, buyer);
+      await expectCheck(app, StatusCodes.OK, checkResponse, sellOrder, buyer);
     });
 
     test('Should return 201 when purchasing all available fractions, then return 400 on subsequent purchase request', async () => {
@@ -246,7 +247,7 @@ describe('SellOrdersController -> Purchases', () => {
         fractionsAvailableToPurchase: 10,
         fractionsPurchased: 0,
       };
-      await expectCheck(app, 200, checkResponse, dropSellOrder, buyer);
+      await expectCheck(app, StatusCodes.OK, checkResponse, dropSellOrder, buyer);
       const fractionsToPurchase = dropSellOrder.userFractionLimit;
       const fractionPriceCents = dropSellOrder.fractionPriceCents;
       await expectPurchaseSuccess(
@@ -259,7 +260,7 @@ describe('SellOrdersController -> Purchases', () => {
         dropUserAsset,
       );
 
-      await expectCheck(app, 400, null, dropSellOrder, buyer);
+      await expectCheck(app, StatusCodes.BAD_REQUEST, null, dropSellOrder, buyer);
       const payload = {
         fractionsToPurchase: 1,
         fractionPriceCents: fractionPriceCents,

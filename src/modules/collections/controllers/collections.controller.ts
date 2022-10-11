@@ -21,6 +21,7 @@ import { CollectionIdDto, CollectionIdOrSlugDto, ListCollectionsDto } from '../d
 import { CollectionsTransformer } from '../transformers/collections.transformer';
 import { UpdateCollectionDto } from '../dto/update-collection.dto';
 import { validate as isValidUUID } from 'uuid';
+import { StatusCodes } from 'http-status-codes';
 
 @ApiTags('collections')
 @Controller({
@@ -75,7 +76,7 @@ export class CollectionsController {
     await this.collectionsService.createCollection(dto);
 
     return {
-      status: 201,
+      status: StatusCodes.CREATED,
       description: 'Collection created',
     };
   }

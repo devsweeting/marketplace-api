@@ -12,6 +12,7 @@ import { RoleEnum } from 'modules/users/enums/role.enum';
 import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
 import { createImageMedia } from '../utils/media.utils';
 import { MediaDto } from 'modules/assets/dto/media/media.dto';
+import { StatusCodes } from 'http-status-codes';
 
 describe('MediaController', () => {
   let app: INestApplication;
@@ -60,7 +61,7 @@ describe('MediaController', () => {
       return request(app.getHttpServer())
         .post(`/v1/assets/${asset.id}/media`)
         .send(dtoRequest)
-        .expect(401);
+        .expect(StatusCodes.UNAUTHORIZED);
     });
 
     test('should throw 401 exception if token is invalid', () => {
@@ -70,7 +71,7 @@ describe('MediaController', () => {
           'x-api-key': 'invalid key',
         })
         .send(dtoRequest)
-        .expect(401);
+        .expect(StatusCodes.UNAUTHORIZED);
     });
 
     test('should throw 404 exception if partner is not owner', async () => {
@@ -86,7 +87,7 @@ describe('MediaController', () => {
           'x-api-key': notOwnerPartner.apiKey,
         })
         .send(dtoRequest)
-        .expect(404);
+        .expect(StatusCodes.NOT_FOUND);
     });
 
     test('should create a new media object in the db', () => {
@@ -103,7 +104,7 @@ describe('MediaController', () => {
           'x-api-key': partner.apiKey,
         })
         .send(dto)
-        .expect(201)
+        .expect(StatusCodes.CREATED)
         .then(async () => {
           const getAsset = await Asset.findOne({
             where: { id: asset.id },
@@ -140,10 +141,10 @@ describe('MediaController', () => {
           'x-api-key': partner.apiKey,
         })
         .send(dtoRequest)
-        .expect(409)
+        .expect(StatusCodes.CONFLICT)
         .expect(({ body }) => {
           expect(body).toEqual({
-            statusCode: 409,
+            statusCode: StatusCodes.CONFLICT,
             error: 'Conflict',
             message: 'MEDIA_ORDER_NOT_UNIQUE',
           });
@@ -167,7 +168,7 @@ describe('MediaController', () => {
           'x-api-key': partner.apiKey,
         })
         .send(dtoRequest)
-        .expect(201)
+        .expect(StatusCodes.CREATED)
         .then(async () => {
           const getAsset = await Asset.findOne({
             where: { id: asset.id },
@@ -197,7 +198,7 @@ describe('MediaController', () => {
           'x-api-key': partner.apiKey,
         })
         .send(dtoRequest)
-        .expect(201)
+        .expect(StatusCodes.CREATED)
         .then(async () => {
           const getAsset = await Asset.findOne({
             where: { id: asset.id },
@@ -224,9 +225,9 @@ describe('MediaController', () => {
           'x-api-key': partner.apiKey,
         })
         .send(dtoRequest)
-        .expect(400)
+        .expect(StatusCodes.BAD_REQUEST)
         .expect({
-          statusCode: 400,
+          statusCode: StatusCodes.BAD_REQUEST,
           message: [
             'title must be shorter than or equal to 200 characters',
             'title should not be empty',
@@ -263,7 +264,7 @@ describe('MediaController', () => {
           'x-api-key': deletedPartner.apiKey,
         })
         .send(dtoRequest)
-        .expect(401);
+        .expect(StatusCodes.UNAUTHORIZED);
     });
   });
 });
