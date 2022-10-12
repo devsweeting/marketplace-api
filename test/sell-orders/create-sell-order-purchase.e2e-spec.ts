@@ -144,7 +144,14 @@ describe('SellOrdersController -> Purchases', () => {
       await expectCheck(app, 200, checkResponse, sellOrder, buyer);
       const fractionsToPurchase = 10;
       const fractionPriceCents = sellOrder.fractionPriceCents;
-      await expectPurchaseSuccess(app, sellOrder, fractionsToPurchase, fractionPriceCents, buyer);
+      await expectPurchaseSuccess(
+        app,
+        sellOrder,
+        fractionsToPurchase,
+        fractionPriceCents,
+        buyer,
+        userAsset,
+      );
 
       await sellOrder.reload();
       checkResponse = {
@@ -157,7 +164,14 @@ describe('SellOrdersController -> Purchases', () => {
     test('Should return 201 when purchasing all available fractions, then return 400 on subsequent purchase request', async () => {
       const fractionsToPurchase = initialQty; // purchase all available
       const fractionPriceCents = sellOrder.fractionPriceCents;
-      await expectPurchaseSuccess(app, sellOrder, fractionsToPurchase, fractionPriceCents, buyer);
+      await expectPurchaseSuccess(
+        app,
+        sellOrder,
+        fractionsToPurchase,
+        fractionPriceCents,
+        buyer,
+        userAsset,
+      );
 
       // Attempt to purchase again
       const payload2 = { fractionsToPurchase: 1, fractionPriceCents };
@@ -240,6 +254,7 @@ describe('SellOrdersController -> Purchases', () => {
         fractionsToPurchase,
         fractionPriceCents,
         buyer,
+        dropUserAsset,
       );
 
       await expectCheck(app, 400, null, dropSellOrder, buyer);
@@ -262,6 +277,7 @@ describe('SellOrdersController -> Purchases', () => {
         fractionsToPurchase,
         fractionPriceCents,
         buyer,
+        dropUserAsset,
       );
 
       await expectPurchaseSuccess(
@@ -270,6 +286,7 @@ describe('SellOrdersController -> Purchases', () => {
         fractionsToPurchase,
         fractionPriceCents,
         buyer,
+        dropUserAsset,
       );
     });
   });
