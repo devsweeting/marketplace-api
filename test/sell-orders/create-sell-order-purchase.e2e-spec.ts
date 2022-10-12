@@ -18,6 +18,8 @@ import {
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
 import { generateToken } from '../utils/jwt.utils';
 import { faker } from '@faker-js/faker';
+import { createUserAsset } from '../utils/user';
+import { UserAsset } from 'modules/users/entities/user-assets.entity';
 
 async function expectCheck(
   app: INestApplication,
@@ -31,6 +33,7 @@ async function expectCheck(
 }
 
 describe('SellOrdersController -> Purchases', () => {
+  //TODO add tests for userAssets
   const initialQty = 10000;
   let app: INestApplication;
   let partner: Partner;
@@ -41,6 +44,8 @@ describe('SellOrdersController -> Purchases', () => {
   let dropSellOrder: SellOrder;
   let seller: User;
   let buyer: User;
+  let userAsset: UserAsset;
+  let dropUserAsset: UserAsset;
 
   beforeAll(async () => {
     app = await createApp();
@@ -81,6 +86,18 @@ describe('SellOrdersController -> Purchases', () => {
       fractionPriceCents: 100,
       userFractionLimit: 10,
       userFractionLimitEndTime: faker.date.future(),
+    });
+
+    userAsset = await createUserAsset({
+      assetId: sellOrder.assetId,
+      userId: sellOrder.userId,
+      quantityOwned: sellOrder.fractionQty,
+    });
+
+    dropUserAsset = await createUserAsset({
+      assetId: dropSellOrder.assetId,
+      userId: dropSellOrder.userId,
+      quantityOwned: dropSellOrder.fractionQty,
     });
   });
 

@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 
 export { SellOrderNotFoundException } from './sell-order-not-found.exception';
 export { NotEnoughAvailableException } from './not-enough-available.exception';
