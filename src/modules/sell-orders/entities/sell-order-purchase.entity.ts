@@ -4,6 +4,7 @@ import { AssetNotFoundException } from 'modules/assets/exceptions';
 import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
 import { User } from 'modules/users/entities';
+import { UserAsset } from 'modules/users/entities/user-assets.entity';
 import {
   Column,
   Entity,
@@ -21,6 +22,8 @@ import {
   PriceMismatchException,
   UserCannotPurchaseOwnOrderException,
   PurchaseLimitReached,
+  InvalidSeller,
+  NotEnoughUnitsFromSeller,
 } from '../exceptions';
 import { SellOrder } from './sell-orders.entity';
 
@@ -61,10 +64,22 @@ export class SellOrderPurchase extends BaseModel implements IBaseEntity {
     idDto: SellOrderIdDto,
     purchaseDto: SellOrderPurchaseDto,
   ): Promise<SellOrderPurchase> {
+    //TODO get the user_asset that corresponds to a specific user based on the sellorder user and asset information
+    //TODO remove the amount of assets that are being bought from that specific user.
+    //TODO add the amount removed from the user selling the asset to the user buying the asset.
+    //TODO remove the amount from the sellorder
     const now = new Date();
     const purchase = await this.getRepository().manager.transaction(async (manager) => {
       const sellOrder = await manager.findOne(SellOrder, {
         where: { id: idDto.id, isDeleted: false },
+        lock: { mode: 'pessimistic_write' },
+      });
+      const sellerAsset = await manager.findOne(UserAsset, {
+        where: { userId: sellOrder.userId, assetId: sellOrder.assetId, isDeleted: false },
+        lock: { mode: 'pessimistic_write' },
+      });
+      let buyerAsset = await manager.findOne(UserAsset, {
+        where: { userId: user.id, assetId: sellOrder.assetId, isDeleted: false },
         lock: { mode: 'pessimistic_write' },
       });
       if (!sellOrder) {
@@ -112,6 +127,23 @@ export class SellOrderPurchase extends BaseModel implements IBaseEntity {
           }
         }
       }
+
+      if (!sellerAsset) {
+        throw new InvalidSeller();
+      }
+      if (sellerAsset.quantityOwned < purchaseDto.fractionsToPurchase) {
+        // Theoretically this should never be the case, unless there is a mismatch between the sellorder data and the user_asset table.
+        // User assets should always be equal of greater than the sellorder data from that specific user.
+        throw new NotEnoughUnitsFromSeller();
+      }
+      if (!buyerAsset) {
+        // Buyer doesn't already own part of this asset, so we need to add them to the table.
+        buyerAsset = new UserAsset({
+          assetId: sellOrder.assetId,
+          userId: user.id,
+          quantityOwned: purchaseDto.fractionsToPurchase,
+        });
+      }
       const purchase = new SellOrderPurchase({
         userId: user.id,
         sellOrderId: sellOrder.id,
@@ -120,7 +152,14 @@ export class SellOrderPurchase extends BaseModel implements IBaseEntity {
         fractionPriceCents: purchaseDto.fractionPriceCents,
       });
       sellOrder.fractionQtyAvailable -= purchaseDto.fractionsToPurchase;
-      await Promise.all([manager.save(purchase), manager.save(sellOrder)]);
+      sellerAsset.quantityOwned -= purchaseDto.fractionsToPurchase;
+      buyerAsset.quantityOwned += purchaseDto.fractionsToPurchase;
+      await Promise.all([
+        manager.save(purchase),
+        manager.save(sellOrder),
+        manager.save(buyerAsset),
+        manager.save(sellerAsset),
+      ]);
       return purchase;
     });
     return purchase;

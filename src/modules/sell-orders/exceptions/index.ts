@@ -28,3 +28,15 @@ export class PurchaseLimitReached extends BadRequestException {
     super(`PURCHASE_LIMIT_REACHED`);
   }
 }
+
+export class InvalidSeller extends BadRequestException {
+  public constructor() {
+    super(`SELLER_DOES_NOT_OWN_ASSET`);
+  }
+}
+
+export class NotEnoughUnitsFromSeller extends BadRequestException {
+  public constructor() {
+    super('SELLER_DOES_NOT_OWN_ENOUGH_ASSETS');
+  }
+}

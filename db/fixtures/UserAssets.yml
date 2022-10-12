@@ -1,7 +1,6 @@
 entity: user_assets
-processor: ../../dist/config/database/processors/userAssetProcessor
 items:
   userAsset{1..200}:
     user: '@user1'
     asset: '@asset($current)'
-    quantityOwned: '00'
+    quantityOwned: '100000'
