@@ -303,8 +303,15 @@ describe('SellOrdersService', () => {
   });
 
   describe('deleteSellOrder', () => {
-    test('should first', async () => {
-      test.todo;
+    test('should delete sellOrder', async () => {
+      await service.deleteSellOrder(partner, sellOrder);
+      try {
+        await service.getOne(sellOrder);
+      } catch (error) {
+        expect(error).toBeInstanceOf(SellOrderNotFoundException);
+        return;
+      }
+      throw new Error('Error did not throw');
     });
   });
 
