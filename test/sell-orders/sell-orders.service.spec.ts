@@ -316,8 +316,16 @@ describe('SellOrdersService', () => {
   });
 
   describe('purchase', () => {
-    test('should first', async () => {
-      test.todo;
+    test('should return a sellOrderPurchase', async () => {
+      const unitsToPurchase = 9;
+      const sellOrderPurchase = await service.purchase(buyer, sellOrder, {
+        fractionsToPurchase: unitsToPurchase,
+        fractionPriceCents: sellOrder.fractionPriceCents,
+      });
+      expect(sellOrderPurchase).toMatchObject({
+        ...sellOrderPurchase,
+        fractionQty: unitsToPurchase,
+      });
     });
   });
 
