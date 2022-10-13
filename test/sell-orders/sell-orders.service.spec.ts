@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import { AssetsController } from 'modules/assets/controllers/assets.controller';
 import { Asset } from 'modules/assets/entities';
@@ -9,6 +10,8 @@ import { SellOrderDto, SellOrderIdDto } from 'modules/sell-orders/dto';
 import { SellOrder } from 'modules/sell-orders/entities';
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
 import {
+  InvalidUserFractionLimitEndTimeException,
+  InvalidUserFractionLimitException,
   NotEnoughFractionsForSellOrderException,
   SellOrderNotFoundException,
 } from 'modules/sell-orders/exceptions';
@@ -35,8 +38,8 @@ let partner: Partner;
 let partnerUser: User;
 let asset: Asset;
 let sellOrder: SellOrder;
-let dropAsset: Asset;
-let dropSellOrder: SellOrder;
+let assetDrop: Asset;
+let sellOrderDrop: SellOrder;
 let seller: User;
 let buyer: User;
 let userAsset: UserAsset;
@@ -73,6 +76,18 @@ beforeEach(async () => {
     assetId: sellOrder.assetId,
     userId: sellOrder.userId,
     quantityOwned: sellOrder.fractionQty,
+  });
+
+  assetDrop = await createAsset({ refId: '2', name: 'Drop' }, partner);
+  sellOrderDrop = await createSellOrder({
+    assetId: assetDrop.id,
+    partnerId: partner.id,
+    userId: seller.id,
+    type: SellOrderTypeEnum.drop,
+    fractionQty: initialQty,
+    fractionPriceCents: 100,
+    userFractionLimit: 10,
+    userFractionLimitEndTime: faker.date.future(),
   });
   service = new SellOrdersService();
 });
@@ -150,11 +165,94 @@ describe('SellOrdersService', () => {
           fractionQty: 1001,
         } as unknown as SellOrderDto);
       } catch (error) {
-        console.log(error);
         expect(error).toBeInstanceOf(NotEnoughFractionsForSellOrderException);
         return;
       }
       throw new Error('Error did not throw');
+    });
+    test('should throw if sellOrder drop does not have userFractionLimit', async () => {
+      try {
+        await service.createSellOrder({ id: partner.id }, {
+          id: sellOrderDrop.id,
+          email: 'seller@test.com',
+          fractionQty: 1000,
+          type: 'drop',
+        } as unknown as SellOrderDto);
+      } catch (error) {
+        expect(error).toBeInstanceOf(InvalidUserFractionLimitException);
+        return;
+      }
+      throw new Error('Error did not throw');
+    });
+
+    test('should throw if sellOrder drop userFractionLimit is greater than asset amount', async () => {
+      try {
+        await service.createSellOrder({ id: partner.id }, {
+          id: sellOrderDrop.id,
+          email: 'seller@test.com',
+          fractionQty: 1000,
+          userFractionLimit: 1001,
+          type: 'drop',
+        } as unknown as SellOrderDto);
+      } catch (error) {
+        expect(error).toBeInstanceOf(InvalidUserFractionLimitException);
+        return;
+      }
+      throw new Error('Error did not throw');
+    });
+    test('should throw if sellOrder drop does not have end time', async () => {
+      try {
+        await service.createSellOrder({ id: partner.id }, {
+          id: sellOrderDrop.id,
+          email: 'seller@test.com',
+          fractionQty: 1000,
+          userFractionLimit: 1000,
+          userFractionLimitEndTime: undefined,
+          type: 'drop',
+        } as unknown as SellOrderDto);
+      } catch (error) {
+        expect(error).toBeInstanceOf(InvalidUserFractionLimitEndTimeException);
+        return;
+      }
+      throw new Error('Error did not throw');
+    });
+
+    test('should throw if sellOrder end time is before start time', async () => {
+      try {
+        await service.createSellOrder({ id: partner.id }, {
+          id: sellOrderDrop.id,
+          email: 'seller@test.com',
+          fractionQty: 1000,
+          userFractionLimit: 1000,
+          userFractionLimitEndTime: new Date(),
+          startTime: new Date(new Date().getTime() + 1000),
+          type: 'drop',
+        } as unknown as SellOrderDto);
+      } catch (error) {
+        expect(error).toBeInstanceOf(InvalidUserFractionLimitEndTimeException);
+        return;
+      }
+      throw new Error('Error did not throw');
+    });
+
+    test('should create a new sellOrder', async () => {
+      const newSellOrder = await service.createSellOrder({ id: partner.id }, {
+        id: sellOrderDrop.id,
+        email: 'seller@test.com',
+        fractionQty: 1000,
+      } as unknown as SellOrderDto);
+
+      expect(newSellOrder).toMatchObject({
+        id: newSellOrder.id,
+        updatedAt: newSellOrder.updatedAt,
+        partnerId: newSellOrder.partnerId,
+        deletedAt: null,
+        email: 'seller@test.com',
+        fractionQty: 1000,
+        userFractionLimit: null,
+        userFractionLimitEndTime: null,
+        userId: null,
+      });
     });
   });
   describe('checkDrop', () => {
