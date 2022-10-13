@@ -13,6 +13,7 @@ import {
   InvalidUserFractionLimitEndTimeException,
   InvalidUserFractionLimitException,
   NotEnoughFractionsForSellOrderException,
+  PurchaseLimitReached,
   SellOrderNotFoundException,
 } from 'modules/sell-orders/exceptions';
 import { SellOrdersService } from 'modules/sell-orders/sell-orders.service';
@@ -43,7 +44,7 @@ let sellOrderDrop: SellOrder;
 let seller: User;
 let buyer: User;
 let userAsset: UserAsset;
-let dropUserAsset: UserAsset;
+let userAssetDrop: UserAsset;
 beforeAll(async () => {
   app = await createApp();
 });
@@ -88,6 +89,17 @@ beforeEach(async () => {
     fractionPriceCents: 100,
     userFractionLimit: 10,
     userFractionLimitEndTime: faker.date.future(),
+  });
+  userAsset = await createUserAsset({
+    assetId: sellOrder.assetId,
+    userId: sellOrder.userId,
+    quantityOwned: sellOrder.fractionQty,
+  });
+
+  userAssetDrop = await createUserAsset({
+    assetId: sellOrderDrop.assetId,
+    userId: sellOrderDrop.userId,
+    quantityOwned: sellOrderDrop.fractionQty,
   });
   service = new SellOrdersService();
 });
@@ -256,8 +268,37 @@ describe('SellOrdersService', () => {
     });
   });
   describe('checkDrop', () => {
-    test('should first', async () => {
-      test.todo;
+    test('should throw if sellOrder is a drop and purchased is greater than userFractionLimit', async () => {
+      await service.purchase(buyer, sellOrderDrop, {
+        fractionsToPurchase: sellOrderDrop.userFractionLimit,
+        fractionPriceCents: sellOrderDrop.fractionPriceCents,
+      });
+      try {
+        await service.checkDrop(buyer, sellOrderDrop);
+      } catch (error) {
+        expect(error).toBeInstanceOf(PurchaseLimitReached);
+        return;
+      }
+      throw new Error('Error did not throw');
+    });
+
+    test('should return number of units purchased for a drop sellOrder', async () => {
+      const unitsToPurchase = 9;
+      await service.purchase(buyer, sellOrderDrop, {
+        fractionsToPurchase: unitsToPurchase,
+        fractionPriceCents: sellOrderDrop.fractionPriceCents,
+      });
+      const unitsPurchased = await service.checkDrop(buyer, sellOrderDrop);
+      expect(unitsPurchased).toBe(unitsToPurchase.toString());
+    });
+    test('should return number of units purchased for standard sellOrder', async () => {
+      const unitsToPurchase = 9;
+      await service.purchase(buyer, sellOrder, {
+        fractionsToPurchase: unitsToPurchase,
+        fractionPriceCents: sellOrder.fractionPriceCents,
+      });
+      const unitsPurchased = await service.checkDrop(buyer, sellOrder);
+      expect(unitsPurchased).toBe(unitsToPurchase.toString());
     });
   });
 
