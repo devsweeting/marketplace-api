@@ -120,16 +120,16 @@ export class SellOrderPurchase extends BaseModel implements IBaseEntity {
         where: { userId: sellOrder.userId, assetId: sellOrder.assetId, isDeleted: false },
         lock: { mode: 'pessimistic_write' },
       });
-      let buyerAsset = await manager.findOne(UserAsset, {
-        where: { userId: user.id, assetId: sellOrder.assetId, isDeleted: false },
-        lock: { mode: 'pessimistic_write' },
-      });
       if (!sellerAsset) {
         throw new SellerNotAssetOwnerException();
       }
       if (sellerAsset.quantityOwned < purchaseDto.fractionsToPurchase) {
         throw new NotEnoughUnitsFromSeller();
       }
+      let buyerAsset = await manager.findOne(UserAsset, {
+        where: { userId: user.id, assetId: sellOrder.assetId, isDeleted: false },
+        lock: { mode: 'pessimistic_write' },
+      });
       if (!buyerAsset) {
         buyerAsset = new UserAsset({
           assetId: sellOrder.assetId,
@@ -150,9 +150,9 @@ export class SellOrderPurchase extends BaseModel implements IBaseEntity {
       buyerAsset.quantityOwned += purchaseDto.fractionsToPurchase;
       await Promise.all([
         manager.save(purchase),
+        manager.save(sellerAsset),
         manager.save(sellOrder),
         manager.save(buyerAsset),
-        manager.save(sellerAsset),
       ]);
       return purchase;
     });

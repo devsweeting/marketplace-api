@@ -1,10 +1,11 @@
 import { Asset } from 'modules/assets/entities';
 import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
-import { Column, Entity, JoinColumn, ManyToOne, RelationId } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, RelationId, Unique } from 'typeorm';
 import { User } from './user.entity';
 
 @Entity('user_assets')
+@Unique(['assetId', 'userId'])
 export class UserAsset extends BaseModel implements IBaseEntity {
   @Column({ type: 'string', nullable: false })
   @RelationId((UserAsset: UserAsset) => UserAsset.asset)

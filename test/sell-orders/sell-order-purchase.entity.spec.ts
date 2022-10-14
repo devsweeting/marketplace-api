@@ -64,11 +64,6 @@ beforeEach(async () => {
     fractionQty: initialQty,
     fractionPriceCents: 100,
   });
-  userAsset = await createUserAsset({
-    assetId: sellOrder.assetId,
-    userId: sellOrder.userId,
-    quantityOwned: sellOrder.fractionQty,
-  });
 
   assetDrop = await createAsset({ refId: '2', name: 'Drop' }, partner);
   sellOrderDrop = await createSellOrder({
@@ -358,6 +353,38 @@ describe('SellOrderPurchase', () => {
     expect(newUserAsset).toMatchObject({
       ...newUserAsset,
       quantityOwned: unitsToPurchase,
+    });
+  });
+
+  test('should correctly process purchase', async () => {
+    const unitsToPurchase = 2;
+    const oldSellOrderFractionQtyAvailable = sellOrder.fractionQtyAvailable;
+    const oldSellerUserAssetQty = userAsset.quantityOwned;
+    const manager = SellOrderPurchase.getRepository().manager;
+    const buyerUserAsset = await manager.findOne(UserAsset, {
+      where: { userId: buyer.id, assetId: sellOrder.assetId, isDeleted: false },
+    });
+    expect(buyerUserAsset).toBeNull();
+    await SellOrderPurchase.from(buyer, sellOrder, {
+      fractionsToPurchase: unitsToPurchase,
+      fractionPriceCents: sellOrder.fractionPriceCents,
+    });
+    const newBuyerUserAsset = await manager.findOne(UserAsset, {
+      where: { userId: buyer.id, assetId: sellOrder.assetId, isDeleted: false },
+    });
+    await sellOrder.reload();
+    await userAsset.reload();
+    expect(newBuyerUserAsset).toMatchObject({
+      ...newBuyerUserAsset,
+      quantityOwned: unitsToPurchase,
+    });
+    expect(sellOrder).toMatchObject({
+      ...sellOrder,
+      fractionQtyAvailable: oldSellOrderFractionQtyAvailable - unitsToPurchase,
+    });
+    expect(userAsset).toMatchObject({
+      ...userAsset,
+      quantityOwned: oldSellerUserAssetQty - unitsToPurchase,
     });
   });
 });
