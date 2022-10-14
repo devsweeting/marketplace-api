@@ -134,7 +134,7 @@ export class SellOrderPurchase extends BaseModel implements IBaseEntity {
         buyerAsset = new UserAsset({
           assetId: sellOrder.assetId,
           userId: user.id,
-          quantityOwned: purchaseDto.fractionsToPurchase,
+          quantityOwned: 0,
         });
       }
 

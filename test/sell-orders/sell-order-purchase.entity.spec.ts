@@ -5,7 +5,6 @@ import { Partner } from 'modules/partners/entities';
 import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
 import {
-  InvalidSeller,
   NotEnoughAvailableException,
   NotEnoughUnitsFromSeller,
   PriceMismatchException,
@@ -342,13 +341,23 @@ describe('SellOrderPurchase', () => {
     throw new Error('Error did not throw');
   });
 
-  test('should create userAsset for buyer userAsset for asset does not already exist', async () => {
+  test('should create userAsset for buyer userAsset if userAsset does not already exist', async () => {
     const unitsToPurchase = 2;
-
+    const manager = SellOrderPurchase.getRepository().manager;
+    const userAsset = await manager.findOne(UserAsset, {
+      where: { userId: buyer.id, assetId: sellOrder.assetId, isDeleted: false },
+    });
+    expect(userAsset).toBeNull();
     await SellOrderPurchase.from(buyer, sellOrder, {
       fractionsToPurchase: unitsToPurchase,
       fractionPriceCents: sellOrder.fractionPriceCents,
     });
-    test.todo;
+    const newUserAsset = await manager.findOne(UserAsset, {
+      where: { userId: buyer.id, assetId: sellOrder.assetId, isDeleted: false },
+    });
+    expect(newUserAsset).toMatchObject({
+      ...newUserAsset,
+      quantityOwned: unitsToPurchase,
+    });
   });
 });
