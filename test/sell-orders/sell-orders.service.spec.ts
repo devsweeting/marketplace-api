@@ -1,14 +1,21 @@
 import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
-import { AssetsController } from 'modules/assets/controllers/assets.controller';
 import { Asset } from 'modules/assets/entities';
 import { AssetNotFoundException } from 'modules/assets/exceptions';
-
 import { UserNotFoundException } from 'modules/common/exceptions/user-not-found.exception';
 import { Partner } from 'modules/partners/entities';
-import { SellOrderDto, SellOrderIdDto } from 'modules/sell-orders/dto';
+import { SellOrderDto } from 'modules/sell-orders/dto';
 import { SellOrder } from 'modules/sell-orders/entities';
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
+import { SellOrdersService } from 'modules/sell-orders/sell-orders.service';
+import { User } from 'modules/users/entities';
+import { RoleEnum } from 'modules/users/enums/role.enum';
+import { clearAllData, createApp } from '../utils/app.utils';
+import { createAsset } from '../utils/asset.utils';
+import { createUser } from '../utils/create-user';
+import { createPartner } from '../utils/partner.utils';
+import { createSellOrder } from '../utils/sell-order.utils';
+import { createUserAsset } from '../utils/user';
 import {
   InvalidUserFractionLimitEndTimeException,
   InvalidUserFractionLimitException,
@@ -16,25 +23,12 @@ import {
   PurchaseLimitReached,
   SellOrderNotFoundException,
 } from 'modules/sell-orders/exceptions';
-import { SellOrdersService } from 'modules/sell-orders/sell-orders.service';
 
-import { User } from 'modules/users/entities';
-import { UserAsset } from 'modules/users/entities/user-assets.entity';
-import { RoleEnum } from 'modules/users/enums/role.enum';
-import { BaseEntity } from 'typeorm';
-import { clearAllData, createApp } from '../utils/app.utils';
-import { createAsset } from '../utils/asset.utils';
-import { createUser } from '../utils/create-user';
-import { createPartner } from '../utils/partner.utils';
-import { createSellOrder } from '../utils/sell-order.utils';
-import { createUserAsset } from '../utils/user';
 let app: INestApplication;
 const initialQty = 10000;
 const fakeUUID = '39353a36-4b28-11ed-b878-0242ac120002';
 
 let service: SellOrdersService;
-let assetsController: AssetsController;
-let assetsService: Asset;
 let partner: Partner;
 let partnerUser: User;
 let asset: Asset;
@@ -43,9 +37,8 @@ let assetDrop: Asset;
 let sellOrderDrop: SellOrder;
 let seller: User;
 let buyer: User;
-let userAsset: UserAsset;
-let userAssetDrop: UserAsset;
 beforeAll(async () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   app = await createApp();
 });
 
@@ -73,7 +66,7 @@ beforeEach(async () => {
     fractionQty: initialQty,
     fractionPriceCents: 100,
   });
-  userAsset = await createUserAsset({
+  await createUserAsset({
     assetId: sellOrder.assetId,
     userId: sellOrder.userId,
     quantityOwned: sellOrder.fractionQty,
@@ -90,13 +83,13 @@ beforeEach(async () => {
     userFractionLimit: 10,
     userFractionLimitEndTime: faker.date.future(),
   });
-  userAsset = await createUserAsset({
+  await createUserAsset({
     assetId: sellOrder.assetId,
     userId: sellOrder.userId,
     quantityOwned: sellOrder.fractionQty,
   });
 
-  userAssetDrop = await createUserAsset({
+  await createUserAsset({
     assetId: sellOrderDrop.assetId,
     userId: sellOrderDrop.userId,
     quantityOwned: sellOrderDrop.fractionQty,
@@ -330,8 +323,10 @@ describe('SellOrdersService', () => {
   });
 
   describe('getUserSellOrder', () => {
-    test('should first', async () => {
-      test.todo;
+    test('should get userSellOrder', async () => {
+      const userSellOrders = await service.getUserSellOrders(seller);
+      expect(userSellOrders).toBeDefined();
+      //TODO write better test expect statement for this
     });
   });
 });

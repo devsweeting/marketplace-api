@@ -29,7 +29,7 @@ export class PurchaseLimitReached extends BadRequestException {
   }
 }
 
-export class InvalidSeller extends BadRequestException {
+export class SellerNotAssetOwnerException extends BadRequestException {
   public constructor() {
     super(`SELLER_DOES_NOT_OWN_ASSET`);
   }

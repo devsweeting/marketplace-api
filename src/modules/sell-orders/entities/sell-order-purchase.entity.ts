@@ -22,8 +22,8 @@ import {
   PriceMismatchException,
   UserCannotPurchaseOwnOrderException,
   PurchaseLimitReached,
-  InvalidSeller,
   NotEnoughUnitsFromSeller,
+  SellerNotAssetOwnerException,
 } from '../exceptions';
 import { SellOrder } from './sell-orders.entity';
 
@@ -125,7 +125,7 @@ export class SellOrderPurchase extends BaseModel implements IBaseEntity {
         lock: { mode: 'pessimistic_write' },
       });
       if (!sellerAsset) {
-        throw new InvalidSeller();
+        throw new SellerNotAssetOwnerException();
       }
       if (sellerAsset.quantityOwned < purchaseDto.fractionsToPurchase) {
         throw new NotEnoughUnitsFromSeller();
