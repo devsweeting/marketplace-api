@@ -319,7 +319,6 @@ describe('SellOrdersService', () => {
     test('should get userSellOrder', async () => {
       const userSellOrders = await service.getUserSellOrders(seller);
       expect(userSellOrders).toBeDefined();
-      //TODO write better test expect statement for this
     });
   });
 });

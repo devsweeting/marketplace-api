@@ -23,7 +23,6 @@ import { createPartner } from '../utils/partner.utils';
 import { createSellOrder } from '../utils/sell-order.utils';
 import { createUserAsset } from '../utils/user';
 
-let app: INestApplication;
 const initialQty = 10000;
 const fakeUUID = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
 
@@ -36,9 +35,8 @@ let sellOrderDrop: SellOrder;
 let seller: User;
 let buyer: User;
 let userAsset: UserAsset;
-let userAssetDrop: UserAsset;
 beforeAll(async () => {
-  app = await createApp();
+  await createApp();
 });
 beforeEach(async () => {
   partnerUser = await createUser({ email: 'partner1@test.com', role: RoleEnum.USER });
