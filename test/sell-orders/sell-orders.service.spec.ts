@@ -122,7 +122,6 @@ describe('SellOrdersService', () => {
           id: fakeUUID,
         } as unknown as SellOrderDto);
       } catch (error) {
-        console.log(error);
         expect(error).toBeInstanceOf(AssetNotFoundException);
         return;
       }
@@ -150,7 +149,6 @@ describe('SellOrdersService', () => {
           fractionQty: 1001,
         } as unknown as SellOrderDto);
       } catch (error) {
-        console.log(error);
         expect(error).toBeInstanceOf(NotEnoughFractionsForSellOrderException);
         return;
       }

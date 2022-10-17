@@ -82,7 +82,7 @@ beforeEach(async () => {
     quantityOwned: sellOrder.fractionQty,
   });
 
-  userAssetDrop = await createUserAsset({
+  await createUserAsset({
     assetId: sellOrderDrop.assetId,
     userId: sellOrderDrop.userId,
     quantityOwned: sellOrderDrop.fractionQty,
@@ -404,6 +404,23 @@ describe('SellOrderPurchase', () => {
         ...userAsset,
         quantityOwned: oldSellerUserAssetQty - newPurchasedAmount,
       });
+    });
+  });
+
+  describe('getTotalPurchased', () => {
+    test('should return 0 if the user has not bought any assets', async () => {
+      const totalPurchased = await SellOrderPurchase.getTotalPurchased(buyer, sellOrder);
+      expect(totalPurchased).toBe(0);
+    });
+
+    test('should return number of units a user has bought', async () => {
+      const unitsToPurchase = 2;
+      await SellOrderPurchase.from(buyer, sellOrder, {
+        fractionsToPurchase: unitsToPurchase,
+        fractionPriceCents: sellOrder.fractionPriceCents,
+      });
+      const totalPurchased = await SellOrderPurchase.getTotalPurchased(buyer, sellOrder);
+      expect(totalPurchased).toBe(unitsToPurchase.toString());
     });
   });
 });

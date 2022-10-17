@@ -1,6 +1,6 @@
 entity: user_assets
 items:
   userAsset{1..200}:
-    user: '@user1'
-    asset: '@asset($current)'
-    quantityOwned: '100000'
+    user: "@user1"
+    asset: "@asset($current)"
+    quantityOwned: "100000"

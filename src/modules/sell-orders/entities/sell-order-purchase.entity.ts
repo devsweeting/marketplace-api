@@ -1,4 +1,4 @@
-import { InternalServerErrorException } from '@nestjs/common';
+import { InternalServerErrorException, Logger } from '@nestjs/common';
 import { Asset } from 'modules/assets/entities';
 import { AssetNotFoundException } from 'modules/assets/exceptions';
 import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
@@ -154,8 +154,23 @@ export class SellOrderPurchase extends BaseModel implements IBaseEntity {
         manager.save(sellOrder),
         manager.save(buyerAsset),
       ]);
+      Logger.log({
+        buyer: user,
+        seller: sellOrder.id,
+        sellOrder: sellOrder,
+        quantity: purchaseDto.fractionsToPurchase,
+        completed: true,
+      });
       return purchase;
     });
+    if (!purchase) {
+      Logger.error({
+        buyer: user,
+        sellOrderId: idDto.id,
+        quantity: purchaseDto.fractionsToPurchase,
+        completed: false,
+      });
+    }
     return purchase;
   }
 
