@@ -33,7 +33,6 @@ async function expectCheck(
 }
 
 describe('SellOrdersController -> Purchases', () => {
-  //TODO add tests for userAssets
   const initialQty = 10000;
   let app: INestApplication;
   let partner: Partner;
@@ -150,6 +149,7 @@ describe('SellOrdersController -> Purchases', () => {
         fractionsToPurchase,
         fractionPriceCents,
         buyer,
+        undefined,
         userAsset,
       );
 
@@ -170,6 +170,7 @@ describe('SellOrdersController -> Purchases', () => {
         fractionsToPurchase,
         fractionPriceCents,
         buyer,
+        undefined,
         userAsset,
       );
 
@@ -254,6 +255,7 @@ describe('SellOrdersController -> Purchases', () => {
         fractionsToPurchase,
         fractionPriceCents,
         buyer,
+        undefined,
         dropUserAsset,
       );
 
