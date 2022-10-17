@@ -258,133 +258,152 @@ describe('SellOrderPurchase', () => {
       }
       throw new Error('Error did not throw');
     });
-  });
 
-  test('should throw error if user already has bought shares of a drop and tries to buy more than their limit', async () => {
-    const unitsToPurchase = 6;
-    await SellOrderPurchase.from(buyer, sellOrderDrop, {
-      fractionsToPurchase: unitsToPurchase,
-      fractionPriceCents: sellOrderDrop.fractionPriceCents,
-    });
-    try {
+    test('should throw error if user already has bought shares of a drop and tries to buy more than their limit', async () => {
+      const unitsToPurchase = 6;
       await SellOrderPurchase.from(buyer, sellOrderDrop, {
         fractionsToPurchase: unitsToPurchase,
         fractionPriceCents: sellOrderDrop.fractionPriceCents,
       });
-    } catch (error) {
-      expect(error).toBeInstanceOf(PurchaseLimitReached);
-      return;
-    }
-    throw new Error('Error did not throw');
-  });
-
-  test('should throw if seller does not own asset', async () => {
-    const testAsset = await createAsset({ refId: '4', name: 'Drop' }, partner);
-    const testSellOrder = await createSellOrder({
-      assetId: testAsset.id,
-      partnerId: partner.id,
-      userId: seller.id,
-      type: SellOrderTypeEnum.standard,
-      fractionQty: initialQty,
-      fractionPriceCents: 100,
+      try {
+        await SellOrderPurchase.from(buyer, sellOrderDrop, {
+          fractionsToPurchase: unitsToPurchase,
+          fractionPriceCents: sellOrderDrop.fractionPriceCents,
+        });
+      } catch (error) {
+        expect(error).toBeInstanceOf(PurchaseLimitReached);
+        return;
+      }
+      throw new Error('Error did not throw');
     });
 
-    const unitsToPurchase = 1;
-
-    try {
-      await SellOrderPurchase.from(buyer, testSellOrder, {
-        fractionsToPurchase: unitsToPurchase,
-        fractionPriceCents: testSellOrder.fractionPriceCents,
+    test('should throw if seller does not own asset', async () => {
+      const testAsset = await createAsset({ refId: '4', name: 'Drop' }, partner);
+      const testSellOrder = await createSellOrder({
+        assetId: testAsset.id,
+        partnerId: partner.id,
+        userId: seller.id,
+        type: SellOrderTypeEnum.standard,
+        fractionQty: initialQty,
+        fractionPriceCents: 100,
       });
-    } catch (error) {
-      console.log(error);
-      expect(error).toBeInstanceOf(SellerNotAssetOwnerException);
-      return;
-    }
-    throw new Error('Error did not throw');
-  });
 
-  test('should throw if seller does not own asset enough fractions to cover sellOrder', async () => {
-    const testAsset = await createAsset({ refId: '4', name: 'Drop' }, partner);
-    const testSellOrder = await createSellOrder({
-      assetId: testAsset.id,
-      partnerId: partner.id,
-      userId: seller.id,
-      type: SellOrderTypeEnum.standard,
-      fractionQty: initialQty,
-      fractionPriceCents: 100,
+      const unitsToPurchase = 1;
+
+      try {
+        await SellOrderPurchase.from(buyer, testSellOrder, {
+          fractionsToPurchase: unitsToPurchase,
+          fractionPriceCents: testSellOrder.fractionPriceCents,
+        });
+      } catch (error) {
+        expect(error).toBeInstanceOf(SellerNotAssetOwnerException);
+        return;
+      }
+      throw new Error('Error did not throw');
     });
 
-    await createUserAsset({
-      assetId: testSellOrder.assetId,
-      userId: testSellOrder.userId,
-      quantityOwned: 1,
-    });
-
-    const unitsToPurchase = 2;
-
-    try {
-      await SellOrderPurchase.from(buyer, testSellOrder, {
-        fractionsToPurchase: unitsToPurchase,
-        fractionPriceCents: testSellOrder.fractionPriceCents,
+    test('should throw if seller does not own asset enough fractions to cover sellOrder', async () => {
+      const testAsset = await createAsset({ refId: '4', name: 'Drop' }, partner);
+      const testSellOrder = await createSellOrder({
+        assetId: testAsset.id,
+        partnerId: partner.id,
+        userId: seller.id,
+        type: SellOrderTypeEnum.standard,
+        fractionQty: initialQty,
+        fractionPriceCents: 100,
       });
-    } catch (error) {
-      console.log(error);
-      expect(error).toBeInstanceOf(NotEnoughUnitsFromSeller);
-      return;
-    }
-    throw new Error('Error did not throw');
-  });
 
-  test('should create userAsset for buyer userAsset if userAsset does not already exist', async () => {
-    const unitsToPurchase = 2;
-    const manager = SellOrderPurchase.getRepository().manager;
-    const userAsset = await manager.findOne(UserAsset, {
-      where: { userId: buyer.id, assetId: sellOrder.assetId, isDeleted: false },
-    });
-    expect(userAsset).toBeNull();
-    await SellOrderPurchase.from(buyer, sellOrder, {
-      fractionsToPurchase: unitsToPurchase,
-      fractionPriceCents: sellOrder.fractionPriceCents,
-    });
-    const newUserAsset = await manager.findOne(UserAsset, {
-      where: { userId: buyer.id, assetId: sellOrder.assetId, isDeleted: false },
-    });
-    expect(newUserAsset).toMatchObject({
-      ...newUserAsset,
-      quantityOwned: unitsToPurchase,
-    });
-  });
+      await createUserAsset({
+        assetId: testSellOrder.assetId,
+        userId: testSellOrder.userId,
+        quantityOwned: 1,
+      });
 
-  test('should correctly process purchase', async () => {
-    const unitsToPurchase = 2;
-    const oldSellOrderFractionQtyAvailable = sellOrder.fractionQtyAvailable;
-    const oldSellerUserAssetQty = userAsset.quantityOwned;
-    const manager = SellOrderPurchase.getRepository().manager;
-    const buyerUserAsset = await manager.findOne(UserAsset, {
-      where: { userId: buyer.id, assetId: sellOrder.assetId, isDeleted: false },
+      const unitsToPurchase = 2;
+
+      try {
+        await SellOrderPurchase.from(buyer, testSellOrder, {
+          fractionsToPurchase: unitsToPurchase,
+          fractionPriceCents: testSellOrder.fractionPriceCents,
+        });
+      } catch (error) {
+        expect(error).toBeInstanceOf(NotEnoughUnitsFromSeller);
+        return;
+      }
+      throw new Error('Error did not throw');
     });
-    expect(buyerUserAsset).toBeNull();
-    await SellOrderPurchase.from(buyer, sellOrder, {
-      fractionsToPurchase: unitsToPurchase,
-      fractionPriceCents: sellOrder.fractionPriceCents,
+
+    test('should create userAsset for buyer userAsset if userAsset does not already exist', async () => {
+      const unitsToPurchase = 2;
+      const manager = SellOrderPurchase.getRepository().manager;
+      const userAsset = await manager.findOne(UserAsset, {
+        where: { userId: buyer.id, assetId: sellOrder.assetId, isDeleted: false },
+      });
+      expect(userAsset).toBeNull();
+      await SellOrderPurchase.from(buyer, sellOrder, {
+        fractionsToPurchase: unitsToPurchase,
+        fractionPriceCents: sellOrder.fractionPriceCents,
+      });
+      const newUserAsset = await manager.findOne(UserAsset, {
+        where: { userId: buyer.id, assetId: sellOrder.assetId, isDeleted: false },
+      });
+      expect(newUserAsset).toMatchObject({
+        ...newUserAsset,
+        quantityOwned: unitsToPurchase,
+      });
     });
-    const newBuyerUserAsset = await manager.findOne(UserAsset, {
-      where: { userId: buyer.id, assetId: sellOrder.assetId, isDeleted: false },
-    });
-    await sellOrder.reload();
-    await userAsset.reload();
-    expect(newBuyerUserAsset).toMatchObject({
-      ...newBuyerUserAsset,
-      quantityOwned: unitsToPurchase,
-    });
-    expect(sellOrder).toMatchObject({
-      ...sellOrder,
-      fractionQtyAvailable: oldSellOrderFractionQtyAvailable - unitsToPurchase,
-    });
-    expect(userAsset).toMatchObject({
-      ...userAsset,
-      quantityOwned: oldSellerUserAssetQty - unitsToPurchase,
+
+    test('should correctly process purchase', async () => {
+      const unitsToPurchase = 2;
+      const oldSellOrderFractionQtyAvailable = sellOrder.fractionQtyAvailable;
+      const oldSellerUserAssetQty = userAsset.quantityOwned;
+      const manager = SellOrderPurchase.getRepository().manager;
+      const buyerUserAsset = await manager.findOne(UserAsset, {
+        where: { userId: buyer.id, assetId: sellOrder.assetId, isDeleted: false },
+      });
+      expect(buyerUserAsset).toBeNull();
+      await SellOrderPurchase.from(buyer, sellOrder, {
+        fractionsToPurchase: unitsToPurchase,
+        fractionPriceCents: sellOrder.fractionPriceCents,
+      });
+      const newBuyerUserAsset = await manager.findOne(UserAsset, {
+        where: { userId: buyer.id, assetId: sellOrder.assetId, isDeleted: false },
+      });
+      await sellOrder.reload();
+      await userAsset.reload();
+      expect(newBuyerUserAsset).toMatchObject({
+        ...newBuyerUserAsset,
+        quantityOwned: unitsToPurchase,
+      });
+      expect(sellOrder).toMatchObject({
+        ...sellOrder,
+        fractionQtyAvailable: oldSellOrderFractionQtyAvailable - unitsToPurchase,
+      });
+      expect(userAsset).toMatchObject({
+        ...userAsset,
+        quantityOwned: oldSellerUserAssetQty - unitsToPurchase,
+      });
+      // Buy the same assets again
+      await SellOrderPurchase.from(buyer, sellOrder, {
+        fractionsToPurchase: unitsToPurchase,
+        fractionPriceCents: sellOrder.fractionPriceCents,
+      });
+      const newPurchasedAmount = unitsToPurchase + unitsToPurchase;
+      await sellOrder.reload();
+      await userAsset.reload();
+      await newBuyerUserAsset.reload();
+      expect(newBuyerUserAsset).toMatchObject({
+        ...newBuyerUserAsset,
+        quantityOwned: newPurchasedAmount,
+      });
+      expect(sellOrder).toMatchObject({
+        ...sellOrder,
+        fractionQtyAvailable: oldSellOrderFractionQtyAvailable - newPurchasedAmount,
+      });
+      expect(userAsset).toMatchObject({
+        ...userAsset,
+        quantityOwned: oldSellerUserAssetQty - newPurchasedAmount,
+      });
     });
   });
 });

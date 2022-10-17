@@ -6,7 +6,6 @@ import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { Asset } from 'modules/assets/entities';
-import { Event } from 'modules/events/entities';
 import { createAsset } from '../utils/asset.utils';
 import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
 import { createSellOrder, expectPurchaseSuccess } from '../utils/sell-order.utils';
@@ -15,6 +14,7 @@ import { generateToken } from '../utils/jwt.utils';
 import request from 'supertest';
 import { PortfolioTransformer } from 'modules/portfolio/portfolio.transformer';
 import { IPortfolioResponse } from 'modules/portfolio/interfaces/portfolio-response.interface';
+import { createUserAsset } from '../utils/user';
 
 describe('PortfolioController', () => {
   const initialQty = 10000;
@@ -71,6 +71,16 @@ describe('PortfolioController', () => {
       fractionQty: initialQty,
       fractionPriceCents: 100,
     });
+    await createUserAsset({
+      assetId: sellOrder.assetId,
+      userId: sellOrder.userId,
+      quantityOwned: sellOrder.fractionQty,
+    });
+    await createUserAsset({
+      assetId: sellOrder2.assetId,
+      userId: sellOrder2.userId,
+      quantityOwned: sellOrder2.fractionQty,
+    });
   });
 
   afterEach(async () => {
@@ -79,12 +89,6 @@ describe('PortfolioController', () => {
   });
 
   afterAll(async () => {
-    await Event.delete({});
-    await SellOrderPurchase.delete({});
-    await SellOrder.delete({});
-    await Asset.delete({});
-    await Partner.delete({});
-    await User.delete({});
     await clearAllData();
   });
 
@@ -146,14 +150,16 @@ describe('PortfolioController', () => {
           Object.assign(sellOrder, { asset: asset }),
         ],
       };
-
+      const mockResultTransformed = portfolioTransformer.transformPortfolio(mockResult);
       await request(app.getHttpServer())
         .get(PORTFOLIO_URL)
         .set(headers)
         .expect(200)
         .expect((res) => {
           expect(res.body.sellOrderHistory.length).toEqual(2);
-          expect(res.body).toMatchObject(portfolioTransformer.transformPortfolio(mockResult));
+          expect(res.body).toMatchObject({
+            ...mockResultTransformed,
+          });
         });
     });
 

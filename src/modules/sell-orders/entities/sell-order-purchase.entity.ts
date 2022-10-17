@@ -179,7 +179,7 @@ export class SellOrderPurchase extends BaseModel implements IBaseEntity {
     return (await query.getRawOne()).total_purchased || 0;
   }
 
-  static async getUserPurchases(user: User): Promise<SelectQueryBuilder<SellOrderPurchase>> {
+  static async userPurchaseQuery(user: User): Promise<SelectQueryBuilder<SellOrderPurchase>> {
     //get all user purchases.
     const purchaseHistory = SellOrderPurchase.createQueryBuilder('SellOrderPurchase')
       .leftJoinAndMapOne('SellOrderPurchase.asset', 'SellOrderPurchase.asset', 'asset')

@@ -277,7 +277,9 @@ describe('SellOrdersController -> Purchases', () => {
         fractionsToPurchase,
         fractionPriceCents,
         buyer,
+        undefined,
         dropUserAsset,
+        fractionsToPurchase,
       );
 
       await expectPurchaseSuccess(
@@ -286,7 +288,9 @@ describe('SellOrdersController -> Purchases', () => {
         fractionsToPurchase,
         fractionPriceCents,
         buyer,
+        undefined,
         dropUserAsset,
+        fractionsToPurchase * 2,
       );
     });
   });

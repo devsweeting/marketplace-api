@@ -6,7 +6,7 @@ import { SellOrder, SellOrderPurchase } from './entities';
 @Injectable()
 export class SellOrdersPurchaseService extends BaseService {
   public async getUserPurchases(user: User): Promise<SellOrderPurchase[]> {
-    return (await SellOrderPurchase.getUserPurchases(user)).getMany();
+    return (await SellOrderPurchase.userPurchaseQuery(user)).getMany();
   }
 
   async getUserTransactions(user: User): Promise<any> {

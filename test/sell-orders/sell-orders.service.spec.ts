@@ -66,11 +66,6 @@ beforeEach(async () => {
     fractionQty: initialQty,
     fractionPriceCents: 100,
   });
-  await createUserAsset({
-    assetId: sellOrder.assetId,
-    userId: sellOrder.userId,
-    quantityOwned: sellOrder.fractionQty,
-  });
 
   assetDrop = await createAsset({ refId: '2', name: 'Drop' }, partner);
   sellOrderDrop = await createSellOrder({
