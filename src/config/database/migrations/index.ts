@@ -16,6 +16,7 @@ import { UpdateTypeOrmMetadata1662416585994 } from './1662416585994-UpdateTypeOr
 import { FixSellOrder1662423096730 } from './1662423096730-FixSellOrder';
 import { CreateRefreshTokenTable1663795468354 } from './1663795468354-CreateRefreshTokenTable';
 import { AddAssetIdToSellOrderPurchase1663352346588 } from './1663352346588-AddAssetIdToSellOrderPurchase';
+import { CreateUserAssetsTable1665784042941 } from './1665784042941-CreateUserAssetsTable';
 
 export const migrations = [
   Init1652279127303,
@@ -36,4 +37,5 @@ export const migrations = [
   FixSellOrder1662423096730,
   CreateRefreshTokenTable1663795468354,
   AddAssetIdToSellOrderPurchase1663352346588,
+  CreateUserAssetsTable1665784042941,
 ];

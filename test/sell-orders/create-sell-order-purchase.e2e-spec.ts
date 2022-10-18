@@ -18,6 +18,8 @@ import {
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
 import { generateToken } from '../utils/jwt.utils';
 import { faker } from '@faker-js/faker';
+import { createUserAsset } from '../utils/user';
+import { UserAsset } from 'modules/users/entities/user-assets.entity';
 
 async function expectCheck(
   app: INestApplication,
@@ -41,6 +43,8 @@ describe('SellOrdersController -> Purchases', () => {
   let dropSellOrder: SellOrder;
   let seller: User;
   let buyer: User;
+  let userAsset: UserAsset;
+  let dropUserAsset: UserAsset;
 
   beforeAll(async () => {
     app = await createApp();
@@ -81,6 +85,18 @@ describe('SellOrdersController -> Purchases', () => {
       fractionPriceCents: 100,
       userFractionLimit: 10,
       userFractionLimitEndTime: faker.date.future(),
+    });
+
+    userAsset = await createUserAsset({
+      assetId: sellOrder.assetId,
+      userId: sellOrder.userId,
+      quantityOwned: sellOrder.fractionQty,
+    });
+
+    dropUserAsset = await createUserAsset({
+      assetId: dropSellOrder.assetId,
+      userId: dropSellOrder.userId,
+      quantityOwned: dropSellOrder.fractionQty,
     });
   });
 
@@ -127,7 +143,15 @@ describe('SellOrdersController -> Purchases', () => {
       await expectCheck(app, 200, checkResponse, sellOrder, buyer);
       const fractionsToPurchase = 10;
       const fractionPriceCents = sellOrder.fractionPriceCents;
-      await expectPurchaseSuccess(app, sellOrder, fractionsToPurchase, fractionPriceCents, buyer);
+      await expectPurchaseSuccess(
+        app,
+        sellOrder,
+        fractionsToPurchase,
+        fractionPriceCents,
+        buyer,
+        undefined,
+        userAsset,
+      );
 
       await sellOrder.reload();
       checkResponse = {
@@ -140,7 +164,15 @@ describe('SellOrdersController -> Purchases', () => {
     test('Should return 201 when purchasing all available fractions, then return 400 on subsequent purchase request', async () => {
       const fractionsToPurchase = initialQty; // purchase all available
       const fractionPriceCents = sellOrder.fractionPriceCents;
-      await expectPurchaseSuccess(app, sellOrder, fractionsToPurchase, fractionPriceCents, buyer);
+      await expectPurchaseSuccess(
+        app,
+        sellOrder,
+        fractionsToPurchase,
+        fractionPriceCents,
+        buyer,
+        undefined,
+        userAsset,
+      );
 
       // Attempt to purchase again
       const payload2 = { fractionsToPurchase: 1, fractionPriceCents };
@@ -223,6 +255,8 @@ describe('SellOrdersController -> Purchases', () => {
         fractionsToPurchase,
         fractionPriceCents,
         buyer,
+        undefined,
+        dropUserAsset,
       );
 
       await expectCheck(app, 400, null, dropSellOrder, buyer);
@@ -245,6 +279,9 @@ describe('SellOrdersController -> Purchases', () => {
         fractionsToPurchase,
         fractionPriceCents,
         buyer,
+        undefined,
+        dropUserAsset,
+        fractionsToPurchase,
       );
 
       await expectPurchaseSuccess(
@@ -253,6 +290,9 @@ describe('SellOrdersController -> Purchases', () => {
         fractionsToPurchase,
         fractionPriceCents,
         buyer,
+        undefined,
+        dropUserAsset,
+        fractionsToPurchase * 2,
       );
     });
   });

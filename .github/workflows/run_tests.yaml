@@ -1,14 +1,14 @@
-name: 'Run tests'
+name: "Run tests"
 on:
   push:
     branches:
-      - '**'
+      - "**"
 
 jobs:
   main:
-    name: 'Test'
+    name: "Test"
     runs-on: ubuntu-latest
-    container: node:14
+    container: node:16
     services:
       httpstatus:
         image: ghcr.io/lucky/httpstatus:latest
@@ -25,9 +25,9 @@ jobs:
         image: postgres
         env:
           POSTGRES_PORT: 5432
-          POSTGRES_DB: 'test'
-          POSTGRES_USERNAME: 'postgres'
-          POSTGRES_PASSWORD: 'password'
+          POSTGRES_DB: "test"
+          POSTGRES_USERNAME: "postgres"
+          POSTGRES_PASSWORD: "password"
         ports:
           - 5432/tcp
         options: >-
@@ -37,26 +37,26 @@ jobs:
           --health-retries 5
 
     steps:
-      - name: 'Checkout source code'
-        uses: actions/checkout@v2
+      - name: "Checkout source code"
+        uses: actions/checkout@v3
 
-      - name: 'Setup NodeJS 14'
-        uses: actions/setup-node@v2
+      - name: "Setup NodeJS 16"
+        uses: actions/setup-node@v3
         with:
-          node-version: '14'
-          cache: 'yarn'
+          node-version: "16"
+          cache: "yarn"
           cache-dependency-path: yarn.lock
 
-      - name: 'Install Dependencies'
+      - name: "Install Dependencies"
         run: yarn install
 
-      - name: 'Build'
+      - name: "Build"
         run: yarn build
 
-      - name: 'Bundle'
+      - name: "Bundle"
         run: yarn bundle
 
-      - name: 'Run Tests'
+      - name: "Run Tests"
         run: yarn test
         env:
           NODE_ENV: test

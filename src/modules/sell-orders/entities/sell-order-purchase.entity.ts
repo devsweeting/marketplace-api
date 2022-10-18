@@ -1,9 +1,10 @@
-import { InternalServerErrorException } from '@nestjs/common';
+import { InternalServerErrorException, Logger } from '@nestjs/common';
 import { Asset } from 'modules/assets/entities';
 import { AssetNotFoundException } from 'modules/assets/exceptions';
 import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
 import { User } from 'modules/users/entities';
+import { UserAsset } from 'modules/users/entities/user-assets.entity';
 import {
   Column,
   Entity,
@@ -21,6 +22,8 @@ import {
   PriceMismatchException,
   UserCannotPurchaseOwnOrderException,
   PurchaseLimitReached,
+  NotEnoughUnitsFromSeller,
+  SellerNotAssetOwnerException,
 } from '../exceptions';
 import { SellOrder } from './sell-orders.entity';
 
@@ -67,6 +70,7 @@ export class SellOrderPurchase extends BaseModel implements IBaseEntity {
         where: { id: idDto.id, isDeleted: false },
         lock: { mode: 'pessimistic_write' },
       });
+
       if (!sellOrder) {
         throw new SellOrderNotFoundException();
       }
@@ -112,6 +116,28 @@ export class SellOrderPurchase extends BaseModel implements IBaseEntity {
           }
         }
       }
+      const sellerAsset = await manager.findOne(UserAsset, {
+        where: { userId: sellOrder.userId, assetId: sellOrder.assetId, isDeleted: false },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!sellerAsset) {
+        throw new SellerNotAssetOwnerException();
+      }
+      if (sellerAsset.quantityOwned < purchaseDto.fractionsToPurchase) {
+        throw new NotEnoughUnitsFromSeller();
+      }
+      let buyerAsset = await manager.findOne(UserAsset, {
+        where: { userId: user.id, assetId: sellOrder.assetId, isDeleted: false },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!buyerAsset) {
+        buyerAsset = new UserAsset({
+          assetId: sellOrder.assetId,
+          userId: user.id,
+          quantityOwned: 0,
+        });
+      }
+
       const purchase = new SellOrderPurchase({
         userId: user.id,
         sellOrderId: sellOrder.id,
@@ -120,9 +146,31 @@ export class SellOrderPurchase extends BaseModel implements IBaseEntity {
         fractionPriceCents: purchaseDto.fractionPriceCents,
       });
       sellOrder.fractionQtyAvailable -= purchaseDto.fractionsToPurchase;
-      await Promise.all([manager.save(purchase), manager.save(sellOrder)]);
+      sellerAsset.quantityOwned -= purchaseDto.fractionsToPurchase;
+      buyerAsset.quantityOwned += purchaseDto.fractionsToPurchase;
+      await Promise.all([
+        manager.save(purchase),
+        manager.save(sellerAsset),
+        manager.save(sellOrder),
+        manager.save(buyerAsset),
+      ]);
+      Logger.log({
+        buyer: user,
+        seller: sellOrder.id,
+        sellOrder: sellOrder,
+        quantity: purchaseDto.fractionsToPurchase,
+        completed: true,
+      });
       return purchase;
     });
+    if (!purchase) {
+      Logger.error({
+        buyer: user,
+        sellOrderId: idDto.id,
+        quantity: purchaseDto.fractionsToPurchase,
+        completed: false,
+      });
+    }
     return purchase;
   }
 
@@ -146,7 +194,7 @@ export class SellOrderPurchase extends BaseModel implements IBaseEntity {
     return (await query.getRawOne()).total_purchased || 0;
   }
 
-  static async getUserPurchases(user: User): Promise<SelectQueryBuilder<SellOrderPurchase>> {
+  static async userPurchaseQuery(user: User): Promise<SelectQueryBuilder<SellOrderPurchase>> {
     //get all user purchases.
     const purchaseHistory = SellOrderPurchase.createQueryBuilder('SellOrderPurchase')
       .leftJoinAndMapOne('SellOrderPurchase.asset', 'SellOrderPurchase.asset', 'asset')
