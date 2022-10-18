@@ -152,7 +152,7 @@ describe('PortfolioController', () => {
       const mockResult: IPortfolioResponse = {
         totalValueInCents: 0,
         totalUnits: 0,
-        purchaseHistory: [],
+        assetPurchaseHistory: [],
         sellOrderHistory: [
           Object.assign(sellOrder2, { asset: asset2 }),
           Object.assign(sellOrder, { asset: asset }),

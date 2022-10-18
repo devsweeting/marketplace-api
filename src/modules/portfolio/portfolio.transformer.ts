@@ -34,40 +34,10 @@ export class PortfolioTransformer {
     private readonly assetsTransformer: AssetsTransformer,
   ) {}
 
-  // public transformSellOrderPurchase(orders): SellOrderPurchaseAssetApi {
-  //   const purchases = orders.map((order) => {
-  //     return Object.assign(order, {
-  //       updatedAt: order.updatedAt.toISOString(),
-  //       createdAt: order.createdAt.toISOString(),
-  //       // asset: this.transformAsset(order.asset),
-  //     });
-  //   });
-  //   return purchases.sort(function (a, b) {
-  //     return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf();
-  //   });
-  // }
-
-  // public transformSellOrder(orders): SellOrderAssetApi {
-  //   const sellOrders = orders.map((order) => {
-  //     return Object.assign(order, {
-  //       updatedAt: order.updatedAt.toISOString(),
-  //       createdAt: order.createdAt.toISOString(),
-  //       startTime: order.startTime.toISOString(),
-  //       expireTime: order.expireTime.toISOString(),
-  //       // asset: this.transformAsset(order.asset),
-  //     });
-  //   });
-  //   return sellOrders.sort(function (a, b) {
-  //     return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf();
-  //   });
-  // }
-
   public transformPortfolio(portfolio: IPortfolioResponse) {
-    // console.log(portfolio.purchaseHistory);
     return {
       ...portfolio,
-      purchaseHistory: this.assetsTransformer.transformAll(portfolio.assetPurchaseHistory),
-      sellOrderHistory: this.assetsTransformer.transformAll(portfolio.assetSellOrderHistory),
+      ownedAssets: this.assetsTransformer.transformAll(portfolio.ownedAssets),
     };
   }
 }

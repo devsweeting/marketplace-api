@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { PortfolioService } from '../portfolio.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import JwtAuthGuard from 'modules/auth/guards/jwt-auth.guard';
@@ -6,6 +6,9 @@ import { User } from 'modules/users/entities';
 import { currentUser } from 'modules/users/decorators/currentUser.decorator';
 import { PortfolioTransformer } from '../portfolio.transformer';
 import { generateSwaggerPaginatedSchema } from 'modules/common/helpers/generate-swagger-paginated-schema';
+import { PortfolioResponse } from '../responses';
+import { IPortfolioResponse } from '../interfaces/portfolio-response.interface';
+import { PortfolioDto } from '../portfolioDto';
 
 @ApiTags('portfolio')
 @Controller({
@@ -24,9 +27,13 @@ export class PortfolioController {
   @ApiResponse({
     status: 200,
     description: 'returns the users purchased assets and active sell orders',
-    // schema: generateSwaggerPaginatedSchema(PortfolioResponse)
+    schema: generateSwaggerPaginatedSchema(PortfolioResponse),
   })
-  public async getPortfolio(@currentUser() user: User) {
+  // public async list(
+  //   @Query()
+  //   params: PortfolioDto,
+  // );
+  public async getPortfolio(@currentUser() user: User): Promise<IPortfolioResponse> {
     const userPortfolio = await this.portfolioService.getUserPortfolio(user);
     return this.portfolioTransformer.transformPortfolio(userPortfolio);
   }

@@ -33,6 +33,7 @@ import { ConfigService } from '@nestjs/config';
 import { SellOrder } from 'modules/sell-orders/entities';
 import { AssetNotFoundException } from '../exceptions';
 import { IAssetListArgs } from '../interfaces/IAssetListArgs';
+import { UserAsset } from 'modules/users/entities/user-assets.entity';
 
 export class AssetAttributes {
   constructor(attrs: AttributeDto[] = []) {
@@ -128,6 +129,9 @@ export class Asset extends BaseModel implements IBaseEntity {
 
   @OneToMany(() => SellOrder, (sellOrder) => sellOrder.asset)
   public sellOrders: SellOrder[];
+
+  @OneToOne(() => UserAsset, (userAsset) => userAsset.asset)
+  public userAsset: UserAsset[];
 
   @BeforeInsert()
   public async beforeInsert(): Promise<void> {
