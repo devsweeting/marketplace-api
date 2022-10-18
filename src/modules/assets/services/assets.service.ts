@@ -6,7 +6,7 @@ import { IPaginationMeta, paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { UpdateAssetDto } from 'modules/assets/dto/update-asset.dto';
 import { RefAlreadyTakenException } from 'modules/common/exceptions/ref-already-taken.exception';
 import { StorageService } from 'modules/storage/storage.service';
-import { EntityManager, Not } from 'typeorm';
+import { EntityManager, Not, SelectQueryBuilder } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import {
   AssetNotFoundException,
@@ -43,10 +43,7 @@ export class AssetsService {
     private readonly mediaService: MediaService,
     private readonly entityManager: EntityManager,
   ) {}
-
-  public async getList(params: IAssetListArgs): Promise<Pagination<Asset>> {
-    // TODO update getList to get teh users assets
-
+  public getListQuery(params: IAssetListArgs): SelectQueryBuilder<Asset> {
     if (params.asset_ids && typeof params.asset_ids === 'string') {
       params.asset_ids = params.asset_ids.split(',');
     }
@@ -102,8 +99,10 @@ export class AssetsService {
     ) {
       throw new AttributeDuplicatedException();
     }
-
-    const results = await paginate<Asset, IPaginationMeta>(Asset.list(params, this.configService), {
+    return Asset.list(params, this.configService);
+  }
+  public async getList(params: IAssetListArgs): Promise<Pagination<Asset>> {
+    const results = await paginate<Asset, IPaginationMeta>(this.getListQuery(params), {
       page: params.page,
       limit: params.limit,
     });
@@ -115,12 +114,12 @@ export class AssetsService {
       item.labels = relation.labels;
       item.media = relation.media;
       item.sellOrders = relation.sellOrders;
+      item.userAsset = undefined;
       return item;
     });
     return new Pagination(items, results.meta);
   }
-
-  public async getRelations(ids: string[]): Promise<Asset[]> {
+  public getRelationsQuery(ids: string[]): SelectQueryBuilder<Asset> {
     const query = Asset.createQueryBuilder('asset')
       .leftJoinAndMapMany('asset.labels', 'asset.labels', 'labels')
       .leftJoinAndMapMany(
@@ -138,6 +137,10 @@ export class AssetsService {
       )
       .orderBy('media.sortOrder', 'ASC')
       .andWhereInIds(ids);
+    return query;
+  }
+  public async getRelations(ids: string[]): Promise<Asset[]> {
+    const query = this.getRelationsQuery(ids);
     return query.getMany();
   }
 

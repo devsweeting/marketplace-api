@@ -9,10 +9,14 @@ import { StorageModule } from 'modules/storage/storage.module';
 import { PortfolioController } from './controllers/portfolio.controller';
 import { SellOrdersTransformer } from 'modules/sell-orders/transformers/sell-orders.transformer';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
+import { AssetsService } from 'modules/assets/services/assets.service';
+import { MediaService } from 'modules/assets/services/media.service';
 
 @Module({
   imports: [StorageModule],
   providers: [
+    AssetsService,
+    MediaService,
     PortfolioService,
     SellOrdersService,
     SellOrdersPurchaseService,

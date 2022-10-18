@@ -9,6 +9,8 @@ import { generateSwaggerPaginatedSchema } from 'modules/common/helpers/generate-
 import { PortfolioResponse } from '../responses';
 import { IPortfolioResponse } from '../interfaces/portfolio-response.interface';
 import { PortfolioDto } from '../portfolioDto';
+import { AssetsService } from 'modules/assets/services/assets.service';
+import { Asset } from 'modules/assets/entities';
 
 @ApiTags('portfolio')
 @Controller({
@@ -29,12 +31,16 @@ export class PortfolioController {
     description: 'returns the users purchased assets and active sell orders',
     schema: generateSwaggerPaginatedSchema(PortfolioResponse),
   })
-  // public async list(
-  //   @Query()
-  //   params: PortfolioDto,
-  // );
-  public async getPortfolio(@currentUser() user: User): Promise<IPortfolioResponse> {
-    const userPortfolio = await this.portfolioService.getUserPortfolio(user);
-    return this.portfolioTransformer.transformPortfolio(userPortfolio);
+  public async list(
+    @Query()
+    params: PortfolioDto,
+    @currentUser() user: User,
+  ) {
+    const userAssets = await this.portfolioService.getList(params, user);
+    return ['test'];
   }
+  // public async getPortfolio(@currentUser() user: User): Promise<IPortfolioResponse> {
+  //   const userPortfolio = await this.portfolioService.getUserPortfolio(user);
+  //   return this.portfolioTransformer.transformPortfolio(userPortfolio);
+  // }
 }

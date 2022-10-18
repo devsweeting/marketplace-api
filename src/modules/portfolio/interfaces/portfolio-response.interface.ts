@@ -5,5 +5,6 @@ import { PaginatedResponse } from 'modules/common/dto/paginated.response';
 export interface IPortfolioResponse {
   totalValueInCents: number;
   totalUnits: number;
-  ownedAssets: PaginatedResponse<AssetResponse>;
+  // ownedAssets: PaginatedResponse<AssetResponse>;
+  ownedAssets: Asset[];
 }
