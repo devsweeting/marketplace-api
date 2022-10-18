@@ -37,7 +37,7 @@ export class PortfolioTransformer {
   public transformPortfolio(portfolio: IPortfolioResponse) {
     return {
       ...portfolio,
-      ownedAssets: this.assetsTransformer.transformAll(portfolio.ownedAssets),
+      ...this.assetsTransformer.transformPaginated(portfolio.paginatedOwnedAssets),
     };
   }
 }

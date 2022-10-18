@@ -1,10 +1,10 @@
 import { Asset } from 'modules/assets/entities';
 import { AssetResponse } from 'modules/assets/responses/asset.response';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
+import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate';
 
 export interface IPortfolioResponse {
   totalValueInCents: number;
   totalUnits: number;
-  // ownedAssets: PaginatedResponse<AssetResponse>;
-  ownedAssets: Asset[];
+  paginatedOwnedAssets: Pagination<Asset, IPaginationMeta>;
 }

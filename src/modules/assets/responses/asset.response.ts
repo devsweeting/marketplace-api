@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { AttributeResponse } from 'modules/assets/responses/attribute.response';
 import { SellOrderResponse } from 'modules/sell-orders/responses';
+import { UserAsset } from 'modules/users/entities/user-assets.entity';
 import { MediaResponse } from './media/media.response';
 
 export class AssetResponse {
@@ -25,6 +26,8 @@ export class AssetResponse {
   })
   public sellOrders: SellOrderResponse[];
 
+  @ApiProperty({ type: [UserAsset], description: 'Assets owned by a user' })
+  public userAsset: UserAsset;
   @ApiProperty({ example: 'test-asset-name' })
   public slug: string;
 

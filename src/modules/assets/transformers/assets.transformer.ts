@@ -33,6 +33,9 @@ export class AssetsTransformer {
       sellOrders: asset.sellOrders?.length
         ? this.sellOrderTransformer.transformAll(asset.sellOrders)
         : null,
+      userAsset: {
+        ...asset.userAsset[0],
+      },
     };
   }
 

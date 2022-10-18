@@ -19,16 +19,20 @@ export class PortfolioService extends BaseService {
     super();
   }
 
-  public async getUserPortfolio(user: User): Promise<IPortfolioResponse> {
-    const ownedAssets = await this.getUserOwnedAssets(user);
+  public async getUserPortfolio(params: IAssetListArgs, user: User): Promise<IPortfolioResponse> {
+    // const ownedAssets = await this.getUserOwnedAssets(user);
+    const paginatedOwnedAssets = await this.getList(params, user);
     const { totalValueInCents, totalUnits } = await this.sellOrderPurchaseService.getTotalPurchased(
       user,
     );
-    return { totalValueInCents, totalUnits, ownedAssets };
+    return { totalValueInCents, totalUnits, paginatedOwnedAssets };
   }
 
   // public async getList(params: IAssetListArgs, user: User): Promise<Pagination<Asset>> {
-  public async getList(params: IAssetListArgs, user: User) {
+  public async getList(
+    params: IAssetListArgs,
+    user: User,
+  ): Promise<Pagination<Asset, IPaginationMeta>> {
     const query = await Asset.createQueryBuilder('asset')
       .leftJoinAndMapOne('asset.userAsset', 'asset.userAsset', 'userAsset')
       .leftJoinAndMapMany('asset.labels', 'asset.labels', 'labels')
@@ -62,7 +66,7 @@ export class PortfolioService extends BaseService {
       return item;
     });
 
-    console.log(new Pagination(items, results.meta));
+    return new Pagination(items, results.meta);
   }
 
   async getUserOwnedAssets(user: User): Promise<Asset[]> {
