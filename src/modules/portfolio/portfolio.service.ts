@@ -20,7 +20,6 @@ export class PortfolioService extends BaseService {
   }
 
   public async getUserPortfolio(params: IAssetListArgs, user: User): Promise<IPortfolioResponse> {
-    // const ownedAssets = await this.getUserOwnedAssets(user);
     const paginatedOwnedAssets = await this.getList(params, user);
     const { totalValueInCents, totalUnits } = await this.sellOrderPurchaseService.getTotalPurchased(
       user,
@@ -28,7 +27,6 @@ export class PortfolioService extends BaseService {
     return { totalValueInCents, totalUnits, paginatedOwnedAssets };
   }
 
-  // public async getList(params: IAssetListArgs, user: User): Promise<Pagination<Asset>> {
   public async getList(
     params: IAssetListArgs,
     user: User,

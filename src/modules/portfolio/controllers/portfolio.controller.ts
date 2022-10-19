@@ -7,10 +7,7 @@ import { currentUser } from 'modules/users/decorators/currentUser.decorator';
 import { PortfolioTransformer } from '../portfolio.transformer';
 import { generateSwaggerPaginatedSchema } from 'modules/common/helpers/generate-swagger-paginated-schema';
 import { PortfolioResponse } from '../responses';
-import { IPortfolioResponse } from '../interfaces/portfolio-response.interface';
 import { PortfolioDto } from '../portfolioDto';
-import { AssetsService } from 'modules/assets/services/assets.service';
-import { Asset } from 'modules/assets/entities';
 
 @ApiTags('portfolio')
 @Controller({
