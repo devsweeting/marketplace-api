@@ -1,0 +1,43 @@
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { BaseService } from 'modules/common/services';
+import { Client } from 'synapsenode';
+import { VerifyAddressDto } from '../dto/verify-address.dto';
+
+@Injectable()
+export class SynapseService extends BaseService {
+  public constructor(private readonly configService: ConfigService) {
+    super();
+  }
+  client = new Client({
+    client_id: this.configService.get('synapse.default.clientId'),
+    client_secret: this.configService.get('synapse.default.clientSecret'),
+    fingerprint: this.configService.get('synapse.default.fingerprint'),
+    ip_address: this.configService.get('synapse.default.ipAddress'), //TODO - what should the IP be?
+    isProduction: this.configService.get('synapse.default.isProduction'),
+  });
+
+  public async getAllUsers(): Promise<any> {
+    return this.client
+      .getAllUsers()
+      .then(({ data }) => {
+        console.log('DATA:', data);
+        return data;
+      })
+      .catch((error) => console.log(error));
+  }
+
+  public async verifyAddress(dto: VerifyAddressDto): Promise<any> {
+    this.client
+      .verifyAddress({
+        address_city: dto.address_city,
+        address_country_code: dto.address_country_code,
+        address_postal_code: dto.address_postal_code,
+        address_street: dto.address_street,
+        address_subdivision: dto.address_subdivision,
+      })
+      .then(({ data }) => console.log('DATA\n', data))
+      .catch((error) => console.log(error));
+    return dto;
+  }
+}
