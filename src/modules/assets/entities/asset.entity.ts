@@ -131,7 +131,7 @@ export class Asset extends BaseModel implements IBaseEntity {
   public sellOrders: SellOrder[];
 
   @OneToOne(() => UserAsset, (userAsset) => userAsset.asset)
-  public userAsset: UserAsset[];
+  public userAsset: UserAsset;
 
   @BeforeInsert()
   public async beforeInsert(): Promise<void> {

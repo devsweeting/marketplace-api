@@ -38,10 +38,5 @@ export class PortfolioController {
   ) {
     const userPortfolio = await this.portfolioService.getUserPortfolio(params, user);
     return this.portfolioTransformer.transformPortfolio(userPortfolio);
-    return ['test'];
   }
-  // public async getPortfolio(@currentUser() user: User): Promise<IPortfolioResponse> {
-  //   const userPortfolio = await this.portfolioService.getUserPortfolio(user);
-  //   return this.portfolioTransformer.transformPortfolio(userPortfolio);
-  // }
 }

@@ -11,6 +11,7 @@ import { SellOrdersTransformer } from 'modules/sell-orders/transformers/sell-ord
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
 import { AssetsService } from 'modules/assets/services/assets.service';
 import { MediaService } from 'modules/assets/services/media.service';
+import { UserAssetTransformer } from 'modules/users/transformers/user-asset.transformer';
 
 @Module({
   imports: [StorageModule],
@@ -25,6 +26,7 @@ import { MediaService } from 'modules/assets/services/media.service';
     MediaTransformer,
     SellOrdersTransformer,
     AssetsTransformer,
+    UserAssetTransformer,
   ],
   controllers: [PortfolioController],
   exports: [],

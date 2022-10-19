@@ -36,7 +36,8 @@ export class PortfolioTransformer {
 
   public transformPortfolio(portfolio: IPortfolioResponse) {
     return {
-      ...portfolio,
+      totalValueInCents: portfolio.totalValueInCents,
+      totalUnits: portfolio.totalUnits,
       ...this.assetsTransformer.transformPaginated(portfolio.paginatedOwnedAssets),
     };
   }
