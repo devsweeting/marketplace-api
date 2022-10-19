@@ -2,6 +2,9 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
 import { AssetResponse } from 'modules/assets/responses/asset.response';
 import { INestApplication } from '@nestjs/common';
+import { PortfolioResponse } from 'modules/portfolio/responses';
+import { UserAssetResponse } from 'modules/users/responses';
+import { SellOrderResponse } from 'modules/sell-orders/responses';
 
 export const setupSwagger = (app: INestApplication) => {
   const options = new DocumentBuilder()
@@ -17,6 +20,24 @@ export const setupSwagger = (app: INestApplication) => {
       },
       'api-key',
     )
+    .addApiKey(
+      {
+        name: 'Bearer',
+        in: 'header',
+        description:
+          'Bearer Token Authorization header. Example: "Authorization: bearer-token {key}".',
+        type: 'apiKey',
+      },
+      'bearer-token',
+    )
+    .addBearerAuth(
+      {
+        name: 'Bearer',
+        description: 'User Bearer Token',
+        type: 'http',
+      },
+      'bearer-token',
+    )
     .setExternalDoc('Postman Collection', '/docs-json')
     .build();
 
@@ -24,7 +45,13 @@ export const setupSwagger = (app: INestApplication) => {
     '/docs',
     app,
     SwaggerModule.createDocument(app, options, {
-      extraModels: [PaginatedResponse, AssetResponse],
+      extraModels: [
+        PaginatedResponse,
+        AssetResponse,
+        PortfolioResponse,
+        UserAssetResponse,
+        SellOrderResponse,
+      ],
     }),
   );
 };

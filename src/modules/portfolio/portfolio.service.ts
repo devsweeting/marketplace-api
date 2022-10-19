@@ -1,29 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { BaseService } from 'modules/common/services';
-import { SellOrdersPurchaseService } from 'modules/sell-orders/sell-order-purchase.service';
-import { SellOrdersService } from 'modules/sell-orders/sell-orders.service';
 import { User } from 'modules/users/entities';
 import { IPortfolioResponse } from 'modules/portfolio/interfaces/portfolio-response.interface';
 import { Asset } from 'modules/assets/entities';
 import { IPaginationMeta, paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { IAssetListArgs } from 'modules/assets/interfaces/IAssetListArgs';
 import { AssetsService } from 'modules/assets/services/assets.service';
+import { UserAsset } from 'modules/users/entities/user-assets.entity';
 
 @Injectable()
 export class PortfolioService extends BaseService {
-  constructor(
-    private readonly sellOrderService: SellOrdersService,
-    private readonly sellOrderPurchaseService: SellOrdersPurchaseService,
-    private readonly assetService: AssetsService,
-  ) {
+  constructor(private readonly assetService: AssetsService) {
     super();
   }
 
   public async getUserPortfolio(params: IAssetListArgs, user: User): Promise<IPortfolioResponse> {
     const paginatedOwnedAssets = await this.getList(params, user);
-    const { totalValueInCents, totalUnits } = await this.sellOrderPurchaseService.getTotalPurchased(
-      user,
-    );
+    const { totalValueInCents, totalUnits } = await this.getTotalPurchased(user);
     return { totalValueInCents, totalUnits, paginatedOwnedAssets };
   }
 
@@ -80,5 +73,35 @@ export class PortfolioService extends BaseService {
         isDeleted: false,
       })
       .getMany();
+  }
+  async getTotalPurchased(user: User): Promise<any> {
+    //TODO this will need to be looked at when we add the ability to have
+    //     multiple sell orders active for a specific asset
+    const { totalValueInCents } = await Asset.createQueryBuilder('asset')
+      .leftJoinAndMapMany('asset.sellOrders', 'asset.sellOrders', 'sellOrders')
+      .leftJoinAndMapOne('asset.userAsset', 'asset.userAsset', 'userAsset')
+      .where('userAsset.userId = :userId', {
+        userId: user.id,
+      })
+      .andWhere('userAsset.isDeleted = :isDeleted AND userAsset.deletedAt IS NULL', {
+        isDeleted: false,
+      })
+      .andWhere('sellOrders.isDeleted = :isDeleted AND sellOrders.deletedAt IS NULL', {
+        isDeleted: false,
+      })
+      .select('SUM(userAsset.quantityOwned * sellOrders.fractionPriceCents)', 'totalValueInCents')
+      .getRawOne();
+
+    const { totalUnits } = await UserAsset.createQueryBuilder('userAsset')
+      .where('userAsset.userId = :userId', {
+        userId: user.id,
+      })
+      .andWhere('userAsset.isDeleted = :isDeleted AND userAsset.deletedAt IS NULL', {
+        isDeleted: false,
+      })
+      .select('SUM(userAsset.quantityOwned)', 'totalUnits')
+      .getRawOne();
+
+    return { totalValueInCents: Number(totalValueInCents), totalUnits: Number(totalUnits) };
   }
 }

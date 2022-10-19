@@ -1,11 +1,17 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { PortfolioService } from '../portfolio.service';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBasicAuth,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  getSchemaPath,
+} from '@nestjs/swagger';
 import JwtAuthGuard from 'modules/auth/guards/jwt-auth.guard';
 import { User } from 'modules/users/entities';
 import { currentUser } from 'modules/users/decorators/currentUser.decorator';
 import { PortfolioTransformer } from '../portfolio.transformer';
-import { generateSwaggerPaginatedSchema } from 'modules/common/helpers/generate-swagger-paginated-schema';
 import { PortfolioResponse } from '../responses';
 import { PortfolioDto } from '../portfolioDto';
 
@@ -20,13 +26,15 @@ export class PortfolioController {
     private readonly portfolioTransformer: PortfolioTransformer,
   ) {}
 
-  @Get('')
+  @Get()
+  @ApiBearerAuth('bearer-token')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Returns list of the users purchases assets and active sell orders' })
   @ApiResponse({
     status: 200,
-    description: 'returns the users purchased assets and active sell orders',
-    schema: generateSwaggerPaginatedSchema(PortfolioResponse),
+    description:
+      'returns list of assets user owns, valuation of those assets and the total number of assets owned',
+    schema: { $ref: getSchemaPath(PortfolioResponse) },
   })
   public async list(
     @Query()

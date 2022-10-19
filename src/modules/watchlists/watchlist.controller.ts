@@ -12,7 +12,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { ApiNotFoundResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { GetUser } from 'modules/auth/decorators/get-user.decorator';
 import JwtOtpAuthGuard from 'modules/auth/guards/jwt-otp-auth.guard';
@@ -37,8 +43,9 @@ export class WatchlistController {
     private readonly watchlistTransformer: WatchlistTransformer,
   ) {}
 
-  @UseGuards(JwtOtpAuthGuard)
   @Get('')
+  @ApiBearerAuth('bearer-token')
+  @UseGuards(JwtOtpAuthGuard)
   @ApiOperation({ summary: 'Return list of assets' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -55,8 +62,9 @@ export class WatchlistController {
     return this.watchlistTransformer.transformPaginated(watchlist);
   }
 
-  @UseGuards(JwtOtpAuthGuard)
   @Post('')
+  @ApiBearerAuth('bearer-token')
+  @UseGuards(JwtOtpAuthGuard)
   @ApiOperation({ summary: 'Add or re-add an asset to watchlist' })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -74,8 +82,9 @@ export class WatchlistController {
     };
   }
 
-  @UseGuards(JwtOtpAuthGuard)
   @Delete(':assetId')
+  @ApiBearerAuth('bearer-token')
+  @UseGuards(JwtOtpAuthGuard)
   @ApiOperation({ summary: 'Delete an asset from watchlist' })
   @ApiResponse({
     status: HttpStatus.NO_CONTENT,
@@ -88,8 +97,9 @@ export class WatchlistController {
     await this.watchlistService.deleteAssetFromWatchlist(user, params.assetId);
   }
 
-  @UseGuards(JwtOtpAuthGuard)
   @Get('check/:checkParams')
+  @ApiBearerAuth('bearer-token')
+  @UseGuards(JwtOtpAuthGuard)
   @ApiOperation({ summary: 'Check an asset in watchlist' })
   @ApiResponse({
     status: HttpStatus.OK,

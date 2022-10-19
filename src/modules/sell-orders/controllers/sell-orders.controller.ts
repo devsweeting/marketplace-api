@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBasicAuth,
+  ApiBearerAuth,
   ApiNotFoundResponse,
   ApiOperation,
   ApiResponse,
@@ -115,6 +116,7 @@ export class SellOrdersController {
   }
 
   @Post(':id/purchase')
+  @ApiBearerAuth('bearer-token')
   @UseGuards(JwtOtpAuthGuard)
   @ApiOperation({ summary: 'Purchase fractions from sell order' })
   @ApiResponse({
@@ -130,6 +132,7 @@ export class SellOrdersController {
   }
 
   @Get(':id/check')
+  @ApiBearerAuth('bearer-token')
   @UseGuards(JwtOtpAuthGuard)
   @ApiOperation({ summary: 'Check if user can purchase shares from sell order' })
   @ApiResponse({

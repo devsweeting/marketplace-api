@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Asset } from 'modules/assets/entities';
 import { BaseService } from 'modules/common/services';
 import { User } from 'modules/users/entities';
-import { UserAsset } from 'modules/users/entities/user-assets.entity';
 import { SellOrder, SellOrderPurchase } from './entities';
 
 @Injectable()
@@ -42,37 +41,5 @@ export class SellOrdersPurchaseService extends BaseService {
       })
 
       .getMany();
-  }
-
-  async getTotalPurchased(user: User): Promise<any> {
-    const { totalValueInCents } = await Asset.createQueryBuilder('asset')
-      .leftJoinAndMapMany('asset.sellOrders', 'asset.sellOrders', 'sellOrders')
-      .leftJoinAndMapOne('asset.userAsset', 'asset.userAsset', 'userAsset')
-      .where('userAsset.userId = :userId', {
-        userId: user.id,
-      })
-      .andWhere('userAsset.isDeleted = :isDeleted AND userAsset.deletedAt IS NULL', {
-        isDeleted: false,
-      })
-      // .andWhere('sellOrders.userId = :userId', {
-      //   userId: user.id,
-      // })
-      .andWhere('sellOrders.isDeleted = :isDeleted AND sellOrders.deletedAt IS NULL', {
-        isDeleted: false,
-      })
-      .select('SUM(userAsset.quantityOwned * sellOrders.fractionPriceCents)', 'totalValueInCents')
-      .getRawOne();
-
-    const { totalUnits } = await UserAsset.createQueryBuilder('userAsset')
-      .where('userAsset.userId = :userId', {
-        userId: user.id,
-      })
-      .andWhere('userAsset.isDeleted = :isDeleted AND userAsset.deletedAt IS NULL', {
-        isDeleted: false,
-      })
-      .select('SUM(userAsset.quantityOwned)', 'totalUnits')
-      .getRawOne();
-
-    return { totalValueInCents: Number(totalValueInCents), totalUnits: Number(totalUnits) };
   }
 }
