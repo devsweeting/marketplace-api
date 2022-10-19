@@ -1,13 +1,6 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { PortfolioService } from '../portfolio.service';
-import {
-  ApiBasicAuth,
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-  getSchemaPath,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, getSchemaPath } from '@nestjs/swagger';
 import JwtAuthGuard from 'modules/auth/guards/jwt-auth.guard';
 import { User } from 'modules/users/entities';
 import { currentUser } from 'modules/users/decorators/currentUser.decorator';

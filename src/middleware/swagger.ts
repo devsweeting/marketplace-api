@@ -1,4 +1,4 @@
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerCustomOptions, SwaggerModule } from '@nestjs/swagger';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
 import { AssetResponse } from 'modules/assets/responses/asset.response';
 import { INestApplication } from '@nestjs/common';
@@ -20,20 +20,10 @@ export const setupSwagger = (app: INestApplication) => {
       },
       'api-key',
     )
-    .addApiKey(
-      {
-        name: 'Bearer',
-        in: 'header',
-        description:
-          'Bearer Token Authorization header. Example: "Authorization: bearer-token {key}".',
-        type: 'apiKey',
-      },
-      'bearer-token',
-    )
     .addBearerAuth(
       {
         name: 'Bearer',
-        description: 'User Bearer Token',
+        description: 'User Bearer Token header. Example: "Authorization: Bearer {token}".',
         type: 'http',
       },
       'bearer-token',
@@ -53,5 +43,10 @@ export const setupSwagger = (app: INestApplication) => {
         SellOrderResponse,
       ],
     }),
+    uiOptions,
   );
+};
+
+const uiOptions: SwaggerCustomOptions = {
+  customSiteTitle: 'Jump Api Swagger',
 };

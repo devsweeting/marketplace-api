@@ -10,7 +10,7 @@ import { UserAsset } from 'modules/users/entities/user-assets.entity';
 
 @Injectable()
 export class PortfolioService extends BaseService {
-  constructor(private readonly assetService: AssetsService) {
+  constructor(private readonly assetService?: AssetsService) {
     super();
   }
 
