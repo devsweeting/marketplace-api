@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { IPortfolioResponse } from './interfaces/portfolio-response.interface';
+import { IPortfolioResponse } from '../interfaces/portfolio-response.interface';
 import { WatchlistAssetResponse } from 'modules/watchlists/responses/watchlist.response';
 import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';

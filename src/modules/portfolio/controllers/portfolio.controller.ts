@@ -4,7 +4,7 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, getSchemaPath } from
 import JwtAuthGuard from 'modules/auth/guards/jwt-auth.guard';
 import { User } from 'modules/users/entities';
 import { currentUser } from 'modules/users/decorators/currentUser.decorator';
-import { PortfolioTransformer } from '../portfolio.transformer';
+import { PortfolioTransformer } from '../transformers/portfolio.transformer';
 import { PortfolioResponse } from '../responses';
 import { PortfolioDto } from '../portfolioDto';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
