@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { BaseService } from 'modules/common/services';
 import { Client } from 'synapsenode';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
+import { AddressVerificationFailedException } from '../exceptions/address-verification-failed.exception';
 
 @Injectable()
 export class SynapseService extends BaseService {
@@ -17,18 +18,8 @@ export class SynapseService extends BaseService {
     isProduction: this.configService.get('synapse.default.isProduction'),
   });
 
-  public async getAllUsers(): Promise<any> {
-    return this.client
-      .getAllUsers()
-      .then(({ data }) => {
-        console.log('DATA:', data);
-        return data;
-      })
-      .catch((error) => console.log(error));
-  }
-
   public async verifyAddress(dto: VerifyAddressDto): Promise<any> {
-    this.client
+    const response = this.client
       .verifyAddress({
         address_city: dto.address_city,
         address_country_code: dto.address_country_code,
@@ -36,8 +27,14 @@ export class SynapseService extends BaseService {
         address_street: dto.address_street,
         address_subdivision: dto.address_subdivision,
       })
-      .then(({ data }) => console.log('DATA\n', data))
-      .catch((error) => console.log(error));
-    return dto;
+      .then(({ data }) => {
+        return data;
+      })
+      .catch((error) => {
+        if (error) {
+          throw new AddressVerificationFailedException();
+        }
+      });
+    return response;
   }
 }
