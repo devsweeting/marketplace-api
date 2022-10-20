@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 
 export { SellOrderNotFoundException } from './sell-order-not-found.exception';
 export { NotEnoughAvailableException } from './not-enough-available.exception';
@@ -26,5 +26,17 @@ export class NotEnoughFractionsForSellOrderException extends BadRequestException
 export class PurchaseLimitReached extends BadRequestException {
   public constructor() {
     super(`PURCHASE_LIMIT_REACHED`);
+  }
+}
+
+export class SellerNotAssetOwnerException extends BadRequestException {
+  public constructor() {
+    super(`SELLER_DOES_NOT_OWN_ASSET`);
+  }
+}
+
+export class NotEnoughUnitsFromSeller extends BadRequestException {
+  public constructor() {
+    super('SELLER_DOES_NOT_OWN_ENOUGH_ASSETS');
   }
 }

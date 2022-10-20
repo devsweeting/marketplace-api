@@ -15,6 +15,7 @@ import { Watchlist, WatchlistAsset } from 'modules/watchlists/entities';
 import { UserLogin, UserOtp } from 'modules/users/entities';
 import { MailerService } from '@nestjs-modules/mailer';
 import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
+import { UserAsset } from 'modules/users/entities/user-assets.entity';
 
 export type SupertestResponse = request.Response;
 
@@ -72,6 +73,7 @@ export const createApp = async (providers: IMockProvider[] = []): Promise<INestA
 };
 
 export const clearAllData = async (): Promise<void> => {
+  await UserAsset.delete({});
   await SellOrderPurchase.delete({});
   await SellOrder.delete({});
   await Attribute.delete({});
