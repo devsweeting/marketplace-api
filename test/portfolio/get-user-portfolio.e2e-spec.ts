@@ -15,6 +15,8 @@ import request from 'supertest';
 import { PortfolioTransformer } from 'modules/portfolio/portfolio.transformer';
 import { IPortfolioResponse } from 'modules/portfolio/interfaces/portfolio-response.interface';
 import { createUserAsset } from '../utils/user';
+import { UserAsset } from 'modules/users/entities/user-assets.entity';
+import { PortfolioResponse } from 'modules/portfolio/responses';
 
 describe('PortfolioController', () => {
   const initialQty = 10000;
@@ -27,7 +29,8 @@ describe('PortfolioController', () => {
   let seller: User;
   let buyer: User;
   let portfolioTransformer: PortfolioTransformer;
-
+  let userAsset: UserAsset;
+  let userAsset2: UserAsset;
   const PORTFOLIO_URL = `/v1/portfolio/`;
 
   beforeAll(async () => {
@@ -79,12 +82,12 @@ describe('PortfolioController', () => {
       fractionQty: initialQty,
       fractionPriceCents: 100,
     });
-    await createUserAsset({
+    userAsset = await createUserAsset({
       assetId: sellOrder.assetId,
       userId: sellOrder.userId,
       quantityOwned: sellOrder.fractionQty,
     });
-    await createUserAsset({
+    userAsset2 = await createUserAsset({
       assetId: sellOrder2.assetId,
       userId: sellOrder2.userId,
       quantityOwned: sellOrder2.fractionQty,
@@ -104,10 +107,12 @@ describe('PortfolioController', () => {
     test('should return all sell order purchases for the buyer', async () => {
       const headers = { Authorization: `Bearer ${generateToken(buyer)}` };
       //buyer purchases 2 different assets from seller.
+      const unitsToBuyFromAsset1 = 10;
+      const unitsToBuyFromAsset2 = 20;
       const purchase = await expectPurchaseSuccess(
         app,
         sellOrder,
-        10,
+        unitsToBuyFromAsset1,
         sellOrder.fractionPriceCents,
         buyer,
         headers,
@@ -115,22 +120,18 @@ describe('PortfolioController', () => {
       const purchase2 = await expectPurchaseSuccess(
         app,
         sellOrder2,
-        20,
+        unitsToBuyFromAsset2,
         sellOrder2.fractionPriceCents,
         buyer,
         headers,
       );
 
-      const mockResult: IPortfolioResponse = {
+      const mockResult: PortfolioResponse = {
         totalValueInCents:
-          purchase.fractionQty * purchase.fractionPriceCents +
-          purchase2.fractionQty * purchase2.fractionPriceCents,
-        totalUnits: purchase.fractionQty + purchase2.fractionQty,
-        purchaseHistory: [
-          Object.assign(purchase, { asset: asset }),
-          Object.assign(purchase2, { asset: asset2 }),
-        ],
-        sellOrderHistory: [],
+          unitsToBuyFromAsset1 * sellOrder.fractionPriceCents +
+          unitsToBuyFromAsset2 * sellOrder2.fractionPriceCents,
+        totalUnits: unitsToBuyFromAsset1 + unitsToBuyFromAsset2,
+        ownedAssets: [],
       };
 
       await request(app.getHttpServer())

@@ -7,6 +7,8 @@ import { currentUser } from 'modules/users/decorators/currentUser.decorator';
 import { PortfolioTransformer } from '../portfolio.transformer';
 import { PortfolioResponse } from '../responses';
 import { PortfolioDto } from '../portfolioDto';
+import { PaginatedResponse } from 'modules/common/dto/paginated.response';
+import { AssetResponse } from 'modules/assets/responses/asset.response';
 
 @ApiTags('portfolio')
 @Controller({
@@ -27,7 +29,20 @@ export class PortfolioController {
     status: 200,
     description:
       'returns list of assets user owns, valuation of those assets and the total number of assets owned',
-    schema: { $ref: getSchemaPath(PortfolioResponse) },
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(PortfolioResponse) },
+        { $ref: getSchemaPath(PaginatedResponse) },
+        {
+          properties: {
+            items: {
+              type: 'array',
+              items: { $ref: getSchemaPath(AssetResponse) },
+            },
+          },
+        },
+      ],
+    },
   })
   public async list(
     @Query()
