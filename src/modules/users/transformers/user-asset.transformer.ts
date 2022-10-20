@@ -5,6 +5,9 @@ import { IUserAssetResponse } from '../interfaces/userAsset.interface';
 @Injectable()
 export class UserAssetTransformer {
   public transform(userAsset: UserAsset): IUserAssetResponse {
+    if (!userAsset) {
+      return;
+    }
     return {
       id: userAsset.id,
       assetId: userAsset.assetId,

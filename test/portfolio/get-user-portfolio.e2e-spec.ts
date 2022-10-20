@@ -131,7 +131,6 @@ describe('PortfolioController', () => {
           unitsToBuyFromAsset1 * sellOrder.fractionPriceCents +
           unitsToBuyFromAsset2 * sellOrder2.fractionPriceCents,
         totalUnits: unitsToBuyFromAsset1 + unitsToBuyFromAsset2,
-        ownedAssets: [],
       };
 
       await request(app.getHttpServer())
