@@ -14,7 +14,7 @@ export class SynapseService extends BaseService {
     client_id: this.configService.get('synapse.default.clientId'),
     client_secret: this.configService.get('synapse.default.clientSecret'),
     fingerprint: this.configService.get('synapse.default.fingerprint'),
-    ip_address: this.configService.get('synapse.default.ipAddress'), //TODO - what should the IP be?
+    ip_address: this.configService.get('synapse.default.ipAddress'), //TODO - Update to pass the IP address of user for fraud detection
     isProduction: this.configService.get('synapse.default.isProduction'),
   });
 
