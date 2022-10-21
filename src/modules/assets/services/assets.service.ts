@@ -22,6 +22,7 @@ import { decodeHashId } from 'modules/common/helpers/hash-id.helper';
 import { validate as isValidUUID } from 'uuid';
 import { AssetAttributes } from '../entities/asset.entity';
 import type { IAssetListArgs } from '../interfaces/IAssetListArgs';
+import { IsNotUuidException } from '../exceptions/is-not-uuid.exception';
 
 // TODO find a better place for this to live
 export class TrendingMarket {
@@ -46,6 +47,11 @@ export class AssetsService {
   public getListQuery(params: IAssetListArgs): SelectQueryBuilder<Asset> {
     if (params.asset_ids && typeof params.asset_ids === 'string') {
       params.asset_ids = params.asset_ids.split(',');
+      params.asset_ids.map((id) => {
+        if (!isValidUUID(id)) {
+          throw new IsNotUuidException();
+        }
+      });
     }
     if (params.partner) {
       const decodedHash = decodeHashId(

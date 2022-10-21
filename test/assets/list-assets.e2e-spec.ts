@@ -384,10 +384,11 @@ describe('AssetsController', () => {
     test('should return 500 error if id is not uuid', async () => {
       const params = new URLSearchParams('asset_ids=1,2,3');
       const response = {
-        message: 'Internal server error',
-        statusCode: 500,
+        error: 'Bad Request',
+        message: 'MUST_BE_UUID',
+        statusCode: 400,
       };
-      return testApp.get(app, `/v1/assets?${params.toString()}`, 500, response);
+      return testApp.get(app, `/v1/assets?${params.toString()}`, 400, response);
     });
 
     test('should exclude deleted media', async () => {
