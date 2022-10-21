@@ -59,6 +59,7 @@ export class S3Provider implements IAwsProvider {
         Bucket: bucket,
       };
       await s3.createBucket(params).promise();
+      console.log('creating new bucket');
     }
   }
 
