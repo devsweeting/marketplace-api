@@ -101,6 +101,7 @@ export class AssetsService {
     }
     return Asset.list(params, this.configService);
   }
+
   public async getList(params: IAssetListArgs): Promise<Pagination<Asset>> {
     const results = await paginate<Asset, IPaginationMeta>(this.getListQuery(params), {
       page: params.page,

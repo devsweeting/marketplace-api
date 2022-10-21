@@ -34,12 +34,16 @@ export class PortfolioService extends BaseService {
       })
       .andWhere('userAsset.isDeleted = :isDeleted AND userAsset.deletedAt IS NULL', {
         isDeleted: false,
-      });
-
+      })
+      .addOrderBy(params.sort, params.order);
+    //TODO currently the params don't actually work,
+    // trying to reuse the asset params query and modifying it to include userAsset doesn't seem to work either,
+    // Next steps would probably be to recreate the query code specific for this use case.
     const results = await paginate<Asset, IPaginationMeta>(query, {
       page: params.page,
       limit: params.limit,
     });
+
     const assetIds = results.items.map((el) => el.id);
     const relations = await this.assetService
       .getRelationsQuery(assetIds)
