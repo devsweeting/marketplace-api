@@ -376,9 +376,8 @@ describe('AssetsController', () => {
     });
 
     test('should return only return existing assets', async () => {
-      await doAssetSearch(`asset_ids=123aaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,${assets[1].id}`, [
-        assets[1],
-      ]);
+      const fakeUUID = 'd6d98b88-c866-4496-9bd4-de7ba48d0f52';
+      await doAssetSearch(`asset_ids=${fakeUUID},${assets[1].id}`, [assets[1]]);
     });
 
     test('should return 500 error if id is not uuid', async () => {
