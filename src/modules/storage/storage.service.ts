@@ -14,12 +14,22 @@ export class StorageService {
     private readonly fileDownloadService: FileDownloadService,
   ) {}
 
-  public onModuleInit() {
+  // public onModuleInit() {
+  //   if (
+  //     process.env.NODE_ENV.toUpperCase() === 'DEVELOP' ||
+  //     process.env.NODE_ENV.toUpperCase() === 'TEST'
+  //   ) {
+  //     console.log('module init', new Date().getTime());
+  //     this.provider.ensureBucket();
+  //   }
+  // }
+  public async onApplicationBootstrap() {
     if (
       process.env.NODE_ENV.toUpperCase() === 'DEVELOP' ||
       process.env.NODE_ENV.toUpperCase() === 'TEST'
     ) {
-      this.provider.ensureBucket();
+      console.log('bootstapping init', new Date().getTime());
+      await this.provider.ensureBucket();
     }
   }
 
