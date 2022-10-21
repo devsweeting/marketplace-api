@@ -19,19 +19,9 @@ export class StorageService {
       process.env.NODE_ENV.toUpperCase() === 'DEVELOP' ||
       process.env.NODE_ENV.toUpperCase() === 'TEST'
     ) {
-      console.log('module init', new Date().getTime());
       await this.provider.ensureBucket();
     }
   }
-  // public async onApplicationBootstrap() {
-  //   if (
-  //     process.env.NODE_ENV.toUpperCase() === 'DEVELOP' ||
-  //     process.env.NODE_ENV.toUpperCase() === 'TEST'
-  //   ) {
-  //     console.log('bootstapping init', new Date().getTime());
-  //     await this.provider.ensureBucket();
-  //   }
-  // }
 
   public async uploadFromUrls(
     records: { sourceUrl: string }[],
