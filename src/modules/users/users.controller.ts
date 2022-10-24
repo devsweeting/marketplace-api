@@ -32,6 +32,7 @@ import { RefreshRequestDto } from './dto/refresh-request.dto';
 import { JwtRefreshGaurd } from 'modules/auth/guards/jwt-refresh.guard';
 import { AuthService } from 'modules/auth/auth.service';
 import { StatusCodes } from 'http-status-codes';
+import { UserRefresh } from './entities/user-refresh.entity';
 
 @ApiTags('users')
 @Controller({
@@ -47,7 +48,7 @@ export class UsersController {
   ) {}
 
   @Get(':address/nonce')
-  public async getUserNonce(@Param('address') address): Promise<string> {
+  public async getUserNonce(@Param('address') address: string): Promise<string> {
     const user = await this.usersService.getByAddress(address);
     return user.nonce ? user.nonce : await this.usersService.updateNonce(user);
   }
@@ -71,7 +72,7 @@ export class UsersController {
     description: 'The found record',
   })
   @ApiNotFoundResponse()
-  public async getUser(@Param('id') id): Promise<IUserResponse> {
+  public async getUser(@Param('id') id: string): Promise<IUserResponse> {
     const user = await this.usersService.findOne(id);
     return this.userTransformer.transform(user);
   }
@@ -90,7 +91,10 @@ export class UsersController {
   @HttpCode(StatusCodes.OK)
   @ApiOperation({ summary: 'Update user' })
   @ApiNotFoundResponse()
-  public async update(@Param('id') id, @Body() userData: UpdateUserDto): Promise<IUserResponse> {
+  public async update(
+    @Param('id') id: string,
+    @Body() userData: UpdateUserDto,
+  ): Promise<IUserResponse> {
     const user = await this.usersService.update(id, userData);
     return this.userTransformer.transform(user);
   }
@@ -101,7 +105,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Delete user' })
   @ApiResponse({ status: HttpStatus.NO_CONTENT })
   @ApiNotFoundResponse()
-  public async delete(@Param('id') id): Promise<void> {
+  public async delete(@Param('id') id: string): Promise<void> {
     return this.usersService.softDelete(id);
   }
 
@@ -115,7 +119,9 @@ export class UsersController {
     description: 'Too many requests',
   })
   @HttpCode(HttpStatus.OK)
-  public async loginRequest(@Body() dto: LoginRequestDto) {
+  public async loginRequest(
+    @Body() dto: LoginRequestDto,
+  ): Promise<{ status: StatusCodes; description: string }> {
     await this.otpService.sendOtpToken(dto);
 
     return {
@@ -132,7 +138,9 @@ export class UsersController {
   })
   @ApiBadRequestResponse({ description: 'Token is invalid.' })
   @HttpCode(HttpStatus.OK)
-  public async loginConfirm(@Body() dto: LoginConfirmDto) {
+  public async loginConfirm(
+    @Body() dto: LoginConfirmDto,
+  ): Promise<{ user: UserRefresh; accessToken: string; refreshToken: string }> {
     const returnResponse = await this.otpService.confirmUserLogin(dto);
     return returnResponse;
   }
@@ -142,7 +150,9 @@ export class UsersController {
   @ApiOperation({ summary: 'Create a new access token using the users refresh token' })
   @ApiBadRequestResponse({ description: 'Refresh token is invalid.' })
   @HttpCode(HttpStatus.OK)
-  public async refreshLogin(@Body() dto: RefreshRequestDto) {
+  public async refreshLogin(
+    @Body() dto: RefreshRequestDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const response = await this.authService.createNewAccessTokensFromRefreshToken(dto.refreshToken);
     return response;
   }

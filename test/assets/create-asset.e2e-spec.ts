@@ -225,10 +225,11 @@ describe('AssetsController', () => {
         where: { refId: '13' },
         relations: ['media', 'media.file'],
       });
+      const NUMBER_OF_MEDIA = 1;
       expect(asset).toBeDefined();
       expect(asset.name).toEqual(transferRequest.assets[0].name);
       expect(asset.media).toBeDefined();
-      expect(asset.media.length).toEqual(1);
+      expect(asset.media.length).toEqual(NUMBER_OF_MEDIA);
       expect(asset.media[0].fileId).toBeDefined();
       expect(asset.media[1]).toBeUndefined();
       expect(asset.description).toEqual(transferRequest.assets[0].description);
@@ -250,7 +251,7 @@ describe('AssetsController', () => {
           type: MediaTypeEnum.Image,
         },
       ];
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1235',
           email: 'steven@example.com',
@@ -282,11 +283,12 @@ describe('AssetsController', () => {
         where: { refId: '31' },
         relations: ['media', 'media.file'],
       });
+      const NUMBER_OF_MEDIA = 0;
 
       expect(asset).toBeDefined();
       expect(asset.name).toEqual(transferRequest.assets[0].name);
       expect(asset.media).toBeDefined();
-      expect(asset.media.length).toEqual(0);
+      expect(asset.media.length).toEqual(NUMBER_OF_MEDIA);
       expect(asset.description).toEqual(transferRequest.assets[0].description);
       expect(asset.fractionQtyTotal).toEqual(transferRequest.assets[0].fractionQtyTotal);
     });
@@ -300,7 +302,7 @@ describe('AssetsController', () => {
           type: MediaTypeEnum.Image,
         },
       ];
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1232',
           email: 'steven@example.com',
@@ -333,9 +335,10 @@ describe('AssetsController', () => {
         where: { refId: '14' },
         relations: ['media', 'media.file'],
       });
+      const NUMBER_OF_MEDIA = 0;
       expect(asset).toBeDefined();
       expect(asset.name).toEqual(transferRequest.assets[0].name);
-      expect(asset.media.length).toEqual(0);
+      expect(asset.media.length).toEqual(NUMBER_OF_MEDIA);
       expect(asset.description).toEqual(transferRequest.assets[0].description);
     });
 
@@ -355,7 +358,7 @@ describe('AssetsController', () => {
           type: MediaTypeEnum.Image,
         },
       ];
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1232',
           email: 'steven@example.com',
@@ -387,9 +390,10 @@ describe('AssetsController', () => {
         where: { refId: '15' },
         relations: ['media', 'media.file'],
       });
+      const NUMBER_OF_MEDIA = 0;
       expect(asset).toBeDefined();
       expect(asset.name).toEqual(transferRequest.assets[0].name);
-      expect(asset.media.length).toEqual(0);
+      expect(asset.media.length).toEqual(NUMBER_OF_MEDIA);
       expect(asset.description).toEqual(transferRequest.assets[0].description);
       expect(asset.fractionQtyTotal).toEqual(transferRequest.assets[0].fractionQtyTotal);
     });
@@ -406,7 +410,7 @@ describe('AssetsController', () => {
       await Asset.delete({});
       await createAsset({ refId: '1232' }, partner2);
 
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1232',
           email: 'steven@example.com',
@@ -432,7 +436,7 @@ describe('AssetsController', () => {
       });
       const asset = await createAsset({ refId: '1232' }, partner2);
       await softDeleteAsset(asset);
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1232',
           email: 'steven@example.com',
@@ -455,7 +459,7 @@ describe('AssetsController', () => {
     test('should pass if name is used for another asset for the same partner', async () => {
       await createAsset({ refId: '1', name: 'New Asset' }, partner);
 
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1',
           email: 'steven@example.com',
@@ -481,7 +485,7 @@ describe('AssetsController', () => {
 
       await createAsset({ refId: '3', name: 'NewAssetDifferentPartner' }, partner2);
 
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1233',
           email: 'steven@example.com',
@@ -499,7 +503,7 @@ describe('AssetsController', () => {
     });
 
     test('should throw 400 exception if asset already exist by refId (same request)', async () => {
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1232',
           email: 'steven@example.com',
@@ -535,7 +539,7 @@ describe('AssetsController', () => {
     });
 
     test('should throw an exception if assets property is undefined', () => {
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: 'test',
           email: 'steven@example.com',
@@ -560,7 +564,7 @@ describe('AssetsController', () => {
     });
 
     test('should throw an exception if assets property is empty', () => {
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: 'test',
           email: 'steven@example.com',
@@ -583,14 +587,15 @@ describe('AssetsController', () => {
     });
 
     test('should throw an exception if asset object is invalid', () => {
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: 'test',
           email: 'steven@example.com',
         },
         assets: [
           {
-            refId: 'a'.repeat(105),
+            refId:
+              'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           },
         ],
       };
@@ -625,7 +630,7 @@ describe('AssetsController', () => {
         isDeleted: true,
       });
 
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1236',
           email: 'steven@example.com',

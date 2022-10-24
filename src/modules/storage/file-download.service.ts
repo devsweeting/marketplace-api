@@ -4,19 +4,22 @@ import os from 'os';
 import path from 'path';
 import fs from 'fs';
 import https from 'https';
-import http from 'http';
+import http, { Agent } from 'http';
 import { ConfigService } from '@nestjs/config';
-import { Promise } from 'bluebird';
+import Bluebird, { Promise } from 'bluebird';
 import { StatusCodes } from 'http-status-codes';
 
 const ACCEPTED_IMAGE_CONTENT_TYPES = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp'];
-
+interface IUrlOptions extends URL {
+  timeout?: number;
+  agent?: Agent;
+}
 @Injectable()
 export class FileDownloadService {
   public constructor(private readonly configService: ConfigService) {}
 
-  private getImage = (image) => {
-    const options: any = new URL(image);
+  private getImage = (image: string): Bluebird<unknown> => {
+    const options: IUrlOptions = new URL(image);
     options.timeout = 5000;
     options.agent = new https.Agent({ keepAlive: true });
 
@@ -48,7 +51,7 @@ export class FileDownloadService {
     });
   };
 
-  public async downloadAll(data: { sourceUrl: string }[]) {
+  public async downloadAll(data: { sourceUrl: string }[]): Promise<Bluebird<unknown>> {
     const urls = data.map((el) => el.sourceUrl);
     const r = await Promise.map(urls, this.getImage, {
       concurrency: 100,

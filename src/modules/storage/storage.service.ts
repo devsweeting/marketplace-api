@@ -14,7 +14,7 @@ export class StorageService {
     private readonly fileDownloadService: FileDownloadService,
   ) {}
 
-  public async onModuleInit() {
+  public async onModuleInit(): Promise<void> {
     if (
       process.env.NODE_ENV.toUpperCase() === 'DEVELOP' ||
       process.env.NODE_ENV.toUpperCase() === 'TEST'

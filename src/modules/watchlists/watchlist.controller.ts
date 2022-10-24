@@ -72,7 +72,10 @@ export class WatchlistController {
     description: 'Asset was added to watchlist',
   })
   @HttpCode(HttpStatus.CREATED)
-  public async create(@GetUser() user: User, @Body() dto: WatchlistDto) {
+  public async create(
+    @GetUser() user: User,
+    @Body() dto: WatchlistDto,
+  ): Promise<{ status: StatusCodes; description: string }> {
     const watchlistAsset = await this.watchlistService.assignAssetToWatchlist(user, dto);
     if (!watchlistAsset) {
       throw new InternalServerErrorException();
