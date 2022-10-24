@@ -4,13 +4,6 @@ import { WatchlistAssetResponse } from 'modules/watchlists/responses/watchlist.r
 import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
 
-export type PortfolioResponseApi = {
-  totalValueInCents: number;
-  totalUnits: number;
-  purchaseHistory: SellOrderPurchaseAssetApi[];
-  sellOrderHistory: SellOrderAssetApi[];
-};
-
 export type SellOrderPurchaseAssetApi =
   | Array<SellOrderPurchase & { asset: WatchlistAssetResponse }>
   | [];
