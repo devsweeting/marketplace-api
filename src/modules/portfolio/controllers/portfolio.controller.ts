@@ -48,7 +48,7 @@ export class PortfolioController {
     @Query()
     params: PortfolioDto,
     @currentUser() user: User,
-  ) {
+  ): Promise<PortfolioResponse> {
     const userPortfolio = await this.portfolioService.getUserPortfolio(params, user);
     return this.portfolioTransformer.transformPortfolio(userPortfolio);
   }
