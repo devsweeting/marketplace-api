@@ -48,7 +48,7 @@ describe('AssetsController', () => {
 
   describe(`POST V1 /assets`, () => {
     test('should throw 401 exception if auth token is missing', () => {
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1232',
           email: 'steven@example.com',
@@ -70,7 +70,7 @@ describe('AssetsController', () => {
     });
 
     test('should throw 401 exception if token is invalid', async () => {
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1232',
           email: 'steven@example.com',
@@ -106,7 +106,7 @@ describe('AssetsController', () => {
           sortOrder: 1,
         },
       ];
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1232',
           email: 'steven@example.com',
@@ -154,7 +154,7 @@ describe('AssetsController', () => {
           type: MediaTypeEnum.Image,
         },
       ];
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1232',
           email: 'steven@example.com',
@@ -175,10 +175,11 @@ describe('AssetsController', () => {
         where: { refId: '12' },
         relations: ['media', 'media.file'],
       });
+      const NUMBER_OF_MEDIA = 2;
       expect(asset).toBeDefined();
       expect(asset.name).toEqual(transferRequest.assets[0].name);
       expect(asset.media).toBeDefined();
-      expect(asset.media.length).toEqual(2);
+      expect(asset.media.length).toEqual(NUMBER_OF_MEDIA);
       expect(asset.media[0].fileId).toBeDefined();
       expect(asset.media[1].fileId).toBeDefined();
       expect(asset.description).toEqual(transferRequest.assets[0].description);
@@ -203,7 +204,7 @@ describe('AssetsController', () => {
           type: MediaTypeEnum.Youtube,
         },
       ];
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1232',
           email: 'steven@example.com',

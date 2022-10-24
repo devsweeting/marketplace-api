@@ -1,5 +1,6 @@
+/* eslint-disable no-magic-numbers */
 import { INestApplication } from '@nestjs/common';
-import { clearAllData, createApp } from '@/test/utils/app.utils';
+import { clearAllData, createApp, SupertestResponse } from '@/test/utils/app.utils';
 import { createPartner } from '@/test/utils/partner.utils';
 import { Partner } from 'modules/partners/entities';
 import { User } from 'modules/users/entities/user.entity';
@@ -25,10 +26,10 @@ import { UserAsset } from 'modules/users/entities/user-assets.entity';
 async function expectCheck(
   app: INestApplication,
   status: number,
-  response: any,
+  response: Record<string, unknown>,
   sellOrder: SellOrder,
   purchaser: User,
-) {
+): Promise<void> {
   const url = `/v1/sellorders/${sellOrder.id}/check`;
   await testApp.get(app, url, status, response, null, headerForUser(purchaser));
 }
@@ -103,12 +104,12 @@ describe('SellOrdersController -> Purchases', () => {
 
   async function expect4xx(
     status: number,
-    payload,
+    payload: Record<string, unknown>,
     err: string,
     msg: string,
     order: SellOrder,
     purchaser: User,
-  ) {
+  ): Promise<SupertestResponse> {
     const headers = { Authorization: `Bearer ${generateToken(purchaser)}` };
     const expected = {
       error: err,
@@ -118,11 +119,21 @@ describe('SellOrdersController -> Purchases', () => {
     return await testApp.post(app, urlFor(order), status, expected, payload, headers);
   }
 
-  async function expect400(payload, msg: string, order: SellOrder, purchaser: User = buyer) {
+  async function expect400(
+    payload,
+    msg: string,
+    order: SellOrder,
+    purchaser: User = buyer,
+  ): Promise<void> {
     await expect4xx(StatusCodes.BAD_REQUEST, payload, 'Bad Request', msg, order, purchaser);
   }
 
-  async function expect404(payload, msg: string, order: SellOrder, purchaser: User = buyer) {
+  async function expect404(
+    payload,
+    msg: string,
+    order: SellOrder,
+    purchaser: User = buyer,
+  ): Promise<void> {
     await expect4xx(StatusCodes.NOT_FOUND, payload, 'Not Found', msg, order, purchaser);
   }
 

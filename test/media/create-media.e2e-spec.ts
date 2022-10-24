@@ -175,8 +175,9 @@ describe('MediaController', () => {
             relations: ['media'],
           });
           const media = getAsset.media;
+          const NUMBER_OF_MEDIA = 2;
           expect(media).toBeDefined();
-          expect(media.length).toEqual(2);
+          expect(media.length).toEqual(NUMBER_OF_MEDIA);
         });
     });
 
@@ -208,16 +209,17 @@ describe('MediaController', () => {
             where: { id: newAsset.id },
             relations: ['media'],
           });
+          const NUMBER_OF_MEDIA = 1;
 
           expect(getAsset.media).toBeDefined();
-          expect(getAsset.media.length).toEqual(1);
+          expect(getAsset.media.length).toEqual(NUMBER_OF_MEDIA);
           expect(getNewAsset.media).toBeDefined();
-          expect(getNewAsset.media.length).toEqual(1);
+          expect(getNewAsset.media.length).toEqual(NUMBER_OF_MEDIA);
         });
     });
 
     test('should throw an exception if media object is invalid', () => {
-      const dtoRequest: any = {};
+      const dtoRequest: Record<string, unknown> = {};
 
       return request(app.getHttpServer())
         .post(`/v1/assets/${asset.id}/media`)
@@ -250,7 +252,7 @@ describe('MediaController', () => {
         isDeleted: true,
       });
 
-      const dtoRequest: any = {
+      const dtoRequest: Record<string, unknown> = {
         sourceUrl: imageUrl,
         title: 'Example',
         description: 'test',

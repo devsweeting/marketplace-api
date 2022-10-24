@@ -27,6 +27,7 @@ import {
 let app: INestApplication;
 const initialQty = 10000;
 const fakeUUID = '39353a36-4b28-11ed-b878-0242ac120002';
+const ONE_SECOND_IN_MS = 1000;
 
 let service: SellOrdersService;
 let partner: Partner;
@@ -223,7 +224,7 @@ describe('SellOrdersService', () => {
           fractionQty: 1000,
           userFractionLimit: 1000,
           userFractionLimitEndTime: new Date(),
-          startTime: new Date(new Date().getTime() + 1000),
+          startTime: new Date(new Date().getTime() + ONE_SECOND_IN_MS),
           type: 'drop',
         } as unknown as SellOrderDto);
       } catch (error) {

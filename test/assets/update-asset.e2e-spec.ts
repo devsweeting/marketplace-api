@@ -235,7 +235,14 @@ describe('AssetsController', () => {
         statusCode: 409,
       };
 
-      await testApp.patch(app, `/v1/assets/${asset.id}`, 409, response, payload, header);
+      await testApp.patch(
+        app,
+        `/v1/assets/${asset.id}`,
+        StatusCodes.CONFLICT,
+        response,
+        payload,
+        header,
+      );
     });
 
     test('should update description', async () => {

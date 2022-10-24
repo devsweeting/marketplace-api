@@ -1,3 +1,4 @@
+/* eslint-disable no-magic-numbers */
 import { faker } from '@faker-js/faker';
 import { InternalServerErrorException } from '@nestjs/common';
 import { Asset } from 'modules/assets/entities';
@@ -25,6 +26,7 @@ import { createUserAsset } from '../utils/user';
 
 const initialQty = 10000;
 const fakeUUID = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+const ONE_SECOND_IN_MS = 1000;
 
 let partner: Partner;
 let partnerUser: User;
@@ -162,7 +164,7 @@ describe('SellOrderPurchase', () => {
         type: SellOrderTypeEnum.standard,
         fractionQty: initialQty,
         fractionPriceCents: 100,
-        startTime: new Date(new Date().getTime() + 1000),
+        startTime: new Date(new Date().getTime() + ONE_SECOND_IN_MS),
       });
       const unitsToPurchase = sellOrder.fractionQty;
       try {
@@ -185,7 +187,7 @@ describe('SellOrderPurchase', () => {
         type: SellOrderTypeEnum.standard,
         fractionQty: initialQty,
         fractionPriceCents: 100,
-        expireTime: new Date(new Date().getTime() - 1000),
+        expireTime: new Date(new Date().getTime() - ONE_SECOND_IN_MS),
       });
       const unitsToPurchase = sellOrder.fractionQty;
       try {

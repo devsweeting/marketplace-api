@@ -77,8 +77,9 @@ describe('PartnerController', () => {
             where: { id: partner.id },
             relations: ['members'],
           });
+          const NUMBER_OF_MEMBERS = 2;
           expect(updatedPartner).toBeDefined();
-          expect(updatedPartner.members.length).toEqual(2);
+          expect(updatedPartner.members.length).toEqual(NUMBER_OF_MEMBERS);
           const u1 = await User.findOne({ where: { email: payload.emails[0] } });
           const u2 = await User.findOne({ where: { email: payload.emails[1] } });
           expect(updatedPartner.members.map((m: PartnerMemberUser) => m.userId).sort()).toEqual(
@@ -110,8 +111,9 @@ describe('PartnerController', () => {
             where: { id: partner.id },
             relations: ['members'],
           });
+          const NUMBER_OF_MEMBERS = 0;
           expect(updatedPartner).toBeDefined();
-          expect(updatedPartner.members.length).toEqual(0);
+          expect(updatedPartner.members.length).toEqual(NUMBER_OF_MEMBERS);
         });
     });
   });

@@ -167,6 +167,7 @@ describe('PortfolioController', () => {
         .expect((res) => {
           expect(res.body.totalUnits).toBe(mockResult.totalUnits);
           expect(res.body.totalValueInCents).toEqual(mockResult.totalValueInCents);
+          // eslint-disable-next-line no-magic-numbers
           expect(res.body.sellOrderHistory.length).toEqual(0);
           expect(res.body.purchaseHistory[0]).toHaveProperty('asset');
           expect(res.body).toMatchObject(portfolioTransformer.transformPortfolio(mockResult));

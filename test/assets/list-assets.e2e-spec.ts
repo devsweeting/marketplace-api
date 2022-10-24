@@ -28,13 +28,14 @@ describe('AssetsController', () => {
     paramStr: string,
     expectedAssets: Asset[],
     metaOverrides: object = {},
-  ) {
+  ): Promise<testApp.SupertestResponse> {
     const params = new URLSearchParams(paramStr);
     const response = {
       meta: {
         totalItems: expectedAssets.length,
         itemCount: expectedAssets.length,
         itemsPerPage: 25,
+        // eslint-disable-next-line no-magic-numbers
         totalPages: expectedAssets.length > 0 ? 1 : 0,
         currentPage: 1,
         ...metaOverrides,

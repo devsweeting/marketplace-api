@@ -51,7 +51,7 @@ describe('CollectionController', () => {
     });
 
     test('should throw an exception if assets property is empty', () => {
-      const collectionDto: any = {};
+      const collectionDto: Record<string, unknown> = {};
 
       return request(app.getHttpServer())
         .post(`/v1/collections`)

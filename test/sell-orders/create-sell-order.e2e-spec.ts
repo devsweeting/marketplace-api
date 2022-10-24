@@ -23,11 +23,11 @@ describe('SellOrdersController', () => {
   let basePayload;
   const BASE_URL = `/v1/sellorders`;
 
-  async function expect400(payload, msg) {
+  async function expect400(payload, msg): Promise<void> {
     await expect4xx(StatusCodes.BAD_REQUEST, 'Bad Request', payload, msg);
   }
 
-  async function expect4xx(status: number, err: string, payload, msg) {
+  async function expect4xx(status: number, err: string, payload, msg): Promise<void> {
     const response = {
       error: err,
       statusCode: status,
@@ -214,6 +214,7 @@ describe('SellOrdersController', () => {
       const payload = {
         ...basePayload,
         type: 'drop',
+        // eslint-disable-next-line no-magic-numbers
         userFractionLimit: basePayload.fractionQty + 1,
       };
       await expect400(
