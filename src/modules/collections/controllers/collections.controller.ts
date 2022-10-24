@@ -72,7 +72,9 @@ export class CollectionsController {
     description: 'Collection created',
   })
   @HttpCode(HttpStatus.CREATED)
-  public async create(@Body() dto: CollectionDto) {
+  public async create(
+    @Body() dto: CollectionDto,
+  ): Promise<{ status: StatusCodes; description: string }> {
     await this.collectionsService.createCollection(dto);
 
     return {
@@ -91,7 +93,10 @@ export class CollectionsController {
     description: 'Collection not found',
   })
   @HttpCode(HttpStatus.OK)
-  public async update(@Param() params: CollectionIdDto, @Body() dto: UpdateCollectionDto) {
+  public async update(
+    @Param() params: CollectionIdDto,
+    @Body() dto: UpdateCollectionDto,
+  ): Promise<CollectionResponse> {
     const collection = await this.collectionsService.updateCollection(params.id, dto);
 
     return this.collectionsTransformer.transform(collection);

@@ -10,7 +10,7 @@ export class SellOrdersPurchaseService extends BaseService {
     return (await SellOrderPurchase.userPurchaseQuery(user)).getMany();
   }
 
-  async getUserTransactions(user: User): Promise<any> {
+  async getUserTransactions(user: User): Promise<Record<string, SellOrder[]>> {
     const sellOrderHistory = await SellOrder.createQueryBuilder('sellOrder')
       .leftJoinAndMapOne('sellOrder.asset', 'sellOrder.asset', 'asset')
       .leftJoinAndMapMany('asset.labels', 'asset.labels', 'labels')

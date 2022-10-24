@@ -33,7 +33,10 @@ export class PartnersController {
     description: 'Partner not found',
   })
   @HttpCode(HttpStatus.OK)
-  public async update(@GetPartner() partner: Partner, @Body() dto: UpdatePartnerMembersDto) {
+  public async update(
+    @GetPartner() partner: Partner,
+    @Body() dto: UpdatePartnerMembersDto,
+  ): Promise<{ status: StatusCodes; description: string }> {
     await this.partnersService.updatePartnerMembers(partner, dto);
 
     return {

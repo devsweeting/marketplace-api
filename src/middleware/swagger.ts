@@ -6,7 +6,7 @@ import { PortfolioResponse } from 'modules/portfolio/responses';
 import { UserAssetResponse } from 'modules/users/responses';
 import { SellOrderResponse } from 'modules/sell-orders/responses';
 
-export const setupSwagger = (app: INestApplication) => {
+export const setupSwagger = (app: INestApplication): void => {
   const options = new DocumentBuilder()
     .setTitle('Jump API')
     .setDescription('Jump.co API')

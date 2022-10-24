@@ -191,6 +191,7 @@ export class SellOrderPurchase extends BaseModel implements IBaseEntity {
       .andWhere('sellOrderPurchase.sellOrderId = :sellOrderId', {
         sellOrderId: order.id,
       });
+    // eslint-disable-next-line no-magic-numbers
     return (await query.getRawOne()).total_purchased || 0;
   }
 

@@ -28,7 +28,7 @@ export class StorageService {
     directory: string,
   ): Promise<File[]> {
     try {
-      const pathList: any = await this.fileDownloadService.downloadAll(records);
+      const pathList = await this.fileDownloadService.downloadAll(records);
       const files = pathList.map(async (el) => {
         const object = await this.provider.upload(el, directory);
         fs.unlink(el, (err) => {

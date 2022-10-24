@@ -8,7 +8,7 @@ import { StatusCodes } from 'http-status-codes';
 class LogsMiddleware implements NestMiddleware {
   private readonly logger = new Logger('HTTP');
 
-  use(request: IRequestWithUser, response: Response, next: NextFunction) {
+  use(request: IRequestWithUser, response: Response, next: NextFunction): void {
     response.on('finish', () => {
       const { method, originalUrl, ip } = request;
       const { statusCode, statusMessage } = response;

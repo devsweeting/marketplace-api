@@ -4,11 +4,12 @@ import { RollbarLogger } from 'nestjs-rollbar';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
-  catch(exception: HttpException, host: ArgumentsHost) {
+  catch(exception: HttpException, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request: any = ctx.getRequest<Request>();
     const status = exception.getStatus();
+    // eslint-disable-next-line no-console
     console.log('Exception', exception);
     if (process.env.NODE_ENV === 'STAGING' || process.env.NODE_ENV === 'PRODUCTION') {
       const rollbarLogger = new RollbarLogger({

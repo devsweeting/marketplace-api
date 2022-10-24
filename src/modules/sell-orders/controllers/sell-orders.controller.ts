@@ -86,7 +86,10 @@ export class SellOrdersController {
     description: 'Sell order created',
   })
   @HttpCode(HttpStatus.CREATED)
-  public async create(@GetPartner() partner: Partner, @Body() dto: SellOrderDto) {
+  public async create(
+    @GetPartner() partner: Partner,
+    @Body() dto: SellOrderDto,
+  ): Promise<{ status: StatusCodes; description: string }> {
     try {
       await this.sellOrdersService.createSellOrder(partner, dto);
     } catch (e) {

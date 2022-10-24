@@ -1,3 +1,4 @@
+/* eslint-disable no-magic-numbers */
 import { Attribute, AssetAttributes } from '../entities';
 import { Injectable } from '@nestjs/common';
 import { AttributeResponse } from 'modules/assets/responses/attribute.response';

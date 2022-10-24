@@ -18,7 +18,7 @@ interface IUrlOptions extends URL {
 export class FileDownloadService {
   public constructor(private readonly configService: ConfigService) {}
 
-  private getImage = (image: string): Bluebird<unknown> => {
+  private getImage = (image: string): Bluebird<string> => {
     const options: IUrlOptions = new URL(image);
     options.timeout = 5000;
     options.agent = new https.Agent({ keepAlive: true });
@@ -51,7 +51,7 @@ export class FileDownloadService {
     });
   };
 
-  public async downloadAll(data: { sourceUrl: string }[]): Promise<Bluebird<unknown>> {
+  public async downloadAll(data: { sourceUrl: string }[]): Promise<string[]> {
     const urls = data.map((el) => el.sourceUrl);
     const r = await Promise.map(urls, this.getImage, {
       concurrency: 100,
