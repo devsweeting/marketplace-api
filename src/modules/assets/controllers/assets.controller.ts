@@ -57,7 +57,10 @@ export class AssetsController {
     description: 'List of assets',
     schema: generateSwaggerPaginatedSchema(AssetResponse),
   })
-  public async list(@Query() params: ListAssetsDto): Promise<PaginatedResponse<AssetResponse>> {
+  public async list(
+    @Query()
+    params: ListAssetsDto,
+  ): Promise<PaginatedResponse<AssetResponse>> {
     const list = await this.assetsService.getList(params);
 
     return this.assetsTransformer.transformPaginated(list);

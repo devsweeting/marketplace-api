@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { INestApplication, InternalServerErrorException } from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
 import { Asset } from 'modules/assets/entities';
 import { Partner } from 'modules/partners/entities';
 import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';

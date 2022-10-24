@@ -21,7 +21,6 @@ import { Label } from './';
 import { generateSlug } from 'modules/common/helpers/slug.helper';
 import { Partner } from 'modules/partners/entities';
 import { AssetDto, AttributeDto } from 'modules/assets/dto';
-import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 import { Event } from 'modules/events/entities';
 import { Token } from './token.entity';
 import { CollectionAsset } from 'modules/collections/entities';
@@ -33,6 +32,8 @@ import { decodeHashId } from 'modules/common/helpers/hash-id.helper';
 import { ConfigService } from '@nestjs/config';
 import { SellOrder } from 'modules/sell-orders/entities';
 import { AssetNotFoundException } from '../exceptions';
+import { IAssetListArgs } from '../interfaces/IAssetListArgs';
+import { UserAsset } from 'modules/users/entities/user-assets.entity';
 
 export class AssetAttributes {
   constructor(attrs: AttributeDto[] = []) {
@@ -129,6 +130,9 @@ export class Asset extends BaseModel implements IBaseEntity {
   @OneToMany(() => SellOrder, (sellOrder) => sellOrder.asset)
   public sellOrders: SellOrder[];
 
+  @OneToOne(() => UserAsset, (userAsset) => userAsset.asset)
+  public userAsset: UserAsset;
+
   @BeforeInsert()
   public async beforeInsert(): Promise<void> {
     const assetsCount = await Asset.count({
@@ -176,7 +180,7 @@ export class Asset extends BaseModel implements IBaseEntity {
   }
 
   public static list(
-    params: ListAssetsDto,
+    params: IAssetListArgs,
     configService: ConfigService,
   ): SelectQueryBuilder<Asset> {
     const query = Asset.createQueryBuilder('asset')
@@ -188,6 +192,11 @@ export class Asset extends BaseModel implements IBaseEntity {
       query.andWhere('asset.partnerId = :partnerId', {
         partnerId: decodeHashId(params.partner, configService.get('common.default.hashIdSalt')),
       });
+    }
+
+    if (params.asset_ids) {
+      const ids = params.asset_ids;
+      query.andWhere('id IN (:...ids)', { ids });
     }
 
     if (params.query) {

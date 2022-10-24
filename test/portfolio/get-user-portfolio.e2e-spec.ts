@@ -7,51 +7,64 @@ import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { Asset } from 'modules/assets/entities';
 import { createAsset } from '../utils/asset.utils';
-import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
+import { SellOrder } from 'modules/sell-orders/entities';
 import { createSellOrder, expectPurchaseSuccess } from '../utils/sell-order.utils';
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
 import { generateToken } from '../utils/jwt.utils';
 import request from 'supertest';
-import { PortfolioTransformer } from 'modules/portfolio/portfolio.transformer';
-import { IPortfolioResponse } from 'modules/portfolio/interfaces/portfolio-response.interface';
 import { createUserAsset } from '../utils/user';
+import { UserAsset } from 'modules/users/entities/user-assets.entity';
+import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
+import { PortfolioTransformer } from 'modules/portfolio/transformers/portfolio.transformer';
 
 describe('PortfolioController', () => {
   const initialQty = 10000;
   let app: INestApplication;
   let partner: Partner;
+  let partnerUser: User;
+
   let asset: Asset;
   let asset2: Asset;
   let sellOrder: SellOrder;
   let sellOrder2: SellOrder;
   let seller: User;
   let buyer: User;
+  let assetsTransformer: AssetsTransformer;
   let portfolioTransformer: PortfolioTransformer;
-
-  const PORTFOLIO_URL = `/v1/portfolio/`;
+  let userAsset: UserAsset;
+  let userAsset2: UserAsset;
+  let buyerUserAsset: UserAsset;
+  let buyerUserAsset2: UserAsset;
+  let headers;
+  const PORTFOLIO_URL = `/v1/portfolio`;
 
   beforeAll(async () => {
     app = await createApp();
+    assetsTransformer = app.get(AssetsTransformer);
     portfolioTransformer = app.get(PortfolioTransformer);
+  });
+
+  beforeEach(async () => {
+    partnerUser = await createUser({ email: 'partner1@test.com', role: RoleEnum.USER });
     seller = await createUser({ email: 'seller@test.com', role: RoleEnum.USER });
     buyer = await createUser({ email: 'buyer@test.com', role: RoleEnum.USER });
     partner = await createPartner({
       apiKey: 'test-api-key',
-      accountOwner: seller,
+      accountOwner: partnerUser,
     });
     asset = await createAsset(
       {
         refId: '1',
-        name: 'ferret',
-        description: 'test-ferret',
+        name: 'Egg',
+        description: 'test-egg',
       },
       partner,
     );
     asset2 = await createAsset(
       {
         refId: '2',
-        name: 'Cat',
-        description: 'test-cat',
+        name: 'Wheat',
+        description: 'test-wheat',
       },
       partner,
     );
@@ -63,6 +76,7 @@ describe('PortfolioController', () => {
       fractionQty: initialQty,
       fractionPriceCents: 100,
     });
+
     sellOrder2 = await createSellOrder({
       assetId: asset2.id,
       partnerId: partner.id,
@@ -71,20 +85,38 @@ describe('PortfolioController', () => {
       fractionQty: initialQty,
       fractionPriceCents: 100,
     });
-    await createUserAsset({
+
+    userAsset = await createUserAsset({
       assetId: sellOrder.assetId,
       userId: sellOrder.userId,
       quantityOwned: sellOrder.fractionQty,
     });
-    await createUserAsset({
+
+    userAsset2 = await createUserAsset({
       assetId: sellOrder2.assetId,
       userId: sellOrder2.userId,
       quantityOwned: sellOrder2.fractionQty,
     });
+    buyerUserAsset = await createUserAsset({
+      assetId: sellOrder.assetId,
+      userId: buyer.id,
+      quantityOwned: 0,
+    });
+
+    buyerUserAsset2 = await createUserAsset({
+      assetId: sellOrder2.assetId,
+      userId: buyer.id,
+      quantityOwned: 0,
+    });
+    asset.sellOrders = [sellOrder];
+    asset.userAsset = userAsset;
+    asset2.sellOrders = [sellOrder2];
+    asset2.userAsset = userAsset2;
+    headers = { Authorization: `Bearer ${generateToken(buyer)}` };
   });
 
   afterEach(async () => {
-    await SellOrderPurchase.delete({});
+    await clearAllData();
     jest.clearAllMocks();
   });
 
@@ -94,72 +126,59 @@ describe('PortfolioController', () => {
 
   describe(`GET V1 /`, () => {
     test('should return all sell order purchases for the buyer', async () => {
-      const headers = { Authorization: `Bearer ${generateToken(buyer)}` };
       //buyer purchases 2 different assets from seller.
-      const purchase = await expectPurchaseSuccess(
+      const unitsToBuyFromAsset1 = 10;
+      const unitsToBuyFromAsset2 = 20;
+      await expectPurchaseSuccess(
         app,
         sellOrder,
-        10,
+        unitsToBuyFromAsset1,
         sellOrder.fractionPriceCents,
         buyer,
         headers,
       );
-      const purchase2 = await expectPurchaseSuccess(
+      await expectPurchaseSuccess(
         app,
         sellOrder2,
-        20,
+        unitsToBuyFromAsset2,
         sellOrder2.fractionPriceCents,
         buyer,
         headers,
       );
-
-      const mockResult: IPortfolioResponse = {
-        totalValueInCents:
-          purchase.fractionQty * purchase.fractionPriceCents +
-          purchase2.fractionQty * purchase2.fractionPriceCents,
-        totalUnits: purchase.fractionQty + purchase2.fractionQty,
-        purchaseHistory: [
-          Object.assign(purchase, { asset: asset }),
-          Object.assign(purchase2, { asset: asset2 }),
-        ],
-        sellOrderHistory: [],
-      };
-
+      buyerUserAsset.quantityOwned = unitsToBuyFromAsset1;
+      buyerUserAsset2.quantityOwned = unitsToBuyFromAsset2;
+      asset.userAsset = buyerUserAsset;
+      asset2.userAsset = buyerUserAsset2;
       await request(app.getHttpServer())
         .get(PORTFOLIO_URL)
         .set(headers)
         .expect(200)
         .expect((res) => {
-          expect(res.body.totalUnits).toBe(mockResult.totalUnits);
-          expect(res.body.totalValueInCents).toEqual(mockResult.totalValueInCents);
-          expect(res.body.sellOrderHistory.length).toEqual(0);
-          expect(res.body.purchaseHistory[0]).toHaveProperty('asset');
-          expect(res.body).toMatchObject(portfolioTransformer.transformPortfolio(mockResult));
-        });
-    });
-
-    test('should return all active sell orders for a seller', async () => {
-      const headers = { Authorization: `Bearer ${generateToken(seller)}` };
-
-      const mockResult: IPortfolioResponse = {
-        totalValueInCents: 0,
-        totalUnits: 0,
-        purchaseHistory: [],
-        sellOrderHistory: [
-          Object.assign(sellOrder2, { asset: asset2 }),
-          Object.assign(sellOrder, { asset: asset }),
-        ],
-      };
-      const mockResultTransformed = portfolioTransformer.transformPortfolio(mockResult);
-      await request(app.getHttpServer())
-        .get(PORTFOLIO_URL)
-        .set(headers)
-        .expect(200)
-        .expect((res) => {
-          expect(res.body.sellOrderHistory.length).toEqual(2);
-          expect(res.body).toMatchObject({
-            ...mockResultTransformed,
-          });
+          expect(res.body.totalUnits).toBe(unitsToBuyFromAsset1 + unitsToBuyFromAsset2);
+          expect(res.body.totalValueInCents).toEqual(
+            unitsToBuyFromAsset1 * sellOrder.fractionPriceCents +
+              unitsToBuyFromAsset2 * sellOrder2.fractionPriceCents,
+          );
+          expect(res.body).toEqual(
+            expect.objectContaining(
+              portfolioTransformer.transformPortfolio({
+                totalValueInCents:
+                  unitsToBuyFromAsset1 * sellOrder.fractionPriceCents +
+                  unitsToBuyFromAsset2 * sellOrder2.fractionPriceCents,
+                totalUnits: unitsToBuyFromAsset1 + unitsToBuyFromAsset2,
+                paginatedOwnedAssets: {
+                  meta: {
+                    totalItems: 2,
+                    itemCount: 2,
+                    itemsPerPage: 25,
+                    totalPages: 1,
+                    currentPage: 1,
+                  },
+                  items: [asset2, asset],
+                },
+              }),
+            ),
+          );
         });
     });
 
@@ -175,4 +194,33 @@ describe('PortfolioController', () => {
         });
     });
   });
+
+  // test('should filter out assets from params', async () => {
+  //   await request(app.getHttpServer())
+  //     .get(PORTFOLIO_URL + '?query=Egg')
+  //     .set(headers)
+  //     .expect(200)
+  //     .expect((res) => {
+  //       expect(res.body.totalUnits).toBe(0);
+  //       expect(res.body.totalValueInCents).toEqual(0);
+  //       expect(res.body).toEqual(
+  //         expect.objectContaining(
+  //           portfolioTransformer.transformPortfolio({
+  //             totalValueInCents: 1,
+  //             totalUnits: 2,
+  //             paginatedOwnedAssets: {
+  //               meta: {
+  //                 totalItems: 2,
+  //                 itemCount: 2,
+  //                 itemsPerPage: 25,
+  //                 totalPages: 1,
+  //                 currentPage: 1,
+  //               },
+  //               items: [asset],
+  //             },
+  //           }),
+  //         ),
+  //       );
+  //     });
+  // });
 });
