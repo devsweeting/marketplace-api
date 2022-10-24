@@ -387,9 +387,9 @@ describe('AssetsController', () => {
       const response = {
         error: 'Bad Request',
         message: 'MUST_BE_UUID',
-        statusCode: 400,
+        statusCode: StatusCodes.BAD_REQUEST,
       };
-      return testApp.get(app, `/v1/assets?${params.toString()}`, 400, response);
+      return testApp.get(app, `/v1/assets?${params.toString()}`, StatusCodes.BAD_REQUEST, response);
     });
 
     test('should exclude deleted media', async () => {

@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import { Asset } from 'modules/assets/entities';
 import { Partner } from 'modules/partners/entities';
@@ -16,7 +15,6 @@ import { PortfolioService } from 'modules/portfolio/portfolio.service';
 import { UserAsset } from 'modules/users/entities/user-assets.entity';
 let app: INestApplication;
 const initialQty = 10000;
-const fakeUUID = '39353a36-4b28-11ed-b878-0242ac120002';
 
 let service: PortfolioService;
 let partner: Partner;
