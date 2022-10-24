@@ -26,10 +26,10 @@ export async function expectPurchaseSuccess(
   fractionsToPurchase: number,
   fractionPriceCents: number,
   purchaser: User,
-  headers?: any,
+  headers?: Record<string, string>,
   sellerUserAsset?: UserAsset,
   quantityOwned?: number,
-) {
+): Promise<SellOrderPurchase> {
   const authHeaders = headers ?? headerForUser(purchaser);
   await order.reload();
   const initialQty = order.fractionQtyAvailable;

@@ -49,8 +49,9 @@ describe('UserController (e2e)', () => {
         .expect(StatusCodes.OK);
 
       const createUser = await User.findOne({ where: { email } });
+      const NUMBER_OF_USERS = 1;
       expect(createUser.email).toBe(email);
-      expect(await UserLogin.count({ where: { userId: createUser.id } })).toBe(1);
+      expect(await UserLogin.count({ where: { userId: createUser.id } })).toBe(NUMBER_OF_USERS);
     });
 
     test('should return 429 for too many requests', async () => {
@@ -101,8 +102,9 @@ describe('UserController (e2e)', () => {
         .expect(StatusCodes.OK);
 
       const createUser = await User.findOne({ where: { email: email.toLowerCase() } });
+      const NUMBER_OF_USERS = 1;
       expect(createUser.email).toBe(email.toLowerCase());
-      expect(await UserLogin.count({ where: { userId: createUser.id } })).toBe(1);
+      expect(await UserLogin.count({ where: { userId: createUser.id } })).toBe(NUMBER_OF_USERS);
     });
 
     test('should success if email has uppercase and lowercase letters', async () => {
@@ -123,8 +125,9 @@ describe('UserController (e2e)', () => {
         .expect(StatusCodes.OK);
 
       const createUser = await User.findOne({ where: { email: email.toLowerCase() } });
+      const NUMBER_OF_USERS = 1;
       expect(createUser.email).toBe(email.toLowerCase());
-      expect(await UserLogin.count({ where: { userId: createUser.id } })).toBe(1);
+      expect(await UserLogin.count({ where: { userId: createUser.id } })).toBe(NUMBER_OF_USERS);
     });
 
     test('should test that a user is assigned a refresh token on successful login', async () => {
@@ -188,7 +191,8 @@ describe('UserController (e2e)', () => {
         .expect(StatusCodes.OK);
 
       const userRefreshTokens = await UserRefresh.findValidByUser(loggedInUser.id);
-      expect(userRefreshTokens.length).toBeGreaterThanOrEqual(2);
+      const MINIMUM_NUMBER_OF_REFRESH_TOKENS = 2;
+      expect(userRefreshTokens.length).toBeGreaterThanOrEqual(MINIMUM_NUMBER_OF_REFRESH_TOKENS);
       //both tokens should have the same userId
       expect(userRefreshTokens[0].userId).toEqual(userRefreshTokens[0].userId);
       //Refresh tokens should be different

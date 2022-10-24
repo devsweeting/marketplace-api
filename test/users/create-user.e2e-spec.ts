@@ -26,7 +26,7 @@ describe('UsersController', () => {
     });
 
     test('should create a new user record in the db', () => {
-      const userRequest: any = {
+      const userRequest: { email: string; password: string } = {
         email: 'test@mail.com',
         password: 'password',
       };
@@ -39,7 +39,7 @@ describe('UsersController', () => {
     });
 
     test('should throw an exception if user object is undefined', () => {
-      const userRequest: any = {};
+      const userRequest: Record<string, unknown> = {};
 
       return request(app.getHttpServer())
         .post(`/v1/users`)
@@ -60,7 +60,7 @@ describe('UsersController', () => {
     });
 
     test('should throw an exception if user email is invalid', () => {
-      const userRequest: any = {
+      const userRequest: Record<string, string> = {
         email: 'wrong-email',
         password: 'password',
       };
@@ -77,7 +77,7 @@ describe('UsersController', () => {
         });
     });
     test('should throw an exception if user password is invalid', () => {
-      const userRequest: any = {
+      const userRequest: Record<string, string> = {
         email: 'email@test.com',
         password: '',
       };

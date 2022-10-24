@@ -27,7 +27,7 @@ describe('UsersController', () => {
       admin = await createUser({ role: RoleEnum.SUPER_ADMIN });
     });
     test('should update a user record in the db', () => {
-      const userRequest: any = {
+      const userRequest: { email: string } = {
         email: 'changed@mail.com',
       };
       return request(app.getHttpServer())
@@ -53,7 +53,7 @@ describe('UsersController', () => {
     });
 
     test('should throw an exception if user email is invalid', () => {
-      const userRequest: any = {
+      const userRequest: { email: string } = {
         email: 'wrong-email',
       };
 
@@ -69,7 +69,7 @@ describe('UsersController', () => {
         });
     });
     test('should throw an exception if user password is exists in data', () => {
-      const userRequest: any = {
+      const userRequest: { password: string } = {
         password: 'password',
       };
 
@@ -90,7 +90,7 @@ describe('UsersController', () => {
       admin = await createUser({ role: RoleEnum.ADMIN });
     });
     test('should update a user record in the db', () => {
-      const userRequest: any = {
+      const userRequest: { email: string } = {
         email: 'updated@mail.com',
       };
       return request(app.getHttpServer())
@@ -116,7 +116,7 @@ describe('UsersController', () => {
     });
 
     test('should throw an exception if user email is invalid', () => {
-      const userRequest: any = {
+      const userRequest: { email: string } = {
         email: 'wrong-email',
       };
 
@@ -132,7 +132,7 @@ describe('UsersController', () => {
         });
     });
     test('should throw an exception if user password is exists in data', () => {
-      const userRequest: any = {
+      const userRequest: { password: string } = {
         password: 'password',
       };
 
