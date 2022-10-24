@@ -298,7 +298,7 @@ export class Asset extends BaseModel implements IBaseEntity {
     return query;
   }
 
-  private static filterRangeArray(arr1: string[], arr: string[]): boolean {
+  private static filterRangeArray(arr1: string[], arr: string[]): string[] {
     return arr1.filter((el) => {
       return !arr.some((s) => {
         return s === el;
