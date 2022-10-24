@@ -145,9 +145,10 @@ describe('WatchlistController', () => {
           where: { userId: user.id },
           relations: ['watchlistAssets'],
         });
+        const NUMBER_OF_ASSETS = 2;
         expect(watchlist).toBeDefined();
         expect(watchlist.watchlistAssets).toBeDefined();
-        expect(watchlist.watchlistAssets.length).toEqual(2);
+        expect(watchlist.watchlistAssets.length).toEqual(NUMBER_OF_ASSETS);
         expect(watchlist.watchlistAssets[0].assetId).toEqual(asset.id);
         expect(watchlist.watchlistAssets[1].assetId).toEqual(newAsset.id);
       });
@@ -181,9 +182,10 @@ describe('WatchlistController', () => {
           where: { userId: user.id },
           relations: ['watchlistAssets'],
         });
+        const NUMBER_OF_ASSETS = 1;
         expect(watchlist).toBeDefined();
         expect(watchlist.watchlistAssets).toBeDefined();
-        expect(watchlist.watchlistAssets.length).toEqual(1);
+        expect(watchlist.watchlistAssets.length).toEqual(NUMBER_OF_ASSETS);
         expect(watchlist.watchlistAssets[0].assetId).toEqual(asset.id);
         expect(watchlist.watchlistAssets[0].isDeleted).toEqual(false);
         expect(watchlist.watchlistAssets[0].deletedAt).toEqual(null);
@@ -219,9 +221,10 @@ describe('WatchlistController', () => {
           where: { userId: user.id },
           relations: ['watchlistAssets'],
         });
+        const NUMBER_OF_ASSETS = 1;
         expect(watchlist).toBeDefined();
         expect(watchlist.watchlistAssets).toBeDefined();
-        expect(watchlist.watchlistAssets.length).toEqual(1);
+        expect(watchlist.watchlistAssets.length).toEqual(NUMBER_OF_ASSETS);
         expect(watchlist.watchlistAssets[0].assetId).toEqual(asset.id);
       });
   });
@@ -276,9 +279,10 @@ describe('WatchlistController', () => {
           where: { userId: user.id },
           relations: ['watchlistAssets'],
         });
+        const NUMBER_OF_ASSETS = 1;
         expect(watchlist).toBeDefined();
         expect(watchlist.watchlistAssets).toBeDefined();
-        expect(watchlist.watchlistAssets.length).toEqual(1);
+        expect(watchlist.watchlistAssets.length).toEqual(NUMBER_OF_ASSETS);
         expect(watchlist.watchlistAssets[0].assetId).toEqual(asset.id);
       });
   });
@@ -287,8 +291,8 @@ describe('WatchlistController', () => {
     watchlist = await createWatchlist({
       user: user,
     });
-
-    for (let index = 3; index < 8; index++) {
+    const MAX_WATCHLIST_AMOUNT = 8;
+    for (let index = 3; index < MAX_WATCHLIST_AMOUNT; index++) {
       asset = await createAsset(
         {
           refId: `${index}`,
@@ -320,9 +324,10 @@ describe('WatchlistController', () => {
           where: { userId: user.id },
           relations: ['watchlistAssets'],
         });
+        const NUMBER_OF_ASSETS = 5;
         expect(watchlist).toBeDefined();
         expect(watchlist.watchlistAssets).toBeDefined();
-        expect(watchlist.watchlistAssets.length).toEqual(5);
+        expect(watchlist.watchlistAssets.length).toEqual(NUMBER_OF_ASSETS);
       });
   });
 });
