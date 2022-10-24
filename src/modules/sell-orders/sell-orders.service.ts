@@ -45,7 +45,10 @@ export class SellOrdersService extends BaseService {
     return sellOrder;
   }
 
-  public async createSellOrder(partner: Partner, dto: SellOrderDto): Promise<SellOrder> {
+  public async createSellOrder(
+    partner: Partner | { id: string },
+    dto: SellOrderDto,
+  ): Promise<SellOrder> {
     const asset = await Asset.findOneBy({
       id: dto.assetId,
       partnerId: partner.id,
