@@ -46,6 +46,25 @@ export class User extends BaseModel implements IBaseEntity {
   public nonce: string;
 
   @Column({
+    length: 24,
+    nullable: true,
+  })
+  public account_user_id: string;
+
+  @Column({
+    length: 25,
+    nullable: true,
+  })
+  public deposit_hub_id: string;
+
+  @Exclude()
+  @Column({
+    length: 250,
+    nullable: true,
+  })
+  public account_refresh_token: string;
+
+  @Column({
     type: 'enum',
     enum: RoleEnum,
     nullable: false,

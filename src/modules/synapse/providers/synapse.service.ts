@@ -4,6 +4,7 @@ import { BaseService } from 'modules/common/services';
 import { Client } from 'synapsenode';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
 import { AddressVerificationFailedException } from '../exceptions/address-verification-failed.exception';
+import { UserAccountVerification } from '../exceptions/user-account-verification-failed.exception';
 
 @Injectable()
 export class SynapseService extends BaseService {
@@ -36,5 +37,20 @@ export class SynapseService extends BaseService {
         }
       });
     return response;
+  }
+
+  public async viewUserDetails(synapse_id): Promise<any> {
+    const userDetails = this.client
+      .getUser(synapse_id, null)
+      .then((data) => {
+        return data;
+      })
+      .catch((error) => {
+        if (error) {
+          throw new UserAccountVerification(`Cannot locate user account with id -- ${synapse_id}`);
+        }
+      });
+
+    return userDetails;
   }
 }

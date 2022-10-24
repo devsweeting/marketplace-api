@@ -1,6 +1,7 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import JwtOtpAuthGuard from 'modules/auth/guards/jwt-otp-auth.guard';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
 import { SynapseService } from '../providers/synapse.service';
 
@@ -23,6 +24,18 @@ export class SynapseController {
     return {
       status: HttpStatus.OK,
       address,
+    };
+  }
+
+  @Get('user')
+  //@UseGuards(JwtOtpAuthGuard)
+  public async verifyUser() {
+    const devinTestId = '6349aee07846615efe8e9521';
+    // const wrongId = '6349aee07846615efe8e95xx';
+    const user = await this.synapseService.viewUserDetails(devinTestId);
+    return {
+      status: HttpStatus.OK,
+      user,
     };
   }
 }
