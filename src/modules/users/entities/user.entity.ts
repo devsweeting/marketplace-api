@@ -49,20 +49,20 @@ export class User extends BaseModel implements IBaseEntity {
     length: 24,
     nullable: true,
   })
-  public account_user_id: string;
+  public accountUserId: string;
 
   @Column({
     length: 25,
     nullable: true,
   })
-  public deposit_hub_id: string;
+  public depositNodeId: string;
 
   @Exclude()
   @Column({
     length: 250,
     nullable: true,
   })
-  public account_refresh_token: string;
+  public accountRefreshToken: string;
 
   @Column({
     type: 'enum',
