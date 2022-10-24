@@ -6,7 +6,6 @@
 .env.production
 .env.staging
 .env.test
-.env
 
 # compiled output
 /dist
