@@ -43,7 +43,7 @@ export class WatchlistController {
     private readonly watchlistTransformer: WatchlistTransformer,
   ) {}
 
-  @Get('')
+  @Get()
   @ApiBearerAuth('bearer-token')
   @UseGuards(JwtOtpAuthGuard)
   @ApiOperation({ summary: 'Return list of assets' })
@@ -62,7 +62,7 @@ export class WatchlistController {
     return this.watchlistTransformer.transformPaginated(watchlist);
   }
 
-  @Post('')
+  @Post()
   @ApiBearerAuth('bearer-token')
   @UseGuards(JwtOtpAuthGuard)
   @ApiOperation({ summary: 'Add or re-add an asset to watchlist' })
