@@ -355,15 +355,36 @@ describe('AssetsController', () => {
         limit: '-10',
         sort: 'sausage',
         order: 'NULL',
+        asset_ids: '',
       });
       const response = {
         error: 'Bad Request',
         message: [
           'sort must be a valid enum value',
+          'asset_ids should not be empty',
           'page must not be less than 1',
           'limit must not be less than 0',
           'order must be a valid enum value',
         ],
+        statusCode: 400,
+      };
+      return testApp.get(app, `/v1/assets?${params.toString()}`, 400, response);
+    });
+
+    test('should return only queried assets', async () => {
+      await doAssetSearch(`asset_ids=${assets[0].id},${assets[1].id}`, [assets[1], assets[0]]);
+    });
+
+    test('should return only return existing assets', async () => {
+      const fakeUUID = 'd6d98b88-c866-4496-9bd4-de7ba48d0f52';
+      await doAssetSearch(`asset_ids=${fakeUUID},${assets[1].id}`, [assets[1]]);
+    });
+
+    test('should return 500 error if id is not uuid', async () => {
+      const params = new URLSearchParams('asset_ids=1,2,3');
+      const response = {
+        error: 'Bad Request',
+        message: 'MUST_BE_UUID',
         statusCode: 400,
       };
       return testApp.get(app, `/v1/assets?${params.toString()}`, 400, response);

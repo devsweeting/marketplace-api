@@ -12,6 +12,7 @@ import { MediaController } from './controllers/media.controller';
 import { MediaTransformer } from './transformers/media.transformer';
 import { SellOrdersTransformer } from 'modules/sell-orders/transformers/sell-orders.transformer';
 import { TrendingController } from './controllers/trending.controller';
+import { UserAssetTransformer } from 'modules/users/transformers/user-asset.transformer';
 
 @Module({
   imports: [StorageModule],
@@ -24,6 +25,7 @@ import { TrendingController } from './controllers/trending.controller';
     MediaService,
     MediaTransformer,
     SellOrdersTransformer,
+    UserAssetTransformer,
   ],
   controllers: [AssetsController, TokensController, MediaController, TrendingController],
   exports: [AssetsService, AttributeTransformer, MediaTransformer],
