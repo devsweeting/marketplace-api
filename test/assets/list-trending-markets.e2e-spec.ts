@@ -10,6 +10,7 @@ import * as testApp from '../utils/app.utils';
 import { createAsset } from '../utils/asset.utils';
 import { Asset } from 'modules/assets/entities';
 import { createSellOrder } from '../utils/sell-order.utils';
+import { StatusCodes } from 'http-status-codes';
 
 describe('Trending Markets', () => {
   let app: INestApplication;
@@ -154,7 +155,7 @@ describe('Trending Markets', () => {
           },
         ],
       };
-      await testApp.get(app, `/v1/trending`, 200, response, {});
+      await testApp.get(app, `/v1/trending`, StatusCodes.OK, response, {});
     });
   });
 });

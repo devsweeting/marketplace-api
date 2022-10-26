@@ -4,18 +4,22 @@ import os from 'os';
 import path from 'path';
 import fs from 'fs';
 import https from 'https';
-import http from 'http';
+import http, { Agent } from 'http';
 import { ConfigService } from '@nestjs/config';
-import { Promise } from 'bluebird';
+import Bluebird, { Promise } from 'bluebird';
+import { StatusCodes } from 'http-status-codes';
 
 const ACCEPTED_IMAGE_CONTENT_TYPES = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp'];
-
+interface IUrlOptions extends URL {
+  timeout?: number;
+  agent?: Agent;
+}
 @Injectable()
 export class FileDownloadService {
   public constructor(private readonly configService: ConfigService) {}
 
-  private getImage = (image) => {
-    const options: any = new URL(image);
+  private getImage = (image: string): Bluebird<string> => {
+    const options: IUrlOptions = new URL(image);
     options.timeout = 5000;
     options.agent = new https.Agent({ keepAlive: true });
 
@@ -24,7 +28,7 @@ export class FileDownloadService {
     const downloader = image.startsWith('https') ? https : http;
     return new Promise((resolve, reject) => {
       downloader.get(options, (response) => {
-        if (response.statusCode !== 200) {
+        if (response.statusCode !== StatusCodes.OK) {
           reject(`Error: ${response.statusCode}`);
         }
 
@@ -47,7 +51,7 @@ export class FileDownloadService {
     });
   };
 
-  public async downloadAll(data: { sourceUrl: string }[]) {
+  public async downloadAll(data: { sourceUrl: string }[]): Promise<string[]> {
     const urls = data.map((el) => el.sourceUrl);
     const r = await Promise.map(urls, this.getImage, {
       concurrency: 100,

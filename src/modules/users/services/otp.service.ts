@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { addMinutes, formatDistance, formatDistanceToNow, subHours } from 'date-fns';
+import { addMinutes, formatDistanceToNow, subHours } from 'date-fns';
 import { AuthService } from 'modules/auth/auth.service';
 import { TooManyRequestException } from 'modules/common/exceptions/too-many-request.exception';
 import { BaseService } from 'modules/common/services';
@@ -11,6 +11,8 @@ import { UserLogin, UserOtp } from '../entities';
 import { OtpTokenInvalidException } from '../exceptions/token-invalid.exception';
 import { UsersService } from '../users.service';
 import { v4 } from 'uuid';
+import { SentMessageInfo } from 'nodemailer';
+import { UserRefresh } from '../entities/user-refresh.entity';
 @Injectable()
 export class OtpService extends BaseService {
   constructor(
@@ -22,7 +24,7 @@ export class OtpService extends BaseService {
     super();
   }
 
-  public async sendOtpToken({ email }: LoginRequestDto) {
+  public async sendOtpToken({ email }: LoginRequestDto): Promise<SentMessageInfo> {
     // find non-expired otp tokens and update expired at
     await UserOtp.update(
       { expiresAt: MoreThanOrEqual(new Date()), email },
@@ -32,8 +34,9 @@ export class OtpService extends BaseService {
     );
 
     // count number of requests in last 1 hr
+    const HOUR = 1;
     const requestCountIn1Hour = await UserOtp.count({
-      where: { createdAt: MoreThanOrEqual(subHours(new Date(), 1)) },
+      where: { createdAt: MoreThanOrEqual(subHours(new Date(), HOUR)) },
     });
 
     if (requestCountIn1Hour > this.configService.get('common.default.maxOtpRequestPerHour')) {
@@ -58,7 +61,7 @@ export class OtpService extends BaseService {
     return this.sendOtpEmail(newUserOtp);
   }
 
-  public async sendOtpEmail(userOtp: UserOtp) {
+  public async sendOtpEmail(userOtp: UserOtp): Promise<SentMessageInfo> {
     return this.mailService.send({
       emailTo: userOtp.email,
       content: {
@@ -73,7 +76,7 @@ export class OtpService extends BaseService {
     });
   }
 
-  public async markTokenUsed(token: string) {
+  public async markTokenUsed(token: string): Promise<UserOtp> {
     const otpToken = await UserOtp.findValidByToken(token);
     if (!otpToken) {
       throw new OtpTokenInvalidException();
@@ -84,7 +87,10 @@ export class OtpService extends BaseService {
     return await otpToken.save();
   }
 
-  public async confirmUserLogin({ token, metadata }: LoginConfirmDto) {
+  public async confirmUserLogin({
+    token,
+    metadata,
+  }: LoginConfirmDto): Promise<{ user: UserRefresh; accessToken: string; refreshToken: string }> {
     const otpToken = await this.markTokenUsed(token);
 
     const user = await this.userService.createOrUpdateFromOtp({

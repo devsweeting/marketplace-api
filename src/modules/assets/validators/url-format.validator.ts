@@ -18,7 +18,7 @@ export class UrlFormatValidator implements ValidatorConstraintInterface {
     return object.type === MediaTypeEnum.Youtube ? REGEX.test(propertyValue) : true;
   }
 
-  public defaultMessage(args: ValidationArguments) {
+  public defaultMessage(args: ValidationArguments): string {
     return `The ${args.property} format is not valid`;
   }
 }

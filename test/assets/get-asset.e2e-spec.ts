@@ -14,6 +14,7 @@ import { MediaTransformer } from 'modules/assets/transformers/media.transformer'
 import { createFile } from '../utils/file.utils';
 import * as testApp from '../utils/app.utils';
 import { createSellOrder } from '../utils/sell-order.utils';
+import { StatusCodes } from 'http-status-codes';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -77,7 +78,7 @@ describe('AssetsController', () => {
         ...assetsTransformer.transform(asset),
         media: mediaTransformer.transformAll([media]),
       };
-      await testApp.get(app, `/v1/assets/${asset.id}`, 200, response, {}, header);
+      await testApp.get(app, `/v1/assets/${asset.id}`, StatusCodes.OK, response, {}, header);
     });
 
     test('should return asset only with active media', async () => {
@@ -90,25 +91,25 @@ describe('AssetsController', () => {
         media: mediaTransformer.transformAll([media]),
       };
 
-      await testApp.get(app, `/v1/assets/${asset.id}`, 200, response, {}, header);
+      await testApp.get(app, `/v1/assets/${asset.id}`, StatusCodes.OK, response, {}, header);
     });
 
     test('should 404 exception id is invalid', async () => {
       const response = {
         error: 'Not Found',
         message: 'ASSET_NOT_FOUND',
-        statusCode: 404,
+        statusCode: StatusCodes.NOT_FOUND,
       };
-      await testApp.get(app, `/v1/assets/123`, 404, response, {}, header);
+      await testApp.get(app, `/v1/assets/123`, StatusCodes.NOT_FOUND, response, {}, header);
     });
 
     test('should 404 exception if file does not exist', async () => {
       const response = {
         error: 'Not Found',
         message: 'ASSET_NOT_FOUND',
-        statusCode: 404,
+        statusCode: StatusCodes.NOT_FOUND,
       };
-      return testApp.get(app, `/v1/assets/${v4()}`, 404, response, {}, header);
+      return testApp.get(app, `/v1/assets/${v4()}`, StatusCodes.NOT_FOUND, response, {}, header);
     });
 
     test('should 404 if asset is soft-deleted', async () => {
@@ -128,9 +129,16 @@ describe('AssetsController', () => {
       const response = {
         error: 'Not Found',
         message: 'ASSET_NOT_FOUND',
-        statusCode: 404,
+        statusCode: StatusCodes.NOT_FOUND,
       };
-      await testApp.get(app, `/v1/assets/${toBeDeleted.id}`, 404, response, {}, header);
+      await testApp.get(
+        app,
+        `/v1/assets/${toBeDeleted.id}`,
+        StatusCodes.NOT_FOUND,
+        response,
+        {},
+        header,
+      );
     });
   });
 });

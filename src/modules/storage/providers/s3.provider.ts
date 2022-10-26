@@ -32,7 +32,10 @@ export class S3Provider implements IAwsProvider {
     };
   }
 
-  public async uploadFromAdmin(path: string, file: any): Promise<UploadResponseDto> {
+  public async uploadFromAdmin(
+    path: string,
+    file: { path: string; name: string; type: string; size: number },
+  ): Promise<UploadResponseDto> {
     const fileName = [...path.split('/').filter((l) => !!l), file.name].join('/');
     const response = await this.s3Upload(file.path, fileName);
     return {
@@ -50,7 +53,7 @@ export class S3Provider implements IAwsProvider {
     return `${this.configService.get('aws.default.cloudFrontDomain')}/${file.path}`;
   }
 
-  public async ensureBucket() {
+  public async ensureBucket(): Promise<void> {
     const s3 = await this.getS3();
     const bucket: string = this.configService.get('aws.default.s3Bucket');
     const foo = await s3.listBuckets().promise();

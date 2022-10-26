@@ -106,6 +106,7 @@ const expectStatus = (
     const methodName = method.toUpperCase();
     const { status, body } = response;
 
+    // eslint-disable-next-line no-console
     console.error(body);
 
     throw new Error(`${methodName} ${url} expected status ${expectedStatus}, got ${status}`);
@@ -175,7 +176,8 @@ export const get = (
 ): Promise<SupertestResponse> =>
   baseRequest(app, 'get', url, expectedStatus, expectedResponse, params, headers);
 
-export const requireAuthorization = async (method: any, expectMsg) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+export const requireAuthorization = async (method: any, expectMsg: string): Promise<void> => {
   const response = await method;
   expect(response.text).toEqual(expectMsg);
 };

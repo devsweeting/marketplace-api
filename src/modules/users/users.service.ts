@@ -73,6 +73,7 @@ export class UsersService extends BaseService {
   }
 
   public generateNonce(): string {
+    // eslint-disable-next-line no-magic-numbers
     return String(Math.floor(Math.random() * 1000000));
   }
 

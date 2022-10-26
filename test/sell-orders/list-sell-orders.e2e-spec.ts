@@ -12,6 +12,7 @@ import { SellOrder } from 'modules/sell-orders/entities';
 import { createSellOrder } from '../utils/sell-order.utils';
 import { SellOrdersTransformer } from 'modules/sell-orders/transformers/sell-orders.transformer';
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
+import { StatusCodes } from 'http-status-codes';
 
 describe('SellOrdersController', () => {
   let app: INestApplication;
@@ -119,7 +120,14 @@ describe('SellOrdersController', () => {
         },
         items: [],
       };
-      return testApp.get(app, BASE_URL + `?${params.toString()}`, 200, response, {}, header);
+      return testApp.get(
+        app,
+        BASE_URL + `?${params.toString()}`,
+        StatusCodes.OK,
+        response,
+        {},
+        header,
+      );
     });
 
     test('should return 1 element', () => {
@@ -137,7 +145,14 @@ describe('SellOrdersController', () => {
         },
         items: [sellOrdersTransformer.transform(sellOrders[1])],
       };
-      return testApp.get(app, BASE_URL + `?${params.toString()}`, 200, response, {}, header);
+      return testApp.get(
+        app,
+        BASE_URL + `?${params.toString()}`,
+        StatusCodes.OK,
+        response,
+        {},
+        header,
+      );
     });
 
     test('should return 2 page', () => {
@@ -158,7 +173,14 @@ describe('SellOrdersController', () => {
         items: [sellOrdersTransformer.transform(sellOrders[0])],
       };
 
-      return testApp.get(app, BASE_URL + `?${params.toString()}`, 200, response, {}, header);
+      return testApp.get(
+        app,
+        BASE_URL + `?${params.toString()}`,
+        StatusCodes.OK,
+        response,
+        {},
+        header,
+      );
     });
 
     test('should return 2 per page', () => {
@@ -179,7 +201,14 @@ describe('SellOrdersController', () => {
           sellOrdersTransformer.transform(sellOrders[0]),
         ],
       };
-      return testApp.get(app, BASE_URL + `?${params.toString()}`, 200, response, {}, header);
+      return testApp.get(
+        app,
+        BASE_URL + `?${params.toString()}`,
+        StatusCodes.OK,
+        response,
+        {},
+        header,
+      );
     });
   });
   test('should sort by name ASC', () => {
@@ -201,7 +230,14 @@ describe('SellOrdersController', () => {
         sellOrdersTransformer.transform(sellOrders[1]),
       ],
     };
-    return testApp.get(app, BASE_URL + `?${params.toString()}`, 200, response, {}, header);
+    return testApp.get(
+      app,
+      BASE_URL + `?${params.toString()}`,
+      StatusCodes.OK,
+      response,
+      {},
+      header,
+    );
   });
 
   test('should sort by name DESC', () => {
@@ -224,7 +260,14 @@ describe('SellOrdersController', () => {
       ],
     };
 
-    return testApp.get(app, BASE_URL + `?${params.toString()}`, 200, response, {}, header);
+    return testApp.get(
+      app,
+      BASE_URL + `?${params.toString()}`,
+      StatusCodes.OK,
+      response,
+      {},
+      header,
+    );
   });
   test('should sort by slug ASC', () => {
     const params = new URLSearchParams({
@@ -245,7 +288,14 @@ describe('SellOrdersController', () => {
         sellOrdersTransformer.transform(sellOrders[1]),
       ],
     };
-    return testApp.get(app, BASE_URL + `?${params.toString()}`, 200, response, {}, header);
+    return testApp.get(
+      app,
+      BASE_URL + `?${params.toString()}`,
+      StatusCodes.OK,
+      response,
+      {},
+      header,
+    );
   });
 
   test('should sort by slug DESC', () => {
@@ -268,7 +318,14 @@ describe('SellOrdersController', () => {
       ],
     };
 
-    return testApp.get(app, BASE_URL + `?${params.toString()}`, 200, response, {}, header);
+    return testApp.get(
+      app,
+      BASE_URL + `?${params.toString()}`,
+      StatusCodes.OK,
+      response,
+      {},
+      header,
+    );
   });
 
   test('should return empty list if there are no results for assetId filter', () => {
@@ -286,7 +343,14 @@ describe('SellOrdersController', () => {
       },
       items: [],
     };
-    return testApp.get(app, BASE_URL + `?${params.toString()}`, 200, response, {}, header);
+    return testApp.get(
+      app,
+      BASE_URL + `?${params.toString()}`,
+      StatusCodes.OK,
+      response,
+      {},
+      header,
+    );
   });
 
   test('should return list if there are results for assetId filter', () => {
@@ -304,7 +368,14 @@ describe('SellOrdersController', () => {
       },
       items: [sellOrdersTransformer.transform(sellOrders[0])],
     };
-    return testApp.get(app, BASE_URL + `?${params.toString()}`, 200, response, {}, header);
+    return testApp.get(
+      app,
+      BASE_URL + `?${params.toString()}`,
+      StatusCodes.OK,
+      response,
+      {},
+      header,
+    );
   });
 
   test('should return empty list if there are no results for slug filter', () => {
@@ -322,7 +393,14 @@ describe('SellOrdersController', () => {
       },
       items: [],
     };
-    return testApp.get(app, BASE_URL + `?${params.toString()}`, 200, response, {}, header);
+    return testApp.get(
+      app,
+      BASE_URL + `?${params.toString()}`,
+      StatusCodes.OK,
+      response,
+      {},
+      header,
+    );
   });
 
   test('should return list if there are results for slug filter', () => {
@@ -340,7 +418,14 @@ describe('SellOrdersController', () => {
       },
       items: [sellOrdersTransformer.transform(sellOrders[0])],
     };
-    return testApp.get(app, BASE_URL + `?${params.toString()}`, 200, response, {}, header);
+    return testApp.get(
+      app,
+      BASE_URL + `?${params.toString()}`,
+      StatusCodes.OK,
+      response,
+      {},
+      header,
+    );
   });
 
   test('should return only anotherPartner`s sell orders', () => {
@@ -357,6 +442,13 @@ describe('SellOrdersController', () => {
       },
       items: [sellOrdersTransformer.transform(sellOrders[2])],
     };
-    return testApp.get(app, BASE_URL + `?${params.toString()}`, 200, response, {}, header);
+    return testApp.get(
+      app,
+      BASE_URL + `?${params.toString()}`,
+      StatusCodes.OK,
+      response,
+      {},
+      header,
+    );
   });
 });

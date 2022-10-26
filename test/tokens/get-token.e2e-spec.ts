@@ -15,6 +15,7 @@ import { createToken } from '../utils/token.utils';
 import { createImageMedia, createVideoMedia } from '../utils/media.utils';
 import { createFile } from '@/test/utils/file.utils';
 import { MediaTransformer } from 'modules/assets/transformers/media.transformer';
+import { StatusCodes } from 'http-status-codes';
 
 describe('TokensController', () => {
   let app: INestApplication;
@@ -68,7 +69,7 @@ describe('TokensController', () => {
       return request(app.getHttpServer())
         .get(`/v1/token/${contract.address}/${token.tokenId}`)
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual(response);
         });
@@ -99,7 +100,7 @@ describe('TokensController', () => {
       return request(app.getHttpServer())
         .get(`/v1/token/${contract.address}/${videoToken.tokenId}`)
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual(response);
         });
@@ -109,12 +110,12 @@ describe('TokensController', () => {
       return request(app.getHttpServer())
         .get(`/v1/token/${contract.address}/123`)
         .send()
-        .expect(400)
+        .expect(StatusCodes.BAD_REQUEST)
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Bad Request',
             message: 'MUST_BE_UUID',
-            statusCode: 400,
+            statusCode: StatusCodes.BAD_REQUEST,
           });
         });
     });
@@ -122,12 +123,12 @@ describe('TokensController', () => {
       return request(app.getHttpServer())
         .get(`/v1/token/wrongAddress/${token.tokenId}`)
         .send()
-        .expect(404)
+        .expect(StatusCodes.NOT_FOUND)
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Not Found',
             message: 'TOKEN_NOT_FOUND',
-            statusCode: 404,
+            statusCode: StatusCodes.NOT_FOUND,
           });
         });
     });

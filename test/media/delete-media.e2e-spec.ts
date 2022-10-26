@@ -11,6 +11,7 @@ import { createPartner } from '../utils/partner.utils';
 import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
+import { StatusCodes } from 'http-status-codes';
 
 describe('MediaController', () => {
   let app: INestApplication;
@@ -45,7 +46,10 @@ describe('MediaController', () => {
 
   describe(`DELETE V1 /media/:id`, () => {
     test('should throw 401 exception if auth token is missing', () => {
-      return request(app.getHttpServer()).delete(`/v1/media/${media.id}`).send().expect(401);
+      return request(app.getHttpServer())
+        .delete(`/v1/media/${media.id}`)
+        .send()
+        .expect(StatusCodes.UNAUTHORIZED);
     });
 
     test('should throw 401 exception if token is invalid', () => {
@@ -55,7 +59,7 @@ describe('MediaController', () => {
           'x-api-key': 'invalid key',
         })
         .send()
-        .expect(401);
+        .expect(StatusCodes.UNAUTHORIZED);
     });
 
     test('should throw 400 exception if id is not uuid', () => {
@@ -65,12 +69,12 @@ describe('MediaController', () => {
           'x-api-key': partner.apiKey,
         })
         .send()
-        .expect(400)
+        .expect(StatusCodes.BAD_REQUEST)
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Bad Request',
             message: ['id must be a UUID'],
-            statusCode: 400,
+            statusCode: StatusCodes.BAD_REQUEST,
           });
         });
     });
@@ -82,7 +86,7 @@ describe('MediaController', () => {
           'x-api-key': partner.apiKey,
         })
         .send()
-        .expect(404);
+        .expect(StatusCodes.NOT_FOUND);
     });
 
     test('should throw 404 exception if partner is not owner', async () => {
@@ -99,7 +103,7 @@ describe('MediaController', () => {
           'x-api-key': notOwnerPartner.apiKey,
         })
         .send(dtoRequest)
-        .expect(404);
+        .expect(StatusCodes.NOT_FOUND);
     });
 
     test('should remove media', async () => {
@@ -109,7 +113,7 @@ describe('MediaController', () => {
           'x-api-key': partner.apiKey,
         })
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .then(async () => {
           const persistedMedia = await Media.findOne({
             where: { id: media.id, isDeleted: false },

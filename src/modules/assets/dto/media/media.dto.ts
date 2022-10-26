@@ -1,3 +1,4 @@
+/* eslint-disable no-magic-numbers */
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsEnum, IsNotEmpty, IsOptional, IsUrl, MaxLength, Validate } from 'class-validator';

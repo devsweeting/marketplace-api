@@ -21,6 +21,7 @@ import { CollectionIdDto, CollectionIdOrSlugDto, ListCollectionsDto } from '../d
 import { CollectionsTransformer } from '../transformers/collections.transformer';
 import { UpdateCollectionDto } from '../dto/update-collection.dto';
 import { validate as isValidUUID } from 'uuid';
+import { StatusCodes } from 'http-status-codes';
 
 @ApiTags('collections')
 @Controller({
@@ -71,11 +72,13 @@ export class CollectionsController {
     description: 'Collection created',
   })
   @HttpCode(HttpStatus.CREATED)
-  public async create(@Body() dto: CollectionDto) {
+  public async create(
+    @Body() dto: CollectionDto,
+  ): Promise<{ status: StatusCodes; description: string }> {
     await this.collectionsService.createCollection(dto);
 
     return {
-      status: 201,
+      status: StatusCodes.CREATED,
       description: 'Collection created',
     };
   }
@@ -90,7 +93,10 @@ export class CollectionsController {
     description: 'Collection not found',
   })
   @HttpCode(HttpStatus.OK)
-  public async update(@Param() params: CollectionIdDto, @Body() dto: UpdateCollectionDto) {
+  public async update(
+    @Param() params: CollectionIdDto,
+    @Body() dto: UpdateCollectionDto,
+  ): Promise<CollectionResponse> {
     const collection = await this.collectionsService.updateCollection(params.id, dto);
 
     return this.collectionsTransformer.transform(collection);

@@ -1,3 +1,4 @@
+/* eslint-disable no-magic-numbers */
 import { Column, Entity, Index, OneToMany } from 'typeorm';
 
 import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
@@ -48,6 +49,7 @@ export class Contract extends BaseModel implements IBaseEntity {
       case ChainEnum.PolygonMumbai:
         return 80001;
     }
+    return -1;
   }
 
   public constructor(partial: Partial<Contract> = {}) {

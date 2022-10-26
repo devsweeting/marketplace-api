@@ -2,12 +2,13 @@ import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { Response, NextFunction } from 'express';
 import { format } from 'date-fns';
 import IRequestWithUser from 'modules/auth/interfaces/request-with-user.interface';
+import { StatusCodes } from 'http-status-codes';
 
 @Injectable()
 class LogsMiddleware implements NestMiddleware {
   private readonly logger = new Logger('HTTP');
 
-  use(request: IRequestWithUser, response: Response, next: NextFunction) {
+  use(request: IRequestWithUser, response: Response, next: NextFunction): void {
     response.on('finish', () => {
       const { method, originalUrl, ip } = request;
       const { statusCode, statusMessage } = response;
@@ -16,11 +17,11 @@ class LogsMiddleware implements NestMiddleware {
       const date = format(new Date(), 'd/MM/Y:H:mm:ss z');
       const message = `${ip} ${userId} [${date}] "${method} ${originalUrl}" ${statusCode} ${statusMessage} ${contentLength}`;
 
-      if (statusCode >= 500) {
+      if (statusCode >= StatusCodes.INTERNAL_SERVER_ERROR) {
         return this.logger.error(message);
       }
 
-      if (statusCode >= 400) {
+      if (statusCode >= StatusCodes.BAD_REQUEST) {
         return this.logger.warn(message);
       }
 

@@ -42,6 +42,7 @@ export class WatchlistService extends BaseService {
     const items = results.items.map((item: WatchlistAsset) => {
       const relation = relations.find((el) => el.id === item.assetId);
       item.asset.labels = relation?.labels || [];
+      // eslint-disable-next-line no-magic-numbers
       item.asset.media = relation?.media.length > 0 ? [relation.media[0]] : [];
       return item;
     });
@@ -94,7 +95,7 @@ export class WatchlistService extends BaseService {
     return { assetId: asset.id, inWatchlist: !!watchlist };
   }
 
-  public async assignAssetToWatchlist(user: User, dto: WatchlistDto) {
+  public async assignAssetToWatchlist(user: User, dto: WatchlistDto): Promise<Watchlist> {
     let watchList: Watchlist;
 
     await this.getAsset(dto.assetId);
@@ -115,6 +116,7 @@ export class WatchlistService extends BaseService {
     const asset = watchList?.watchlistAssets?.find((el) => el.assetId === dto.assetId);
     if (!asset) {
       if (
+        // eslint-disable-next-line no-magic-numbers
         watchList?.watchlistAssets?.length + 1 >
         this.configService.get('asset.default.watchlistNumberOfItems')
       ) {

@@ -2,7 +2,7 @@ import { AssetDto } from 'modules/assets/dto';
 import { Asset } from 'modules/assets/entities';
 import { Partner } from 'modules/partners/entities';
 
-export const softDeleteAsset = (asset: Asset) => {
+export const softDeleteAsset = (asset: Asset): Promise<Asset> => {
   asset.deletedAt = new Date();
   asset.isDeleted = true;
   return asset.save();

@@ -12,7 +12,7 @@ export class JwtOtpStrategy extends PassportStrategy(Strategy, 'jwt-otp') {
     });
   }
 
-  public validate(payload: any) {
+  public validate(payload: { id: string; email: string; role: string }): Record<string, string> {
     return Object.assign(
       payload.id && payload.email
         ? { id: payload.id, email: payload.email, role: payload.role }

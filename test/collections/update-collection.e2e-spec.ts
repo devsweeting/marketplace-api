@@ -10,6 +10,7 @@ import { CollectionsTransformer } from 'modules/collections/transformers/collect
 import { createCollection } from '../utils/collection.utils';
 import { Collection } from 'modules/collections/entities';
 import { createFile } from '../utils/file.utils';
+import { StatusCodes } from 'http-status-codes';
 
 describe('CollectionsController', () => {
   let app: INestApplication;
@@ -41,7 +42,10 @@ describe('CollectionsController', () => {
 
   describe(`PATCH V1 /collections/:id`, () => {
     test('should throw 404 exception if collection does not exist', async () => {
-      return request(app.getHttpServer()).patch(`/v1/collections/${v4()}`).send({}).expect(404);
+      return request(app.getHttpServer())
+        .patch(`/v1/collections/${v4()}`)
+        .send({})
+        .expect(StatusCodes.NOT_FOUND);
     });
 
     test('should update banner', async () => {
@@ -52,7 +56,7 @@ describe('CollectionsController', () => {
       return request(app.getHttpServer())
         .patch(`/v1/collections/${collection.id}`)
         .send(payload)
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             ...collectionsTransformer.transform(collection),
@@ -78,7 +82,7 @@ describe('CollectionsController', () => {
         .patch(`/v1/collections/${collection.id}`)
 
         .send(payload)
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             ...collectionsTransformer.transform(collection),
@@ -103,7 +107,7 @@ describe('CollectionsController', () => {
       return request(app.getHttpServer())
         .patch(`/v1/collections/${collection.id}`)
         .send(payload)
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             ...collectionsTransformer.transform(collection),

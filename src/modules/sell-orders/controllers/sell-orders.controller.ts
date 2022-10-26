@@ -32,6 +32,7 @@ import JwtOtpAuthGuard from 'modules/auth/guards/jwt-otp-auth.guard';
 import { GetUser } from 'modules/auth/decorators/get-user.decorator';
 import { User } from 'modules/users/entities/user.entity';
 import { SellOrderTypeEnum } from '../enums/sell-order-type.enum';
+import { StatusCodes } from 'http-status-codes';
 
 @ApiTags('sellorders')
 @Controller({
@@ -85,14 +86,17 @@ export class SellOrdersController {
     description: 'Sell order created',
   })
   @HttpCode(HttpStatus.CREATED)
-  public async create(@GetPartner() partner: Partner, @Body() dto: SellOrderDto) {
+  public async create(
+    @GetPartner() partner: Partner,
+    @Body() dto: SellOrderDto,
+  ): Promise<{ status: StatusCodes; description: string }> {
     try {
       await this.sellOrdersService.createSellOrder(partner, dto);
     } catch (e) {
       throw e;
     }
     return {
-      status: 201,
+      status: StatusCodes.CREATED,
       description: 'Sell order created',
     };
   }

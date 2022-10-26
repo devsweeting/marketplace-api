@@ -16,6 +16,7 @@ import { createUserAsset } from '../utils/user';
 import { UserAsset } from 'modules/users/entities/user-assets.entity';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
 import { PortfolioTransformer } from 'modules/portfolio/transformers/portfolio.transformer';
+import { StatusCodes } from 'http-status-codes';
 
 describe('PortfolioController', () => {
   const initialQty = 10000;
@@ -29,7 +30,6 @@ describe('PortfolioController', () => {
   let sellOrder2: SellOrder;
   let seller: User;
   let buyer: User;
-  let assetsTransformer: AssetsTransformer;
   let portfolioTransformer: PortfolioTransformer;
   let userAsset: UserAsset;
   let userAsset2: UserAsset;
@@ -40,7 +40,7 @@ describe('PortfolioController', () => {
 
   beforeAll(async () => {
     app = await createApp();
-    assetsTransformer = app.get(AssetsTransformer);
+    app.get(AssetsTransformer);
     portfolioTransformer = app.get(PortfolioTransformer);
   });
 
@@ -152,7 +152,7 @@ describe('PortfolioController', () => {
       await request(app.getHttpServer())
         .get(PORTFOLIO_URL)
         .set(headers)
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect((res) => {
           expect(res.body.totalUnits).toBe(unitsToBuyFromAsset1 + unitsToBuyFromAsset2);
           expect(res.body.totalValueInCents).toEqual(
@@ -188,7 +188,7 @@ describe('PortfolioController', () => {
       await request(app.getHttpServer())
         .get(PORTFOLIO_URL)
         .set(headers)
-        .expect(401)
+        .expect(StatusCodes.UNAUTHORIZED)
         .expect((res) => {
           expect(res.body.message).toBe('Unauthorized');
         });
