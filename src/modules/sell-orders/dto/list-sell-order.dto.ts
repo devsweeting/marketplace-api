@@ -1,3 +1,4 @@
+/* eslint-disable no-magic-numbers */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 import { ListDto } from 'modules/common/dto/list.dto';

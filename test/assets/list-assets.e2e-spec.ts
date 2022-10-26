@@ -15,6 +15,7 @@ import { SellOrder } from 'modules/sell-orders/entities';
 import { createSellOrder } from '../utils/sell-order.utils';
 import { createImageMedia } from '../utils/media.utils';
 import { MediaTransformer } from 'modules/assets/transformers/media.transformer';
+import { StatusCodes } from 'http-status-codes';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -27,20 +28,21 @@ describe('AssetsController', () => {
     paramStr: string,
     expectedAssets: Asset[],
     metaOverrides: object = {},
-  ) {
+  ): Promise<testApp.SupertestResponse> {
     const params = new URLSearchParams(paramStr);
     const response = {
       meta: {
         totalItems: expectedAssets.length,
         itemCount: expectedAssets.length,
         itemsPerPage: 25,
+        // eslint-disable-next-line no-magic-numbers
         totalPages: expectedAssets.length > 0 ? 1 : 0,
         currentPage: 1,
         ...metaOverrides,
       },
       items: assetsTransformer.transformAll(expectedAssets),
     };
-    return await testApp.get(app, `/v1/assets?${params}`, 200, response);
+    return await testApp.get(app, `/v1/assets?${params}`, StatusCodes.OK, response);
   }
 
   beforeAll(async () => {
@@ -294,9 +296,9 @@ describe('AssetsController', () => {
       const response = {
         error: 'Bad Request',
         message: 'ATTRIBUTE_DUPLICATED',
-        statusCode: 400,
+        statusCode: StatusCodes.BAD_REQUEST,
       };
-      return testApp.get(app, `/v1/assets?${params.toString()}`, 400, response);
+      return testApp.get(app, `/v1/assets?${params.toString()}`, StatusCodes.BAD_REQUEST, response);
     });
 
     test('should throw exception if attr_eq and attr_lte the same', async () => {
@@ -304,9 +306,9 @@ describe('AssetsController', () => {
       const response = {
         error: 'Bad Request',
         message: 'ATTRIBUTE_DUPLICATED',
-        statusCode: 400,
+        statusCode: StatusCodes.BAD_REQUEST,
       };
-      return testApp.get(app, `/v1/assets?${params.toString()}`, 400, response);
+      return testApp.get(app, `/v1/assets?${params.toString()}`, StatusCodes.BAD_REQUEST, response);
     });
 
     test('should throw exception if attr_gte the same', async () => {
@@ -314,9 +316,9 @@ describe('AssetsController', () => {
       const response = {
         error: 'Bad Request',
         message: 'ATTRIBUTE_DUPLICATED',
-        statusCode: 400,
+        statusCode: StatusCodes.BAD_REQUEST,
       };
-      return testApp.get(app, `/v1/assets?${params.toString()}`, 400, response);
+      return testApp.get(app, `/v1/assets?${params.toString()}`, StatusCodes.BAD_REQUEST, response);
     });
 
     test('should throw exception if attr_lte the same', async () => {
@@ -324,9 +326,9 @@ describe('AssetsController', () => {
       const response = {
         error: 'Bad Request',
         message: 'ATTRIBUTE_DUPLICATED',
-        statusCode: 400,
+        statusCode: StatusCodes.BAD_REQUEST,
       };
-      return testApp.get(app, `/v1/assets?${params.toString()}`, 400, response);
+      return testApp.get(app, `/v1/assets?${params.toString()}`, StatusCodes.BAD_REQUEST, response);
     });
 
     test('should throw exception if attr_gte is greater than attr_lte', async () => {
@@ -334,9 +336,9 @@ describe('AssetsController', () => {
       const response = {
         error: 'Bad Request',
         message: 'ATTRIBUTE_LTE_MUST_BE_GREATER_THAN_GTE',
-        statusCode: 400,
+        statusCode: StatusCodes.BAD_REQUEST,
       };
-      return testApp.get(app, `/v1/assets?${params.toString()}`, 400, response);
+      return testApp.get(app, `/v1/assets?${params.toString()}`, StatusCodes.BAD_REQUEST, response);
     });
 
     test('should throw an error if asset attr_lte is less than attr_gte', async () => {
@@ -344,9 +346,9 @@ describe('AssetsController', () => {
       const response = {
         error: 'Bad Request',
         message: 'ATTRIBUTE_LTE_MUST_BE_GREATER_THAN_GTE',
-        statusCode: 400,
+        statusCode: StatusCodes.BAD_REQUEST,
       };
-      return testApp.get(app, `/v1/assets?${params.toString()}`, 400, response);
+      return testApp.get(app, `/v1/assets?${params.toString()}`, StatusCodes.BAD_REQUEST, response);
     });
 
     test('should 400 exception if params are invalid', async () => {
@@ -355,18 +357,39 @@ describe('AssetsController', () => {
         limit: '-10',
         sort: 'sausage',
         order: 'NULL',
+        asset_ids: '',
       });
       const response = {
         error: 'Bad Request',
         message: [
           'sort must be a valid enum value',
+          'asset_ids should not be empty',
           'page must not be less than 1',
           'limit must not be less than 0',
           'order must be a valid enum value',
         ],
-        statusCode: 400,
+        statusCode: StatusCodes.BAD_REQUEST,
       };
-      return testApp.get(app, `/v1/assets?${params.toString()}`, 400, response);
+      return testApp.get(app, `/v1/assets?${params.toString()}`, StatusCodes.BAD_REQUEST, response);
+    });
+
+    test('should return only queried assets', async () => {
+      await doAssetSearch(`asset_ids=${assets[0].id},${assets[1].id}`, [assets[1], assets[0]]);
+    });
+
+    test('should return only return existing assets', async () => {
+      const fakeUUID = 'd6d98b88-c866-4496-9bd4-de7ba48d0f52';
+      await doAssetSearch(`asset_ids=${fakeUUID},${assets[1].id}`, [assets[1]]);
+    });
+
+    test('should return 500 error if id is not uuid', async () => {
+      const params = new URLSearchParams('asset_ids=1,2,3');
+      const response = {
+        error: 'Bad Request',
+        message: 'MUST_BE_UUID',
+        statusCode: StatusCodes.BAD_REQUEST,
+      };
+      return testApp.get(app, `/v1/assets?${params.toString()}`, StatusCodes.BAD_REQUEST, response);
     });
 
     test('should exclude deleted media', async () => {
@@ -402,7 +425,7 @@ describe('AssetsController', () => {
       const params = new URLSearchParams({
         search: 'abc',
       });
-      return testApp.get(app, `/v1/assets?${params.toString()}`, 200, response);
+      return testApp.get(app, `/v1/assets?${params.toString()}`, StatusCodes.OK, response);
     });
   });
 });

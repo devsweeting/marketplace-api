@@ -5,6 +5,7 @@ import { createFile } from '@/test/utils/file.utils';
 import { Collection } from 'modules/collections/entities';
 import { CollectionsTransformer } from 'modules/collections/transformers/collections.transformer';
 import { createCollection } from '../utils/collection.utils';
+import { StatusCodes } from 'http-status-codes';
 
 describe('CollectionController', () => {
   let app: INestApplication;
@@ -49,7 +50,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections?${params.toString()}`)
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -73,7 +74,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections?${params.toString()}`)
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -96,7 +97,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections?${params.toString()}`)
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -123,7 +124,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections?${params.toString()}`)
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -150,7 +151,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections?${params.toString()}`)
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -177,7 +178,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections?${params.toString()}`)
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -204,7 +205,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections?${params.toString()}`)
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -230,7 +231,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections?${params.toString()}`)
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -253,7 +254,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections?${params.toString()}`)
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -276,7 +277,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections?${params.toString()}`)
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -302,7 +303,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections?${params.toString()}`)
         .send()
-        .expect(400)
+        .expect(StatusCodes.BAD_REQUEST)
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Bad Request',
@@ -312,7 +313,7 @@ describe('CollectionController', () => {
               'limit must not be less than 0',
               'order must be a valid enum value',
             ],
-            statusCode: 400,
+            statusCode: StatusCodes.BAD_REQUEST,
           });
         });
     });

@@ -21,7 +21,6 @@ import { Label } from './';
 import { generateSlug } from 'modules/common/helpers/slug.helper';
 import { Partner } from 'modules/partners/entities';
 import { AssetDto, AttributeDto } from 'modules/assets/dto';
-import { ListAssetsDto } from 'modules/assets/dto/list-assets.dto';
 import { Event } from 'modules/events/entities';
 import { Token } from './token.entity';
 import { CollectionAsset } from 'modules/collections/entities';
@@ -33,6 +32,8 @@ import { decodeHashId } from 'modules/common/helpers/hash-id.helper';
 import { ConfigService } from '@nestjs/config';
 import { SellOrder } from 'modules/sell-orders/entities';
 import { AssetNotFoundException } from '../exceptions';
+import { IAssetListArgs } from '../interfaces/IAssetListArgs';
+import { UserAsset } from 'modules/users/entities/user-assets.entity';
 
 export class AssetAttributes {
   constructor(attrs: AttributeDto[] = []) {
@@ -41,7 +42,7 @@ export class AssetAttributes {
     }
   }
 
-  public add(key: string, val: string | number) {
+  public add(key: string, val: string | number): void {
     key = key.toLowerCase();
     if (this[key] === undefined) {
       this[key] = [];
@@ -129,6 +130,9 @@ export class Asset extends BaseModel implements IBaseEntity {
   @OneToMany(() => SellOrder, (sellOrder) => sellOrder.asset)
   public sellOrders: SellOrder[];
 
+  @OneToOne(() => UserAsset, (userAsset) => userAsset.asset)
+  public userAsset: UserAsset;
+
   @BeforeInsert()
   public async beforeInsert(): Promise<void> {
     const assetsCount = await Asset.count({
@@ -139,6 +143,7 @@ export class Asset extends BaseModel implements IBaseEntity {
       },
     });
 
+    // eslint-disable-next-line no-magic-numbers
     const name = assetsCount > 0 ? `${this.name} ${Date.now()}` : this.name;
     this.slug = generateSlug(name);
   }
@@ -176,7 +181,7 @@ export class Asset extends BaseModel implements IBaseEntity {
   }
 
   public static list(
-    params: ListAssetsDto,
+    params: IAssetListArgs,
     configService: ConfigService,
   ): SelectQueryBuilder<Asset> {
     const query = Asset.createQueryBuilder('asset')
@@ -188,6 +193,11 @@ export class Asset extends BaseModel implements IBaseEntity {
       query.andWhere('asset.partnerId = :partnerId', {
         partnerId: decodeHashId(params.partner, configService.get('common.default.hashIdSalt')),
       });
+    }
+
+    if (params.asset_ids) {
+      const ids = params.asset_ids;
+      query.andWhere('id IN (:...ids)', { ids });
     }
 
     if (params.query) {
@@ -211,6 +221,7 @@ export class Asset extends BaseModel implements IBaseEntity {
 
     if (params.attr_eq) {
       const keys = Object.keys(params.attr_eq);
+      // eslint-disable-next-line no-magic-numbers
       if (keys.length > 0) {
         const group = {};
         for (const attr in params.attr_eq) {
@@ -287,7 +298,7 @@ export class Asset extends BaseModel implements IBaseEntity {
     return query;
   }
 
-  private static filterRangeArray(arr1: string[], arr: string[]) {
+  private static filterRangeArray(arr1: string[], arr: string[]): string[] {
     return arr1.filter((el) => {
       return !arr.some((s) => {
         return s === el;
@@ -347,6 +358,7 @@ export class Asset extends BaseModel implements IBaseEntity {
       }
       return assets;
     }
+    return undefined;
   }
 
   public constructor(partial: Partial<Asset> = {}) {

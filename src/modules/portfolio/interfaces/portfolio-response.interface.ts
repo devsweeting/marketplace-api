@@ -1,8 +1,8 @@
-import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
+import { Asset } from 'modules/assets/entities';
+import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate';
 
 export interface IPortfolioResponse {
   totalValueInCents: number;
   totalUnits: number;
-  purchaseHistory: SellOrderPurchase[];
-  sellOrderHistory: SellOrder[];
+  paginatedOwnedAssets: Pagination<Asset, IPaginationMeta>;
 }

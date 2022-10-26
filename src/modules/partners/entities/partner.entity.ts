@@ -77,11 +77,12 @@ export class Partner extends BaseModel implements IBaseEntity {
   @BeforeInsert()
   public beforeInsert(): void {
     if (this.apiKey === undefined) {
+      // eslint-disable-next-line no-magic-numbers
       this.apiKey = this.generateApiKey(32);
     }
   }
 
-  public generateApiKey(length: number) {
+  public generateApiKey(length: number): string {
     let result = '';
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const charactersLength = characters.length;

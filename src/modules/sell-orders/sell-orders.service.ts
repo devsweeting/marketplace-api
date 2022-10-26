@@ -45,7 +45,10 @@ export class SellOrdersService extends BaseService {
     return sellOrder;
   }
 
-  public async createSellOrder(partner, dto: SellOrderDto): Promise<SellOrder> {
+  public async createSellOrder(
+    partner: Partner | { id: string },
+    dto: SellOrderDto,
+  ): Promise<SellOrder> {
     const asset = await Asset.findOneBy({
       id: dto.assetId,
       partnerId: partner.id,
@@ -129,6 +132,22 @@ export class SellOrdersService extends BaseService {
       .andWhere('sellOrder.isDeleted = :isDeleted AND sellOrder.deletedAt IS NULL', {
         isDeleted: false,
       })
+      .getMany();
+  }
+
+  async getAssetsWithUserSellOrders(user: User): Promise<Asset[]> {
+    return await Asset.createQueryBuilder('asset')
+      .leftJoinAndMapMany('asset.sellOrders', 'asset.sellOrders', 'sellOrders')
+      .leftJoinAndMapMany('asset.labels', 'asset.labels', 'labels')
+      .leftJoinAndMapMany('asset.media', 'asset.media', 'media')
+      .leftJoinAndMapOne('media.file', 'media.file', 'file')
+      .where('sellOrders.userId = :userId', {
+        userId: user.id,
+      })
+      .andWhere('sellOrders.isDeleted = :isDeleted AND sellOrders.deletedAt IS NULL', {
+        isDeleted: false,
+      })
+
       .getMany();
   }
 }

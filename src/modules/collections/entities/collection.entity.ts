@@ -50,6 +50,7 @@ export class Collection extends BaseModel implements IBaseEntity {
     const collectionsCount = await Asset.count({
       where: { slug: Like(`%${this.name}%`), isDeleted: false, deletedAt: null },
     });
+    // eslint-disable-next-line no-magic-numbers
     const name = collectionsCount > 0 ? `${this.name}-${Date.now()}` : this.name;
     this.slug = generateSlug(name);
   }

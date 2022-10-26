@@ -14,12 +14,12 @@ export class StorageService {
     private readonly fileDownloadService: FileDownloadService,
   ) {}
 
-  public onModuleInit() {
+  public async onModuleInit(): Promise<void> {
     if (
       process.env.NODE_ENV.toUpperCase() === 'DEVELOP' ||
       process.env.NODE_ENV.toUpperCase() === 'TEST'
     ) {
-      this.provider.ensureBucket();
+      await this.provider.ensureBucket();
     }
   }
 
@@ -28,7 +28,7 @@ export class StorageService {
     directory: string,
   ): Promise<File[]> {
     try {
-      const pathList: any = await this.fileDownloadService.downloadAll(records);
+      const pathList = await this.fileDownloadService.downloadAll(records);
       const files = pathList.map(async (el) => {
         const object = await this.provider.upload(el, directory);
         fs.unlink(el, (err) => {

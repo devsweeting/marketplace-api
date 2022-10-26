@@ -8,7 +8,10 @@ import { PartnerNotFoundException } from '../exceptions/partner-not-found.except
 
 @Injectable()
 export class PartnersService extends BaseService {
-  public async updatePartnerMembers(partner: Partner, dto: UpdatePartnerMembersDto) {
+  public async updatePartnerMembers(
+    partner: Partner,
+    dto: UpdatePartnerMembersDto,
+  ): Promise<User[]> {
     const getPartner = await Partner.findOne({ where: { id: partner.id, isDeleted: false } });
     if (!getPartner) {
       throw new PartnerNotFoundException();

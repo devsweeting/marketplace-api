@@ -5,7 +5,7 @@ import JwtAuthGuard from './jwt-auth.guard';
 
 const RoleGuard = (roles: RoleEnum[]): Type<CanActivate> => {
   class RoleGuardMixin extends JwtAuthGuard {
-    async canActivate(context: ExecutionContext) {
+    async canActivate(context: ExecutionContext): Promise<boolean> {
       await super.canActivate(context);
 
       const request = context.switchToHttp().getRequest<IRequestWithUser>();

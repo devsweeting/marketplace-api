@@ -27,7 +27,7 @@ const mediaToUpdate = [];
 
 let app: INestApplicationContext | undefined;
 
-const loadFixtures = async (fixturesPath: string) => {
+const loadFixtures = async (fixturesPath: string): Promise<void> => {
   try {
     app ??= await NestFactory.createApplicationContext(AppModule);
     const dataSource = app.get(DataSource);
@@ -57,7 +57,7 @@ const loadFixtures = async (fixturesPath: string) => {
   }
 };
 
-const uploadMediaFile = async () => {
+const uploadMediaFile = async (): Promise<void> => {
   app ??= await NestFactory.createApplicationContext(AppModule);
   const service = app.get<StorageService>(StorageService);
   await Promise.all(
@@ -76,12 +76,14 @@ const uploadMediaFile = async () => {
   );
 };
 
-const start = async () => {
+const start = async (): Promise<void> => {
   try {
     await loadFixtures('./db/fixtures');
     await uploadMediaFile();
+    // eslint-disable-next-line no-console
     console.log('Fixtures are successfully loaded.');
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.log(err);
   } finally {
     if (app) {

@@ -13,6 +13,7 @@ import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
 import * as testApp from '../utils/app.utils';
 import { AssetAttributes } from 'modules/assets/entities/asset.entity';
 import { AttributeDto } from 'modules/assets/dto';
+import { StatusCodes } from 'http-status-codes';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -47,7 +48,7 @@ describe('AssetsController', () => {
 
   describe(`POST V1 /assets`, () => {
     test('should throw 401 exception if auth token is missing', () => {
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1232',
           email: 'steven@example.com',
@@ -62,11 +63,14 @@ describe('AssetsController', () => {
         ],
       };
 
-      return request(app.getHttpServer()).post(`/v1/assets`).send(transferRequest).expect(401);
+      return request(app.getHttpServer())
+        .post(`/v1/assets`)
+        .send(transferRequest)
+        .expect(StatusCodes.UNAUTHORIZED);
     });
 
     test('should throw 401 exception if token is invalid', async () => {
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1232',
           email: 'steven@example.com',
@@ -81,7 +85,14 @@ describe('AssetsController', () => {
         ],
       };
       const customHeader = { 'x-api-key': 'invalid key' };
-      await testApp.post(app, `/v1/assets`, 401, null, transferRequest, customHeader);
+      await testApp.post(
+        app,
+        `/v1/assets`,
+        StatusCodes.UNAUTHORIZED,
+        null,
+        transferRequest,
+        customHeader,
+      );
     });
 
     test('should create a new asset transfer object in the db', async () => {
@@ -95,7 +106,7 @@ describe('AssetsController', () => {
           sortOrder: 1,
         },
       ];
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1232',
           email: 'steven@example.com',
@@ -111,7 +122,7 @@ describe('AssetsController', () => {
           },
         ],
       };
-      await testApp.post(app, `/v1/assets`, 201, null, transferRequest, header);
+      await testApp.post(app, `/v1/assets`, StatusCodes.CREATED, null, transferRequest, header);
 
       const asset = await Asset.findOne({
         where: { refId: '1232' },
@@ -143,7 +154,7 @@ describe('AssetsController', () => {
           type: MediaTypeEnum.Image,
         },
       ];
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1232',
           email: 'steven@example.com',
@@ -159,15 +170,16 @@ describe('AssetsController', () => {
           },
         ],
       };
-      await testApp.post(app, `/v1/assets`, 201, null, transferRequest, header);
+      await testApp.post(app, `/v1/assets`, StatusCodes.CREATED, null, transferRequest, header);
       const asset = await Asset.findOne({
         where: { refId: '12' },
         relations: ['media', 'media.file'],
       });
+      const NUMBER_OF_MEDIA = 2;
       expect(asset).toBeDefined();
       expect(asset.name).toEqual(transferRequest.assets[0].name);
       expect(asset.media).toBeDefined();
-      expect(asset.media.length).toEqual(2);
+      expect(asset.media.length).toEqual(NUMBER_OF_MEDIA);
       expect(asset.media[0].fileId).toBeDefined();
       expect(asset.media[1].fileId).toBeDefined();
       expect(asset.description).toEqual(transferRequest.assets[0].description);
@@ -192,7 +204,7 @@ describe('AssetsController', () => {
           type: MediaTypeEnum.Youtube,
         },
       ];
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1232',
           email: 'steven@example.com',
@@ -207,16 +219,17 @@ describe('AssetsController', () => {
           },
         ],
       };
-      await testApp.post(app, `/v1/assets`, 201, null, transferRequest, header);
+      await testApp.post(app, `/v1/assets`, StatusCodes.CREATED, null, transferRequest, header);
 
       const asset = await Asset.findOne({
         where: { refId: '13' },
         relations: ['media', 'media.file'],
       });
+      const NUMBER_OF_MEDIA = 1;
       expect(asset).toBeDefined();
       expect(asset.name).toEqual(transferRequest.assets[0].name);
       expect(asset.media).toBeDefined();
-      expect(asset.media.length).toEqual(1);
+      expect(asset.media.length).toEqual(NUMBER_OF_MEDIA);
       expect(asset.media[0].fileId).toBeDefined();
       expect(asset.media[1]).toBeUndefined();
       expect(asset.description).toEqual(transferRequest.assets[0].description);
@@ -238,7 +251,7 @@ describe('AssetsController', () => {
           type: MediaTypeEnum.Image,
         },
       ];
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1235',
           email: 'steven@example.com',
@@ -254,20 +267,28 @@ describe('AssetsController', () => {
         ],
       };
       const response = {
-        statusCode: 400,
+        statusCode: StatusCodes.BAD_REQUEST,
         message: `Error: HttpException: Error: Content-type image/gif for ${media[0].sourceUrl} is not allowed. Use .png, .jpg, or .webp instead`,
       };
-      await testApp.post(app, `/v1/assets`, 400, response, transferRequest, header);
+      await testApp.post(
+        app,
+        `/v1/assets`,
+        StatusCodes.BAD_REQUEST,
+        response,
+        transferRequest,
+        header,
+      );
 
       const asset = await Asset.findOne({
         where: { refId: '31' },
         relations: ['media', 'media.file'],
       });
+      const NUMBER_OF_MEDIA = 0;
 
       expect(asset).toBeDefined();
       expect(asset.name).toEqual(transferRequest.assets[0].name);
       expect(asset.media).toBeDefined();
-      expect(asset.media.length).toEqual(0);
+      expect(asset.media.length).toEqual(NUMBER_OF_MEDIA);
       expect(asset.description).toEqual(transferRequest.assets[0].description);
       expect(asset.fractionQtyTotal).toEqual(transferRequest.assets[0].fractionQtyTotal);
     });
@@ -281,7 +302,7 @@ describe('AssetsController', () => {
           type: MediaTypeEnum.Image,
         },
       ];
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1232',
           email: 'steven@example.com',
@@ -297,7 +318,14 @@ describe('AssetsController', () => {
         ],
       };
 
-      const response = await testApp.post(app, `/v1/assets`, 400, null, transferRequest, header);
+      const response = await testApp.post(
+        app,
+        `/v1/assets`,
+        StatusCodes.BAD_REQUEST,
+        null,
+        transferRequest,
+        header,
+      );
       expect(response.body).toHaveProperty('message');
       expect(response.body.message).toContain(
         'Error: HttpException: Error: TypeError [ERR_INVALID_URL]: Invalid URL',
@@ -307,9 +335,10 @@ describe('AssetsController', () => {
         where: { refId: '14' },
         relations: ['media', 'media.file'],
       });
+      const NUMBER_OF_MEDIA = 0;
       expect(asset).toBeDefined();
       expect(asset.name).toEqual(transferRequest.assets[0].name);
-      expect(asset.media.length).toEqual(0);
+      expect(asset.media.length).toEqual(NUMBER_OF_MEDIA);
       expect(asset.description).toEqual(transferRequest.assets[0].description);
     });
 
@@ -329,7 +358,7 @@ describe('AssetsController', () => {
           type: MediaTypeEnum.Image,
         },
       ];
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1232',
           email: 'steven@example.com',
@@ -346,17 +375,25 @@ describe('AssetsController', () => {
       };
       const response = {
         message: 'Error: HttpException: Error: Error: 500',
-        statusCode: 400,
+        statusCode: StatusCodes.BAD_REQUEST,
       };
-      await testApp.post(app, `/v1/assets`, 400, response, transferRequest, header);
+      await testApp.post(
+        app,
+        `/v1/assets`,
+        StatusCodes.BAD_REQUEST,
+        response,
+        transferRequest,
+        header,
+      );
 
       const asset = await Asset.findOne({
         where: { refId: '15' },
         relations: ['media', 'media.file'],
       });
+      const NUMBER_OF_MEDIA = 0;
       expect(asset).toBeDefined();
       expect(asset.name).toEqual(transferRequest.assets[0].name);
-      expect(asset.media.length).toEqual(0);
+      expect(asset.media.length).toEqual(NUMBER_OF_MEDIA);
       expect(asset.description).toEqual(transferRequest.assets[0].description);
       expect(asset.fractionQtyTotal).toEqual(transferRequest.assets[0].fractionQtyTotal);
     });
@@ -373,7 +410,7 @@ describe('AssetsController', () => {
       await Asset.delete({});
       await createAsset({ refId: '1232' }, partner2);
 
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1232',
           email: 'steven@example.com',
@@ -387,7 +424,7 @@ describe('AssetsController', () => {
           },
         ],
       };
-      await testApp.post(app, `/v1/assets`, 201, null, transferRequest, header);
+      await testApp.post(app, `/v1/assets`, StatusCodes.CREATED, null, transferRequest, header);
     });
 
     test('should be able to recreate a deleted asset', async () => {
@@ -399,7 +436,7 @@ describe('AssetsController', () => {
       });
       const asset = await createAsset({ refId: '1232' }, partner2);
       await softDeleteAsset(asset);
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1232',
           email: 'steven@example.com',
@@ -412,7 +449,7 @@ describe('AssetsController', () => {
           },
         ],
       };
-      await testApp.post(app, `/v1/assets`, 400, null, transferRequest, header);
+      await testApp.post(app, `/v1/assets`, StatusCodes.BAD_REQUEST, null, transferRequest, header);
       const getAsset = await Asset.findOne({
         where: { refId: '1232' },
       });
@@ -422,7 +459,7 @@ describe('AssetsController', () => {
     test('should pass if name is used for another asset for the same partner', async () => {
       await createAsset({ refId: '1', name: 'New Asset' }, partner);
 
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1',
           email: 'steven@example.com',
@@ -436,7 +473,7 @@ describe('AssetsController', () => {
           },
         ],
       };
-      return testApp.post(app, `/v1/assets`, 201, null, transferRequest, header);
+      return testApp.post(app, `/v1/assets`, StatusCodes.CREATED, null, transferRequest, header);
     });
 
     test('should pass if name is used for another asset for the different partner', async () => {
@@ -448,7 +485,7 @@ describe('AssetsController', () => {
 
       await createAsset({ refId: '3', name: 'NewAssetDifferentPartner' }, partner2);
 
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1233',
           email: 'steven@example.com',
@@ -462,11 +499,11 @@ describe('AssetsController', () => {
           },
         ],
       };
-      return testApp.post(app, `/v1/assets`, 201, null, transferRequest, header);
+      return testApp.post(app, `/v1/assets`, StatusCodes.CREATED, null, transferRequest, header);
     });
 
     test('should throw 400 exception if asset already exist by refId (same request)', async () => {
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1232',
           email: 'steven@example.com',
@@ -487,33 +524,47 @@ describe('AssetsController', () => {
         ],
       };
       const response = {
-        statusCode: 400,
+        statusCode: StatusCodes.BAD_REQUEST,
         message: 'Duplicated assets',
         refIds: ['1232'],
       };
-      return testApp.post(app, `/v1/assets`, 400, response, transferRequest, header);
+      return testApp.post(
+        app,
+        `/v1/assets`,
+        StatusCodes.BAD_REQUEST,
+        response,
+        transferRequest,
+        header,
+      );
     });
 
     test('should throw an exception if assets property is undefined', () => {
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: 'test',
           email: 'steven@example.com',
         },
       };
       const response = {
-        statusCode: 400,
+        statusCode: StatusCodes.BAD_REQUEST,
         message: [
           'assets should not be null or undefined',
           'assets must contain at least 1 elements',
         ],
         error: 'Bad Request',
       };
-      return testApp.post(app, `/v1/assets`, 400, response, transferRequest, header);
+      return testApp.post(
+        app,
+        `/v1/assets`,
+        StatusCodes.BAD_REQUEST,
+        response,
+        transferRequest,
+        header,
+      );
     });
 
     test('should throw an exception if assets property is empty', () => {
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: 'test',
           email: 'steven@example.com',
@@ -521,27 +572,35 @@ describe('AssetsController', () => {
         assets: [],
       };
       const response = {
-        statusCode: 400,
+        statusCode: StatusCodes.BAD_REQUEST,
         message: ['assets must contain at least 1 elements'],
         error: 'Bad Request',
       };
-      return testApp.post(app, `/v1/assets`, 400, response, transferRequest, header);
+      return testApp.post(
+        app,
+        `/v1/assets`,
+        StatusCodes.BAD_REQUEST,
+        response,
+        transferRequest,
+        header,
+      );
     });
 
     test('should throw an exception if asset object is invalid', () => {
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: 'test',
           email: 'steven@example.com',
         },
         assets: [
           {
-            refId: 'a'.repeat(105),
+            refId:
+              'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           },
         ],
       };
       const response = {
-        statusCode: 400,
+        statusCode: StatusCodes.BAD_REQUEST,
         message: [
           'assets.0.refId must be shorter than or equal to 100 characters',
           'assets.0.name must be shorter than or equal to 200 characters',
@@ -552,7 +611,14 @@ describe('AssetsController', () => {
         ],
         error: 'Bad Request',
       };
-      return testApp.post(app, `/v1/assets`, 400, response, transferRequest, header);
+      return testApp.post(
+        app,
+        `/v1/assets`,
+        StatusCodes.BAD_REQUEST,
+        response,
+        transferRequest,
+        header,
+      );
     });
 
     test('should throw an exception if partner is deleted', async () => {
@@ -564,7 +630,7 @@ describe('AssetsController', () => {
         isDeleted: true,
       });
 
-      const transferRequest: any = {
+      const transferRequest: Record<string, unknown> = {
         user: {
           refId: '1236',
           email: 'steven@example.com',
@@ -587,7 +653,14 @@ describe('AssetsController', () => {
       const customHeader = {
         'x-api-key': deletedPartner.apiKey,
       };
-      return testApp.post(app, `/v1/assets`, 401, null, transferRequest, customHeader);
+      return testApp.post(
+        app,
+        `/v1/assets`,
+        StatusCodes.UNAUTHORIZED,
+        null,
+        transferRequest,
+        customHeader,
+      );
     });
   });
 });

@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBasicAuth,
+  ApiBearerAuth,
   ApiNotFoundResponse,
   ApiOperation,
   ApiResponse,
@@ -31,6 +32,7 @@ import JwtOtpAuthGuard from 'modules/auth/guards/jwt-otp-auth.guard';
 import { GetUser } from 'modules/auth/decorators/get-user.decorator';
 import { User } from 'modules/users/entities/user.entity';
 import { SellOrderTypeEnum } from '../enums/sell-order-type.enum';
+import { StatusCodes } from 'http-status-codes';
 
 @ApiTags('sellorders')
 @Controller({
@@ -84,14 +86,17 @@ export class SellOrdersController {
     description: 'Sell order created',
   })
   @HttpCode(HttpStatus.CREATED)
-  public async create(@GetPartner() partner: Partner, @Body() dto: SellOrderDto) {
+  public async create(
+    @GetPartner() partner: Partner,
+    @Body() dto: SellOrderDto,
+  ): Promise<{ status: StatusCodes; description: string }> {
     try {
       await this.sellOrdersService.createSellOrder(partner, dto);
     } catch (e) {
       throw e;
     }
     return {
-      status: 201,
+      status: StatusCodes.CREATED,
       description: 'Sell order created',
     };
   }
@@ -115,6 +120,7 @@ export class SellOrdersController {
   }
 
   @Post(':id/purchase')
+  @ApiBearerAuth('bearer-token')
   @UseGuards(JwtOtpAuthGuard)
   @ApiOperation({ summary: 'Purchase fractions from sell order' })
   @ApiResponse({
@@ -130,6 +136,7 @@ export class SellOrdersController {
   }
 
   @Get(':id/check')
+  @ApiBearerAuth('bearer-token')
   @UseGuards(JwtOtpAuthGuard)
   @ApiOperation({ summary: 'Check if user can purchase shares from sell order' })
   @ApiResponse({

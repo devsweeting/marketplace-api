@@ -13,7 +13,7 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
     });
   }
 
-  validate(req: Request, payload: any) {
+  validate(req: Request, payload: unknown): { payload: unknown; refreshToken: string } {
     const refreshToken = req.body.refreshToken;
     return { payload, refreshToken };
   }

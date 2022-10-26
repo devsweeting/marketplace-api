@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, RelationId } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, RelationId, UpdateResult } from 'typeorm';
 
 import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from '../../common/entities/base.model';
@@ -52,7 +52,7 @@ export class Media extends BaseModel implements IBaseEntity {
     Object.assign(this, partial);
   }
 
-  public static bulkSoftDelete(assetId: string, ids: string[] = []) {
+  public static bulkSoftDelete(assetId: string, ids: string[] = []): Promise<UpdateResult> {
     const query = Media.createQueryBuilder('media')
       .update()
       .set({ isDeleted: true, deletedAt: new Date() })

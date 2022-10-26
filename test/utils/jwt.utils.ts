@@ -12,4 +12,5 @@ export const generateToken = (user: User): string =>
     role: user.role,
   });
 
+// eslint-disable-next-line no-magic-numbers
 export const generateNonce = (): string => String(Math.floor(Math.random() * 1000000));

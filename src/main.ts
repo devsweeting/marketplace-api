@@ -10,7 +10,7 @@ import path from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { VersioningType } from '@nestjs/common';
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: true,
     bufferLogs: true,
@@ -38,7 +38,7 @@ async function bootstrap() {
 
   await app.listen(port);
 
-  // tslint:disable-next-line: no-console
+  // eslint-disable-next-line no-console
   console.log(`🚀  Server ready at ${port}`);
 }
 

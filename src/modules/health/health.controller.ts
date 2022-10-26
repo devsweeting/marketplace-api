@@ -5,6 +5,8 @@ import {
   HealthCheck,
   TypeOrmHealthIndicator,
   MemoryHealthIndicator,
+  HealthCheckResult,
+  HealthIndicatorResult,
 } from '@nestjs/terminus';
 
 @Controller('health')
@@ -18,14 +20,19 @@ export class HealthController {
 
   @Get()
   @HealthCheck()
-  check() {
+  check(): Promise<HealthCheckResult> {
     const maxRSS = Number(this.configService.get('health.default.maxRSSMB'));
     const maxHeap = Number(this.configService.get('health.default.maxHeapMB'));
 
     return this.healthCheckService.check([
-      () => this.typeOrmHealthIndicator.pingCheck('database'),
-      () => this.memoryHealthIndicator.checkHeap('memory heap', maxHeap * 1024 * 1024),
-      () => this.memoryHealthIndicator.checkRSS('memory RSS', maxRSS * 1024 * 1024),
+      (): HealthIndicatorResult | PromiseLike<HealthIndicatorResult> =>
+        this.typeOrmHealthIndicator.pingCheck('database'),
+      (): HealthIndicatorResult | PromiseLike<HealthIndicatorResult> =>
+        // eslint-disable-next-line no-magic-numbers
+        this.memoryHealthIndicator.checkHeap('memory heap', maxHeap * 1024 * 1024),
+      (): HealthIndicatorResult | PromiseLike<HealthIndicatorResult> =>
+        // eslint-disable-next-line no-magic-numbers
+        this.memoryHealthIndicator.checkRSS('memory RSS', maxRSS * 1024 * 1024),
     ]);
   }
 }

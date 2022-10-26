@@ -12,7 +12,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { ApiNotFoundResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { GetUser } from 'modules/auth/decorators/get-user.decorator';
 import JwtOtpAuthGuard from 'modules/auth/guards/jwt-otp-auth.guard';
@@ -26,6 +32,7 @@ import { WatchlistAssetResponse } from './responses/watchlist.response';
 import { WatchlistTransformer } from './transformers/watchlist.transformer';
 import { WatchlistService } from './watchlist.service';
 import { validate as isValidUUID } from 'uuid';
+import { StatusCodes } from 'http-status-codes';
 @ApiTags('watchlist')
 @Controller({
   path: 'watchlist',
@@ -37,8 +44,9 @@ export class WatchlistController {
     private readonly watchlistTransformer: WatchlistTransformer,
   ) {}
 
+  @Get()
+  @ApiBearerAuth('bearer-token')
   @UseGuards(JwtOtpAuthGuard)
-  @Get('')
   @ApiOperation({ summary: 'Return list of assets' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -55,27 +63,32 @@ export class WatchlistController {
     return this.watchlistTransformer.transformPaginated(watchlist);
   }
 
+  @Post()
+  @ApiBearerAuth('bearer-token')
   @UseGuards(JwtOtpAuthGuard)
-  @Post('')
   @ApiOperation({ summary: 'Add or re-add an asset to watchlist' })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Asset was added to watchlist',
   })
   @HttpCode(HttpStatus.CREATED)
-  public async create(@GetUser() user: User, @Body() dto: WatchlistDto) {
+  public async create(
+    @GetUser() user: User,
+    @Body() dto: WatchlistDto,
+  ): Promise<{ status: StatusCodes; description: string }> {
     const watchlistAsset = await this.watchlistService.assignAssetToWatchlist(user, dto);
     if (!watchlistAsset) {
       throw new InternalServerErrorException();
     }
     return {
-      status: 201,
+      status: StatusCodes.CREATED,
       description: 'Asset was added to watchlist',
     };
   }
 
-  @UseGuards(JwtOtpAuthGuard)
   @Delete(':assetId')
+  @ApiBearerAuth('bearer-token')
+  @UseGuards(JwtOtpAuthGuard)
   @ApiOperation({ summary: 'Delete an asset from watchlist' })
   @ApiResponse({
     status: HttpStatus.NO_CONTENT,
@@ -88,8 +101,9 @@ export class WatchlistController {
     await this.watchlistService.deleteAssetFromWatchlist(user, params.assetId);
   }
 
-  @UseGuards(JwtOtpAuthGuard)
   @Get('check/:checkParams')
+  @ApiBearerAuth('bearer-token')
+  @UseGuards(JwtOtpAuthGuard)
   @ApiOperation({ summary: 'Check an asset in watchlist' })
   @ApiResponse({
     status: HttpStatus.OK,

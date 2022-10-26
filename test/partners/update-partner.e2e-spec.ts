@@ -6,6 +6,7 @@ import { Partner, PartnerMemberUser } from 'modules/partners/entities';
 import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
+import { StatusCodes } from 'http-status-codes';
 
 describe('PartnerController', () => {
   let app: INestApplication;
@@ -37,7 +38,10 @@ describe('PartnerController', () => {
 
   describe(`PATCH V1 /partners`, () => {
     test('should throw 401 exception if auth token is missing', () => {
-      return request(app.getHttpServer()).patch(`/v1/partners`).send({}).expect(401);
+      return request(app.getHttpServer())
+        .patch(`/v1/partners`)
+        .send({})
+        .expect(StatusCodes.UNAUTHORIZED);
     });
 
     test('should throw 401 exception if token is invalid', () => {
@@ -47,7 +51,7 @@ describe('PartnerController', () => {
           'x-api-key': 'invalid key',
         })
         .send({})
-        .expect(401);
+        .expect(StatusCodes.UNAUTHORIZED);
     });
 
     test('should update user partner member', async () => {
@@ -61,10 +65,10 @@ describe('PartnerController', () => {
           'x-api-key': partner.apiKey,
         })
         .send(payload)
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
-            status: 200,
+            status: StatusCodes.OK,
             description: 'Partner updated',
           });
         })
@@ -73,8 +77,9 @@ describe('PartnerController', () => {
             where: { id: partner.id },
             relations: ['members'],
           });
+          const NUMBER_OF_MEMBERS = 2;
           expect(updatedPartner).toBeDefined();
-          expect(updatedPartner.members.length).toEqual(2);
+          expect(updatedPartner.members.length).toEqual(NUMBER_OF_MEMBERS);
           const u1 = await User.findOne({ where: { email: payload.emails[0] } });
           const u2 = await User.findOne({ where: { email: payload.emails[1] } });
           expect(updatedPartner.members.map((m: PartnerMemberUser) => m.userId).sort()).toEqual(
@@ -93,12 +98,12 @@ describe('PartnerController', () => {
           'x-api-key': partner.apiKey,
         })
         .send(payload)
-        .expect(404)
+        .expect(StatusCodes.NOT_FOUND)
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Not Found',
             message: `EMAIL_NOT_FOUND`,
-            statusCode: 404,
+            statusCode: StatusCodes.NOT_FOUND,
           });
         })
         .then(async () => {
@@ -106,8 +111,9 @@ describe('PartnerController', () => {
             where: { id: partner.id },
             relations: ['members'],
           });
+          const NUMBER_OF_MEMBERS = 0;
           expect(updatedPartner).toBeDefined();
-          expect(updatedPartner.members.length).toEqual(0);
+          expect(updatedPartner.members.length).toEqual(NUMBER_OF_MEMBERS);
         });
     });
   });

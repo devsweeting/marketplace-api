@@ -12,6 +12,7 @@ import { createPartner } from '../utils/partner.utils';
 import { Partner } from 'modules/partners/entities';
 import { v4 } from 'uuid';
 import { generateNonce, generateToken } from '../utils/jwt.utils';
+import { StatusCodes } from 'http-status-codes';
 
 describe('WatchlistController', () => {
   let app: INestApplication;
@@ -54,7 +55,10 @@ describe('WatchlistController', () => {
 
   describe(`DELETE V1 /watchlist`, () => {
     test('should throw 401 exception if auth token is missing', () => {
-      return request(app.getHttpServer()).delete(`/v1/watchlist/${asset.id}`).send({}).expect(401);
+      return request(app.getHttpServer())
+        .delete(`/v1/watchlist/${asset.id}`)
+        .send({})
+        .expect(StatusCodes.UNAUTHORIZED);
     });
 
     test('should throw 401 exception if token is invalid', () => {
@@ -62,20 +66,20 @@ describe('WatchlistController', () => {
         .delete(`/v1/watchlist/${asset.id}`)
         .set({ Authorization: `Bearer wrong` })
         .send({})
-        .expect(401);
+        .expect(StatusCodes.UNAUTHORIZED);
     });
 
-    test('should throw 400 exception if assetId is not uuid', () => {
+    test('should throw StatusCodes.BAD_REQUEST exception if assetId is not uuid', () => {
       return request(app.getHttpServer())
         .delete(`/v1/watchlist/123`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
-        .expect(400)
+        .expect(StatusCodes.BAD_REQUEST)
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Bad Request',
             message: ['assetId must be a UUID'],
-            statusCode: 400,
+            statusCode: StatusCodes.BAD_REQUEST,
           });
         });
     });
@@ -85,7 +89,7 @@ describe('WatchlistController', () => {
         .delete(`/v1/watchlist/${v4()}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
-        .expect(404);
+        .expect(StatusCodes.NOT_FOUND);
     });
 
     test('should throw 404 exception if asset does not exist', async () => {
@@ -94,7 +98,7 @@ describe('WatchlistController', () => {
         .delete(`/v1/watchlist/${v4()}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
-        .expect(404);
+        .expect(StatusCodes.NOT_FOUND);
     });
 
     test('should throw 404 exception if watchlist does not exist', async () => {
@@ -103,7 +107,7 @@ describe('WatchlistController', () => {
         .delete(`/v1/watchlist/${v4()}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
-        .expect(404);
+        .expect(StatusCodes.NOT_FOUND);
     });
 
     test('should throw 409 exception if asset not added to watchlist', async () => {
@@ -111,10 +115,10 @@ describe('WatchlistController', () => {
         .delete(`/v1/watchlist/${asset.id}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
-        .expect(409)
+        .expect(StatusCodes.CONFLICT)
         .expect(({ body }) => {
           expect(body).toEqual({
-            statusCode: 409,
+            statusCode: StatusCodes.CONFLICT,
             error: 'Conflict',
             message: 'WATCHLIST_ASSET_NOT_ADDED',
           });
@@ -127,7 +131,7 @@ describe('WatchlistController', () => {
         .delete(`/v1/watchlist/${asset.id}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .then(async () => {
           const persistedWatchlistAsset = await WatchlistAsset.findOne({
             where: { assetId: asset.id, watchlistId: watchlist.id, isDeleted: false },
