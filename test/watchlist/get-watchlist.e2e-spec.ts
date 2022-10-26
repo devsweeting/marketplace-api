@@ -12,6 +12,7 @@ import { Asset } from 'modules/assets/entities';
 import { createPartner } from '../utils/partner.utils';
 import { Partner } from 'modules/partners/entities';
 import { generateNonce, generateToken } from '../utils/jwt.utils';
+import { StatusCodes } from 'http-status-codes';
 
 describe('WatchlistController', () => {
   let app: INestApplication;
@@ -79,7 +80,10 @@ describe('WatchlistController', () => {
 
   describe(`GET V1 /watchlist`, () => {
     test('should throw 401 exception if auth token is missing', () => {
-      return request(app.getHttpServer()).get(`/v1/watchlist/`).send({}).expect(401);
+      return request(app.getHttpServer())
+        .get(`/v1/watchlist/`)
+        .send({})
+        .expect(StatusCodes.UNAUTHORIZED);
     });
 
     test('should throw 401 exception if token is invalid', () => {
@@ -87,7 +91,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist/`)
         .set({ Authorization: `Bearer wrong` })
         .send({})
-        .expect(401);
+        .expect(StatusCodes.UNAUTHORIZED);
     });
 
     test('should empty list if second page is empty', async () => {
@@ -108,7 +112,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist?${params.toString()}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -144,7 +148,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist?${params.toString()}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -180,7 +184,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist?${params.toString()}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -217,7 +221,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist?${params.toString()}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -256,7 +260,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist?${params.toString()}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -295,7 +299,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist?${params.toString()}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -335,7 +339,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist?${params.toString()}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -374,7 +378,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist?${params.toString()}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -414,7 +418,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist?${params.toString()}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -453,7 +457,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist?${params.toString()}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -487,7 +491,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -521,7 +525,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -552,7 +556,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -572,7 +576,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send()
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {

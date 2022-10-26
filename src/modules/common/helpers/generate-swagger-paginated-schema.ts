@@ -1,8 +1,15 @@
 import { getSchemaPath } from '@nestjs/swagger';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export const generateSwaggerPaginatedSchema = (model: string | Function) => ({
+export const generateSwaggerPaginatedSchema = (
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  model: string | Function,
+): {
+  allOf: (
+    | { $ref: string }
+    | { properties: { items: { type: string; items: { $ref: string } } } }
+  )[];
+} => ({
   allOf: [
     { $ref: getSchemaPath(PaginatedResponse) },
     {

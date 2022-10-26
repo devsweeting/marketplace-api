@@ -5,6 +5,7 @@ import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { generateToken } from '../utils/jwt.utils';
+import { StatusCodes } from 'http-status-codes';
 
 describe('UsersController', () => {
   let app: INestApplication;
@@ -26,14 +27,14 @@ describe('UsersController', () => {
       admin = await createUser({ role: RoleEnum.SUPER_ADMIN });
     });
     test('should update a user record in the db', () => {
-      const userRequest: any = {
+      const userRequest: { email: string } = {
         email: 'changed@mail.com',
       };
       return request(app.getHttpServer())
         .patch(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             id: user.id,
@@ -52,7 +53,7 @@ describe('UsersController', () => {
     });
 
     test('should throw an exception if user email is invalid', () => {
-      const userRequest: any = {
+      const userRequest: { email: string } = {
         email: 'wrong-email',
       };
 
@@ -60,15 +61,15 @@ describe('UsersController', () => {
         .patch(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
-        .expect(400)
+        .expect(StatusCodes.BAD_REQUEST)
         .expect({
-          statusCode: 400,
+          statusCode: StatusCodes.BAD_REQUEST,
           message: ['email must be an email'],
           error: 'Bad Request',
         });
     });
     test('should throw an exception if user password is exists in data', () => {
-      const userRequest: any = {
+      const userRequest: { password: string } = {
         password: 'password',
       };
 
@@ -76,9 +77,9 @@ describe('UsersController', () => {
         .patch(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
-        .expect(400)
+        .expect(StatusCodes.BAD_REQUEST)
         .expect({
-          statusCode: 400,
+          statusCode: StatusCodes.BAD_REQUEST,
           message: ['property password should not exist'],
           error: 'Bad Request',
         });
@@ -89,14 +90,14 @@ describe('UsersController', () => {
       admin = await createUser({ role: RoleEnum.ADMIN });
     });
     test('should update a user record in the db', () => {
-      const userRequest: any = {
+      const userRequest: { email: string } = {
         email: 'updated@mail.com',
       };
       return request(app.getHttpServer())
         .patch(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             id: user.id,
@@ -115,7 +116,7 @@ describe('UsersController', () => {
     });
 
     test('should throw an exception if user email is invalid', () => {
-      const userRequest: any = {
+      const userRequest: { email: string } = {
         email: 'wrong-email',
       };
 
@@ -123,15 +124,15 @@ describe('UsersController', () => {
         .patch(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
-        .expect(400)
+        .expect(StatusCodes.BAD_REQUEST)
         .expect({
-          statusCode: 400,
+          statusCode: StatusCodes.BAD_REQUEST,
           message: ['email must be an email'],
           error: 'Bad Request',
         });
     });
     test('should throw an exception if user password is exists in data', () => {
-      const userRequest: any = {
+      const userRequest: { password: string } = {
         password: 'password',
       };
 
@@ -139,9 +140,9 @@ describe('UsersController', () => {
         .patch(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
-        .expect(400)
+        .expect(StatusCodes.BAD_REQUEST)
         .expect({
-          statusCode: 400,
+          statusCode: StatusCodes.BAD_REQUEST,
           message: ['property password should not exist'],
           error: 'Bad Request',
         });

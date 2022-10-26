@@ -5,6 +5,7 @@ import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { generateToken } from '../utils/jwt.utils';
+import { StatusCodes } from 'http-status-codes';
 
 describe('UsersController', () => {
   let app: INestApplication;
@@ -29,7 +30,7 @@ describe('UsersController', () => {
       return request(app.getHttpServer())
         .delete(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
-        .expect(200)
+        .expect(StatusCodes.OK)
         .expect(({ body }) => {
           expect(body).toEqual({});
         })
@@ -44,9 +45,9 @@ describe('UsersController', () => {
       return request(app.getHttpServer())
         .delete(`/v1/users/${wrongId}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
-        .expect(404)
+        .expect(StatusCodes.NOT_FOUND)
         .expect({
-          statusCode: 404,
+          statusCode: StatusCodes.NOT_FOUND,
           message: 'USER_NOT_FOUND',
           error: 'Not Found',
         });
@@ -60,12 +61,12 @@ describe('UsersController', () => {
       return request(app.getHttpServer())
         .delete(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
-        .expect(403)
+        .expect(StatusCodes.FORBIDDEN)
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Forbidden',
             message: 'Forbidden resource',
-            statusCode: 403,
+            statusCode: StatusCodes.FORBIDDEN,
           });
         })
         .then(async () => {
@@ -79,7 +80,7 @@ describe('UsersController', () => {
       return request(app.getHttpServer())
         .delete(`/v1/users/${wrongId}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
-        .expect(403);
+        .expect(StatusCodes.FORBIDDEN);
     });
   });
   describe(`DELETE /users/:id AS USER`, () => {
@@ -87,12 +88,12 @@ describe('UsersController', () => {
       return request(app.getHttpServer())
         .delete(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
-        .expect(403)
+        .expect(StatusCodes.FORBIDDEN)
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Forbidden',
             message: 'Forbidden resource',
-            statusCode: 403,
+            statusCode: StatusCodes.FORBIDDEN,
           });
         })
         .then(async () => {
@@ -106,7 +107,7 @@ describe('UsersController', () => {
       return request(app.getHttpServer())
         .delete(`/v1/users/${wrongId}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
-        .expect(403);
+        .expect(StatusCodes.FORBIDDEN);
     });
   });
 });

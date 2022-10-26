@@ -4,6 +4,7 @@ import { clearAllData, createApp } from '@/test/utils/app.utils';
 
 import { Collection } from 'modules/collections/entities';
 import { CollectionDto } from 'modules/collections/dto';
+import { StatusCodes } from 'http-status-codes';
 
 describe('CollectionController', () => {
   let app: INestApplication;
@@ -33,7 +34,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .post(`/v1/collections`)
         .send(collectionDto)
-        .expect(201)
+        .expect(StatusCodes.CREATED)
         .then(async () => {
           const collection = await Collection.findOne({
             where: { slug: collectionDto.name },
@@ -50,14 +51,14 @@ describe('CollectionController', () => {
     });
 
     test('should throw an exception if assets property is empty', () => {
-      const collectionDto: any = {};
+      const collectionDto: Record<string, unknown> = {};
 
       return request(app.getHttpServer())
         .post(`/v1/collections`)
         .send(collectionDto)
-        .expect(400)
+        .expect(StatusCodes.BAD_REQUEST)
         .expect({
-          statusCode: 400,
+          statusCode: StatusCodes.BAD_REQUEST,
           message: [
             'name must be shorter than or equal to 200 characters',
             'name should not be empty',
@@ -79,9 +80,9 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .post(`/v1/collections`)
         .send(collectionDto)
-        .expect(400)
+        .expect(StatusCodes.BAD_REQUEST)
         .expect({
-          statusCode: 400,
+          statusCode: StatusCodes.BAD_REQUEST,
           message: [
             'name should not be empty',
             'description should not be empty',

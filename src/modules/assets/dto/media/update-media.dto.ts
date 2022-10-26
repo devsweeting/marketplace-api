@@ -1,3 +1,4 @@
+/* eslint-disable no-magic-numbers */
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsOptional, IsUrl, MaxLength } from 'class-validator';
 import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';

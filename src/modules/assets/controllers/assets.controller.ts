@@ -37,6 +37,7 @@ import { MediaService } from '../services/media.service';
 import { MediaTransformer } from '../transformers/media.transformer';
 
 import { validate as isValidUUID } from 'uuid';
+import { StatusCodes } from 'http-status-codes';
 @ApiTags('assets')
 @Controller({
   path: 'assets',
@@ -132,14 +133,20 @@ export class AssetsController {
     status: HttpStatus.CREATED,
     description: 'Transfer request accepted, processing.',
   })
-  public async transfer(@GetPartner() partner: Partner, @Body() dto: TransferRequestDto) {
+  public async transfer(
+    @GetPartner() partner: Partner,
+    @Body() dto: TransferRequestDto,
+  ): Promise<{
+    status: StatusCodes;
+    description: string;
+  }> {
     try {
       await this.assetsService.recordTransferRequest(partner.id, dto);
     } catch (e) {
       throw e;
     }
     return {
-      status: 201,
+      status: StatusCodes.CREATED,
       description: 'Transfer request accepted, processing.',
     };
   }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { faker } from '@faker-js/faker';
 import { IProcessor } from 'typeorm-fixtures-cli';
 import { Asset } from 'modules/assets/entities';

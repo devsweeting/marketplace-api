@@ -1,3 +1,4 @@
+/* eslint-disable no-magic-numbers */
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, MaxLength } from 'class-validator';
 
@@ -29,5 +30,5 @@ export class UpdateCollectionDto {
     example: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
   })
   @IsOptional()
-  public banner?: any;
+  public banner?: string;
 }

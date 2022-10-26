@@ -1,3 +1,4 @@
+/* eslint-disable no-magic-numbers */
 import { Injectable, Logger } from '@nestjs/common';
 import { Partner } from 'modules/partners/entities';
 import { Asset, Attribute, Label, Media, Token } from 'modules/assets/entities';
@@ -26,9 +27,10 @@ import { IsNotUuidException } from '../exceptions/is-not-uuid.exception';
 
 // TODO find a better place for this to live
 export class TrendingMarket {
-  constructor(data: any) {
+  constructor(data: { grouping: string[]; total_cents: number }) {
     this.brand = data.grouping[0];
     this.filter = 'attr_eq[brand]=' + encodeURIComponent(this.brand);
+    // eslint-disable-next-line no-magic-numbers
     this.value_dollars = data.total_cents / 100;
   }
   brand: string;

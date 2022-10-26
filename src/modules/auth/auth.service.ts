@@ -38,7 +38,11 @@ export class AuthService {
     return Partner.findOne({ where: { apiKey, isDeleted: false, deletedAt: IsNull() } });
   }
 
-  public async generateAccessToken(user: { id: string; email: string; role: RoleEnum }) {
+  public async generateAccessToken(user: {
+    id: string;
+    email: string;
+    role: RoleEnum;
+  }): Promise<string> {
     return this.jwtService.sign({
       id: user.id,
       email: user.email,
@@ -46,7 +50,11 @@ export class AuthService {
     });
   }
 
-  public async generateRefreshToken(user: { id: string; email: string; role: RoleEnum }) {
+  public async generateRefreshToken(user: {
+    id: string;
+    email: string;
+    role: RoleEnum;
+  }): Promise<string> {
     const payload = { userId: user.id, email: user.email, role: user.role, assignedAt: Date.now() };
     const refreshToken = await this.jwtService.sign(payload, {
       secret: this.configService.get('jwt.default.jwtRefreshSecret'),
@@ -59,7 +67,7 @@ export class AuthService {
     userId: string,
     newRefreshToken: string,
     oldRefreshToken?: string,
-  ) {
+  ): Promise<UserRefresh> {
     //invalidate the succesfully used token
     if (oldRefreshToken) {
       await UserRefresh.markTokenExpired(oldRefreshToken);
@@ -72,7 +80,11 @@ export class AuthService {
     return userRefresh;
   }
 
-  async createLoginTokens(user: { id: string; email: string; role: RoleEnum }) {
+  async createLoginTokens(user: {
+    id: string;
+    email: string;
+    role: RoleEnum;
+  }): Promise<{ user: UserRefresh; accessToken: string; refreshToken: string }> {
     const payload = { id: user.id, email: user.email, role: user.role, assignedAt: Date.now() };
     const refreshToken = await this.generateRefreshToken(payload);
     const updatedUser = await this.updateRefreshTokenForUser(payload.id, refreshToken);

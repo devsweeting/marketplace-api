@@ -9,7 +9,7 @@ export class AppController {
 
   @Get()
   @Redirect()
-  redirectToRootUrl() {
+  redirectToRootUrl(): { statusCode: HttpStatus.FOUND; url: string } {
     const url = this.configService.get('common.default.redirectRootUrl');
     return { statusCode: HttpStatus.FOUND, url };
   }

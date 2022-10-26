@@ -42,7 +42,7 @@ export class AssetAttributes {
     }
   }
 
-  public add(key: string, val: string | number) {
+  public add(key: string, val: string | number): void {
     key = key.toLowerCase();
     if (this[key] === undefined) {
       this[key] = [];
@@ -143,6 +143,7 @@ export class Asset extends BaseModel implements IBaseEntity {
       },
     });
 
+    // eslint-disable-next-line no-magic-numbers
     const name = assetsCount > 0 ? `${this.name} ${Date.now()}` : this.name;
     this.slug = generateSlug(name);
   }
@@ -220,6 +221,7 @@ export class Asset extends BaseModel implements IBaseEntity {
 
     if (params.attr_eq) {
       const keys = Object.keys(params.attr_eq);
+      // eslint-disable-next-line no-magic-numbers
       if (keys.length > 0) {
         const group = {};
         for (const attr in params.attr_eq) {
@@ -296,7 +298,7 @@ export class Asset extends BaseModel implements IBaseEntity {
     return query;
   }
 
-  private static filterRangeArray(arr1: string[], arr: string[]) {
+  private static filterRangeArray(arr1: string[], arr: string[]): string[] {
     return arr1.filter((el) => {
       return !arr.some((s) => {
         return s === el;
@@ -356,6 +358,7 @@ export class Asset extends BaseModel implements IBaseEntity {
       }
       return assets;
     }
+    return undefined;
   }
 
   public constructor(partial: Partial<Asset> = {}) {

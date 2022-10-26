@@ -1,3 +1,4 @@
+/* eslint-disable no-magic-numbers */
 import { registerAs } from '@nestjs/config';
 
 export default registerAs('common', () => {

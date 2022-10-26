@@ -36,6 +36,7 @@ export class TokensTransformer {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public traitsTransformAll<T>(attributes: AssetAttributes, meta = false): T[] {
     // TODO: https://github.com/FractionalDev/jump-marketplace-api/issues/214
     // return attributes.map((attribute) =>

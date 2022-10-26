@@ -5,6 +5,7 @@ import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { generateNonce, generateToken } from '../utils/jwt.utils';
+import { StatusCodes } from 'http-status-codes';
 
 describe('UsersController', () => {
   let app: INestApplication;
@@ -25,7 +26,7 @@ describe('UsersController', () => {
     });
 
     test('should create a new user record in the db', () => {
-      const userRequest: any = {
+      const userRequest: { email: string; password: string } = {
         email: 'test@mail.com',
         password: 'password',
       };
@@ -34,19 +35,19 @@ describe('UsersController', () => {
         .post(`/v1/users`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
-        .expect(201);
+        .expect(StatusCodes.CREATED);
     });
 
     test('should throw an exception if user object is undefined', () => {
-      const userRequest: any = {};
+      const userRequest: Record<string, unknown> = {};
 
       return request(app.getHttpServer())
         .post(`/v1/users`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
-        .expect(400)
+        .expect(StatusCodes.BAD_REQUEST)
         .expect({
-          statusCode: 400,
+          statusCode: StatusCodes.BAD_REQUEST,
           message: [
             'email must be an email',
             'email should not be empty',
@@ -59,7 +60,7 @@ describe('UsersController', () => {
     });
 
     test('should throw an exception if user email is invalid', () => {
-      const userRequest: any = {
+      const userRequest: Record<string, string> = {
         email: 'wrong-email',
         password: 'password',
       };
@@ -68,15 +69,15 @@ describe('UsersController', () => {
         .post(`/v1/users`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
-        .expect(400)
+        .expect(StatusCodes.BAD_REQUEST)
         .expect({
-          statusCode: 400,
+          statusCode: StatusCodes.BAD_REQUEST,
           message: ['email must be an email'],
           error: 'Bad Request',
         });
     });
     test('should throw an exception if user password is invalid', () => {
-      const userRequest: any = {
+      const userRequest: Record<string, string> = {
         email: 'email@test.com',
         password: '',
       };
@@ -85,9 +86,9 @@ describe('UsersController', () => {
         .post(`/v1/users`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .send(userRequest)
-        .expect(400)
+        .expect(StatusCodes.BAD_REQUEST)
         .expect({
-          statusCode: 400,
+          statusCode: StatusCodes.BAD_REQUEST,
           message: [
             'password must be longer than or equal to 8 characters',
             'password should not be empty',

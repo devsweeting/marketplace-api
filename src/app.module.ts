@@ -62,7 +62,8 @@ if (process.env.NODE_ENV === 'STAGING' || process.env.NODE_ENV === 'PRODUCTION')
       environment: process.env.SENTRY_ENV || 'dev',
       tracesSampleRate: process.env.SENTRY_SAMPLE_RATE
         ? parseFloat(process.env.SENTRY_SAMPLE_RATE)
-        : 1.0,
+        : // eslint-disable-next-line no-magic-numbers
+          1.0,
     }),
     AuthModule,
     ServeStaticModule.forRoot({
@@ -89,7 +90,7 @@ if (process.env.NODE_ENV === 'STAGING' || process.env.NODE_ENV === 'PRODUCTION')
   providers: [AppService],
 })
 export class AppModule {
-  configure(consumer: MiddlewareConsumer) {
+  configure(consumer: MiddlewareConsumer): void {
     consumer.apply(LogsMiddleware).forRoutes('*');
   }
 }
