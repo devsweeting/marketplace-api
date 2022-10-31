@@ -1,6 +1,6 @@
 export interface ICreateSynapseAccountParams {
   logins: { email: string }[];
-  phone_numbers: string[]; //TODO add more type
+  phone_numbers: string[];
   legal_names: string[];
   documents: ISynapseDocument[];
   extra: {
@@ -11,7 +11,7 @@ export interface ICreateSynapseAccountParams {
 }
 
 export interface ISynapseSocialDoc {
-  document_value: string; // '101 2nd St. STE 1500 SF CA US 94105' //full address name
+  document_value: string; //Ex: '101 2nd St. STE 1500 SF CA US 94105' //full address name
   document_type: 'MAILING_ADDRESS';
   meta: {
     address_street: string;
@@ -29,7 +29,7 @@ export interface ISynapseDocument {
   name: string;
   alias: string;
   entity_scope: 'Arts & Entertainment';
-  entity_type: string; //TODO - what is this?
+  entity_type: 'M' | 'F' | 'O' | 'NOT_KNOWN';
   day: number;
   month: number;
   year: number;
@@ -39,53 +39,7 @@ export interface ISynapseDocument {
   address_postal_code: string;
   address_country_code: string;
   social_docs: ISynapseSocialDoc[];
-  //   virtual_docs?: [
-  //     {
-  //       document_value: '2222';
-  //       document_type: 'SSN';
-  //       meta: {
-  //         country_code: 'US';
-  //       };
-  //     },
-  //     {
-  //       document_value: '2222';
-  //       document_type: 'PASSPORT';
-  //       meta: {
-  //         country_code: 'US';
-  //       };
-  //     },
-  //   ];
-  //   physical_docs: [
-  //     {
-  //       document_value: 'data:image/gif;base64,SUQs==';
-  //       document_type: 'GOVT_ID';
-  //       meta: {
-  //         country_code: 'US';
-  //         state_code: 'CA';
-  //       };
-  //     },
-  //     {
-  //       document_value: 'data:image/gif;base64,SUQs==';
-  //       document_type: 'GOVT_ID_BACK';
-  //       meta: {
-  //         country_code: 'US';
-  //         state_code: 'CA';
-  //       };
-  //     },
-  //   ];
-  //   social_docs: [
-  //     {
-  //       document_value: '101 2nd St. STE 1500 SF CA US 94105'; //full address name
-  //       document_type: 'MAILING_ADDRESS';
-  //       meta: {
-  //         address_street: string;
-  //         address_city: string;
-  //         address_subdivision: string;
-  //         address_postal_code: string;
-  //         address_country_code: string;
-  //         address_care_of: string;
-  //       };
-  //     },
-  //   ];
+  //   virtual_docs?: Array<any>;
+  //   physical_docs?: Array<any>;
 }
 [];
