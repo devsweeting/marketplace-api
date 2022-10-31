@@ -22,7 +22,7 @@ import { createAsset } from '../utils/asset.utils';
 import { createUser } from '../utils/create-user';
 import { createPartner } from '../utils/partner.utils';
 import { createSellOrder } from '../utils/sell-order.utils';
-import { createUserAsset } from '../utils/user';
+import { createUserAsset } from '../utils/create-user-asset';
 
 const initialQty = 10000;
 const fakeUUID = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';

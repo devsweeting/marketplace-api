@@ -1,6 +1,8 @@
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
+import { CreateAccountDto } from 'modules/synapse/dto/create-account.dto';
 import request from 'supertest';
 import { createApp } from '../utils/app.utils';
+// import { createSynapseUser } from '../utils/create-synapse-user';
 
 describe('Verify address with Synapse', () => {
   let app: INestApplication;
@@ -9,29 +11,38 @@ describe('Verify address with Synapse', () => {
     app = await createApp();
   });
 
-  test('Should verify if a synapse account already exists for the logg', () => {
-    const createUserPost = {
-      first_name: 'Devin',
-      last_name: 'Sweeting',
-      phone_number: '123-456-7890',
-      address_street: '7666 N Fowler Ave',
-      address_city: 'PDX',
-      address_subdivision: 'OR',
-      address_country_code: 'US',
-      address_postal_code: '97217',
-    };
-    return (
-      request(app.getHttpServer())
-        .get(`/v1/synapse/user`)
-        //   .send(createUserPost)
-        .expect(200)
-        .expect(({ body }) => {
-          console.log('body', body);
-          // expect(body.address.deliverability).toBe('error');
-        })
-    );
+  afterAll(async () => {
+    await app.close();
   });
 
-  //   test('Should create a new synapse account without KYC if none exists', () => {});
-  //   test('S', () => {});
+  test('Should verify if a synapse account already exists for the logg', () => {
+    const createAccountParams: CreateAccountDto = {
+      first_name: 'Lebron',
+      last_name: 'James',
+      email: 'test@example.com',
+      phone_number: '202-555-0187',
+      mailing_address: {
+        address_street: '7666 N Fowler Ave',
+        address_city: 'PDX',
+        address_subdivision: 'OR',
+        address_country_code: 'US',
+        address_postal_code: '97217',
+      },
+    };
+    return request(app.getHttpServer())
+      .post(`/v1/synapse/user`)
+      .send(createAccountParams)
+      .expect((res) => {
+        // console.log('test res', res);
+      })
+      .expect(HttpStatus.CREATED);
+
+    // .expect(({ body }) => {
+    // console.log('body', body);
+    // expect(body.address.deliverability).toBe('error');
+  });
+
+  test('Should create a new synapse account without KYC if none exists', () => {
+    // const userSynapse = createSynapseUser(userId, userSynapseId, depositNodeId, refreshToken)
+  });
 });

@@ -20,7 +20,7 @@ import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enu
 import { generateToken } from '../utils/jwt.utils';
 import { faker } from '@faker-js/faker';
 import { StatusCodes } from 'http-status-codes';
-import { createUserAsset } from '../utils/user';
+import { createUserAsset } from '../utils/create-user-asset';
 import { UserAsset } from 'modules/users/entities/user-assets.entity';
 
 async function expectCheck(

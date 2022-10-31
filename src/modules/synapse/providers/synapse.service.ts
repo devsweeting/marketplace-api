@@ -1,10 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Ipv4Address } from 'aws-sdk/clients/inspector';
 import { BaseService } from 'modules/common/services';
 import { Client } from 'synapsenode';
+import { CreateAccountDto } from '../dto/create-account.dto';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
 import { AddressVerificationFailedException } from '../exceptions/address-verification-failed.exception';
-import { UserAccountVerification } from '../exceptions/user-account-verification-failed.exception';
+import { UserSynapseAccountNotFound } from '../exceptions/user-account-verification-failed.exception';
+import { ICreateSynapseAccountParams, ISynapseDocument } from '../interfaces/create-account';
 
 @Injectable()
 export class SynapseService extends BaseService {
@@ -39,18 +42,91 @@ export class SynapseService extends BaseService {
     return response;
   }
 
-  public async viewUserDetails(synapse_id): Promise<any> {
-    const userDetails = this.client
+  public async getSynapseUserDetails(synapse_id: string): Promise<any> {
+    const synapseUser = await this.client
       .getUser(synapse_id, null)
       .then((data) => {
-        return data;
+        return {
+          accountExists: true,
+          userData: data.body,
+        };
       })
-      .catch((error) => {
-        if (error) {
-          throw new UserAccountVerification(`Cannot locate user account with id -- ${synapse_id}`);
-        }
+      .catch(() => {
+        return {
+          accountExists: false,
+          userData: new UserSynapseAccountNotFound(
+            `Cannot locate user account with id -- ${synapse_id}`,
+          ).getResponse(),
+        };
       });
+    return synapseUser;
+  }
 
-    return userDetails;
+  public async createSynapseUserAccount(
+    bodyParams: CreateAccountDto,
+    ip_address: Ipv4Address,
+  ): Promise<any> {
+    // Step 1 -> Generate synapse account params
+    const accountUserParams = this.createUserParams(bodyParams, ip_address);
+    // console.log('accountUserParams', accountUserParams);
+
+    // Step 2 -> Create user synapse account
+    // const newAccount = await this.client.createUser(bodyParams, ip_address, {}).then((data) => {
+    //   console.log(data);
+    //   return data;
+    // });
+    // console.log('newAccount', newAccount);
+
+    // Step 3: if successful then update our db with all of the required fields:
+    // const user = updateSynapseUserDetails(newAccount)
+    return accountUserParams;
+  }
+
+  private createSynapseDocument(
+    bodyParams: CreateAccountDto,
+    fullName: string,
+    ip_address: Ipv4Address,
+  ): ISynapseDocument {
+    const { date_of_birth, mailing_address, gender } = bodyParams;
+
+    const IS_DEVELOPMENT = process.env.NODE_ENV === 'DEVELOP';
+    console.log('is development?', IS_DEVELOPMENT);
+
+    const document: ISynapseDocument = {
+      email: bodyParams.email,
+      phone_number: bodyParams.phone_number,
+      ip: ip_address,
+      name: fullName,
+      alias: `${fullName} ${IS_DEVELOPMENT ? 'test' : 'synapse'} account`,
+      entity_type: gender ? gender : 'NOT_KNOWN', //replace with '??'?
+      day: date_of_birth.day,
+      month: date_of_birth.month,
+      year: date_of_birth.year,
+      address_street: mailing_address.address_street,
+      address_city: mailing_address.address_city,
+      address_subdivision: mailing_address.address_subdivision,
+      address_postal_code: mailing_address.address_postal_code,
+      address_country_code: mailing_address.address_country_code,
+    };
+    return document;
+  }
+
+  private createUserParams(
+    bodyParams: CreateAccountDto,
+    ip_address: Ipv4Address,
+  ): ICreateSynapseAccountParams {
+    const fullName = `${bodyParams.first_name} ${bodyParams.last_name}`;
+    const createSynapseAccountParams = {
+      logins: [{ email: bodyParams.email }],
+      phone_numbers: [bodyParams.phone_number],
+      legal_names: [fullName],
+      documents: [this.createSynapseDocument(bodyParams, fullName, ip_address)],
+      extra: {
+        supp_id: '122eddfgbeafrfvbbb', //TODO - What is this used for? Could we send the Jump user id here instead?
+        cip_tag: 1,
+        is_business: false,
+      },
+    };
+    return createSynapseAccountParams;
   }
 }

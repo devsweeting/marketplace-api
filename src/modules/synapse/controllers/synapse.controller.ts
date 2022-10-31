@@ -1,7 +1,8 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Ip, Post } from '@nestjs/common';
 
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import JwtOtpAuthGuard from 'modules/auth/guards/jwt-otp-auth.guard';
+import { Ipv4Address } from 'aws-sdk/clients/inspector';
+import { CreateAccountDto } from '../dto/create-account.dto';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
 import { SynapseService } from '../providers/synapse.service';
 
@@ -19,7 +20,7 @@ export class SynapseController {
   @ApiResponse({
     status: HttpStatus.OK,
   })
-  public async verifyAddress(@Body() dto: VerifyAddressDto) {
+  public async verifyAddress(@Body() dto: VerifyAddressDto): Promise<any> {
     const address = await this.synapseService.verifyAddress(dto);
     return {
       status: HttpStatus.OK,
@@ -29,13 +30,27 @@ export class SynapseController {
 
   @Get('user')
   //@UseGuards(JwtOtpAuthGuard)
-  public async verifyUser() {
-    const devinTestId = '6349aee07846615efe8e9521';
+  public async verifyUser(): Promise<any> {
+    const devinTestSynapseId = '6349aee07846615efe8e9521';
     // const wrongId = '6349aee07846615efe8e95xx';
-    const user = await this.synapseService.viewUserDetails(devinTestId);
+    const user = await this.synapseService.getSynapseUserDetails(devinTestSynapseId);
     return {
-      status: HttpStatus.OK,
-      user,
+      apiStatus: HttpStatus.OK,
+      data: user.userData,
     };
+  }
+
+  /* eslint-disable no-console */
+
+  @Post('user')
+  //@UseGuards(JwtOtpAuthGuard)
+  public async createUser(
+    @Body() dto: CreateAccountDto,
+    @Ip() ip_address: Ipv4Address,
+  ): Promise<any> {
+    console.log('dto', dto);
+    const response = await this.synapseService.createSynapseUserAccount(dto, ip_address);
+    console.log('response', response);
+    // return response;
   }
 }

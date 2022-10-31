@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 
-export class UserAccountVerification extends HttpException {
+export class UserSynapseAccountNotFound extends HttpException {
   public constructor(message?: string) {
     super(
       {
@@ -8,7 +8,7 @@ export class UserAccountVerification extends HttpException {
         error: 'User Not Found',
         message: message,
       },
-      429,
+      HttpStatus.NOT_FOUND,
     );
   }
 }
