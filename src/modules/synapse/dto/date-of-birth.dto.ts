@@ -1,11 +1,12 @@
 import { IsInt, IsNotEmpty, Max, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
+//Range of dates allowed
 const EARLIEST_DAY_OR_MONTH = 1;
-const LAST_DAY = 31;
-const LAST_MONTH = 12;
-const EARLIEST_YEAR = 1990;
-const LAST_YEAR = 2022;
+const LATEST_DAY = 31;
+const LATEST_MONTH = 12;
+const EARLIEST_YEAR = 1900;
+const LASTEST_YEAR = 2022;
 
 export class DateOfBirthDto {
   @ApiProperty({
@@ -13,7 +14,7 @@ export class DateOfBirthDto {
   })
   @IsInt()
   @Min(EARLIEST_DAY_OR_MONTH)
-  @Max(LAST_DAY)
+  @Max(LATEST_DAY)
   @IsNotEmpty()
   public day: number;
 
@@ -22,7 +23,7 @@ export class DateOfBirthDto {
   })
   @IsInt()
   @Min(EARLIEST_DAY_OR_MONTH)
-  @Max(LAST_MONTH)
+  @Max(LATEST_MONTH)
   @IsNotEmpty()
   public month: number;
 
@@ -31,7 +32,7 @@ export class DateOfBirthDto {
   })
   @IsInt()
   @Min(EARLIEST_YEAR)
-  @Max(LAST_YEAR)
+  @Max(LASTEST_YEAR)
   @IsNotEmpty()
   public year: number;
 }

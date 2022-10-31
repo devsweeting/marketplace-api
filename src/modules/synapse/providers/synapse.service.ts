@@ -8,6 +8,7 @@ import { VerifyAddressDto } from '../dto/verify-address.dto';
 import { AddressVerificationFailedException } from '../exceptions/address-verification-failed.exception';
 import { UserSynapseAccountNotFound } from '../exceptions/user-account-verification-failed.exception';
 import { ICreateSynapseAccountParams, ISynapseDocument } from '../interfaces/create-account';
+import { synapseSavedUserCreatedResponse } from '../test-variables';
 
 @Injectable()
 export class SynapseService extends BaseService {
@@ -68,18 +69,25 @@ export class SynapseService extends BaseService {
   ): Promise<any> {
     // Step 1 -> Generate synapse account params
     const accountUserParams = this.createUserParams(bodyParams, ip_address);
-    // console.log('accountUserParams', accountUserParams);
+    console.log('accountUserParams created', accountUserParams);
 
     // Step 2 -> Create user synapse account
-    // const newAccount = await this.client.createUser(bodyParams, ip_address, {}).then((data) => {
-    //   console.log(data);
-    //   return data;
-    // });
+    // const newAccount = await this.client
+    //   .createUser(accountUserParams, ip_address, {})
+    //   .then((data) => {
+    //     console.log(data);
+    //     return data;
+    //   })
+    //   .catch((err) => {
+    //     console.log('ERROR CREATING SYNAPSE ACCOUNT', err.response.data);
+    //   });
+    const newAccount = synapseSavedUserCreatedResponse.User;
+    console.log('test account created', synapseSavedUserCreatedResponse);
     // console.log('newAccount', newAccount);
 
     // Step 3: if successful then update our db with all of the required fields:
     // const user = updateSynapseUserDetails(newAccount)
-    return accountUserParams;
+    return newAccount;
   }
 
   private createSynapseDocument(
@@ -90,14 +98,14 @@ export class SynapseService extends BaseService {
     const { date_of_birth, mailing_address, gender } = bodyParams;
 
     const IS_DEVELOPMENT = process.env.NODE_ENV === 'DEVELOP';
-    console.log('is development?', IS_DEVELOPMENT);
 
     const document: ISynapseDocument = {
       email: bodyParams.email,
-      phone_number: bodyParams.phone_number,
+      phone_number: bodyParams.phone_numbers,
       ip: ip_address,
       name: fullName,
       alias: `${fullName} ${IS_DEVELOPMENT ? 'test' : 'synapse'} account`,
+      entity_scope: 'Arts & Entertainment',
       entity_type: gender ? gender : 'NOT_KNOWN', //replace with '??'?
       day: date_of_birth.day,
       month: date_of_birth.month,
@@ -107,6 +115,20 @@ export class SynapseService extends BaseService {
       address_subdivision: mailing_address.address_subdivision,
       address_postal_code: mailing_address.address_postal_code,
       address_country_code: mailing_address.address_country_code,
+      social_docs: [
+        {
+          document_value: '101 2nd St. STE 1500 SF CA US 94105',
+          document_type: 'MAILING_ADDRESS',
+          meta: {
+            address_street: mailing_address.address_street,
+            address_city: mailing_address.address_city,
+            address_subdivision: mailing_address.address_subdivision,
+            address_postal_code: mailing_address.address_postal_code,
+            address_country_code: mailing_address.address_country_code,
+            address_care_of: 'Some User TEST',
+          },
+        },
+      ],
     };
     return document;
   }
@@ -118,7 +140,7 @@ export class SynapseService extends BaseService {
     const fullName = `${bodyParams.first_name} ${bodyParams.last_name}`;
     const createSynapseAccountParams = {
       logins: [{ email: bodyParams.email }],
-      phone_numbers: [bodyParams.phone_number],
+      phone_numbers: [bodyParams.phone_numbers],
       legal_names: [fullName],
       documents: [this.createSynapseDocument(bodyParams, fullName, ip_address)],
       extra: {

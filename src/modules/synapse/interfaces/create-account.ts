@@ -10,12 +10,25 @@ export interface ICreateSynapseAccountParams {
   };
 }
 
+export interface ISynapseSocialDoc {
+  document_value: string; // '101 2nd St. STE 1500 SF CA US 94105' //full address name
+  document_type: 'MAILING_ADDRESS';
+  meta: {
+    address_street: string;
+    address_city: string;
+    address_subdivision: string;
+    address_postal_code: string;
+    address_country_code: string;
+    address_care_of: string;
+  };
+}
 export interface ISynapseDocument {
   email: string;
   phone_number: string;
   ip: string;
   name: string;
   alias: string;
+  entity_scope: 'Arts & Entertainment';
   entity_type: string; //TODO - what is this?
   day: number;
   month: number;
@@ -25,6 +38,7 @@ export interface ISynapseDocument {
   address_subdivision: string;
   address_postal_code: string;
   address_country_code: string;
+  social_docs: ISynapseSocialDoc[];
   //   virtual_docs?: [
   //     {
   //       document_value: '2222';

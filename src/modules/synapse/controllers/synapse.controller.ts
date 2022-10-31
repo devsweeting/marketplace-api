@@ -16,11 +16,11 @@ export class SynapseController {
 
   @Post('address')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Verifies an address is deliverable' })
+  @ApiOperation({ summary: 'Verifies if an address is deliverable' })
   @ApiResponse({
     status: HttpStatus.OK,
   })
-  public async verifyAddress(@Body() dto: VerifyAddressDto): Promise<any> {
+  public async verifyAddress(@Body() dto: VerifyAddressDto): Promise<{ status; address }> {
     const address = await this.synapseService.verifyAddress(dto);
     return {
       status: HttpStatus.OK,
@@ -29,28 +29,26 @@ export class SynapseController {
   }
 
   @Get('user')
+  //TODO - add guard and pass in the users ID
   //@UseGuards(JwtOtpAuthGuard)
-  public async verifyUser(): Promise<any> {
+  public async verifyUser(): Promise<{ status; data }> {
     const devinTestSynapseId = '6349aee07846615efe8e9521';
     // const wrongId = '6349aee07846615efe8e95xx';
     const user = await this.synapseService.getSynapseUserDetails(devinTestSynapseId);
     return {
-      apiStatus: HttpStatus.OK,
+      status: HttpStatus.OK,
       data: user.userData,
     };
   }
 
-  /* eslint-disable no-console */
-
   @Post('user')
+  //TODO - add guard and pass in the users ID to the supp_id field
   //@UseGuards(JwtOtpAuthGuard)
   public async createUser(
     @Body() dto: CreateAccountDto,
     @Ip() ip_address: Ipv4Address,
-  ): Promise<any> {
-    console.log('dto', dto);
-    const response = await this.synapseService.createSynapseUserAccount(dto, ip_address);
-    console.log('response', response);
-    // return response;
+  ): Promise<{ status; newAccount }> {
+    const newAccount = await this.synapseService.createSynapseUserAccount(dto, ip_address);
+    return { status: HttpStatus.CREATED, newAccount };
   }
 }
