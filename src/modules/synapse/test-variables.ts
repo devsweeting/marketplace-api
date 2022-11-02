@@ -1,8 +1,11 @@
-export const jumpTestParamsRawBody = {
-  first_name: 'Dev Test',
-  last_name: 'API',
+import { CreateAccountDto } from './dto/create-account.dto';
+
+export const mockCreateAccountQuery: CreateAccountDto = {
+  first_name: 'Devin',
+  last_name: 'Sweetums',
   email: 'test@example.com',
-  phone_number: '202-762-1401',
+  phone_numbers: '202.762.1401',
+  gender: 'M',
   date_of_birth: {
     day: 2,
     month: 5,
@@ -118,10 +121,10 @@ export const synapseSavedUserCreatedResponse = {
     id: '63603d35b174c5e009cda55c',
     body: {
       _id: '63603d35b174c5e009cda55c',
-      //   _links: { self: [Object] },
+      _links: { self: [Object] },
       account_closure_date: null,
       client: { id: '63482ed8a8a19aa7d2ca520f', name: 'Devin Sweeting' },
-      //   documents: [[Object]],
+      documents: [[Object]],
       emails: [],
       extra: {
         cip_tag: 1,
@@ -137,7 +140,7 @@ export const synapseSavedUserCreatedResponse = {
       flag_code: null,
       is_hidden: false,
       legal_names: ['Devin Sweetums'],
-      //   logins: [[Object]],
+      logins: [[Object]],
       permission: 'UNVERIFIED',
       permission_code: null,
       phone_numbers: ['202.762.1401'],

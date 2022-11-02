@@ -35,6 +35,12 @@ export class UserSynapse extends BaseModel implements IBaseEntity {
   })
   public refreshToken: string;
 
+  static async findAccountByUser(userId: string): Promise<UserSynapse> {
+    return UserSynapse.findOne({
+      where: { userId: userId },
+    });
+  }
+
   constructor(partial: Partial<UserSynapse> = {}) {
     super();
     Object.assign(this, partial);

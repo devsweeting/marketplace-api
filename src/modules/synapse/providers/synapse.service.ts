@@ -5,10 +5,13 @@ import { BaseService } from 'modules/common/services';
 import { Client } from 'synapsenode';
 import { CreateAccountDto } from '../dto/create-account.dto';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
+import { SynapseAccountCreationFailed } from '../exceptions/account-creation-failure.exception';
 import { AddressVerificationFailedException } from '../exceptions/address-verification-failed.exception';
 import { UserSynapseAccountNotFound } from '../exceptions/user-account-verification-failed.exception';
 import { ICreateSynapseAccountParams, ISynapseDocument } from '../interfaces/create-account';
 import { synapseSavedUserCreatedResponse } from '../test-variables';
+
+const IS_DEVELOPMENT = process.env.NODE_ENV === 'DEVELOP';
 
 @Injectable()
 export class SynapseService extends BaseService {
@@ -69,21 +72,21 @@ export class SynapseService extends BaseService {
   ): Promise<any> {
     // Step 1 -> Generate synapse account params
     const accountUserParams = this.createUserParams(bodyParams, ip_address);
-    console.log('accountUserParams created', accountUserParams);
 
     // Step 2 -> Create user synapse account
-    // const newAccount = await this.client
-    //   .createUser(accountUserParams, ip_address, {})
-    //   .then((data) => {
-    //     console.log(data);
-    //     return data;
-    //   })
-    //   .catch((err) => {
-    //     console.log('ERROR CREATING SYNAPSE ACCOUNT', err.response.data);
-    //   });
-    const newAccount = synapseSavedUserCreatedResponse.User;
-    console.log('test account created', synapseSavedUserCreatedResponse);
-    // console.log('newAccount', newAccount);
+    const newAccount = IS_DEVELOPMENT
+      ? synapseSavedUserCreatedResponse.User.body //used a saved response
+      : await this.client
+          .createUser(accountUserParams, ip_address, {})
+          .then((data) => {
+            return data;
+          })
+          .catch((err) => {
+            if (err) {
+              throw new SynapseAccountCreationFailed(err.response.data);
+            }
+          });
+    console.log('newAccount', newAccount);
 
     // Step 3: if successful then update our db with all of the required fields:
     // const user = updateSynapseUserDetails(newAccount)
@@ -96,8 +99,6 @@ export class SynapseService extends BaseService {
     ip_address: Ipv4Address,
   ): ISynapseDocument {
     const { date_of_birth, mailing_address, gender } = bodyParams;
-
-    const IS_DEVELOPMENT = process.env.NODE_ENV === 'DEVELOP';
 
     const document: ISynapseDocument = {
       email: bodyParams.email,

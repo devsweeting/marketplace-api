@@ -16,6 +16,7 @@ import { UserLogin, UserOtp } from 'modules/users/entities';
 import { MailerService } from '@nestjs-modules/mailer';
 import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
 import { UserAsset } from 'modules/users/entities/user-assets.entity';
+import { SynapseModule } from 'modules/synapse/synapse.module';
 
 export type SupertestResponse = request.Response;
 
@@ -48,7 +49,7 @@ export const configureTestApp = (
 
 export const createApp = async (providers: IMockProvider[] = []): Promise<INestApplication> => {
   const module = Test.createTestingModule({
-    imports: [AppModule, AuthModule],
+    imports: [AppModule, AuthModule, SynapseModule],
   });
 
   if (!providers.some((p) => typeof p.provide === typeof MailerService)) {
