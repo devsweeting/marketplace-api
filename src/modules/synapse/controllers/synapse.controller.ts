@@ -1,9 +1,13 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Ip, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Ip, Post, UseGuards } from '@nestjs/common';
 
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Ipv4Address } from 'aws-sdk/clients/inspector';
+import { GetUser } from 'modules/auth/decorators/get-user.decorator';
+import JwtOtpAuthGuard from 'modules/auth/guards/jwt-otp-auth.guard';
+import { User } from 'modules/users/entities';
 import { CreateAccountDto } from '../dto/create-account.dto';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
+import { IUserSynapseAccountResponse } from '../interfaces/create-account';
 import { SynapseService } from '../providers/synapse.service';
 
 @ApiTags('synapse')
@@ -29,8 +33,7 @@ export class SynapseController {
   }
 
   @Get('user')
-  //TODO - add guard and pass in the users ID
-  //@UseGuards(JwtOtpAuthGuard)
+  // @UseGuards(JwtOtpAuthGuard)
   public async verifyUser(): Promise<{ status; data }> {
     const devinTestSynapseId = '6349aee07846615efe8e9521';
     // const wrongId = '6349aee07846615efe8e95xx';
@@ -42,13 +45,13 @@ export class SynapseController {
   }
 
   @Post('user')
-  //TODO - add guard and pass in the users ID to the supp_id field
-  //@UseGuards(JwtOtpAuthGuard)
+  @UseGuards(JwtOtpAuthGuard)
   public async createUser(
     @Body() dto: CreateAccountDto,
+    @GetUser() user: User,
     @Ip() ip_address: Ipv4Address,
-  ): Promise<{ status; newAccount }> {
-    const newAccount = await this.synapseService.createSynapseUserAccount(dto, ip_address);
-    return { status: HttpStatus.CREATED, newAccount };
+  ): Promise<IUserSynapseAccountResponse> {
+    const response = await this.synapseService.createSynapseUserAccount(dto, user, ip_address);
+    return response;
   }
 }

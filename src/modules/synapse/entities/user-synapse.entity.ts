@@ -4,6 +4,7 @@ import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
 import { Exclude } from 'class-transformer';
 import { User } from 'modules/users/entities';
+import { IPermissionCodes, IPermissions } from '../interfaces/create-account';
 
 @Entity('user_synapse')
 // @Unique('USER_EMAIL_UNIQUE', ['email'])
@@ -27,6 +28,16 @@ export class UserSynapse extends BaseModel implements IBaseEntity {
     nullable: true,
   })
   public depositNodeId: string;
+
+  @Column({
+    nullable: true,
+  })
+  public permission: IPermissions;
+
+  @Column({
+    nullable: true,
+  })
+  public permission_code: IPermissionCodes;
 
   @Exclude()
   @Column({

@@ -1,3 +1,5 @@
+import { UserSynapse } from '../entities/user-synapse.entity';
+
 export interface ICreateSynapseAccountParams {
   logins: { email: string }[];
   phone_numbers: string[];
@@ -43,3 +45,31 @@ export interface ISynapseDocument {
   //   physical_docs?: Array<any>;
 }
 [];
+
+export type IPermissions =
+  | 'VERIFIED'
+  | 'UNVERIFIED'
+  | 'RECEIVE'
+  | 'SEND-AND-RECEIVE'
+  | 'LOCKED'
+  | 'CLOSED'
+  | 'MAKE-IT-GO-AWAY';
+
+export type IPermissionCodes =
+  | 'NOT_KNOWN'
+  | 'UNUSUAL_ACTIVITY|COMPLIANCE_SUSPICIOUS'
+  | 'UNUSUAL_ACTIVITY|LEGAL_REQUEST'
+  | 'KYC_FRAUD|BLOCKED_LIST'
+  | 'KYC_FRAUD|FRAUDULENT_DOCS'
+  | 'BLOCKED_INDUSTRY'
+  | 'HIGH_RETURNS'
+  | 'NEGATIVE_BALANCE'
+  | 'PLATFORM_REQUEST'
+  | 'USER_REQUEST'
+  | 'DUPLICATE_ACCOUNT';
+
+export interface IUserSynapseAccountResponse {
+  status: number;
+  msg: string;
+  account: UserSynapse;
+}

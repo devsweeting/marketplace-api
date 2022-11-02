@@ -1,8 +1,16 @@
 /* eslint-disable no-magic-numbers */
-import { IsEmail, IsNotEmpty, IsOptional, IsPhoneNumber, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { VerifyAddressDto } from './verify-address.dto';
 import { DateOfBirthDto } from './date-of-birth.dto';
+import { Type } from 'class-transformer';
 
 export class CreateAccountDto {
   @ApiProperty({
@@ -41,9 +49,13 @@ export class CreateAccountDto {
 
   @ApiProperty()
   @IsNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => VerifyAddressDto)
   public mailing_address: VerifyAddressDto;
 
   @ApiProperty()
   @IsNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => DateOfBirthDto)
   public date_of_birth: DateOfBirthDto;
 }
