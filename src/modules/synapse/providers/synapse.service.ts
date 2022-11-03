@@ -119,6 +119,7 @@ export class SynapseService extends BaseService {
       permission: newAccount.body.permission as IPermissions,
       permission_code: newAccount.body.permission_code,
     }).save();
+    console.log('OBJECT CREATED');
 
     return {
       status: HttpStatus.CREATED,

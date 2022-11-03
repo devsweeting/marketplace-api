@@ -1,4 +1,6 @@
 import { CreateAccountDto } from './dto/create-account.dto';
+import { UserSynapse } from './entities/user-synapse.entity';
+import { IUserSynapseAccountResponse } from './interfaces/create-account';
 
 export const mockCreateAccountQuery: CreateAccountDto = {
   first_name: 'Devin',
@@ -176,4 +178,21 @@ export const synapseSavedUserCreatedResponse = {
         'oauth_zDsa7K89EUpLHGgJrRcmbSvAVdw0TFhCkOQ3en0u|e83cf6ddcf778e37bfe3d48fc78a6502062fc',
     },
   },
+};
+export const account: IUserSynapseAccountResponse = {
+  status: 303,
+  msg: 'Synapse account already exists for user -- 089d75f4-c321-43be-88ba-b2750d91451c',
+  account: {
+    id: '49141401-5756-4a7b-a1cb-3f00577a071c',
+    updatedAt: new Date('2022-11-02T20:08:51.803Z'),
+    createdAt: new Date('2022-11-02T20:08:51.803Z'),
+    deletedAt: null,
+    isDeleted: false,
+    userId: '089d75f4-c321-43be-88ba-b2750d91451c',
+    userSynapseId: '63603d35b174c5e009cda55c',
+    depositNodeId: null,
+    permission: 'UNVERIFIED',
+    permission_code: null,
+    refreshToken: 'refresh_AtHCUXcWdyZl2bVs3zGS7h59IDw4LnMYi1poTv0B',
+  } as UserSynapse,
 };
