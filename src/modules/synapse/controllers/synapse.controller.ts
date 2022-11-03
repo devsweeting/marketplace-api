@@ -5,6 +5,7 @@ import { Ipv4Address } from 'aws-sdk/clients/inspector';
 import { GetUser } from 'modules/auth/decorators/get-user.decorator';
 import JwtOtpAuthGuard from 'modules/auth/guards/jwt-otp-auth.guard';
 import { User } from 'modules/users/entities';
+import { ValidateFormBody } from '../decorators/form-validation.decorator';
 import { CreateAccountDto } from '../dto/create-account.dto';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
 import { IUserSynapseAccountResponse } from '../interfaces/create-account';
@@ -47,7 +48,7 @@ export class SynapseController {
   @Post('user')
   @UseGuards(JwtOtpAuthGuard)
   public async createUser(
-    @Body() dto: CreateAccountDto,
+    @ValidateFormBody() dto: CreateAccountDto,
     @GetUser() user: User,
     @Ip() ip_address: Ipv4Address,
   ): Promise<IUserSynapseAccountResponse> {
