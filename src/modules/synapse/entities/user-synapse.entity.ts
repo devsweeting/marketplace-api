@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, OneToOne, RelationId } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne, RelationId, Unique } from 'typeorm';
 
 import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
@@ -7,7 +7,7 @@ import { User } from 'modules/users/entities';
 import { IPermissionCodes, IPermissions } from '../interfaces/create-account';
 
 @Entity('user_synapse')
-// @Unique('USER_EMAIL_UNIQUE', ['email'])
+@Unique('USER_ID_UNIQUE', ['userId'])
 export class UserSynapse extends BaseModel implements IBaseEntity {
   @Column({ type: 'string', nullable: true })
   @RelationId((UserSynapse: UserSynapse) => UserSynapse.user)
@@ -18,13 +18,13 @@ export class UserSynapse extends BaseModel implements IBaseEntity {
   public user?: User;
 
   @Column({
-    length: 24,
+    length: 50,
     nullable: true,
   })
   public userSynapseId: string;
 
   @Column({
-    length: 25,
+    length: 50,
     nullable: true,
   })
   public depositNodeId: string;
@@ -41,7 +41,6 @@ export class UserSynapse extends BaseModel implements IBaseEntity {
 
   @Exclude()
   @Column({
-    length: 250,
     nullable: true,
   })
   public refreshToken: string;

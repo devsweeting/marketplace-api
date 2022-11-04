@@ -106,19 +106,6 @@ export const synapsePostmanTestQuery = {
 };
 
 export const synapseSavedUserCreatedResponse = {
-  client_id: 'client_id_qOMdw0PQfIFnliujrSv4mTbxaUEVhRogY5X1ZkAW',
-  client_secret: 'client_secret_Y3sHbCA4D0XJenE5QItcRrkvN2VjaTmgOwpPZK1q',
-  fingerprint: 'e83cf6ddcf778e37bfe3d48fc78a6502062fc',
-  ip_address: '0.0.0.1',
-  isProduction: false,
-  host: 'https://uat-api.synapsefi.com/v3.1',
-  headers: {
-    'Content-Type': 'application/json',
-    'X-SP-USER-IP': '0.0.0.1',
-    'X-SP-GATEWAY':
-      'client_id_qOMdw0PQfIFnliujrSv4mTbxaUEVhRogY5X1ZkAW|client_secret_Y3sHbCA4D0XJenE5QItcRrkvN2VjaTmgOwpPZK1q',
-    'X-SP-USER': '|e83cf6ddcf778e37bfe3d48fc78a6502062fc',
-  },
   User: {
     id: '63603d35b174c5e009cda55c',
     body: {
@@ -154,32 +141,28 @@ export const synapseSavedUserCreatedResponse = {
     fingerprint: 'e83cf6ddcf778e37bfe3d48fc78a6502062fc',
     ip_address: '::ffff:172.18.0.1',
     oauth_key: 'oauth_zDsa7K89EUpLHGgJrRcmbSvAVdw0TFhCkOQ3en0u',
-    client: {
-      client_id: 'client_id_qOMdw0PQfIFnliujrSv4mTbxaUEVhRogY5X1ZkAW',
-      client_secret: 'client_secret_Y3sHbCA4D0XJenE5QItcRrkvN2VjaTmgOwpPZK1q',
-      fingerprint: 'e83cf6ddcf778e37bfe3d48fc78a6502062fc',
-      ip_address: '0.0.0.1',
-      isProduction: false,
-      host: 'https://uat-api.synapsefi.com/v3.1',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-SP-USER-IP': '0.0.0.1',
-        'X-SP-GATEWAY':
-          'client_id_qOMdw0PQfIFnliujrSv4mTbxaUEVhRogY5X1ZkAW|client_secret_Y3sHbCA4D0XJenE5QItcRrkvN2VjaTmgOwpPZK1q',
-        'X-SP-USER': '|e83cf6ddcf778e37bfe3d48fc78a6502062fc',
-      },
-    },
-    headers: {
-      'Content-Type': 'application/json',
-      'X-SP-USER-IP': '::ffff:172.18.0.1',
-      'X-SP-GATEWAY':
-        'client_id_qOMdw0PQfIFnliujrSv4mTbxaUEVhRogY5X1ZkAW|client_secret_Y3sHbCA4D0XJenE5QItcRrkvN2VjaTmgOwpPZK1q',
-      'X-SP-USER':
-        'oauth_zDsa7K89EUpLHGgJrRcmbSvAVdw0TFhCkOQ3en0u|e83cf6ddcf778e37bfe3d48fc78a6502062fc',
-    },
   },
 };
-export const account: IUserSynapseAccountResponse = {
+
+export const account201: IUserSynapseAccountResponse = {
+  status: 201,
+  msg: 'Synapse account created for user -- 089d75f4-c321-43be-88ba-b2750d91451c',
+  account: {
+    userId: '089d75f4-c321-43be-88ba-b2750d91451c',
+    userSynapseId: '63603d35b174c5e009cda55c',
+    depositNodeId: null,
+    permission: 'UNVERIFIED',
+    permission_code: null,
+    refreshToken: 'refresh_AtHCUXcWdyZl2bVs3zGS7h59IDw4LnMYi1poTv0B',
+    deletedAt: null,
+    id: '8d9980f4-41ef-41c3-82dd-1892be9dbd96',
+    updatedAt: new Date('2022-11-04T16:10:40.941Z'),
+    createdAt: new Date('2022-11-04T16:10:40.941Z'),
+    isDeleted: false,
+  } as UserSynapse,
+};
+
+export const account303: IUserSynapseAccountResponse = {
   status: 303,
   msg: 'Synapse account already exists for user -- 089d75f4-c321-43be-88ba-b2750d91451c',
   account: {

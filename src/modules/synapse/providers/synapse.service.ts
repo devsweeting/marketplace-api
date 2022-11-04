@@ -10,15 +10,9 @@ import { VerifyAddressDto } from '../dto/verify-address.dto';
 import { UserSynapse } from '../entities/user-synapse.entity';
 import { AddressVerificationFailedException } from '../exceptions/address-verification-failed.exception';
 import { UserSynapseAccountNotFound } from '../exceptions/user-account-verification-failed.exception';
-import {
-  ICreateSynapseAccountParams,
-  IPermissions,
-  ISynapseDocument,
-  IUserSynapseAccountResponse,
-} from '../interfaces/create-account';
+import { IPermissions, IUserSynapseAccountResponse } from '../interfaces/create-account';
 import { synapseSavedUserCreatedResponse } from '../test-variables';
-
-const IS_DEVELOPMENT = process.env.NODE_ENV === 'DEVELOP';
+import { createUserParams } from '../util/helper';
 
 @Injectable()
 export class SynapseService extends BaseService {
@@ -94,7 +88,7 @@ export class SynapseService extends BaseService {
     }
 
     // Step 2 -> Generate synapse account params;
-    const accountUserParams = this.createUserParams(user.id, bodyParams, ip_address);
+    const accountUserParams = createUserParams(user.id, bodyParams, ip_address);
 
     // Step 3 -> Create new user synapse account.
     const newAccount = accountUserParams && synapseSavedUserCreatedResponse.User; //DEVELOPMENT - return a saved JSON response
@@ -119,73 +113,11 @@ export class SynapseService extends BaseService {
       permission: newAccount.body.permission as IPermissions,
       permission_code: newAccount.body.permission_code,
     }).save();
-    console.log('OBJECT CREATED');
 
     return {
       status: HttpStatus.CREATED,
       msg: `Synapse account created for user -- ${user.id}`,
       account: createdSynapseAccount,
     };
-  }
-
-  private createSynapseDocument(
-    bodyParams: CreateAccountDto,
-    fullName: string,
-    ip_address: Ipv4Address,
-  ): ISynapseDocument {
-    const { date_of_birth, mailing_address, gender } = bodyParams;
-
-    const document: ISynapseDocument = {
-      email: bodyParams.email,
-      phone_number: bodyParams.phone_numbers,
-      ip: ip_address,
-      name: fullName,
-      alias: `${fullName} ${IS_DEVELOPMENT ? 'test' : 'synapse'} account`,
-      entity_scope: 'Arts & Entertainment',
-      entity_type: gender ?? 'NOT_KNOWN',
-      day: date_of_birth.day,
-      month: date_of_birth.month,
-      year: date_of_birth.year,
-      address_street: mailing_address.address_street,
-      address_city: mailing_address.address_city,
-      address_subdivision: mailing_address.address_subdivision,
-      address_postal_code: mailing_address.address_postal_code,
-      address_country_code: mailing_address.address_country_code,
-      social_docs: [
-        {
-          document_value: '101 2nd St. STE 1500 SF CA US 94105', //TODO concat full address.
-          document_type: 'MAILING_ADDRESS',
-          meta: {
-            address_street: mailing_address.address_street,
-            address_city: mailing_address.address_city,
-            address_subdivision: mailing_address.address_subdivision,
-            address_postal_code: mailing_address.address_postal_code,
-            address_country_code: mailing_address.address_country_code,
-            address_care_of: 'Some User TEST',
-          },
-        },
-      ],
-    };
-    return document;
-  }
-
-  private createUserParams(
-    userId: string,
-    bodyParams: CreateAccountDto,
-    ip_address: Ipv4Address,
-  ): ICreateSynapseAccountParams {
-    const fullName = `${bodyParams.first_name} ${bodyParams.last_name}`;
-    const createSynapseAccountParams = {
-      logins: [{ email: bodyParams.email }],
-      phone_numbers: [bodyParams.phone_numbers],
-      legal_names: [fullName],
-      documents: [this.createSynapseDocument(bodyParams, fullName, ip_address)],
-      extra: {
-        supp_id: userId,
-        cip_tag: 1,
-        is_business: false,
-      },
-    };
-    return createSynapseAccountParams;
   }
 }
