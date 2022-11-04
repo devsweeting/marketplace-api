@@ -67,7 +67,5 @@ export function createSynapseDocument(
 }
 
 function concatMailingAddress(mailing_address: VerifyAddressDto): string {
-  const mailingLabel = `${mailing_address.address_city} ${mailing_address.address_street} ${mailing_address.address_subdivision} ${mailing_address.address_country_code} ${mailing_address.address_postal_code}`;
-  console.log('mailingLabel', mailingLabel);
-  return mailingLabel;
+  return `${mailing_address.address_city} ${mailing_address.address_street} ${mailing_address.address_subdivision} ${mailing_address.address_country_code} ${mailing_address.address_postal_code}`;
 }
