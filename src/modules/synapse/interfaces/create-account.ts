@@ -1,3 +1,5 @@
+import { HttpStatus } from 'aws-sdk/clients/lambda';
+import { User } from 'modules/users/entities';
 import { UserSynapse } from '../entities/user-synapse.entity';
 
 export interface ICreateSynapseAccountParams {
@@ -72,4 +74,14 @@ export interface IUserSynapseAccountResponse {
   status: number;
   msg: string;
   account: UserSynapse;
+}
+
+export type ErrorResponse = string | object;
+
+export interface IUserPaymentAccountResponse {
+  status: HttpStatus;
+  data: {
+    user: User;
+    account: object;
+  };
 }

@@ -12,7 +12,12 @@ import { UserSynapse } from '../entities/user-synapse.entity';
 import { SynapseAccountCreationFailed } from '../exceptions/account-creation-failure.exception';
 import { AddressVerificationFailedException } from '../exceptions/address-verification-failed.exception';
 import { UserSynapseAccountNotFound } from '../exceptions/user-account-verification-failed.exception';
-import { IPermissions, IUserSynapseAccountResponse } from '../interfaces/create-account';
+import {
+  ErrorResponse,
+  IPermissions,
+  IUserPaymentAccountResponse,
+  IUserSynapseAccountResponse,
+} from '../interfaces/create-account';
 import { createUserParams } from '../util/helper';
 
 // const IS_DEVELOPMENT = process.env.NODE_ENV === 'DEVELOP';
@@ -39,7 +44,7 @@ export class SynapseService extends BaseService {
     return userSynapseAccount;
   }
 
-  public async verifyAddress(dto: VerifyAddressDto): Promise<any> {
+  public async verifyAddress(dto: VerifyAddressDto): Promise<object> {
     const response = this.client
       .verifyAddress({
         address_city: dto.address_city,
@@ -59,7 +64,9 @@ export class SynapseService extends BaseService {
     return response;
   }
 
-  public async getSynapseUserDetails(user: User): Promise<any> {
+  public async getSynapseUserDetails(
+    user: User,
+  ): Promise<IUserPaymentAccountResponse | ErrorResponse> {
     //Check if user has an associated payment account
     const userPaymentAccount = await this.getUserSynapseAccount(user.id);
 
