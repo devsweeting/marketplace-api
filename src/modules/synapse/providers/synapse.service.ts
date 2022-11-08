@@ -15,9 +15,11 @@ import { UserSynapseAccountNotFound } from '../exceptions/user-account-verificat
 import {
   ErrorResponse,
   IPermissions,
+  IAddressResponse,
   IUserPaymentAccountResponse,
   IUserSynapseAccountResponse,
 } from '../interfaces/create-account';
+import { synapseSavedUserCreatedResponse } from '../test-variables';
 import { createUserParams } from '../util/helper';
 
 // const IS_DEVELOPMENT = process.env.NODE_ENV === 'DEVELOP';
@@ -44,7 +46,7 @@ export class SynapseService extends BaseService {
     return userSynapseAccount;
   }
 
-  public async verifyAddress(dto: VerifyAddressDto): Promise<object> {
+  public async verifyAddress(dto: VerifyAddressDto): Promise<IAddressResponse> {
     const response = this.client
       .verifyAddress({
         address_city: dto.address_city,

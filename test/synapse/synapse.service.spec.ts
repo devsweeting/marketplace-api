@@ -1,10 +1,6 @@
 import { INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
-import { ConfigService } from 'aws-sdk';
-import { CreateAccountDto } from 'modules/synapse/dto/create-account.dto';
 import { SynapseService } from 'modules/synapse/providers/synapse.service';
 import { createApp } from '../utils/app.utils';
-import { account201, account303, mockCreateAccountQuery } from 'modules/synapse/test-variables';
 import { AddressVerificationFailedException } from 'modules/synapse/exceptions/address-verification-failed.exception';
 
 let app: INestApplication;
