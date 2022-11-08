@@ -30,9 +30,9 @@ export class SynapseController {
     status: HttpStatus.OK,
   })
   public async verifyAddress(
-    @ValidateFormBody() dto: VerifyAddressDto,
+    @ValidateFormBody() addressDto: VerifyAddressDto,
   ): Promise<{ status; address }> {
-    const address = await this.synapseService.verifyAddress(dto);
+    const address = await this.synapseService.verifyAddress(addressDto);
     return {
       status: HttpStatus.OK,
       address,
@@ -55,11 +55,15 @@ export class SynapseController {
   @Post('user')
   @UseGuards(JwtOtpAuthGuard)
   public async createUser(
-    @ValidateFormBody() dto: CreateAccountDto,
+    @ValidateFormBody() createAccountDto: CreateAccountDto,
     @GetUser() user: User,
     @Ip() ip_address: Ipv4Address,
   ): Promise<IUserSynapseAccountResponse> {
-    const response = await this.synapseService.createSynapseUserAccount(dto, user, ip_address);
+    const response = await this.synapseService.createSynapseUserAccount(
+      createAccountDto,
+      user,
+      ip_address,
+    );
     return response;
   }
 }

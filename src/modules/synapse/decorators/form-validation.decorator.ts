@@ -19,6 +19,7 @@ import { FormValidationError } from '../exceptions/FormValidationError.exception
 //   }
 // */
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const ValidateFormBody = () =>
   RawBody(
     new ValidationPipe({
