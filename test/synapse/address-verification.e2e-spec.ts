@@ -1,4 +1,5 @@
 import { INestApplication } from '@nestjs/common';
+import { StatusCodes } from 'http-status-codes';
 import { VerifyAddressDto } from 'modules/synapse/dto/verify-address.dto';
 import request from 'supertest';
 import { createApp } from '../utils/app.utils';
@@ -39,9 +40,8 @@ describe('Verify address with Synapse', () => {
       });
   });
 
-  test('should return an error if missing any required address fields', () => {
+  test('should return detailed custom errors if missing any required address fields are malformed', () => {
     const badRequest = {
-      address_street: '170 St Germain St',
       address_city: 'SF',
       address_subdivision: 'CA',
       address_country_code: 'US',
@@ -50,11 +50,14 @@ describe('Verify address with Synapse', () => {
     return request(app.getHttpServer())
       .post(`/v1/synapse/address`)
       .send(badRequest)
-      .expect(400)
+      .expect(StatusCodes.BAD_REQUEST)
       .expect({
-        statusCode: 400,
-        message: ['address_postal_code should not be empty'],
-        error: 'Bad Request',
+        statusCode: StatusCodes.BAD_REQUEST,
+        message: 'Form errors',
+        error: {
+          address_street: ['address_street should not be empty', 'address_street must be a string'],
+          address_postal_code: ['address_postal_code should not be empty'],
+        },
       });
   });
 
@@ -69,9 +72,9 @@ describe('Verify address with Synapse', () => {
     return request(app.getHttpServer())
       .post(`/v1/synapse/address`)
       .send(undelivarableAddress)
-      .expect(400)
+      .expect(StatusCodes.BAD_REQUEST)
       .expect({
-        statusCode: 400,
+        statusCode: StatusCodes.BAD_REQUEST,
         message: 'ADDRESS_VERIFICATION_FAILED',
         error: 'Bad Request',
       });

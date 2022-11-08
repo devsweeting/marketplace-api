@@ -9,7 +9,7 @@ import { createUser } from '../utils/create-user';
 import { UserSynapse } from 'modules/synapse/entities/user-synapse.entity';
 import { User } from 'modules/users/entities';
 import { generateToken } from '../utils/jwt.utils';
-import { createMockAccountParams } from '../utils/create-synapse-user';
+import { createMockAccountParams, createMockPaymentsAccount } from '../utils/create-synapse-user';
 
 describe('Synapse Controller', () => {
   let app: INestApplication;
@@ -17,6 +17,7 @@ describe('Synapse Controller', () => {
   let synapseService: SynapseService;
   const mockCreateAccountDto: CreateAccountDto = mockCreateAccountQuery;
   let user: User;
+  let userWithNoAccount: User;
   let headers;
 
   beforeEach(async () => {
@@ -28,7 +29,7 @@ describe('Synapse Controller', () => {
     jest.clearAllMocks();
   });
 
-  describe('mock call to Synapse', () => {
+  describe('mock payment provider API', () => {
     const mockProviders = [
       {
         provide: SynapseService,
@@ -83,23 +84,20 @@ describe('Synapse Controller', () => {
     });
   });
 
-  describe('Should verify account info', () => {
+  describe('POST - create and verify a users payments account', () => {
     beforeAll(async () => {
       app = await createApp();
       user = await createUser({ email: 'test@example.com' });
     });
 
-    test('Should update database synapse details for the user', async () => {
+    test('Should update database payments account details for user', async () => {
       const mockParams = createMockAccountParams(user);
       await request(app.getHttpServer())
         .post(`/v1/synapse/user`)
         .set(headers)
         .send(mockParams)
         .expect(HttpStatus.CREATED)
-        .expect(({ body, error }) => {
-          if (error) {
-            console.log('error', error);
-          }
+        .expect(({ body }) => {
           expect(body.status).toBe(HttpStatus.CREATED);
         });
 
@@ -119,6 +117,39 @@ describe('Synapse Controller', () => {
           expect(error).toBeDefined();
           expect(body.message).toBe('Form errors');
           expect(body.error.phone_numbers).toEqual(['phone_numbers must be a valid phone number']);
+        });
+    });
+  });
+
+  describe('GET - user payment account details', () => {
+    beforeAll(async () => {
+      app = await createApp();
+      user = await createUser({ email: 'test@example.com' });
+    });
+
+    test('Should return the users payment account information', async () => {
+      await createMockPaymentsAccount(user);
+      await request(app.getHttpServer())
+        .get(`/v1/synapse/user`)
+        .set(headers)
+        .expect(HttpStatus.OK)
+        .expect(({ body }) => {
+          expect(body.status).toBe(HttpStatus.OK);
+          expect(body.data).toBeDefined();
+          expect(body.data.user).toBeDefined();
+          expect(body.data.account).toBeDefined();
+        });
+    });
+
+    test('Should return NOT_FOUND if there is no payments account associated with the user', async () => {
+      userWithNoAccount = await createUser({ email: 'no-account@example.com' });
+      headers = { Authorization: `Bearer ${generateToken(userWithNoAccount)}` };
+      await request(app.getHttpServer())
+        .get(`/v1/synapse/user`)
+        .set(headers)
+        .expect(HttpStatus.OK)
+        .expect(({ body }) => {
+          expect(body.status).toBe(HttpStatus.NOT_FOUND);
         });
     });
   });

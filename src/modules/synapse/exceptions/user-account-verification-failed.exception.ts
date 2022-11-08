@@ -4,8 +4,8 @@ export class UserSynapseAccountNotFound extends HttpException {
   public constructor(message?: string) {
     super(
       {
-        statusCode: HttpStatus.NOT_FOUND,
-        error: 'User Not Found',
+        status: HttpStatus.NOT_FOUND,
+        error: 'Payments Account Not Found',
         message: message,
       },
       HttpStatus.NOT_FOUND,

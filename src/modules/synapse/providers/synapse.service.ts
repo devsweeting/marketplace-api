@@ -1,18 +1,21 @@
 /* eslint-disable no-console */
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Ipv4Address } from 'aws-sdk/clients/inspector';
+import { StatusCodes } from 'http-status-codes';
 import { BaseService } from 'modules/common/services';
 import { User } from 'modules/users/entities';
 import { Client } from 'synapsenode';
 import { CreateAccountDto } from '../dto/create-account.dto';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
 import { UserSynapse } from '../entities/user-synapse.entity';
+import { SynapseAccountCreationFailed } from '../exceptions/account-creation-failure.exception';
 import { AddressVerificationFailedException } from '../exceptions/address-verification-failed.exception';
 import { UserSynapseAccountNotFound } from '../exceptions/user-account-verification-failed.exception';
 import { IPermissions, IUserSynapseAccountResponse } from '../interfaces/create-account';
-import { synapseSavedUserCreatedResponse } from '../test-variables';
 import { createUserParams } from '../util/helper';
+
+// const IS_DEVELOPMENT = process.env.NODE_ENV === 'DEVELOP';
 
 @Injectable()
 export class SynapseService extends BaseService {
@@ -26,6 +29,15 @@ export class SynapseService extends BaseService {
     ip_address: this.configService.get('synapse.default.ipAddress'), //TODO - Update to pass the IP address of user for fraud detection
     isProduction: this.configService.get('synapse.default.isProduction'),
   });
+
+  private async getUserSynapseAccount(userId: string): Promise<User> {
+    const userSynapseAccount = await User.createQueryBuilder('users')
+      .leftJoinAndMapOne('users.synapseAccount', 'users.synapseAccount', 'userSynapse')
+      .where('userSynapse.userId = :userId', { userId: userId })
+      .getOne();
+
+    return userSynapseAccount;
+  }
 
   public async verifyAddress(dto: VerifyAddressDto): Promise<any> {
     const response = this.client
@@ -47,24 +59,35 @@ export class SynapseService extends BaseService {
     return response;
   }
 
-  public async getSynapseUserDetails(synapse_id: string): Promise<any> {
-    const synapseUser = await this.client
-      .getUser(synapse_id, null)
-      .then((data) => {
-        return {
-          accountExists: true,
-          userData: data.body,
-        };
+  public async getSynapseUserDetails(user: User): Promise<any> {
+    //Check if user has an associated payment account
+    const userPaymentAccount = await this.getUserSynapseAccount(user.id);
+
+    if (userPaymentAccount === null) {
+      return new UserSynapseAccountNotFound(
+        `There is no saved payments account associated with the user ID -- ${user.id}`,
+      ).getResponse();
+    }
+    const synapseId = userPaymentAccount.synapseAccount.userSynapseId;
+
+    //Query Synapse API for full account details
+    const paymentAccountDetail = await this.client
+      .getUser(synapseId, null)
+      .then(({ body }) => {
+        return body;
       })
-      .catch(() => {
-        return {
-          accountExists: false,
-          userData: new UserSynapseAccountNotFound(
-            `Cannot locate synapse user account with userId -- ${synapse_id}`,
-          ).getResponse(),
-        };
+      .catch(({ response }) => {
+        return response.status === StatusCodes.NOT_FOUND
+          ? new UserSynapseAccountNotFound(
+              `Cannot locate a synapse FBO payments account with synapse_user ID -- ${synapseId}`,
+            ).getResponse()
+          : response;
       });
-    return synapseUser;
+
+    return {
+      status: HttpStatus.OK,
+      data: { user: userPaymentAccount, account: paymentAccountDetail },
+    };
   }
 
   public async createSynapseUserAccount(
@@ -72,14 +95,10 @@ export class SynapseService extends BaseService {
     user: User,
     ip_address: Ipv4Address,
   ): Promise<IUserSynapseAccountResponse> {
-    //Step 1 ->  Check if the user already has an associated synapse account
-    const userSynapseAccount = await User.createQueryBuilder('users')
-      .leftJoinAndMapMany('users.synapseAccount', 'users.synapseAccount', 'userSynapse')
-      .where('userSynapse.userId = :userId', { userId: user.id })
-      .getOne();
+    //Check if the user already has an associated payments account
+    const userSynapseAccount = await this.getUserSynapseAccount(user.id);
 
     if (userSynapseAccount) {
-      console.log('USER SYNAPSE ACCOUNT ALREADY EXISTS', userSynapseAccount);
       return {
         status: HttpStatus.SEE_OTHER,
         msg: `Synapse account already exists for user -- ${user.id}`,
@@ -87,32 +106,34 @@ export class SynapseService extends BaseService {
       };
     }
 
-    // Step 2 -> Generate synapse account params;
+    //Generate params to create new payments account;
     const accountUserParams = createUserParams(user.id, bodyParams, ip_address);
 
-    // Step 3 -> Create new user synapse account.
-    const newAccount = accountUserParams && synapseSavedUserCreatedResponse.User; //DEVELOPMENT - return a saved JSON response
-    // const newAccount = await this.client
-    // .createUser(accountUserParams, ip_address, {})
-    // .then((data) => {
-    //   return data;
-    // })
-    // .catch((err) => {
-    //   if (err) {
-    //     throw new SynapseAccountCreationFailed(err.response.data);
-    //   }
-    // });
-    // console.log('newAccount', newAccount);
+    //Create new FBO payments account with Synapse
+    const newAccount = await this.client
+      .createUser(accountUserParams, ip_address, {})
+      .then((data) => {
+        return data.body;
+      })
+      .catch((err) => {
+        if (err) {
+          throw new SynapseAccountCreationFailed(err.response.data);
+        }
+      });
 
-    // Step 4 ->  If a user synapse account does not exist, create one:
+    //Associate the new payment FBO details with the user:
     const createdSynapseAccount = await UserSynapse.create({
       userId: user.id,
-      userSynapseId: newAccount.id,
+      userSynapseId: newAccount._id,
       depositNodeId: null,
-      refreshToken: newAccount.body.refresh_token,
-      permission: newAccount.body.permission as IPermissions,
-      permission_code: newAccount.body.permission_code,
+      refreshToken: newAccount.refresh_token,
+      permission: newAccount.permission as IPermissions,
+      permission_code: newAccount.permission_code,
     }).save();
+
+    Logger.log(
+      `Synapse FBO account(${createdSynapseAccount.userSynapseId}) successfully created for user -- ${user.id}`,
+    );
 
     return {
       status: HttpStatus.CREATED,

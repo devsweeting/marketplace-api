@@ -89,6 +89,7 @@ export class AuthService {
     const refreshToken = await this.generateRefreshToken(payload);
     const updatedUser = await this.updateRefreshTokenForUser(payload.id, refreshToken);
 
+    //TODO - return the paymentsAccount relation
     return {
       user: updatedUser,
       accessToken: await this.generateAccessToken(payload),

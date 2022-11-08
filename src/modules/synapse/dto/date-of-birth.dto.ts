@@ -6,7 +6,8 @@ const EARLIEST_DAY_OR_MONTH = 1;
 const LATEST_DAY = 31;
 const LATEST_MONTH = 12;
 const EARLIEST_YEAR = 1900;
-const LASTEST_YEAR = 2022;
+const MINIMUM_AGE = 18;
+const LATEST_YEAR = new Date().getFullYear() - MINIMUM_AGE;
 
 export class DateOfBirthDto {
   @ApiProperty({
@@ -32,7 +33,7 @@ export class DateOfBirthDto {
   })
   @IsInt()
   @Min(EARLIEST_YEAR)
-  @Max(LASTEST_YEAR)
+  @Max(LATEST_YEAR)
   @IsNotEmpty()
   public year: number;
 }

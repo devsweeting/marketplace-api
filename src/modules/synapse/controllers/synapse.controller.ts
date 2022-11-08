@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Ip, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Ip, Post, UseGuards } from '@nestjs/common';
 
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Ipv4Address } from 'aws-sdk/clients/inspector';
@@ -25,7 +25,9 @@ export class SynapseController {
   @ApiResponse({
     status: HttpStatus.OK,
   })
-  public async verifyAddress(@Body() dto: VerifyAddressDto): Promise<{ status; address }> {
+  public async verifyAddress(
+    @ValidateFormBody() dto: VerifyAddressDto,
+  ): Promise<{ status; address }> {
     const address = await this.synapseService.verifyAddress(dto);
     return {
       status: HttpStatus.OK,
@@ -34,15 +36,14 @@ export class SynapseController {
   }
 
   @Get('user')
-  // @UseGuards(JwtOtpAuthGuard)
-  public async verifyUser(): Promise<{ status; data }> {
-    const devinTestSynapseId = '6349aee07846615efe8e9521';
-    // const wrongId = '6349aee07846615efe8e95xx';
-    const user = await this.synapseService.getSynapseUserDetails(devinTestSynapseId);
-    return {
-      status: HttpStatus.OK,
-      data: user.userData,
-    };
+  @ApiOperation({ summary: 'Returns the full payment account details' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+  })
+  @UseGuards(JwtOtpAuthGuard)
+  public async verifyUser(@GetUser() user: User): Promise<{ data }> {
+    const data = await this.synapseService.getSynapseUserDetails(user);
+    return data;
   }
 
   @Post('user')
