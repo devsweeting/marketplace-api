@@ -110,7 +110,21 @@ describe('Service', () => {
   });
 
   describe('getUserDetails', () => {
-    //  test('should ', async () => {  })
+    test('should ', async () => {
+      const account = await service.createSynapseUserAccount(
+        {
+          first_name: 'test',
+          last_name: 'mcTestFace',
+          email: user.email,
+          phone_numbers: '123-123-1344',
+          mailing_address: realAddress,
+          date_of_birth: realBirthday,
+          gender: 'F',
+        },
+        user,
+        '0.0.0.0',
+      );
+    });
     test.todo;
   });
 
@@ -145,7 +159,7 @@ describe('Service', () => {
       throw new Error('Error did not throw');
     });
 
-    test('should ', async () => {
+    test('should successfully create an account for a new user', async () => {
       const account = await service.createSynapseUserAccount(
         {
           first_name: 'test',
@@ -160,6 +174,39 @@ describe('Service', () => {
         '0.0.0.0',
       );
       expect(account.account.userId).toEqual(user.id);
+      expect(account.msg).toEqual(`Synapse account created for user -- ${user.id}`);
+    });
+
+    test('should fail if user already exists', async () => {
+      // Create the user
+      await service.createSynapseUserAccount(
+        {
+          first_name: 'test',
+          last_name: 'mcTestFace',
+          email: user.email,
+          phone_numbers: '123-123-1344',
+          mailing_address: realAddress,
+          date_of_birth: realBirthday,
+          gender: 'F',
+        },
+        user,
+        '0.0.0.0',
+      );
+      // try to recreate the existing user
+      const account = await service.createSynapseUserAccount(
+        {
+          first_name: 'test',
+          last_name: 'mcTestFace',
+          email: user.email,
+          phone_numbers: '123-123-1344',
+          mailing_address: realAddress,
+          date_of_birth: realBirthday,
+          gender: 'F',
+        },
+        user,
+        '0.0.0.0',
+      );
+      expect(account.msg).toEqual(`Synapse account already exists for user -- ${user.id}`);
     });
   });
 });

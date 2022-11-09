@@ -125,8 +125,6 @@ export class SynapseService extends BaseService {
         return data.body;
       })
       .catch((err) => {
-        // console.log(err);
-        console.log(err.response);
         if (err) {
           throw new SynapseAccountCreationFailed(err.response.data);
         }
