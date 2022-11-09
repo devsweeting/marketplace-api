@@ -85,4 +85,22 @@ describe('Service', () => {
       throw new Error('Error did not throw');
     });
   });
+
+  describe('getUserDetails', () => {
+    test('should return error if user does not exist', async () => {
+      const userDetails = await service.getSynapseUserDetails('fakeId');
+      expect(userDetails).toMatchObject({
+        accountExists: false,
+        userData: {
+          error: 'User Not Found',
+          message: 'Cannot locate synapse user account with userId -- fakeId',
+          statusCode: 404,
+        },
+      });
+    });
+
+    // test('should first', async () => {
+    //   await service.createSynapseUserAccount({ first_name: 'testy', last_name: 'mcTestFace' });
+    // });
+  });
 });
