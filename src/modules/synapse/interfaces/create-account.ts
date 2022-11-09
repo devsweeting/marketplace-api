@@ -109,3 +109,10 @@ export interface IAddressResponse {
     address_subdivision?: string;
   };
 }
+
+export interface ISynapseErrorMessage {
+  error: {
+    code: string;
+    en: string;
+  };
+}

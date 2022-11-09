@@ -2,9 +2,15 @@ import { INestApplication } from '@nestjs/common';
 import { SynapseService } from 'modules/synapse/providers/synapse.service';
 import { createApp } from '../utils/app.utils';
 import { AddressVerificationFailedException } from 'modules/synapse/exceptions/address-verification-failed.exception';
+import { User } from 'modules/users/entities';
+import { createUser } from '../utils/create-user';
+import { DateOfBirthDto } from 'modules/synapse/dto/date-of-birth.dto';
+import { VerifyAddressDto } from 'modules/synapse/dto/verify-address.dto';
+import { SynapseAccountCreationFailed } from 'modules/synapse/exceptions/account-creation-failure.exception';
 
 let app: INestApplication;
 let service: SynapseService;
+let user: User;
 
 // const mockProviders = [
 //   {
@@ -16,9 +22,13 @@ let service: SynapseService;
 beforeAll(async () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   app = await createApp();
+  user = await createUser({ email: 'test@example.com' });
 });
 beforeEach(async () => {
   service = app.get<SynapseService>(SynapseService);
+});
+afterEach(async () => {
+  jest.clearAllMocks();
 });
 describe('Service', () => {
   describe('verifyAddress', () => {
@@ -87,20 +97,38 @@ describe('Service', () => {
   });
 
   describe('getUserDetails', () => {
-    test('should return error if user does not exist', async () => {
-      const userDetails = await service.getSynapseUserDetails('fakeId');
-      expect(userDetails).toMatchObject({
-        accountExists: false,
-        userData: {
-          error: 'User Not Found',
-          message: 'Cannot locate synapse user account with userId -- fakeId',
-          statusCode: 404,
-        },
-      });
-    });
+    //  test('should ', async () => {  })
+    test.todo;
+  });
 
-    // test('should first', async () => {
-    //   await service.createSynapseUserAccount({ first_name: 'testy', last_name: 'mcTestFace' });
-    // });
+  describe('createUserAccount', () => {
+    test('should throw an error if account is missing credentials', async () => {
+      const blankMailingAddress = new VerifyAddressDto();
+      const blankDateOfBirth = new DateOfBirthDto();
+      try {
+        await service.createSynapseUserAccount(
+          {
+            first_name: 'test',
+            last_name: 'mcTestFace',
+            email: 'testMcTestFace@example.com',
+            phone_numbers: '123-123-1344',
+            mailing_address: blankMailingAddress,
+            date_of_birth: blankDateOfBirth,
+          },
+          user,
+          '0.0.0.0',
+        );
+      } catch (error) {
+        expect(error.response).toMatchObject({
+          statusCode: 400,
+          error: 'Couldnt create user Synapse account',
+          message: 'Client credentials are missing from the request.',
+        });
+        expect(error).toBeInstanceOf(SynapseAccountCreationFailed);
+        return;
+      }
+
+      throw new Error('Error did not throw');
+    });
   });
 });

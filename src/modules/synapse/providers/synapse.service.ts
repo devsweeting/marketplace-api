@@ -19,7 +19,7 @@ import {
   IUserPaymentAccountResponse,
   IUserSynapseAccountResponse,
 } from '../interfaces/create-account';
-import { synapseSavedUserCreatedResponse } from '../test-variables';
+// import { synapseSavedUserCreatedResponse } from '../test-variables';
 import { createUserParams } from '../util/helper';
 
 // const IS_DEVELOPMENT = process.env.NODE_ENV === 'DEVELOP';
@@ -125,6 +125,8 @@ export class SynapseService extends BaseService {
         return data.body;
       })
       .catch((err) => {
+        // console.log(err);
+        console.log(err.response);
         if (err) {
           throw new SynapseAccountCreationFailed(err.response.data);
         }
