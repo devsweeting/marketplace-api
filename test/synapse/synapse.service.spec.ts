@@ -11,6 +11,19 @@ import { SynapseAccountCreationFailed } from 'modules/synapse/exceptions/account
 let app: INestApplication;
 let service: SynapseService;
 let user: User;
+const realAddress = {
+  address_street: '1 Market St.',
+  address_city: 'SF',
+  address_subdivision: 'CA',
+  address_postal_code: '94105',
+  address_country_code: 'US',
+};
+
+const realBirthday = {
+  day: 1,
+  month: 1,
+  year: 1990,
+};
 
 // const mockProviders = [
 //   {
@@ -110,7 +123,7 @@ describe('Service', () => {
           {
             first_name: 'test',
             last_name: 'mcTestFace',
-            email: 'testMcTestFace@example.com',
+            email: '',
             phone_numbers: '123-123-1344',
             mailing_address: blankMailingAddress,
             date_of_birth: blankDateOfBirth,
@@ -122,13 +135,31 @@ describe('Service', () => {
         expect(error.response).toMatchObject({
           statusCode: 400,
           error: 'Couldnt create user Synapse account',
-          message: 'Client credentials are missing from the request.',
+          message:
+            "'' does not match \"^[a-zA-Z0-9!#$%&'*+-/=?^_`{|}~.@]{3,120}$\"..Failed validating 'pattern' in schema['properties']['logins']['items']['properties']['email']:",
         });
         expect(error).toBeInstanceOf(SynapseAccountCreationFailed);
         return;
       }
 
       throw new Error('Error did not throw');
+    });
+
+    test('should ', async () => {
+      const account = await service.createSynapseUserAccount(
+        {
+          first_name: 'test',
+          last_name: 'mcTestFace',
+          email: user.email,
+          phone_numbers: '123-123-1344',
+          mailing_address: realAddress,
+          date_of_birth: realBirthday,
+          gender: 'F',
+        },
+        user,
+        '0.0.0.0',
+      );
+      expect(account.account.userId).toEqual(user.id);
     });
   });
 });
