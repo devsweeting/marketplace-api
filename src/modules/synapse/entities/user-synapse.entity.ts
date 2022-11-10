@@ -13,7 +13,7 @@ export class UserSynapse extends BaseModel implements IBaseEntity {
   @RelationId((UserSynapse: UserSynapse) => UserSynapse.user)
   public userId: string;
 
-  @OneToOne(() => User, { eager: true })
+  @OneToOne(() => User)
   @JoinColumn({ name: 'userId' })
   public user?: User;
 
