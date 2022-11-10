@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { SynapseService } from 'modules/synapse/providers/synapse.service';
 import { createApp } from '../utils/app.utils';
 import { AddressVerificationFailedException } from 'modules/synapse/exceptions/address-verification-failed.exception';
@@ -25,17 +25,11 @@ const realBirthday = {
   year: 1990,
 };
 
-// const mockProviders = [
-//   {
-//     provide: SynapseService,
-//     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-//     useValue: { createSynapseUserAccount: () => account201 },
-//   },
-// ];
 beforeAll(async () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  app = await createApp();
-  user = await createUser({ email: 'test@example.com' });
+  await createApp();
+  user = await createUser({
+    email: 'test@example.com',
+  });
 });
 beforeEach(async () => {
   service = app.get<SynapseService>(SynapseService);
@@ -92,7 +86,7 @@ describe('Service', () => {
         normalized_address: {},
       });
     });
-    test('should throw error on error', async () => {
+    test('should throw error on if something is missing.', async () => {
       try {
         await service.verifyAddress({
           address_street: '',
@@ -110,8 +104,28 @@ describe('Service', () => {
   });
 
   describe('getUserDetails', () => {
-    test('should ', async () => {
-      const account = await service.createSynapseUserAccount(
+    test('should throw error if no local payment account exists', async () => {
+      try {
+        await service.getSynapseUserDetails(user);
+      } catch (error) {
+        expect(error).toMatchObject({
+          error: 'Payments Account Not Found',
+          message: `There is no saved payments account associated with the user ID -- ${user.id}`,
+          status: 404,
+        });
+        return;
+      }
+      throw new Error('Error did not throw');
+    });
+
+    test('should throw if no synapse payment account exists', async () => {
+      // This tests requires a synapse account to exist locally but not have one externally,
+      // resulting in a Not found error from synapse
+      test.todo;
+    });
+
+    test('should return synapse data ', async () => {
+      await service.createSynapseUserAccount(
         {
           first_name: 'test',
           last_name: 'mcTestFace',
@@ -124,8 +138,10 @@ describe('Service', () => {
         user,
         '0.0.0.0',
       );
+      const userDetails = await service.getSynapseUserDetails(user);
+      expect(userDetails.status).toEqual(HttpStatus.OK);
+      //TODO possibly add more expect() to ensure that the data is returned exactly as we suspect
     });
-    test.todo;
   });
 
   describe('createUserAccount', () => {

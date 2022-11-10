@@ -66,14 +66,13 @@ export class SynapseService extends BaseService {
     return response;
   }
 
-  public async getSynapseUserDetails(
-    user: User,
-  ): Promise<IUserPaymentAccountResponse | ErrorResponse> {
+  public async getSynapseUserDetails(user: User): Promise<IUserPaymentAccountResponse> {
     //Check if user has an associated payment account
     const userPaymentAccount = await this.getUserSynapseAccount(user.id);
 
     if (userPaymentAccount === null) {
-      return new UserSynapseAccountNotFound(
+      console.log('not found');
+      throw new UserSynapseAccountNotFound(
         `There is no saved payments account associated with the user ID -- ${user.id}`,
       ).getResponse();
     }
@@ -86,11 +85,12 @@ export class SynapseService extends BaseService {
         return body;
       })
       .catch(({ response }) => {
-        return response.status === StatusCodes.NOT_FOUND
-          ? new UserSynapseAccountNotFound(
-              `Cannot locate a synapse FBO payments account with synapse_user ID -- ${synapseId}`,
-            ).getResponse()
-          : response;
+        if (response.status === StatusCodes.NOT_FOUND) {
+          throw new UserSynapseAccountNotFound(
+            `Cannot locate a synapse FBO payments account with synapse_user ID -- ${synapseId}`,
+          ).getResponse();
+        }
+        return response;
       });
 
     return {
