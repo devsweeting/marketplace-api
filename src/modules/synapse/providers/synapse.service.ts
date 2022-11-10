@@ -13,11 +13,12 @@ import { SynapseAccountCreationFailed } from '../exceptions/account-creation-fai
 import { AddressVerificationFailedException } from '../exceptions/address-verification-failed.exception';
 import { UserSynapseAccountNotFound } from '../exceptions/user-account-verification-failed.exception';
 import {
-  ErrorResponse,
   IPermissions,
+  IAddressResponse,
   IUserPaymentAccountResponse,
   IUserSynapseAccountResponse,
 } from '../interfaces/create-account';
+// import { synapseSavedUserCreatedResponse } from '../test-variables';
 import { createUserParams } from '../util/helper';
 
 // const IS_DEVELOPMENT = process.env.NODE_ENV === 'DEVELOP';
@@ -44,7 +45,7 @@ export class SynapseService extends BaseService {
     return userSynapseAccount;
   }
 
-  public async verifyAddress(dto: VerifyAddressDto): Promise<object> {
+  public async verifyAddress(dto: VerifyAddressDto): Promise<IAddressResponse> {
     const response = this.client
       .verifyAddress({
         address_city: dto.address_city,
@@ -64,16 +65,15 @@ export class SynapseService extends BaseService {
     return response;
   }
 
-  public async getSynapseUserDetails(
-    user: User,
-  ): Promise<IUserPaymentAccountResponse | ErrorResponse> {
+  public async getSynapseUserDetails(user: User): Promise<IUserPaymentAccountResponse> {
     //Check if user has an associated payment account
     const userPaymentAccount = await this.getUserSynapseAccount(user.id);
 
     if (userPaymentAccount === null) {
-      return new UserSynapseAccountNotFound(
+      console.log('not found');
+      throw new UserSynapseAccountNotFound(
         `There is no saved payments account associated with the user ID -- ${user.id}`,
-      ).getResponse();
+      );
     }
     const synapseId = userPaymentAccount.synapseAccount.userSynapseId;
 
@@ -84,11 +84,12 @@ export class SynapseService extends BaseService {
         return body;
       })
       .catch(({ response }) => {
-        return response.status === StatusCodes.NOT_FOUND
-          ? new UserSynapseAccountNotFound(
-              `Cannot locate a synapse FBO payments account with synapse_user ID -- ${synapseId}`,
-            ).getResponse()
-          : response;
+        if (response.status === StatusCodes.NOT_FOUND) {
+          throw new UserSynapseAccountNotFound(
+            `Cannot locate a synapse FBO payments account with synapse_user ID -- ${synapseId}`,
+          );
+        }
+        return response;
       });
 
     return {

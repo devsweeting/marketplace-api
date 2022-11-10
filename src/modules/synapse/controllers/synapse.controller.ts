@@ -9,7 +9,6 @@ import { ValidateFormBody } from '../decorators/form-validation.decorator';
 import { CreateAccountDto } from '../dto/create-account.dto';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
 import {
-  ErrorResponse,
   IUserPaymentAccountResponse,
   IUserSynapseAccountResponse,
 } from '../interfaces/create-account';
@@ -51,9 +50,7 @@ export class SynapseController {
     status: HttpStatus.OK,
   })
   @UseGuards(JwtOtpAuthGuard)
-  public async verifyUser(
-    @GetUser() user: User,
-  ): Promise<ErrorResponse | IUserPaymentAccountResponse> {
+  public async verifyUser(@GetUser() user: User): Promise<IUserPaymentAccountResponse> {
     const data = await this.synapseService.getSynapseUserDetails(user);
     return data;
   }

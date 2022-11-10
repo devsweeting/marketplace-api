@@ -147,7 +147,7 @@ describe('Synapse Controller', () => {
       await request(app.getHttpServer())
         .get(`/v1/synapse/user`)
         .set(headers)
-        .expect(HttpStatus.OK)
+        .expect(HttpStatus.NOT_FOUND)
         .expect(({ body }) => {
           expect(body.status).toBe(HttpStatus.NOT_FOUND);
         });

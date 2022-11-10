@@ -85,3 +85,34 @@ export interface IUserPaymentAccountResponse {
     account: object;
   };
 }
+export type IDeliverability =
+  | 'usps_deliverable'
+  | 'deliverable'
+  | 'deliverable_incorrect_unit'
+  | 'deliverable_missing_unit'
+  | 'deliverable_unneccessary_unit'
+  | 'google_undeliverable';
+export interface IAddressResponse {
+  deliverability: IDeliverability;
+  deliverability_analysis: {
+    partial_valid: boolean;
+    primary_number_invalid: boolean;
+    primary_number_missing: boolean;
+    secondary_invalid: boolean;
+    secondary_missing: boolean;
+  };
+  normalized_address: {
+    address_city?: string;
+    address_country_code?: string;
+    address_postal_code?: string;
+    address_street?: string;
+    address_subdivision?: string;
+  };
+}
+
+export interface ISynapseErrorMessage {
+  error: {
+    code: string;
+    en: string;
+  };
+}

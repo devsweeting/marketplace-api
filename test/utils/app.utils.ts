@@ -17,6 +17,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
 import { UserAsset } from 'modules/users/entities/user-assets.entity';
 import { SynapseModule } from 'modules/synapse/synapse.module';
+import { UserSynapse } from 'modules/synapse/entities/user-synapse.entity';
 
 export type SupertestResponse = request.Response;
 
@@ -75,6 +76,7 @@ export const createApp = async (providers: IMockProvider[] = []): Promise<INestA
 
 export const clearAllData = async (): Promise<void> => {
   await UserAsset.delete({});
+  await UserSynapse.delete({});
   await SellOrderPurchase.delete({});
   await SellOrder.delete({});
   await Attribute.delete({});
