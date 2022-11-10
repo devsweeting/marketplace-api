@@ -32,7 +32,6 @@ import { RefreshRequestDto } from './dto/refresh-request.dto';
 import { JwtRefreshGaurd } from 'modules/auth/guards/jwt-refresh.guard';
 import { AuthService } from 'modules/auth/auth.service';
 import { StatusCodes } from 'http-status-codes';
-import { UserRefresh } from './entities/user-refresh.entity';
 
 @ApiTags('users')
 @Controller({
@@ -140,7 +139,7 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   public async loginConfirm(
     @Body() dto: LoginConfirmDto,
-  ): Promise<{ user: UserRefresh; accessToken: string; refreshToken: string }> {
+  ): Promise<{ user: User; accessToken: string; refreshToken: string }> {
     const returnResponse = await this.otpService.confirmUserLogin(dto);
     return returnResponse;
   }

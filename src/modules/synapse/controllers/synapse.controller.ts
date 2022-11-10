@@ -40,7 +40,13 @@ export class SynapseController {
   }
 
   @Get('user')
-  @ApiOperation({ summary: 'Returns the full payment account details' })
+  @ApiOperation({
+    summary: 'Returns the full payment account details',
+    externalDocs: {
+      description: 'Synapse User Documentation',
+      url: 'https://docs.synapsefi.com/api-references/users/user-object-details',
+    },
+  })
   @ApiResponse({
     status: HttpStatus.OK,
   })

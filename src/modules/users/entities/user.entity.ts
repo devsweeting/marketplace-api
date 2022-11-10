@@ -65,7 +65,7 @@ export class User extends BaseModel implements IBaseEntity {
   @OneToOne(() => Watchlist, (watchlist) => watchlist.user, { nullable: true })
   public watchlist: Watchlist | null;
 
-  @OneToOne(() => UserSynapse, (account) => account.user, { nullable: true })
+  @OneToOne(() => UserSynapse, (account) => account.user, { nullable: true, eager: true })
   public synapseAccount: UserSynapse | null;
 
   constructor(partial: Partial<User> = {}) {
