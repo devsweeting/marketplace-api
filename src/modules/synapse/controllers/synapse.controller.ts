@@ -9,7 +9,6 @@ import { ValidateFormBody } from '../decorators/form-validation.decorator';
 import { CreateAccountDto } from '../dto/create-account.dto';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
 import {
-  ErrorResponse,
   IUserPaymentAccountResponse,
   IUserSynapseAccountResponse,
 } from '../interfaces/create-account';

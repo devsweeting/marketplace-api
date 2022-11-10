@@ -13,7 +13,6 @@ import { SynapseAccountCreationFailed } from '../exceptions/account-creation-fai
 import { AddressVerificationFailedException } from '../exceptions/address-verification-failed.exception';
 import { UserSynapseAccountNotFound } from '../exceptions/user-account-verification-failed.exception';
 import {
-  ErrorResponse,
   IPermissions,
   IAddressResponse,
   IUserPaymentAccountResponse,
@@ -74,7 +73,7 @@ export class SynapseService extends BaseService {
       console.log('not found');
       throw new UserSynapseAccountNotFound(
         `There is no saved payments account associated with the user ID -- ${user.id}`,
-      ).getResponse();
+      );
     }
     const synapseId = userPaymentAccount.synapseAccount.userSynapseId;
 
@@ -88,7 +87,7 @@ export class SynapseService extends BaseService {
         if (response.status === StatusCodes.NOT_FOUND) {
           throw new UserSynapseAccountNotFound(
             `Cannot locate a synapse FBO payments account with synapse_user ID -- ${synapseId}`,
-          ).getResponse();
+          );
         }
         return response;
       });

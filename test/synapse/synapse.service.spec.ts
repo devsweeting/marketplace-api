@@ -1,12 +1,13 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { SynapseService } from 'modules/synapse/providers/synapse.service';
-import { createApp } from '../utils/app.utils';
+import { clearAllData, createApp } from '../utils/app.utils';
 import { AddressVerificationFailedException } from 'modules/synapse/exceptions/address-verification-failed.exception';
 import { User } from 'modules/users/entities';
 import { createUser } from '../utils/create-user';
 import { DateOfBirthDto } from 'modules/synapse/dto/date-of-birth.dto';
 import { VerifyAddressDto } from 'modules/synapse/dto/verify-address.dto';
 import { SynapseAccountCreationFailed } from 'modules/synapse/exceptions/account-creation-failure.exception';
+import { UserSynapseAccountNotFound } from 'modules/synapse/exceptions/user-account-verification-failed.exception';
 
 let app: INestApplication;
 let service: SynapseService;
@@ -26,16 +27,17 @@ const realBirthday = {
 };
 
 beforeAll(async () => {
-  await createApp();
+  app = await createApp();
+});
+beforeEach(async () => {
+  service = app.get<SynapseService>(SynapseService);
   user = await createUser({
     email: 'test@example.com',
   });
 });
-beforeEach(async () => {
-  service = app.get<SynapseService>(SynapseService);
-});
 afterEach(async () => {
   jest.clearAllMocks();
+  await clearAllData();
 });
 describe('Service', () => {
   describe('verifyAddress', () => {
@@ -108,7 +110,8 @@ describe('Service', () => {
       try {
         await service.getSynapseUserDetails(user);
       } catch (error) {
-        expect(error).toMatchObject({
+        expect(error).toBeInstanceOf(UserSynapseAccountNotFound);
+        expect(error.response).toMatchObject({
           error: 'Payments Account Not Found',
           message: `There is no saved payments account associated with the user ID -- ${user.id}`,
           status: 404,
