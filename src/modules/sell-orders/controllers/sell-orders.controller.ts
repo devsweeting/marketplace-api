@@ -36,6 +36,7 @@ import { StatusCodes } from 'http-status-codes';
 import { PurchaseHistoryDto } from '../dto/purchase-history.dto';
 import { currentUser } from 'modules/users/decorators/currentUser.decorator';
 import { SellOrdersPurchaseService } from '../sell-order-purchase.service';
+import { SellOrderPurchaseResponse } from '../responses/sell-order-purchase.response';
 import { SellOrderPurchase } from '../entities';
 
 @ApiTags('sellorders')
@@ -68,15 +69,21 @@ export class SellOrdersController {
   @ApiBearerAuth('bearer-token')
   @UseGuards(JwtOtpAuthGuard)
   @ApiOperation({ summary: 'Returns purchase history for specified asset' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'List of purchase history',
+    type: SellOrderPurchaseResponse,
+    isArray: true,
+  })
   public async history(
     @Query() query: PurchaseHistoryDto,
     @currentUser() user: User,
-  ): Promise<Record<string, SellOrderPurchase[]>> {
+  ): Promise<SellOrderPurchaseResponse[]> {
     const purchaseHistory = await this.sellOrdersPurchaseService.getUserPurchaseHistoryFromAsset(
       user,
       query.assetId,
     );
-    return purchaseHistory;
+    return purchaseHistory?.sellOrderHistory;
   }
 
   @Get(':id')
