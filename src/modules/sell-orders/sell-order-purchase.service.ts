@@ -42,4 +42,24 @@ export class SellOrdersPurchaseService extends BaseService {
 
       .getMany();
   }
+  async getUserPurchaseHistoryFromAsset(
+    user: User,
+    assetId: string,
+  ): Promise<Record<string, SellOrderPurchase[]>> {
+    const sellOrderHistory = await SellOrderPurchase.createQueryBuilder('SellOrderPurchase')
+      .where('SellOrderPurchase.userId = :userId', {
+        userId: user.id,
+      })
+      .andWhere({ assetId: assetId })
+      .andWhere(
+        'SellOrderPurchase.isDeleted = :isDeleted AND SellOrderPurchase.deletedAt IS NULL',
+        {
+          isDeleted: false,
+        },
+      )
+      .orderBy('SellOrderPurchase.updatedAt', 'DESC')
+      .getMany();
+
+    return { sellOrderHistory };
+  }
 }
