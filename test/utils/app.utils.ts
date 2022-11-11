@@ -16,8 +16,8 @@ import { UserLogin, UserOtp } from 'modules/users/entities';
 import { MailerService } from '@nestjs-modules/mailer';
 import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
 import { UserAsset } from 'modules/users/entities/user-assets.entity';
-import { SynapseModule } from 'modules/synapse/synapse.module';
-import { UserSynapse } from 'modules/synapse/entities/user-synapse.entity';
+import { PaymentsModule } from 'modules/payments/payments.module';
+import { UserPaymentsAccount } from 'modules/payments/entities/user-payments-account.entity';
 
 export type SupertestResponse = request.Response;
 
@@ -50,7 +50,7 @@ export const configureTestApp = (
 
 export const createApp = async (providers: IMockProvider[] = []): Promise<INestApplication> => {
   const module = Test.createTestingModule({
-    imports: [AppModule, AuthModule, SynapseModule],
+    imports: [AppModule, AuthModule, PaymentsModule],
   });
 
   if (!providers.some((p) => typeof p.provide === typeof MailerService)) {
@@ -76,7 +76,7 @@ export const createApp = async (providers: IMockProvider[] = []): Promise<INestA
 
 export const clearAllData = async (): Promise<void> => {
   await UserAsset.delete({});
-  await UserSynapse.delete({});
+  await UserPaymentsAccount.delete({});
   await SellOrderPurchase.delete({});
   await SellOrder.delete({});
   await Attribute.delete({});

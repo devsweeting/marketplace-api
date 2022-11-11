@@ -8,7 +8,7 @@ import { EmailValidator } from '../validators/email.validator';
 import { RoleEnum } from '../enums/role.enum';
 import { PartnerMemberUser } from '../../partners/entities/partners-members-users.entity';
 import { Watchlist } from '../../watchlists/entities/watchlist.entity';
-import { UserSynapse } from 'modules/synapse/entities/user-synapse.entity';
+import { UserPaymentsAccount } from 'modules/payments/entities/user-payments-account.entity';
 
 @Entity('users')
 @Unique('USER_EMAIL_UNIQUE', ['email'])
@@ -65,8 +65,8 @@ export class User extends BaseModel implements IBaseEntity {
   @OneToOne(() => Watchlist, (watchlist) => watchlist.user, { nullable: true })
   public watchlist: Watchlist | null;
 
-  @OneToOne(() => UserSynapse, (account) => account.user, { nullable: true, eager: true })
-  public synapseAccount: UserSynapse | null;
+  @OneToOne(() => UserPaymentsAccount, (account) => account.user, { nullable: true, eager: true })
+  public paymentsAccount: UserPaymentsAccount | null;
 
   constructor(partial: Partial<User> = {}) {
     super();

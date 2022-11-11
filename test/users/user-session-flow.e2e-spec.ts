@@ -52,8 +52,8 @@ describe('UserController (e2e)', () => {
       const NUMBER_OF_USERS = 1;
       expect(createUser.email).toBe(email);
       expect(await UserLogin.count({ where: { userId: createUser.id } })).toBe(NUMBER_OF_USERS);
-      expect(createUser).toHaveProperty('synapseAccount');
-      expect(createUser.synapseAccount).toBeDefined();
+      expect(createUser).toHaveProperty('paymentsAccount');
+      expect(createUser.paymentsAccount).toBeDefined();
     });
 
     test('should return 429 for too many requests', async () => {
