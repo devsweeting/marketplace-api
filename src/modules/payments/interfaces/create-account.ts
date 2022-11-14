@@ -82,7 +82,7 @@ export interface IUserPaymentAccountResponse {
   status: HttpStatus;
   data: {
     user: User;
-    account: object;
+    account: Record<string, string>;
   };
 }
 export type IDeliverability =

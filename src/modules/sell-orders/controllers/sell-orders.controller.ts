@@ -37,7 +37,6 @@ import { PurchaseHistoryDto } from '../dto/purchase-history.dto';
 import { currentUser } from 'modules/users/decorators/currentUser.decorator';
 import { SellOrdersPurchaseService } from '../sell-order-purchase.service';
 import { SellOrderPurchaseResponse } from '../responses/sell-order-purchase.response';
-import { SellOrderPurchase } from '../entities';
 
 @ApiTags('sellorders')
 @Controller({
