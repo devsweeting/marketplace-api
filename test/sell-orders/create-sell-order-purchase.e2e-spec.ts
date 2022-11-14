@@ -307,5 +307,49 @@ describe('SellOrdersController -> Purchases', () => {
         fractionsToPurchase * 2,
       );
     });
+    describe('Sell Order Purchase History', () => {
+      test('should return purchase history', async () => {
+        const fractionsToPurchase = 10;
+        const fractionPriceCents = sellOrder.fractionPriceCents;
+        await expectPurchaseSuccess(
+          app,
+          sellOrder,
+          fractionsToPurchase,
+          fractionPriceCents,
+          buyer,
+          undefined,
+          userAsset,
+        );
+        const url = `/v1/sellorders/purchase-history?assetId=${sellOrder.assetId}`;
+        // const params = { assetId: sellOrder.assetId };
+
+        const results = await testApp.get(
+          app,
+          url,
+          StatusCodes.OK,
+          null,
+          null,
+          headerForUser(buyer),
+        );
+        expect(results.body[0].fractionQty).toEqual(fractionsToPurchase);
+        expect(results.body[0].fractionPriceCents).toEqual(fractionPriceCents);
+        expect(results.body[0].sellOrderId).toEqual(sellOrder.id);
+        expect(results.body[0].assetId).toEqual(sellOrder.assetId);
+      });
+
+      test('should return empty array if purchase history is emptyy', async () => {
+        const url = `/v1/sellorders/purchase-history?assetId=${sellOrder.assetId}`;
+
+        const results = await testApp.get(
+          app,
+          url,
+          StatusCodes.OK,
+          null,
+          null,
+          headerForUser(buyer),
+        );
+        expect(results.body).toEqual([]);
+      });
+    });
   });
 });
