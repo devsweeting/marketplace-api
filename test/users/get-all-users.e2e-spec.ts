@@ -45,7 +45,6 @@ describe('UserController (e2e)', () => {
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .expect(StatusCodes.OK)
         .expect(({ body }) => {
-          console.log('body', body);
           // eslint-disable-next-line no-magic-numbers
           expect(body.length).toEqual(4);
 
