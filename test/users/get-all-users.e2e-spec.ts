@@ -15,8 +15,11 @@ describe('UserController (e2e)', () => {
 
   beforeAll(async () => {
     app = await createApp();
-    users = [await createUser({}), await createUser({}), await createUser({})];
+    const user = await createUser({});
+    const user2 = await createUser({});
+    const user3 = await createUser({});
     admin = await createUser({ role: RoleEnum.SUPER_ADMIN });
+    users = [user, user2, user3, admin].sort((a, b) => a.lastName.localeCompare(b.lastName));
   });
 
   afterAll(async () => {
@@ -36,12 +39,13 @@ describe('UserController (e2e)', () => {
       return request(app.getHttpServer()).get(`/v1/users`).expect(StatusCodes.UNAUTHORIZED);
     });
 
-    test('should list all users', async () => {
+    test('should list all users sorted alphabetically by last name', async () => {
       await request(app.getHttpServer())
         .get('/v1/users')
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
         .expect(StatusCodes.OK)
         .expect(({ body }) => {
+          console.log('body', body);
           // eslint-disable-next-line no-magic-numbers
           expect(body.length).toEqual(4);
 
