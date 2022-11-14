@@ -33,6 +33,11 @@ import { GetUser } from 'modules/auth/decorators/get-user.decorator';
 import { User } from 'modules/users/entities/user.entity';
 import { SellOrderTypeEnum } from '../enums/sell-order-type.enum';
 import { StatusCodes } from 'http-status-codes';
+import { PurchaseHistoryDto } from '../dto/purchase-history.dto';
+import { currentUser } from 'modules/users/decorators/currentUser.decorator';
+import { SellOrdersPurchaseService } from '../sell-order-purchase.service';
+import { SellOrderPurchaseResponse } from '../responses/sell-order-purchase.response';
+import { SellOrderPurchase } from '../entities';
 
 @ApiTags('sellorders')
 @Controller({
@@ -42,6 +47,7 @@ import { StatusCodes } from 'http-status-codes';
 export class SellOrdersController {
   constructor(
     private readonly sellOrdersService: SellOrdersService,
+    private readonly sellOrdersPurchaseService: SellOrdersPurchaseService,
     private readonly sellOrdersTransformer: SellOrdersTransformer,
   ) {}
 
@@ -57,6 +63,27 @@ export class SellOrdersController {
   ): Promise<PaginatedResponse<SellOrderResponse>> {
     const list = await this.sellOrdersService.getList(params);
     return this.sellOrdersTransformer.transformPaginated(list);
+  }
+
+  @Get('/purchase-history')
+  @ApiBearerAuth('bearer-token')
+  @UseGuards(JwtOtpAuthGuard)
+  @ApiOperation({ summary: 'Returns purchase history for specified asset' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'List of purchase history',
+    type: SellOrderPurchaseResponse,
+    isArray: true,
+  })
+  public async history(
+    @Query() query: PurchaseHistoryDto,
+    @currentUser() user: User,
+  ): Promise<SellOrderPurchaseResponse[]> {
+    const purchaseHistory = await this.sellOrdersPurchaseService.getUserPurchaseHistoryFromAsset(
+      user,
+      query.assetId,
+    );
+    return purchaseHistory?.sellOrderHistory;
   }
 
   @Get(':id')

@@ -41,8 +41,6 @@ export class SellOrderResponse {
   public userFractionLimitEndTime?: Date;
 }
 
-export class SellOrderPurchaseResponse {}
-
 export class SellOrderCheckResponse {
   @ApiProperty({ example: 100 })
   fractionsPurchased: number;

@@ -3,6 +3,7 @@ import { Asset } from 'modules/assets/entities';
 import { BaseService } from 'modules/common/services';
 import { User } from 'modules/users/entities';
 import { SellOrder, SellOrderPurchase } from './entities';
+import { SellOrderPurchaseResponse } from './responses/sell-order-purchase.response';
 
 @Injectable()
 export class SellOrdersPurchaseService extends BaseService {
@@ -41,5 +42,25 @@ export class SellOrdersPurchaseService extends BaseService {
       })
 
       .getMany();
+  }
+  async getUserPurchaseHistoryFromAsset(
+    user: User,
+    assetId: string,
+  ): Promise<Record<string, SellOrderPurchaseResponse[]>> {
+    const sellOrderHistory = await SellOrderPurchase.createQueryBuilder('SellOrderPurchase')
+      .where('SellOrderPurchase.userId = :userId', {
+        userId: user.id,
+      })
+      .andWhere({ assetId: assetId })
+      .andWhere(
+        'SellOrderPurchase.isDeleted = :isDeleted AND SellOrderPurchase.deletedAt IS NULL',
+        {
+          isDeleted: false,
+        },
+      )
+      .orderBy('SellOrderPurchase.updatedAt', 'DESC')
+      .getMany();
+
+    return { sellOrderHistory };
   }
 }
