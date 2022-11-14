@@ -84,7 +84,6 @@ describe('Payments Controller', () => {
 
     test('Should update database payments account details for user', async () => {
       const mockParams = createMockBasicKycParams(user);
-      console.log('mockParams', mockParams);
       await request(app.getHttpServer())
         .post(`/v1/payments/kyc`)
         .set(headers)
