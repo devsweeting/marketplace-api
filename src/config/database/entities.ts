@@ -10,6 +10,7 @@ import { Watchlist, WatchlistAsset } from 'modules/watchlists/entities';
 import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
 import { UserRefresh } from 'modules/users/entities/user-refresh.entity';
 import { UserAsset } from 'modules/users/entities/user-assets.entity';
+import { UserPaymentsAccount } from 'modules/payments/entities/user-payments-account.entity';
 
 export const entities = [
   Asset,
@@ -33,6 +34,7 @@ export const entities = [
   UserOtp,
   UserLogin,
   UserRefresh,
+  UserPaymentsAccount,
   SellOrder,
   SellOrderPurchase,
 ];

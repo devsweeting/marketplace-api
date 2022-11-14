@@ -16,6 +16,8 @@ export class UserTransformer {
   }
 
   public transformAllUsers(users: User[]): IUserResponse[] {
-    return users?.map((user) => this.transform(user));
+    return users
+      ?.map((user) => this.transform(user))
+      .sort((a, b) => a.lastName.localeCompare(b.lastName));
   }
 }

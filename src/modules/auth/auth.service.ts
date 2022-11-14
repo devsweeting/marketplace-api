@@ -84,13 +84,12 @@ export class AuthService {
     id: string;
     email: string;
     role: RoleEnum;
-  }): Promise<{ user: UserRefresh; accessToken: string; refreshToken: string }> {
+  }): Promise<{ accessToken: string; refreshToken: string }> {
     const payload = { id: user.id, email: user.email, role: user.role, assignedAt: Date.now() };
     const refreshToken = await this.generateRefreshToken(payload);
-    const updatedUser = await this.updateRefreshTokenForUser(payload.id, refreshToken);
+    await this.updateRefreshTokenForUser(payload.id, refreshToken);
 
     return {
-      user: updatedUser,
       accessToken: await this.generateAccessToken(payload),
       refreshToken: refreshToken,
     };

@@ -7,4 +7,4 @@ export { default as rollbar } from './rollbar.config';
 export { default as asset } from './asset.config';
 export { default as health } from './health.config';
 export { default as common } from './common.config';
-export { default as synapse } from './synapse.config';
+export { default as payments } from './payments.config';

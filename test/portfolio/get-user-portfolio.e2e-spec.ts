@@ -12,7 +12,7 @@ import { createSellOrder, expectPurchaseSuccess } from '../utils/sell-order.util
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
 import { generateToken } from '../utils/jwt.utils';
 import request from 'supertest';
-import { createUserAsset } from '../utils/user';
+import { createUserAsset } from '../utils/create-user-asset';
 import { UserAsset } from 'modules/users/entities/user-assets.entity';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
 import { PortfolioTransformer } from 'modules/portfolio/transformers/portfolio.transformer';

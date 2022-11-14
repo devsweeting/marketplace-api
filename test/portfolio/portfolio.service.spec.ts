@@ -10,9 +10,9 @@ import { createAsset } from '../utils/asset.utils';
 import { createUser } from '../utils/create-user';
 import { createPartner } from '../utils/partner.utils';
 import { createSellOrder } from '../utils/sell-order.utils';
-import { createUserAsset } from '../utils/user';
-import { PortfolioService } from 'modules/portfolio/portfolio.service';
 import { UserAsset } from 'modules/users/entities/user-assets.entity';
+import { createUserAsset } from '../utils/create-user-asset';
+import { PortfolioService } from 'modules/portfolio/portfolio.service';
 let app: INestApplication;
 const initialQty = 10000;
 

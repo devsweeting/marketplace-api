@@ -1,14 +1,19 @@
 import { INestApplication } from '@nestjs/common';
-import { VerifyAddressDto } from 'modules/synapse/dto/verify-address.dto';
+import { StatusCodes } from 'http-status-codes';
+import { VerifyAddressDto } from 'modules/payments/dto/verify-address.dto';
 import request from 'supertest';
 import { createApp } from '../utils/app.utils';
 
-describe('Verify address with Synapse', () => {
+describe('Verify address', () => {
   let app: INestApplication;
   let mockRequest: VerifyAddressDto;
 
   beforeAll(async () => {
     app = await createApp();
+  });
+
+  afterAll(async () => {
+    await app.close();
   });
 
   test('should verify an address is correct', () => {
@@ -19,7 +24,10 @@ describe('Verify address with Synapse', () => {
       address_country_code: 'US',
       address_postal_code: '94404',
     };
-    return request(app.getHttpServer()).post(`/v1/synapse/address`).send(mockRequest).expect(200);
+    return request(app.getHttpServer())
+      .post(`/v1/payments/address`)
+      .send(mockRequest)
+      .expect(StatusCodes.OK);
   });
 
   test('Should return undeliverable if address verification fails', () => {
@@ -31,30 +39,32 @@ describe('Verify address with Synapse', () => {
       address_postal_code: '97217',
     };
     return request(app.getHttpServer())
-      .post(`/v1/synapse/address`)
+      .post(`/v1/payments/address`)
       .send(undelivarableAddress)
-      .expect(200)
+      .expect(StatusCodes.OK)
       .expect(({ body }) => {
         expect(body.address.deliverability).toBe('error');
       });
   });
 
-  test('should return an error if missing any required address fields', () => {
+  test('should return detailed custom errors if missing any required address fields are malformed', () => {
     const badRequest = {
-      address_street: '170 St Germain St',
       address_city: 'SF',
       address_subdivision: 'CA',
       address_country_code: 'US',
       address_postal_code: '',
     };
     return request(app.getHttpServer())
-      .post(`/v1/synapse/address`)
+      .post(`/v1/payments/address`)
       .send(badRequest)
-      .expect(400)
+      .expect(StatusCodes.BAD_REQUEST)
       .expect({
-        statusCode: 400,
-        message: ['address_postal_code should not be empty'],
-        error: 'Bad Request',
+        statusCode: StatusCodes.BAD_REQUEST,
+        message: 'Form errors',
+        error: {
+          address_street: ['address_street should not be empty', 'address_street must be a string'],
+          address_postal_code: ['address_postal_code should not be empty'],
+        },
       });
   });
 
@@ -67,11 +77,11 @@ describe('Verify address with Synapse', () => {
       address_postal_code: '12345',
     };
     return request(app.getHttpServer())
-      .post(`/v1/synapse/address`)
+      .post(`/v1/payments/address`)
       .send(undelivarableAddress)
-      .expect(400)
+      .expect(StatusCodes.BAD_REQUEST)
       .expect({
-        statusCode: 400,
+        statusCode: StatusCodes.BAD_REQUEST,
         message: 'ADDRESS_VERIFICATION_FAILED',
         error: 'Bad Request',
       });

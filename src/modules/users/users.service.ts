@@ -50,7 +50,7 @@ export class UsersService extends BaseService {
   }
 
   async createOrUpdateFromOtp(userData: CreateUserOtpDto): Promise<User> {
-    let user = await User.findOne({ where: { email: userData.email } });
+    let user = await User.findOne({ where: { email: userData.email }, loadEagerRelations: true });
     if (!user) {
       user = new User(userData);
       await user.save();

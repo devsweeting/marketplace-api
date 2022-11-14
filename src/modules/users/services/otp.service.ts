@@ -7,12 +7,12 @@ import { BaseService } from 'modules/common/services';
 import { MailService } from 'modules/mail/mail.service';
 import { MoreThanOrEqual } from 'typeorm';
 import { LoginConfirmDto, LoginRequestDto } from '../dto';
-import { UserLogin, UserOtp } from '../entities';
+import { User, UserLogin, UserOtp } from '../entities';
 import { OtpTokenInvalidException } from '../exceptions/token-invalid.exception';
 import { UsersService } from '../users.service';
 import { v4 } from 'uuid';
 import { SentMessageInfo } from 'nodemailer';
-import { UserRefresh } from '../entities/user-refresh.entity';
+
 @Injectable()
 export class OtpService extends BaseService {
   constructor(
@@ -90,7 +90,7 @@ export class OtpService extends BaseService {
   public async confirmUserLogin({
     token,
     metadata,
-  }: LoginConfirmDto): Promise<{ user: UserRefresh; accessToken: string; refreshToken: string }> {
+  }: LoginConfirmDto): Promise<{ user: User; accessToken: string; refreshToken: string }> {
     const otpToken = await this.markTokenUsed(token);
 
     const user = await this.userService.createOrUpdateFromOtp({
@@ -102,6 +102,6 @@ export class OtpService extends BaseService {
       metadata,
     }).save();
 
-    return await this.authService.createLoginTokens(user);
+    return { user: user, ...(await this.authService.createLoginTokens(user)) };
   }
 }
