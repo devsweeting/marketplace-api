@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Ip, Post, UseGuards } from '@nestjs/common';
 
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Ipv4Address } from 'aws-sdk/clients/inspector';
 import { GetUser } from 'modules/auth/decorators/get-user.decorator';
 import JwtOtpAuthGuard from 'modules/auth/guards/jwt-otp-auth.guard';
@@ -19,7 +19,9 @@ import { PaymentsAccountResponse, UserPaymentAccountResponse } from '../response
 })
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
-
+  @ApiQuery({
+    type: VerifyAddressDto,
+  })
   @Post('address')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Verifies if an address is deliverable' })
@@ -27,7 +29,6 @@ export class PaymentsController {
     status: HttpStatus.OK,
   })
   public async verifyAddress(
-    @Body()
     @ValidateFormBody()
     addressDto: VerifyAddressDto,
   ): Promise<{ status; address }> {
@@ -57,6 +58,9 @@ export class PaymentsController {
     return data;
   }
 
+  @ApiQuery({
+    type: BasicKycDto,
+  })
   @Post('kyc')
   @ApiBearerAuth('bearer-token')
   @UseGuards(JwtOtpAuthGuard)
@@ -65,7 +69,6 @@ export class PaymentsController {
     type: PaymentsAccountResponse,
   })
   public async createUser(
-    @Body()
     @ValidateFormBody()
     submitKycDto: BasicKycDto,
     @GetUser() user: User,
