@@ -35,7 +35,7 @@ export class BasicKycDto {
   public email: string;
 
   @ApiProperty({
-    example: '123.456.7890',
+    example: '417.555.0100', //xxx.555.01xx are the example.com of phone numbers
   })
   @IsPhoneNumber('US')
   @IsNotEmpty()

@@ -1,12 +1,20 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Ip, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Ip, Post, UseGuards } from '@nestjs/common';
 
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Ipv4Address } from 'aws-sdk/clients/inspector';
 import { GetUser } from 'modules/auth/decorators/get-user.decorator';
 import JwtOtpAuthGuard from 'modules/auth/guards/jwt-otp-auth.guard';
 import { User } from 'modules/users/entities';
 import { ValidateFormBody } from '../decorators/form-validation.decorator';
 import { BasicKycDto } from '../dto/basic-kyc.dto';
+import { UpdateKycDto } from '../dto/update-kyc.dto';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
 import { IPaymentsAccountResponse } from '../interfaces/create-account';
 import { PaymentsService } from '../providers/payments.service';
@@ -19,7 +27,7 @@ import { PaymentsAccountResponse, UserPaymentAccountResponse } from '../response
 })
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
-  @ApiQuery({
+  @ApiBody({
     type: VerifyAddressDto,
   })
   @Post('address')
@@ -58,7 +66,7 @@ export class PaymentsController {
     return data;
   }
 
-  @ApiQuery({
+  @ApiBody({
     type: BasicKycDto,
   })
   @Post('kyc')
@@ -76,5 +84,26 @@ export class PaymentsController {
   ): Promise<IPaymentsAccountResponse> {
     const response = await this.paymentsService.submitKYC(submitKycDto, user, ip_address);
     return response;
+  }
+  @ApiBody({
+    type: UpdateKycDto,
+  })
+  @Post('update-kyc')
+  @ApiBearerAuth('bearer-token')
+  @UseGuards(JwtOtpAuthGuard)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: PaymentsAccountResponse,
+  })
+  public async updateUser(
+    @ValidateFormBody()
+    submitKycDto: UpdateKycDto,
+    @GetUser() user: User,
+    @Ip() ip_address: Ipv4Address,
+  ): Promise<string> {
+    const response = await this.paymentsService.updateKyc(submitKycDto, user, ip_address);
+    console.log(response);
+    // return response;
+    return 'test';
   }
 }

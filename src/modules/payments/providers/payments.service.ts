@@ -6,7 +6,9 @@ import { StatusCodes } from 'http-status-codes';
 import { BaseService } from 'modules/common/services';
 import { User } from 'modules/users/entities';
 import { Client } from 'synapsenode';
+import { User as PaymentsUser } from 'synapsenode';
 import { BasicKycDto } from '../dto/basic-kyc.dto';
+import { UpdateKycDto } from '../dto/update-kyc.dto';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
 import { UserPaymentsAccount } from '../entities/user-payments-account.entity';
 import { PaymentsAccountCreationFailed } from '../exceptions/account-creation-failure.exception';
@@ -33,7 +35,8 @@ export class PaymentsService extends BaseService {
     isProduction: this.configService.get('payments.default.isProduction'),
   });
 
-  private async getUserPaymentsAccount(userId: string): Promise<User> {
+  paymentsUser = new PaymentsUser({ data: {}, headerObj: {}, client: this.client });
+  async getUserPaymentsAccount(userId: string): Promise<User> {
     const userPaymentsAccount = await User.createQueryBuilder('users')
       .leftJoinAndMapOne('users.paymentsAccount', 'users.paymentsAccount', 'userPaymentsAccount')
       .where('userPaymentsAccount.userId = :userId', { userId: userId })
@@ -144,5 +147,30 @@ export class PaymentsService extends BaseService {
       msg: `Payments account created for user -- ${user.id}`,
       account: newPaymentsAccount,
     };
+  }
+
+  public async updateKyc(bodyParams: UpdateKycDto, user: User, ip_address: Ipv4Address) {
+    const userPaymentsAccount = await this.getUserPaymentsAccount(user.id);
+
+    if (!userPaymentsAccount) {
+      return {
+        status: HttpStatus.SEE_OTHER,
+        msg: `Payments account does not exists for user -- ${user.id}`,
+      };
+    }
+
+    // const accountUserParams = createUserParams(user.id, bodyParams, ip_address);
+
+    const updatedAccount = await this.paymentsUser
+      .updateUser(bodyParams)
+      .then((data: any) => {
+        return data.body;
+      })
+      .catch((err) => {
+        if (err) {
+          throw new PaymentsAccountCreationFailed(err.response.data);
+        }
+      });
+    console.log(updatedAccount);
   }
 }
