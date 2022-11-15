@@ -5,7 +5,7 @@ import { Ipv4Address } from 'aws-sdk/clients/inspector';
 import { StatusCodes } from 'http-status-codes';
 import { BaseService } from 'modules/common/services';
 import { User } from 'modules/users/entities';
-import { Client } from 'synapsenode';
+import { Client, User as SynapseUser } from 'synapsenode';
 import { BasicKycDto } from '../dto/basic-kyc.dto';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
 import { UserPaymentsAccount } from '../entities/user-payments-account.entity';
@@ -144,5 +144,64 @@ export class PaymentsService extends BaseService {
       msg: `Payments account created for user -- ${user.id}`,
       account: newPaymentsAccount,
     };
+  }
+
+  public async createNode(user, headers) {
+    const paymentAccount = await this.getUserPaymentsAccount(user.id);
+    const { refreshToken, userAccountId } = paymentAccount.paymentsAccount;
+
+    // console.log('headers', headers);
+
+    const synapseUser = new SynapseUser({
+      data: { id: userAccountId },
+      headerObj: headers,
+      client: this.client,
+    });
+
+    // console.log('synapseUser', synapseUser);
+
+    const getOAuthKey = await synapseUser
+      ._oauthUser({
+        refresh_token: refreshToken,
+        scope: [
+          'USER|PATCH',
+          'USER|GET',
+          'NODES|POST',
+          'NODES|GET',
+          'NODE|GET',
+          'NODE|PATCH',
+          'NODE|DELETE',
+          'TRANS|POST',
+          'TRANS|GET',
+          'TRAN|GET',
+          'TRAN|PATCH',
+          'TRAN|DELETE',
+          'SUBNETS|POST',
+          'SUBNETS|GET',
+          'SUBNET|GET',
+          'SUBNET|PATCH',
+          'STATEMENTS|GET',
+          'STATEMENT|GET',
+          'STATEMENTS|POST',
+          'CONVERSATIONS|POST',
+          'CONVERSATIONS|GET',
+          'CONVERSATION|GET',
+          'CONVERSATION|PATCH',
+          'MESSAGES|POST',
+          'MESSAGES|GET',
+        ],
+      })
+      .then((data) => {
+        // console.log('data', data);
+        return data.body;
+      })
+      .catch((err) => {
+        if (err) {
+          // console.log('error', err);
+          throw new Error('call failed');
+        }
+      });
+    console.log('getOAuthKey', getOAuthKey);
+    return HttpStatus.I_AM_A_TEAPOT;
   }
 }
