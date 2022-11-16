@@ -1,13 +1,6 @@
 import { Controller, Get, HttpCode, HttpStatus, Ip, Post, UseGuards } from '@nestjs/common';
 
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiOperation,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Ipv4Address } from 'aws-sdk/clients/inspector';
 import { GetUser } from 'modules/auth/decorators/get-user.decorator';
 import JwtOtpAuthGuard from 'modules/auth/guards/jwt-otp-auth.guard';

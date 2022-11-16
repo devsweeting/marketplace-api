@@ -35,7 +35,6 @@ export class PaymentsService extends BaseService {
     isProduction: this.configService.get('payments.default.isProduction'),
   });
 
-  paymentsUser = new PaymentsUser({ data: {}, headerObj: {}, client: this.client });
   async getUserPaymentsAccount(userId: string): Promise<User> {
     const userPaymentsAccount = await User.createQueryBuilder('users')
       .leftJoinAndMapOne('users.paymentsAccount', 'users.paymentsAccount', 'userPaymentsAccount')
@@ -158,11 +157,49 @@ export class PaymentsService extends BaseService {
         msg: `Payments account does not exists for user -- ${user.id}`,
       };
     }
-
     // const accountUserParams = createUserParams(user.id, bodyParams, ip_address);
 
-    const updatedAccount = await this.paymentsUser
-      .updateUser(bodyParams)
+    const updatePaymentAccountParams: {
+      phone_numbers?: string[];
+      documents: {
+        id: string;
+        ip: string;
+      }[];
+      // logins: [{ email: bodyParams.email }],
+      // phone_numbers: [bodyParams.phone_numbers],
+      // legal_names: [fullName],
+      // // documents: [createKYCDocument(bodyParams, fullName, ip_address)],
+      // extra: {
+      //   supp_id: userId,
+      //   cip_tag: 1,
+      //   is_business: false,
+      // },
+    } = {
+      documents: [
+        {
+          id: userPaymentsAccount.paymentsAccount.userAccountId,
+          ip: ip_address,
+        },
+      ],
+    };
+    if (bodyParams.phone_numbers) {
+      updatePaymentAccountParams.phone_numbers = [bodyParams.phone_numbers];
+    }
+    console.log('here');
+    let paymentsUser;
+    try {
+      paymentsUser = await this.client.getUser(
+        userPaymentsAccount.paymentsAccount.userAccountId,
+        {},
+      );
+    } catch (error) {
+      console.log(error);
+      throw new PaymentsAccountCreationFailed(error.response.data);
+    }
+    console.log(paymentsUser);
+
+    const updatedAccount = await paymentsUser
+      .updateUser(updatePaymentAccountParams)
       .then((data: any) => {
         return data.body;
       })
