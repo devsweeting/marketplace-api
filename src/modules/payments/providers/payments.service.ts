@@ -158,12 +158,25 @@ export class PaymentsService extends BaseService {
       };
     }
     // const accountUserParams = createUserParams(user.id, bodyParams, ip_address);
-
+    let paymentsUser;
+    try {
+      paymentsUser = await this.client.getUser(
+        userPaymentsAccount.paymentsAccount.userAccountId,
+        {},
+      );
+    } catch (error) {
+      console.log(error);
+      throw new PaymentsAccountCreationFailed(error.response.data);
+    }
     const updatePaymentAccountParams: {
+      update?: {
+        phone_numbers?: string[];
+      };
       phone_numbers?: string[];
-      documents: {
-        id: string;
-        ip: string;
+      documents?: {
+        id?: string;
+        ip?: string;
+        name?: string;
       }[];
       // logins: [{ email: bodyParams.email }],
       // phone_numbers: [bodyParams.phone_numbers],
@@ -177,26 +190,18 @@ export class PaymentsService extends BaseService {
     } = {
       documents: [
         {
-          id: userPaymentsAccount.paymentsAccount.userAccountId,
-          ip: ip_address,
+          id: paymentsUser.body.documents[0].id,
+          name: 'Bob Marley',
+          // ip: ip_address,
         },
       ],
+      phone_numbers: [bodyParams.phone_numbers],
     };
     if (bodyParams.phone_numbers) {
       updatePaymentAccountParams.phone_numbers = [bodyParams.phone_numbers];
     }
-    console.log('here');
-    let paymentsUser;
-    try {
-      paymentsUser = await this.client.getUser(
-        userPaymentsAccount.paymentsAccount.userAccountId,
-        {},
-      );
-    } catch (error) {
-      console.log(error);
-      throw new PaymentsAccountCreationFailed(error.response.data);
-    }
-    console.log(paymentsUser);
+
+    console.log(paymentsUser.body.documents);
 
     const updatedAccount = await paymentsUser
       .updateUser(updatePaymentAccountParams)
