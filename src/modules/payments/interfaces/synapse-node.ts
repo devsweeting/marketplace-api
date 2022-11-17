@@ -67,10 +67,13 @@ interface ISynapseBaseDocuments {
   ip?: string;
   ownership_percentage?: number;
   screening_results?: IScreeningResponse;
+  title?: string;
 }
 
 interface IGenericDoc {
   id: string;
+  last_updated?: number;
+  status?: IDocumentStatus;
   document_value?: string;
   document_type?: string;
   meta?: Record<string, string>;
@@ -78,15 +81,78 @@ interface IGenericDoc {
 
 interface ISocialDoc extends IGenericDoc {
   document_type?: ISocialDocumentType;
+  info?: {
+    address_street: string;
+    address_city: string;
+    address_subdivision: string;
+    address_postal_code: string;
+    address_country_code: string;
+    address_care_of: string;
+    invalid_reasons: 'invalid_address' | 'address_has_incorrect_unit';
+  };
+  meta?: {
+    state_code: string;
+    country_code: string;
+    address_street?: string;
+    address_city?: string;
+    address_subdivision?: string;
+    address_postal_code?: string;
+    address_country_code?: string;
+    address_care_of?: string;
+  };
 }
 
 interface IPhysicalDoc extends IGenericDoc {
   document_type?: IPhysicalDocumentType;
+  invalid_reasons?: IPhysicalDocInvalidReasons;
+  meta?: {
+    state_code: string;
+    country_code: string;
+    id_number: string;
+  };
 }
 
 interface IVirtualDoc extends IGenericDoc {
   document_type?: IVirtualDocumentType;
+  meta?: {
+    address_country_code?: string;
+  };
 }
+
+export type IPhysicalDocInvalidReasons =
+  | 'wrong_file_extension'
+  | 'image_not_found'
+  | 'black_and_white_image'
+  | 'palettised_image'
+  | 'poor_image_quality'
+  | 'name_mismatch'
+  | 'dob_mismatch'
+  | 'face_undetected'
+  | 'mrz_undetected'
+  | 'name_mismatch_mrz'
+  | 'flagged_for_failing_security_feature'
+  | 'flagged_for_potential_fraud'
+  | 'company_name_mismatch'
+  | 'tax_id_mismatch'
+  | 'irs_logo_undetected'
+  | 'poor_video_quality'
+  | 'poor_image_and_video_quality'
+  | 'image_face_undetected'
+  | 'video_face_undetected'
+  | 'face_mismatch'
+  | 'audio_comparision_failed'
+  | 'audio_undetected'
+  | 'image_too_large'
+  | 'address_mismatch'
+  | 'expired_document'
+  | 'expired_document_possible_misread_retry'
+  | 'date_not_detected'
+  | 'logo_not_detected'
+  | 'unable_to_classify_as_bank_or_bill'
+  | 'date_or_logo_failed'
+  | 'atleast_one_text_field_failed'
+  | 'hq_logo_hq_address_or_date'
+  | 'hq_logo_mq_address_and_date';
 
 export type IEddStatus = 'VALID' | 'INVALID' | 'REVIEWING';
 
@@ -123,7 +189,11 @@ export type IUserFlagCode =
   | 'PENDING_REVIEW|DOC_REQUEST|SECURITY'
   | 'PENDING_REVIEW|ACCOUNT_CLOSURE|BLOCKED_INDUSTRY'
   | 'PENDING_REVIEW|ACCOUNT_CLOSURE|HIGH_RISK';
-
+export type IDocumentStatus =
+  | 'SUBMITTED|REVIEWING'
+  | 'SUBMITTED|VALID'
+  | 'SUBMITTED|INVALID'
+  | 'SUBMITTED';
 export type IVirtualDocumentType =
   | 'SSN'
   | 'PASSPORT'
