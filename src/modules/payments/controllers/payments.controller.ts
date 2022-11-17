@@ -80,8 +80,14 @@ export class PaymentsController {
     status: HttpStatus.OK,
   })
   @UseGuards(JwtOtpAuthGuard)
-  public async getNodes(@GetUser() user: User, @Headers() headers: Headers): Promise<any> {
-    const data = await this.paymentsService.createNode(user, headers);
+  public async getNodes(
+    @GetUser() user: User,
+    @Headers() headers: Headers,
+    @Ip() ip,
+  ): Promise<any> {
+    // console.log('headers', headers);
+    // console.log('ip', ip);
+    const data = await this.paymentsService.createPaymentSubnet(user, headers, ip);
     return data;
   }
 }

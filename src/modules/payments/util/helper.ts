@@ -1,71 +1,91 @@
-import { Ipv4Address } from 'aws-sdk/clients/inspector';
-import { BasicKycDto } from '../dto/basic-kyc.dto';
-import { VerifyAddressDto } from '../dto/verify-address.dto';
-import { ICreatePaymentAccountParams, IDocument } from '../interfaces/create-account';
+import { HttpStatus } from '@nestjs/common';
+import { Client, User } from 'synapsenode';
+import { PaymentProviderOAuthFailure } from '../exceptions/oauth-failure.exception';
+import {
+  IGetOAuthHeadersResponse,
+  IOAuthHeaders,
+  ISynapseUserClient,
+} from '../interfaces/synapse-node';
 
-const IS_DEVELOPMENT = process.env.NODE_ENV === 'DEVELOP';
+const permissionScope = [
+  'USER|PATCH',
+  'USER|GET',
+  'NODES|POST',
+  'NODES|GET',
+  'NODE|GET',
+  'NODE|PATCH',
+  'NODE|DELETE',
+  'TRANS|POST',
+  'TRANS|GET',
+  'TRAN|GET',
+  'TRAN|PATCH',
+  'TRAN|DELETE',
+  'SUBNETS|POST',
+  'SUBNETS|GET',
+  'SUBNET|GET',
+  'SUBNET|PATCH',
+  'STATEMENTS|GET',
+  'STATEMENT|GET',
+  'STATEMENTS|POST',
+  'CONVERSATIONS|POST',
+  'CONVERSATIONS|GET',
+  'CONVERSATION|GET',
+  'CONVERSATION|PATCH',
+  'MESSAGES|POST',
+  'MESSAGES|GET',
+];
 
-export function createUserParams(
-  userId: string,
-  bodyParams: BasicKycDto,
-  ip_address: Ipv4Address,
-): ICreatePaymentAccountParams {
-  const fullName = `${bodyParams.first_name} ${bodyParams.last_name}`;
-  const createNewPaymentAccountParams = {
-    logins: [{ email: bodyParams.email }],
-    phone_numbers: [bodyParams.phone_numbers],
-    legal_names: [fullName],
-    documents: [createKYCDocument(bodyParams, fullName, ip_address)],
-    extra: {
-      supp_id: userId,
-      cip_tag: 1,
-      is_business: false,
-    },
+export function initializeSynapseUserClient(
+  paymentAccountId: string,
+  headers: object,
+  ip_address: string,
+  client: Client,
+): ISynapseUserClient {
+  const headerObj: IOAuthHeaders = {
+    fingerprint: process.env.FINGERPRINT,
+    ip_address: ip_address,
+    ...headers,
   };
-  return createNewPaymentAccountParams;
+
+  return new User({
+    data: { _id: paymentAccountId },
+    headerObj,
+    client: client,
+  }) as ISynapseUserClient;
 }
 
-export function createKYCDocument(
-  bodyParams: BasicKycDto,
-  fullName: string,
-  ip_address: Ipv4Address,
-): IDocument {
-  const { date_of_birth, mailing_address, gender } = bodyParams;
+/**
+ * OAuth expires in two hours
+ */
+export async function getOAuthKey(
+  userClient: ISynapseUserClient,
+  refreshToken: string,
+): Promise<IGetOAuthHeadersResponse> {
+  const OAuthKey = await userClient
+    ._oauthUser({
+      refresh_token: refreshToken,
+      scope: permissionScope,
+    })
+    .then((data) => {
+      return data;
+    })
+    .catch((err) => {
+      if (err) {
+        console.log('error', err.response.data);
+        throw new PaymentProviderOAuthFailure(err.response.data); // TODO - create custom error
+      }
+    });
 
-  const document: IDocument = {
-    email: bodyParams.email,
-    phone_number: bodyParams.phone_numbers,
-    ip: ip_address,
-    name: fullName,
-    alias: `${fullName} ${IS_DEVELOPMENT ? 'test' : 'payments'} account`,
-    entity_scope: 'Arts & Entertainment',
-    entity_type: gender ?? 'NOT_KNOWN',
-    day: date_of_birth.day,
-    month: date_of_birth.month,
-    year: date_of_birth.year,
-    address_street: mailing_address.address_street,
-    address_city: mailing_address.address_city,
-    address_subdivision: mailing_address.address_subdivision,
-    address_postal_code: mailing_address.address_postal_code,
-    address_country_code: mailing_address.address_country_code,
-    social_docs: [
-      {
-        document_value: concatMailingAddress(mailing_address),
-        document_type: 'MAILING_ADDRESS',
-        meta: {
-          address_street: mailing_address.address_street,
-          address_city: mailing_address.address_city,
-          address_subdivision: mailing_address.address_subdivision,
-          address_postal_code: mailing_address.address_postal_code,
-          address_country_code: mailing_address.address_country_code,
-          address_care_of: fullName,
-        },
-      },
-    ],
-  };
-  return document;
+  //TODO consider adding logic to verify and update the refresh token here
+
+  return OAuthKey;
 }
 
-function concatMailingAddress(mailing_address: VerifyAddressDto): string {
-  return `${mailing_address.address_city} ${mailing_address.address_street} ${mailing_address.address_subdivision} ${mailing_address.address_country_code} ${mailing_address.address_postal_code}`;
+/**
+ * Create synapse subnet
+ */
+
+export async function createSubnet(OAuthKey: string) {
+  console.log('OAuthKey', OAuthKey);
+  return HttpStatus.I_AM_A_TEAPOT;
 }

@@ -5,7 +5,7 @@ import { Ipv4Address } from 'aws-sdk/clients/inspector';
 import { StatusCodes } from 'http-status-codes';
 import { BaseService } from 'modules/common/services';
 import { User } from 'modules/users/entities';
-import { Client, User as SynapseUser } from 'synapsenode';
+import { Client } from 'synapsenode';
 import { BasicKycDto } from '../dto/basic-kyc.dto';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
 import { UserPaymentsAccount } from '../entities/user-payments-account.entity';
@@ -18,7 +18,8 @@ import {
   IUserPaymentAccountResponse,
   IPaymentsAccountResponse,
 } from '../interfaces/create-account';
-import { createUserParams } from '../util/helper';
+import { createSubnet, getOAuthKey, initializeSynapseUserClient } from '../util/helper';
+import { createUserParams } from '../util/kyc-helpers';
 
 @Injectable()
 export class PaymentsService extends BaseService {
@@ -121,6 +122,7 @@ export class PaymentsService extends BaseService {
       })
       .catch((err) => {
         if (err) {
+          console.log(err.response);
           throw new PaymentsAccountCreationFailed(err.response.data);
         }
       });
@@ -132,7 +134,8 @@ export class PaymentsService extends BaseService {
       depositNodeId: null,
       refreshToken: newAccount.refresh_token,
       permission: newAccount.permission as IPermissions,
-      permission_code: newAccount.permission_code,
+      permissionCode: newAccount.permission_code,
+      oauthKey: newAccount.oauth_key, //TODO check and verify in tests
     }).save();
 
     Logger.log(
@@ -146,62 +149,16 @@ export class PaymentsService extends BaseService {
     };
   }
 
-  public async createNode(user, headers) {
+  public async createPaymentSubnet(user: User, headers: object, ip_address: string): Promise<any> {
     const paymentAccount = await this.getUserPaymentsAccount(user.id);
     const { refreshToken, userAccountId } = paymentAccount.paymentsAccount;
 
-    // console.log('headers', headers);
+    const userClient = initializeSynapseUserClient(userAccountId, headers, ip_address, this.client);
 
-    const synapseUser = new SynapseUser({
-      data: { id: userAccountId },
-      headerObj: headers,
-      client: this.client,
-    });
+    const { oauth_key } = await getOAuthKey(userClient, refreshToken);
 
-    // console.log('synapseUser', synapseUser);
-
-    const getOAuthKey = await synapseUser
-      ._oauthUser({
-        refresh_token: refreshToken,
-        scope: [
-          'USER|PATCH',
-          'USER|GET',
-          'NODES|POST',
-          'NODES|GET',
-          'NODE|GET',
-          'NODE|PATCH',
-          'NODE|DELETE',
-          'TRANS|POST',
-          'TRANS|GET',
-          'TRAN|GET',
-          'TRAN|PATCH',
-          'TRAN|DELETE',
-          'SUBNETS|POST',
-          'SUBNETS|GET',
-          'SUBNET|GET',
-          'SUBNET|PATCH',
-          'STATEMENTS|GET',
-          'STATEMENT|GET',
-          'STATEMENTS|POST',
-          'CONVERSATIONS|POST',
-          'CONVERSATIONS|GET',
-          'CONVERSATION|GET',
-          'CONVERSATION|PATCH',
-          'MESSAGES|POST',
-          'MESSAGES|GET',
-        ],
-      })
-      .then((data) => {
-        // console.log('data', data);
-        return data.body;
-      })
-      .catch((err) => {
-        if (err) {
-          // console.log('error', err);
-          throw new Error('call failed');
-        }
-      });
-    console.log('getOAuthKey', getOAuthKey);
+    const node = await createSubnet(oauth_key);
+    console.log('node', node);
     return HttpStatus.I_AM_A_TEAPOT;
   }
 }

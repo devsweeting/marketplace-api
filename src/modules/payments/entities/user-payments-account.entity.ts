@@ -37,13 +37,26 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
   @Column({
     nullable: true,
   })
-  public permission_code: IPermissionCodes;
+  public permissionCode: IPermissionCodes;
 
   @Exclude()
   @Column({
     nullable: true,
   })
   public refreshToken: string;
+
+  @Exclude()
+  @Column({
+    nullable: true,
+  })
+  public oauthKey: string;
+
+  @Exclude()
+  @Column({
+    nullable: true,
+    type: 'timestamp',
+  })
+  public oauthKeyExpiresAt: Date;
 
   static async findAccountByUser(userId: string): Promise<UserPaymentsAccount> {
     return UserPaymentsAccount.findOne({
