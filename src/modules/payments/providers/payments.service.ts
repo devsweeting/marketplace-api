@@ -201,7 +201,8 @@ export class PaymentsService extends BaseService {
       updatePaymentAccountParams.phone_numbers = [bodyParams.phone_numbers];
     }
 
-    console.log(paymentsUser.body.documents);
+    console.log(paymentsUser.body);
+    // console.log(paymentsUser.body.documents[0].social_docs);
 
     const updatedAccount = await paymentsUser
       .updateUser(updatePaymentAccountParams)

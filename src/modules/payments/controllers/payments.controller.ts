@@ -93,10 +93,10 @@ export class PaymentsController {
     submitKycDto: UpdateKycDto,
     @GetUser() user: User,
     @Ip() ip_address: Ipv4Address,
-  ): Promise<string> {
+  ): Promise<any> {
     const response = await this.paymentsService.updateKyc(submitKycDto, user, ip_address);
     console.log(response);
-    // return response;
-    return 'test';
+    return response;
+    // return 'test';
   }
 }
