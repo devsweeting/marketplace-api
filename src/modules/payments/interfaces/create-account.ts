@@ -68,7 +68,14 @@ export type IPermissionCodes =
   | 'NEGATIVE_BALANCE'
   | 'PLATFORM_REQUEST'
   | 'USER_REQUEST'
-  | 'DUPLICATE_ACCOUNT';
+  | 'DUPLICATE_ACCOUNT'
+  | 'UNUSUAL_ACTIVITY|COMPLIANCE_SUSPICIOUS'
+  | 'BLOCKED_INDUSTRY'
+  | 'PLATFORM_REQUEST'
+  | 'USER_REQUEST'
+  | 'PLATFORM_TERMINATED'
+  | 'NO_ACTIVITY'
+  | 'PERMANENT_CLOSURE';
 
 export interface IPaymentsAccountResponse {
   status: number;

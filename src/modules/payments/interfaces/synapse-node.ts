@@ -5,49 +5,68 @@ export interface ISynapseAccountResponse {
       href: string;
     };
   };
-  account_closure_date?: Date | null;
+  account_closure_date?: number | null;
   client: { id: string; name: string };
   emails: string[];
-  extra: {
-    cip_tag: number;
-    date_joined: number;
-    extra_security: boolean;
-    is_business: boolean;
-    is_trusted: boolean;
-    last_updated: number;
-    public_note: null | string;
-    supp_id: string;
+  extra?: {
+    cip_tag?: number;
+    date_joined?: number;
+    extra_security?: boolean;
+    is_business?: boolean;
+    is_trusted?: boolean;
+    last_updated?: number;
+    public_note?: null | string;
+    supp_id?: string;
   };
-  flag: string;
-  flag_code: string | null;
+  flag?: IUserFlags;
+  flag_code?: IUserFlagCode | null;
   is_hidden: boolean;
   legal_names: string[];
   logins: { email: string; scope: string }[];
-  permission: string;
-  permission_code: string | null;
+  permission?: IPermissions;
+  permission_code?: string | null;
   phone_numbers: string[];
   photos: any[];
   refresh_token: string;
-  watchlists: string;
-  documents: ISynapseDocuments[];
+  watchlists: IWatchlistValue;
+  documents: ISynapseBaseDocuments[];
 }
 
-interface ISynapseDocuments {
+interface ISynapseBaseDocuments {
   id: string;
-  id_score?: string;
+  id_score?: number;
   is_active?: boolean;
   name?: string;
+  maiden_name: string;
   permission_scope?: string;
-  entity_type?: string;
-  entity_scope?: string;
-  trust_level?: string;
+  entity_type?: IBusinessEntityType | IPersonalEntityType;
+  entity_scope?: IEntityScope;
+  trust_level?: ITrustLevel;
   email?: string;
   phone_number?: string;
-  virtual_docs?: IGenericDoc[];
-  physical_docs?: IGenericDoc[];
+  virtual_docs?: IVirtualDoc[];
+  physical_docs?: IPhysicalDoc[];
   social_docs?: ISocialDoc[];
-  required_edd_docs?: IGenericDoc[];
   watchlists?: string;
+  address_city?: string;
+  address_country_code?: string;
+  address_postal_code?: string;
+  address_street?: string;
+  address_subdivision?: string;
+  alias?: string;
+  day?: number;
+  month?: number;
+  year?: number;
+  company_activity?: string[];
+  desired_scope?: string;
+  doc_option_key?: string;
+  docs_title?: string;
+  edd_status?: IEddStatus;
+  required_edd_docs?: string[]; //List of documents required for flagged users
+  entity_relationship?: 'CONTROLLING_PERSON' | 'UBO';
+  ip?: string;
+  ownership_percentage?: number;
+  screening_results?: IScreeningResponse;
 }
 
 interface IGenericDoc {
@@ -60,6 +79,50 @@ interface IGenericDoc {
 interface ISocialDoc extends IGenericDoc {
   document_type?: ISocialDocumentType;
 }
+
+interface IPhysicalDoc extends IGenericDoc {
+  document_type?: IPhysicalDocumentType;
+}
+
+interface IVirtualDoc extends IGenericDoc {
+  document_type?: IVirtualDocumentType;
+}
+
+export type IEddStatus = 'VALID' | 'INVALID' | 'REVIEWING';
+
+export type ITrustLevel = 'low' | 'med' | 'high';
+
+export type IWatchlistValue =
+  | 'PENDING'
+  | 'SOFT_MATCH|PENDING_UPLOAD'
+  | 'MATCH'
+  | 'SOFT_MATCH'
+  | 'NO_MATCH'
+  | 'FALSE_POSITIVE';
+
+export type IPermissions =
+  | 'VERIFIED'
+  | 'UNVERIFIED'
+  | 'RECEIVE'
+  | 'SEND-AND-RECEIVE'
+  | 'LOCKED'
+  | 'CLOSED'
+  | 'MAKE-IT-GO-AWAY';
+
+export type IUserFlags = 'NOT-FLAGGED' | 'FLAGGED';
+
+export type IUserFlagCode =
+  | 'NOT_KNOWN'
+  | 'ACCOUNT_CLOSURE|BLOCKED_INDUSTRY'
+  | 'ACCOUNT_CLOSURE|HIGH_RISK'
+  | 'PENDING_UPLOAD|DOC_REQUEST|CIP'
+  | 'PENDING_UPLOAD|DOC_REQUEST|UAR'
+  | 'PENDING_UPLOAD|DOC_REQUEST|SECURITY'
+  | 'PENDING_REVIEW|DOC_REQUEST|CIP'
+  | 'PENDING_REVIEW|DOC_REQUEST|UAR'
+  | 'PENDING_REVIEW|DOC_REQUEST|SECURITY'
+  | 'PENDING_REVIEW|ACCOUNT_CLOSURE|BLOCKED_INDUSTRY'
+  | 'PENDING_REVIEW|ACCOUNT_CLOSURE|HIGH_RISK';
 
 export type IVirtualDocumentType =
   | 'SSN'
@@ -75,7 +138,7 @@ export type IVirtualDocumentType =
   | 'DTI'
   | 'OTHER';
 
-type ISocialDocumentType =
+export type ISocialDocumentType =
   | 'EMAIL_2FA'
   | 'PHONE_NUMBER_2FA'
   | 'EMAIL'
@@ -190,9 +253,29 @@ export type IPermissionCodes =
   | 'NEGATIVE_BALANCE'
   | 'PLATFORM_REQUEST'
   | 'USER_REQUEST'
-  | 'DUPLICATE_ACCOUNT';
+  | 'DUPLICATE_ACCOUNT'
+  | 'UNUSUAL_ACTIVITY|COMPLIANCE_SUSPICIOUS'
+  | 'BLOCKED_INDUSTRY'
+  | 'PLATFORM_REQUEST'
+  | 'USER_REQUEST'
+  | 'PLATFORM_TERMINATED'
+  | 'NO_ACTIVITY'
+  | 'PERMANENT_CLOSURE';
 
-export type IScreeningResponse = 'FAILED' | 'PENDING' | 'FALSE_POSITIVE' | 'MATCH';
+export type IScreeningItemResponse = 'FAILED' | 'PENDING' | 'FALSE_POSITIVE' | 'MATCH';
+export type IBusinessEntityType =
+  | 'LP'
+  | 'LLC'
+  | 'ASSOCIATION'
+  | 'CORP'
+  | 'PARTNERSHIP'
+  | 'SOLE-PROPRIETORSHIP'
+  | 'TRUST'
+  | 'VENDOR'
+  | 'ESTATE'
+  | 'IRA';
+
+export type IPersonalEntityType = 'M' | 'F' | 'O' | 'NOT_KNOWN' | 'TRUST' | 'MINOR';
 
 export type IEntityScope =
   | 'Not Known'
@@ -273,3 +356,61 @@ export type IEntityScope =
   | 'Telecommunication'
   | 'Transport/Freight'
   | 'Travel/Leisure';
+
+interface IScreeningResponse {
+  ofac_sdn?: IScreeningItemResponse;
+  ofac_ssi_list?: IScreeningItemResponse;
+  'ofac_ukraine-eo13662'?: IScreeningItemResponse;
+  usa_csl_list?: IScreeningItemResponse;
+  hm_treasury_sanctions?: IScreeningItemResponse;
+  futures_sanctions?: IScreeningItemResponse;
+  fincen_311_sanctions?: IScreeningItemResponse;
+  mas_sanctions?: IScreeningItemResponse;
+  ofac_fse_list?: IScreeningItemResponse;
+  ofac_iran?: IScreeningItemResponse;
+  usa_tel_list?: IScreeningItemResponse;
+  'ofac_ns-plc'?: IScreeningItemResponse;
+  ofac_sdgt?: IScreeningItemResponse;
+  ofac_561_list?: IScreeningItemResponse;
+  ofac_syria?: IScreeningItemResponse;
+  'ofac_fse-sy'?: IScreeningItemResponse;
+  osfi?: IScreeningItemResponse;
+  fbi_counter_intelligence?: IScreeningItemResponse;
+  fbi_domestic?: IScreeningItemResponse;
+  fbi_cyber?: IScreeningItemResponse;
+  fbi_white_collar?: IScreeningItemResponse;
+  fbi_crimes_against_children?: IScreeningItemResponse;
+  fbi_bank_robbers?: IScreeningItemResponse;
+  fbi_wanted_terrorists?: IScreeningItemResponse;
+  bis_dpl_sanctions?: IScreeningItemResponse;
+  fbi_violent_crimes?: IScreeningItemResponse;
+  fbi_domestic_terrorism?: IScreeningItemResponse;
+  fbi_human_trafficking?: IScreeningItemResponse;
+  fbi_criminal_enterprise_investigations?: IScreeningItemResponse;
+  fbi_terrorism?: IScreeningItemResponse;
+  fbi_murders?: IScreeningItemResponse;
+  pep?: IScreeningItemResponse;
+  aucl?: IScreeningItemResponse;
+  eucl?: IScreeningItemResponse;
+  uk_sanctions?: IScreeningItemResponse;
+  switzerland_sanctions?: IScreeningItemResponse;
+  dtc_list?: IScreeningItemResponse;
+  cftc_sanctions?: IScreeningItemResponse;
+  finra_sanctions?: IScreeningItemResponse;
+  euro?: IScreeningItemResponse;
+  fto_sanctions?: IScreeningItemResponse;
+  hardcode_list?: IScreeningItemResponse;
+  russian_sanctions?: IScreeningItemResponse;
+  singapore_sanctions?: IScreeningItemResponse;
+  nk_sanctions?: IScreeningItemResponse;
+  cftc_reparations_sanctions?: IScreeningItemResponse;
+  interpol?: IScreeningItemResponse;
+  usa_rfj?: IScreeningItemResponse;
+  belgian_list?: IScreeningItemResponse;
+  canada_sema?: IScreeningItemResponse;
+  canada_rcmp?: IScreeningItemResponse;
+  cftc_red?: IScreeningItemResponse;
+  ice_sanctions?: IScreeningItemResponse;
+  unsc_cons?: IScreeningItemResponse;
+  cons_sdn?: IScreeningItemResponse;
+}
