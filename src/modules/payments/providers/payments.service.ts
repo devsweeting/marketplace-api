@@ -18,7 +18,7 @@ import {
   IUserPaymentAccountResponse,
   IPaymentsAccountResponse,
 } from '../interfaces/create-account';
-import { createSubnet, getOAuthKey, initializeSynapseUserClient } from '../util/helper';
+import { createSubnet, getOAuthKey, initializeUserClient } from '../util/helper';
 import { createUserParams } from '../util/kyc-helpers';
 
 @Injectable()
@@ -153,7 +153,7 @@ export class PaymentsService extends BaseService {
     const paymentAccount = await this.getUserPaymentsAccount(user.id);
     const { refreshToken, userAccountId } = paymentAccount.paymentsAccount;
 
-    const userClient = initializeSynapseUserClient(userAccountId, headers, ip_address, this.client);
+    const userClient = initializeUserClient(userAccountId, headers, ip_address, this.client);
 
     const { oauth_key } = await getOAuthKey(userClient, refreshToken);
 

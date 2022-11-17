@@ -35,7 +35,7 @@ const permissionScope = [
   'MESSAGES|GET',
 ];
 
-export function initializeSynapseUserClient(
+export function initializeUserClient(
   paymentAccountId: string,
   headers: object,
   ip_address: string,
