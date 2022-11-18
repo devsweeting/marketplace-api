@@ -1,5 +1,5 @@
 export interface ISynapseAccountResponse {
-  _id: string;
+  _id?: string;
   _link?: {
     self?: {
       href?: string;
@@ -37,7 +37,7 @@ export interface ISynapseAccountResponse {
   ips?: string[];
 }
 
-interface ISynapseBaseDocuments {
+export interface ISynapseBaseDocuments {
   id?: string;
   id_score?: number;
   is_active?: boolean;
@@ -75,8 +75,8 @@ interface ISynapseBaseDocuments {
   title?: string;
 }
 
-interface IGenericDoc {
-  id: string;
+export interface IGenericDoc {
+  id?: string;
   last_updated?: number;
   status?: IDocumentStatus;
   document_value?: string;
@@ -84,7 +84,7 @@ interface IGenericDoc {
   meta?: Record<string, string>;
 }
 
-interface ISocialDoc extends IGenericDoc {
+export interface ISocialDoc extends IGenericDoc {
   document_type?: ISocialDocumentType;
   info?: {
     address_street?: string;

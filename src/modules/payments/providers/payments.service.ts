@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Ipv4Address } from 'aws-sdk/clients/inspector';
 import { StatusCodes } from 'http-status-codes';
@@ -20,7 +20,8 @@ import {
   IUserPaymentAccountResponse,
   IPaymentsAccountResponse,
 } from '../interfaces/create-account';
-import { createUserParams } from '../util/helper';
+import { ISynapseAccountResponse, ISynapseBaseDocuments } from '../interfaces/synapse-node';
+import { createKYCDocument, createUserParams } from '../util/helper';
 
 @Injectable()
 export class PaymentsService extends BaseService {
@@ -149,6 +150,7 @@ export class PaymentsService extends BaseService {
   }
 
   public async updateKyc(bodyParams: UpdateKycDto, user: User, ip_address: Ipv4Address) {
+    //check local DB to see if synapse account exists
     const userPaymentsAccount = await this.getUserPaymentsAccount(user.id);
 
     if (!userPaymentsAccount) {
@@ -157,46 +159,37 @@ export class PaymentsService extends BaseService {
         msg: `Payments account does not exists for user -- ${user.id}`,
       };
     }
-    // const accountUserParams = createUserParams(user.id, bodyParams, ip_address);
-    let paymentsUser;
+
+    // check synapse database for account
+    let paymentsUser: PaymentsUser;
+    let baseDocument: ISynapseBaseDocuments;
     try {
       paymentsUser = await this.client.getUser(
         userPaymentsAccount.paymentsAccount.userAccountId,
         {},
       );
+      baseDocument = paymentsUser.body.documents[0];
+      if (!baseDocument) {
+        throw new HttpException(
+          {
+            error: 'no document found',
+          },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     } catch (error) {
       console.log(error);
       throw new PaymentsAccountCreationFailed(error.response.data);
     }
-    const updatePaymentAccountParams: {
-      update?: {
-        phone_numbers?: string[];
-      };
-      phone_numbers?: string[];
-      documents?: {
-        id?: string;
-        ip?: string;
-        name?: string;
-      }[];
-      // logins: [{ email: bodyParams.email }],
-      // phone_numbers: [bodyParams.phone_numbers],
-      // legal_names: [fullName],
-      // // documents: [createKYCDocument(bodyParams, fullName, ip_address)],
-      // extra: {
-      //   supp_id: userId,
-      //   cip_tag: 1,
-      //   is_business: false,
-      // },
-    } = {
-      documents: [
-        {
-          id: paymentsUser.body.documents[0].id,
-          name: 'Bob Marley',
-          // ip: ip_address,
-        },
-      ],
-      phone_numbers: [bodyParams.phone_numbers],
-    };
+
+    // Generate the patch
+    const updatePaymentAccountParams = createUserParams(
+      user.id,
+      bodyParams,
+      ip_address,
+      baseDocument,
+    );
+
     if (bodyParams.phone_numbers) {
       updatePaymentAccountParams.phone_numbers = [bodyParams.phone_numbers];
     }
