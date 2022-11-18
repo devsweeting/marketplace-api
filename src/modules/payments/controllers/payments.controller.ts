@@ -11,7 +11,11 @@ import { UpdateKycDto } from '../dto/update-kyc.dto';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
 import { IPaymentsAccountResponse } from '../interfaces/create-account';
 import { PaymentsService } from '../providers/payments.service';
-import { PaymentsAccountResponse, UserPaymentAccountResponse } from '../responses/payment-response';
+import {
+  PaymentsAccountResponse,
+  UpdatePaymentsAccountResponse,
+  UserPaymentAccountResponse,
+} from '../responses/payment-response';
 
 @ApiTags('payments')
 @Controller({
@@ -86,7 +90,7 @@ export class PaymentsController {
   @UseGuards(JwtOtpAuthGuard)
   @ApiResponse({
     status: HttpStatus.OK,
-    type: PaymentsAccountResponse,
+    type: UpdatePaymentsAccountResponse,
   })
   public async updateUser(
     @ValidateFormBody()

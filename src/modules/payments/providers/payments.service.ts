@@ -12,7 +12,9 @@ import { UpdateKycDto } from '../dto/update-kyc.dto';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
 import { UserPaymentsAccount } from '../entities/user-payments-account.entity';
 import { PaymentsAccountCreationFailed } from '../exceptions/account-creation-failure.exception';
+import { AccountPatchError } from '../exceptions/account-patch-failure.exception';
 import { AddressVerificationFailedException } from '../exceptions/address-verification-failed.exception';
+import { BaseDocumentError } from '../exceptions/base-document-error-exception';
 import { UserPaymentsAccountNotFound } from '../exceptions/user-account-verification-failed.exception';
 import {
   IPermissions,
@@ -150,14 +152,13 @@ export class PaymentsService extends BaseService {
   }
 
   public async updateKyc(bodyParams: UpdateKycDto, user: User, ip_address: Ipv4Address) {
+    //TODO update response object
+
     //check local DB to see if synapse account exists
     const userPaymentsAccount = await this.getUserPaymentsAccount(user.id);
 
     if (!userPaymentsAccount) {
-      return {
-        status: HttpStatus.SEE_OTHER,
-        msg: `Payments account does not exists for user -- ${user.id}`,
-      };
+      throw new UserPaymentsAccountNotFound();
     }
 
     // check synapse database for account
@@ -170,16 +171,10 @@ export class PaymentsService extends BaseService {
       );
       baseDocument = paymentsUser.body.documents[0];
       if (!baseDocument) {
-        throw new HttpException(
-          {
-            error: 'no document found',
-          },
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
+        throw new BaseDocumentError();
       }
     } catch (error) {
-      console.log(error);
-      throw new PaymentsAccountCreationFailed(error.response.data);
+      throw new UserPaymentsAccountNotFound();
     }
 
     // Generate the patch
@@ -190,21 +185,18 @@ export class PaymentsService extends BaseService {
       baseDocument,
     );
 
-    if (bodyParams.phone_numbers) {
-      updatePaymentAccountParams.phone_numbers = [bodyParams.phone_numbers];
-    }
-
-    console.log(paymentsUser.body);
-    // console.log(paymentsUser.body.documents[0].social_docs);
-
     const updatedAccount = await paymentsUser
       .updateUser(updatePaymentAccountParams)
       .then((data: any) => {
-        return data.body;
+        console.log(data);
+        return {
+          status: data.body.status,
+          msg: `Payments account updated for user -- ${user.id}`,
+        };
       })
       .catch((err) => {
         if (err) {
-          throw new PaymentsAccountCreationFailed(err.response.data);
+          throw new AccountPatchError(err.response.data);
         }
       });
     console.log(updatedAccount);

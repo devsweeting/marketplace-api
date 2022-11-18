@@ -26,3 +26,10 @@ export class PaymentsAccountResponse {
   @ApiProperty({ type: UserPaymentsAccount })
   account: UserPaymentsAccount;
 }
+
+export class UpdatePaymentsAccountResponse {
+  @ApiProperty({ example: HttpStatus.CREATED })
+  status: HttpStatus;
+  @ApiProperty({ example: '' })
+  msg: string;
+}
