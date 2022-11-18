@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Ipv4Address } from 'aws-sdk/clients/inspector';
 import { StatusCodes } from 'http-status-codes';
@@ -22,8 +22,8 @@ import {
   IUserPaymentAccountResponse,
   IPaymentsAccountResponse,
 } from '../interfaces/create-account';
-import { ISynapseAccountResponse, ISynapseBaseDocuments } from '../interfaces/synapse-node';
-import { createKYCDocument, createUserParams } from '../util/helper';
+import { ISynapseBaseDocuments } from '../interfaces/synapse-node';
+import { createUserParams } from '../util/helper';
 
 @Injectable()
 export class PaymentsService extends BaseService {
@@ -152,8 +152,6 @@ export class PaymentsService extends BaseService {
   }
 
   public async updateKyc(bodyParams: UpdateKycDto, user: User, ip_address: Ipv4Address) {
-    //TODO update response object
-
     //check local DB to see if synapse account exists
     const userPaymentsAccount = await this.getUserPaymentsAccount(user.id);
 
