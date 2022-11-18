@@ -1,13 +1,13 @@
 export interface ISynapseAccountResponse {
   _id: string;
-  _links: {
-    self: {
-      href: string;
+  _link?: {
+    self?: {
+      href?: string;
     };
   };
   account_closure_date?: number | null;
-  client: { id: string; name: string };
-  emails: string[];
+  client?: { id?: string; name?: string };
+  emails?: string[];
   extra?: {
     cip_tag?: number;
     date_joined?: number;
@@ -20,24 +20,29 @@ export interface ISynapseAccountResponse {
   };
   flag?: IUserFlags;
   flag_code?: IUserFlagCode | null;
-  is_hidden: boolean;
-  legal_names: string[];
-  logins: { email: string; scope: string }[];
+  is_hidden?: boolean;
+  legal_names?: string[];
+  logins?: {
+    email?: string;
+    password?: string;
+    scope?: string;
+  }[];
   permission?: IPermissions;
   permission_code?: string | null;
-  phone_numbers: string[];
-  photos: any[];
-  refresh_token: string;
-  watchlists: IWatchlistValue;
-  documents: ISynapseBaseDocuments[];
+  phone_numbers?: string[];
+  photos?: any[];
+  refresh_token?: string;
+  watchlists?: IWatchlistValue;
+  documents?: ISynapseBaseDocuments[];
+  ips?: string[];
 }
 
 interface ISynapseBaseDocuments {
-  id: string;
+  id?: string;
   id_score?: number;
   is_active?: boolean;
   name?: string;
-  maiden_name: string;
+  maiden_name?: string;
   permission_scope?: string;
   entity_type?: IBusinessEntityType | IPersonalEntityType;
   entity_scope?: IEntityScope;
@@ -82,17 +87,17 @@ interface IGenericDoc {
 interface ISocialDoc extends IGenericDoc {
   document_type?: ISocialDocumentType;
   info?: {
-    address_street: string;
-    address_city: string;
-    address_subdivision: string;
-    address_postal_code: string;
-    address_country_code: string;
-    address_care_of: string;
-    invalid_reasons: 'invalid_address' | 'address_has_incorrect_unit';
+    address_street?: string;
+    address_city?: string;
+    address_subdivision?: string;
+    address_postal_code?: string;
+    address_country_code?: string;
+    address_care_of?: string;
+    invalid_reasons?: 'invalid_address' | 'address_has_incorrect_unit';
   };
   meta?: {
-    state_code: string;
-    country_code: string;
+    state_code?: string;
+    country_code?: string;
     address_street?: string;
     address_city?: string;
     address_subdivision?: string;
@@ -106,9 +111,9 @@ interface IPhysicalDoc extends IGenericDoc {
   document_type?: IPhysicalDocumentType;
   invalid_reasons?: IPhysicalDocInvalidReasons;
   meta?: {
-    state_code: string;
-    country_code: string;
-    id_number: string;
+    state_code?: string;
+    country_code?: string;
+    id_number?: string;
   };
 }
 
