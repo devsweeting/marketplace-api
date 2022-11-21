@@ -10,6 +10,7 @@ import { UserPaymentsAccount } from 'modules/payments/entities/user-payments-acc
 import { User } from 'modules/users/entities';
 import { generateToken } from '../utils/jwt.utils';
 import { createMockBasicKycParams, createMockPaymentsAccount } from '../utils/payments-account';
+import { UserPaymentsAccountNotFound } from 'modules/payments/exceptions/user-account-verification-failed.exception';
 
 describe('Payments Controller', () => {
   let app: INestApplication;
@@ -50,7 +51,21 @@ describe('Payments Controller', () => {
       expect(paymentsController).toBeDefined();
     });
 
-    test('should throw erorr if no payment account has been made', async () => {
+    test('should throw erorr if no payment account exists', async () => {
+      const mockParams = createMockBasicKycParams(user);
+
+      const res = await request(app.getHttpServer())
+        .post(`/v1/payments/update-kyc`)
+        .set(headers)
+        .send(mockParams);
+      // .expect(HttpStatus.NOT_FOUND)
+      // .expect(({ body }) => {
+      //   expect(body.status).toBe(HttpStatus.NOT_FOUND);
+      // });
+
+      console.log(res.body);
+      expect(true).toBe(false);
+
       test.todo;
     });
 
