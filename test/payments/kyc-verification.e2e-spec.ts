@@ -93,7 +93,7 @@ describe('Payments Controller', () => {
           expect(body.status).toBe(HttpStatus.CREATED);
         });
 
-      const userPaymentsAccount = await UserPaymentsAccount.findAccountByUser(user.id);
+      const userPaymentsAccount = await UserPaymentsAccount.findAccountByUserId(user.id);
 
       expect(userPaymentsAccount).not.toBeNull();
     });

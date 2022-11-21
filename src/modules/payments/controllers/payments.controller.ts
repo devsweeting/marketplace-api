@@ -83,11 +83,11 @@ export class PaymentsController {
   public async getNodes(
     @GetUser() user: User,
     @Headers() headers: Headers,
-    @Ip() ip,
+    @Ip() ip: string,
   ): Promise<any> {
     // console.log('headers', headers);
     // console.log('ip', ip);
-    const data = await this.paymentsService.createPaymentSubnet(user, headers, ip);
+    const data = await this.paymentsService.createNode(user, headers, ip);
     return data;
   }
 }
