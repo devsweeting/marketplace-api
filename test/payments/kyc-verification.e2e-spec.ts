@@ -4,78 +4,32 @@ import request from 'supertest';
 import { createApp } from '../utils/app.utils';
 import { PaymentsController } from 'modules/payments/controllers/payments.controller';
 import { PaymentsService } from 'modules/payments/providers/payments.service';
-import { account201, account303, mockBasicKycQuery } from 'modules/payments/test-variables';
+import { mockBasicKycQuery } from 'modules/payments/test-variables';
 import { createUser } from '../utils/create-user';
 import { UserPaymentsAccount } from 'modules/payments/entities/user-payments-account.entity';
 import { User } from 'modules/users/entities';
 import { generateToken } from '../utils/jwt.utils';
 import { createMockBasicKycParams, createMockPaymentsAccount } from '../utils/payments-account';
 
-describe('Payments Controller', () => {
-  let app: INestApplication;
-  let paymentsController: PaymentsController;
-  let paymentsService: PaymentsService;
-  const mockBasicKyc: BasicKycDto = mockBasicKycQuery;
-  let user: User;
-  let userWithNoAccount: User;
-  let headers;
+let app: INestApplication;
+let paymentsController: PaymentsController;
+let paymentsService: PaymentsService;
+const mockBasicKyc: BasicKycDto = mockBasicKycQuery;
+let user: User;
+let userWithNoAccount: User;
+let headers;
+const mockClient = jest.createMockFromModule<typeof import('synapsenode')>('synapsenode');
 
-  beforeEach(async () => {
-    headers = { Authorization: `Bearer ${generateToken(user)}` };
-  });
+beforeEach(async () => {
+  headers = { Authorization: `Bearer ${generateToken(user)}` };
+});
 
-  afterAll(async () => {
-    await app.close();
-    jest.clearAllMocks();
-  });
+afterAll(async () => {
+  await app.close();
+  jest.clearAllMocks();
+});
 
-  describe('mock payment provider API', () => {
-    const mockProviders = [
-      {
-        provide: PaymentsService,
-        // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-        useValue: { submitKYC: () => account201 },
-      },
-    ];
-
-    beforeAll(async () => {
-      app = await createApp(mockProviders);
-      user = await createUser({ email: 'test@example.com' });
-
-      paymentsService = app.get<PaymentsService>(PaymentsService);
-      paymentsController = app.get<PaymentsController>(PaymentsController);
-    });
-
-    it('Payment mocks should be defined', () => {
-      expect(paymentsService).toBeDefined();
-      expect(paymentsController).toBeDefined();
-    });
-
-    test('Should create a new user account', async () => {
-      const spy = jest
-        .spyOn(paymentsService, 'submitKYC')
-        .mockImplementation(async () => account201);
-
-      const response = await paymentsController.createUser(mockBasicKyc, user, '::ffff:172.18.0.1');
-
-      expect(spy).toHaveBeenCalled();
-
-      expect(response).toStrictEqual(account201);
-    });
-
-    test('Should return the users account if it already exists', async () => {
-      const spy = jest
-        .spyOn(paymentsService, 'submitKYC')
-        .mockImplementation(async () => account303);
-
-      const response = await paymentsController.createUser(mockBasicKyc, user, '::ffff:172.18.0.1');
-
-      expect(spy).toHaveBeenCalled();
-
-      expect(response).toStrictEqual(account303);
-    });
-  });
-
+describe('Create payments account e2e', () => {
   describe('POST - create and verify a users payments account', () => {
     beforeAll(async () => {
       app = await createApp();

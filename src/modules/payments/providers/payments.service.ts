@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { httpstatus } from 'aws-sdk/clients/glacier';
 import { Ipv4Address } from 'aws-sdk/clients/inspector';
 import { StatusCodes } from 'http-status-codes';
 import { BaseService } from 'modules/common/services';
@@ -151,13 +152,19 @@ export class PaymentsService extends BaseService {
     };
   }
 
-  public async updateKyc(bodyParams: UpdateKycDto, user: User, ip_address: Ipv4Address) {
+  public async updateKyc(
+    bodyParams: UpdateKycDto,
+    user: User,
+    ip_address: Ipv4Address,
+  ): Promise<{ status: httpstatus; msg: string }> {
+    console.log('updating kyc - getting local account info');
     //check local DB to see if synapse account exists
     const userPaymentsAccount = await this.getUserPaymentsAccount(user.id);
 
     if (!userPaymentsAccount) {
       throw new UserPaymentsAccountNotFound();
     }
+    console.log('updating kyc - getting synapse account info');
 
     // check synapse database for account
     let paymentsUser: PaymentsUser;
@@ -198,5 +205,12 @@ export class PaymentsService extends BaseService {
         }
       });
     console.log(updatedAccount);
+    if (!updatedAccount) {
+      return {
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        msg: 'Something went wrong',
+      };
+    }
+    return updatedAccount;
   }
 }

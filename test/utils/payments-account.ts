@@ -13,7 +13,7 @@ export const createMockBasicKycParams = (
     first_name: user.firstName,
     last_name: user.lastName,
     email: user.email,
-    phone_numbers: faker.phone.number('503.###.####') as string,
+    phone_numbers: faker.phone.number('503.555.01##') as string,
     gender: 'M',
     date_of_birth: {
       day: 2,

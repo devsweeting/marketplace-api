@@ -11,35 +11,30 @@ import { User } from 'modules/users/entities';
 import { generateToken } from '../utils/jwt.utils';
 import { createMockBasicKycParams, createMockPaymentsAccount } from '../utils/payments-account';
 import { UserPaymentsAccountNotFound } from 'modules/payments/exceptions/user-account-verification-failed.exception';
+let app: INestApplication;
+let paymentsController: PaymentsController;
+let paymentsService: PaymentsService;
+const mockBasicKyc: BasicKycDto = mockBasicKycQuery;
+let user: User;
+let userWithNoAccount: User;
+let headers;
+const mockClient = jest.createMockFromModule<typeof import('synapsenode')>('synapsenode');
+beforeAll(async () => {
+  app = await createApp();
+});
+
+beforeEach(async () => {
+  headers = { Authorization: `Bearer ${generateToken(user)}` };
+});
+
+afterAll(async () => {
+  await app.close();
+  jest.clearAllMocks();
+});
 
 describe('Payments Controller', () => {
-  let app: INestApplication;
-  let paymentsController: PaymentsController;
-  let paymentsService: PaymentsService;
-  const mockBasicKyc: BasicKycDto = mockBasicKycQuery;
-  let user: User;
-  let userWithNoAccount: User;
-  let headers;
-
-  beforeEach(async () => {
-    headers = { Authorization: `Bearer ${generateToken(user)}` };
-  });
-
-  afterAll(async () => {
-    await app.close();
-    jest.clearAllMocks();
-  });
   describe('mock payment provider API', () => {
-    const mockProviders = [
-      {
-        provide: PaymentsService,
-        // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-        useValue: { submitKYC: () => account201 },
-      },
-    ];
-
     beforeAll(async () => {
-      app = await createApp(mockProviders);
       user = await createUser({ email: 'test@example.com' });
 
       paymentsService = app.get<PaymentsService>(PaymentsService);
@@ -53,20 +48,14 @@ describe('Payments Controller', () => {
 
     test('should throw erorr if no payment account exists', async () => {
       const mockParams = createMockBasicKycParams(user);
-
-      const res = await request(app.getHttpServer())
+      await request(app.getHttpServer())
         .post(`/v1/payments/update-kyc`)
         .set(headers)
-        .send(mockParams);
-      // .expect(HttpStatus.NOT_FOUND)
-      // .expect(({ body }) => {
-      //   expect(body.status).toBe(HttpStatus.NOT_FOUND);
-      // });
-
-      console.log(res.body);
-      expect(true).toBe(false);
-
-      test.todo;
+        .send(mockParams)
+        .expect(HttpStatus.NOT_FOUND)
+        .expect(({ body }) => {
+          expect(body.status).toBe(HttpStatus.NOT_FOUND);
+        });
     });
 
     test('should throw error if address is not complete', async () => {
