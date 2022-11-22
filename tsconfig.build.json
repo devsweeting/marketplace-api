@@ -5,6 +5,7 @@
     "test",
     "dist",
     "public",
-    "**/*spec.ts"
+    "**/*spec.ts",
+    "coverage"
   ],
 }
