@@ -3,7 +3,6 @@ import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { httpstatus } from 'aws-sdk/clients/glacier';
 import { Ipv4Address } from 'aws-sdk/clients/inspector';
-import { StatusCodes } from 'http-status-codes';
 import { BaseService } from 'modules/common/services';
 import { User } from 'modules/users/entities';
 import { Client } from 'synapsenode';
@@ -86,12 +85,14 @@ export class PaymentsService extends BaseService {
         return body;
       })
       .catch(({ response }) => {
-        if (response.status === StatusCodes.NOT_FOUND) {
+        if (response.status === HttpStatus.NOT_FOUND) {
           throw new UserPaymentsAccountNotFound(
             `Cannot locate a FBO payments account with account ID -- ${accountId}`,
           );
         }
-        return response;
+        throw new UserPaymentsAccountNotFound(
+          `Something went wrong locating FBO payments account with ID -- ${accountId}`,
+        );
       });
 
     return {
@@ -118,7 +119,6 @@ export class PaymentsService extends BaseService {
 
     //Generate params to create new payments account;
     const accountUserParams = createUserParams(user.id, bodyParams, ip_address);
-
     //Create new FBO payments account with Synapse
     const newAccount = await this.client
       .createUser(accountUserParams, ip_address, {})
@@ -130,7 +130,6 @@ export class PaymentsService extends BaseService {
           throw new PaymentsAccountCreationFailed(err.response.data);
         }
       });
-
     //Associate the new payment FBO details with the user:
     const newPaymentsAccount = await UserPaymentsAccount.create({
       userId: user.id,

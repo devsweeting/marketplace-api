@@ -172,7 +172,7 @@ describe('Service', () => {
       } catch (error) {
         expect(error.response).toMatchObject({
           statusCode: 400,
-          error: 'Couldnt create user payments account',
+          error: 'Could not create user payments account',
           message:
             "'' does not match \"^[a-zA-Z0-9!#$%&'*+-/=?^_`{|}~.@]{3,120}$\"..Failed validating 'pattern' in schema['properties']['logins']['items']['properties']['email']:",
         });

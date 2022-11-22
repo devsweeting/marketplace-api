@@ -14,7 +14,6 @@ const mockBasicKyc: BasicKycDto = mockBasicKycQuery;
 let user: User;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 let headers: Record<string, string>;
-// const mockClient = jest.createMockFromModule<typeof import('synapsenode')>('synapsenode');
 
 beforeEach(async () => {
   headers = { Authorization: `Bearer ${generateToken(user)}` };

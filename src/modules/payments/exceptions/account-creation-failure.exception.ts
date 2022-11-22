@@ -6,7 +6,7 @@ export class PaymentsAccountCreationFailed extends HttpException {
     super(
       {
         statusCode: HttpStatus.BAD_REQUEST,
-        error: 'Couldnt create user payments account',
+        error: 'Could not create user payments account',
         message: message?.error.en,
       },
       HttpStatus.BAD_REQUEST,
