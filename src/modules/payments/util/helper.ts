@@ -66,7 +66,7 @@ export function createKYCDocument(
       address_country_code: mailing_address.address_country_code,
     };
     let addressDocumentId: string | undefined;
-    if (baseDocument && baseDocument?.social_docs.length > 0) {
+    if (baseDocument && baseDocument?.social_docs && baseDocument?.social_docs.length > 0) {
       addressDocumentId = findFirstInstanceOfDocType(baseDocument?.social_docs, 'MAILING_ADDRESS');
     }
     // We don't want social docs included in the patch if it doesn't exist

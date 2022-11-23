@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { httpstatus } from 'aws-sdk/clients/glacier';
@@ -38,7 +37,7 @@ export class PaymentsService extends BaseService {
     isProduction: this.configService.get('payments.default.isProduction'),
   });
 
-  async getUserPaymentsAccount(userId: string): Promise<User> {
+  private async getUserPaymentsAccount(userId: string): Promise<User> {
     const userPaymentsAccount = await User.createQueryBuilder('users')
       .leftJoinAndMapOne('users.paymentsAccount', 'users.paymentsAccount', 'userPaymentsAccount')
       .where('userPaymentsAccount.userId = :userId', { userId: userId })
@@ -143,7 +142,7 @@ export class PaymentsService extends BaseService {
     Logger.log(
       `FBO payments account(${newPaymentsAccount.userAccountId}) successfully created for user -- ${user.id}`,
     );
-
+    console.log('created');
     return {
       status: HttpStatus.CREATED,
       msg: `Payments account created for user -- ${user.id}`,
@@ -156,36 +155,29 @@ export class PaymentsService extends BaseService {
     user: User,
     ip_address: Ipv4Address,
   ): Promise<{ status: httpstatus; msg: string }> {
-    console.log('updating kyc - getting local account info');
     //check local DB to see if synapse account exists
     const userPaymentsAccount = await this.getUserPaymentsAccount(user.id);
 
     if (!userPaymentsAccount) {
       throw new UserPaymentsAccountNotFound();
     }
-    console.log('updating kyc - getting synapse account info');
 
     // check synapse database for account
     let paymentsUser: PaymentsUser;
     let baseDocument: ISynapseBaseDocuments;
-    console.log(userPaymentsAccount.paymentsAccount.userAccountId);
     try {
       paymentsUser = await this.client.getUser(
         userPaymentsAccount.paymentsAccount.userAccountId,
         {},
       );
-      console.log('here', paymentsUser.body);
-      if (!paymentsUser.body.documents) {
-        throw new BaseDocumentError();
-      }
-      console.log('bb', baseDocument);
-
-      baseDocument = paymentsUser.body.documents[0];
-      if (!baseDocument) {
-        throw new BaseDocumentError();
-      }
     } catch (error) {
       throw new UserPaymentsAccountNotFound();
+    }
+
+    try {
+      baseDocument = paymentsUser.body.documents[0];
+    } catch (error) {
+      throw new BaseDocumentError();
     }
 
     // Generate the patch
@@ -195,28 +187,33 @@ export class PaymentsService extends BaseService {
       ip_address,
       baseDocument,
     );
-
-    const updatedAccount = await paymentsUser
+    console.log('getting payment user');
+    const response = await paymentsUser
       .updateUser(updatePaymentAccountParams)
       .then((data: any) => {
+        Logger.log(
+          `FBO payments account(${userPaymentsAccount.id}) successfully updated for user -- ${user.id}`,
+        );
         console.log(data);
+        if (!data) {
+          return undefined;
+        }
         return {
-          status: data.body.status,
+          status: HttpStatus.OK,
+          // status: data.body.status,
           msg: `Payments account updated for user -- ${user.id}`,
         };
       })
-      .catch((err) => {
-        if (err) {
-          throw new AccountPatchError(err.response.data);
+      .catch((error) => {
+        console.log(error);
+        if (error?.response) {
+          throw new AccountPatchError(error.response?.data);
         }
       });
-    console.log(updatedAccount);
-    if (!updatedAccount) {
-      return {
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
-        msg: 'Something went wrong',
-      };
+    console.log(response);
+    if (response === undefined || !response) {
+      throw new AccountPatchError({ error: { en: 'Something went wrong', code: '' } });
     }
-    return updatedAccount;
+    return response;
   }
 }

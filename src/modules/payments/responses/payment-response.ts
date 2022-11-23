@@ -28,8 +28,8 @@ export class PaymentsAccountResponse {
 }
 
 export class UpdatePaymentsAccountResponse {
-  @ApiProperty({ example: HttpStatus.CREATED })
+  @ApiProperty({ example: HttpStatus.OK })
   status: HttpStatus;
-  @ApiProperty({ example: '' })
+  @ApiProperty({ example: 'Payments account updated for user' })
   msg: string;
 }

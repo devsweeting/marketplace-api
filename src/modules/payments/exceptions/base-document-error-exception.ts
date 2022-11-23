@@ -3,8 +3,8 @@ import { BadRequestException, HttpStatus } from '@nestjs/common';
 export class BaseDocumentError extends BadRequestException {
   public constructor(errors?: Record<string, string[]>) {
     super({
-      statusCode: HttpStatus.BAD_REQUEST,
-      message: 'No documents found to be updated',
+      status: HttpStatus.BAD_REQUEST,
+      message: 'Could not find document to update',
       error: errors,
     });
   }

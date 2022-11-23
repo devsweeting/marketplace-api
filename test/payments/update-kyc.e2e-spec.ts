@@ -1,26 +1,26 @@
 import { HttpException, HttpStatus, INestApplication } from '@nestjs/common';
-import { BasicKycDto } from 'modules/payments/dto/basic-kyc.dto';
 import request from 'supertest';
 import { clearAllData, createApp } from '../utils/app.utils';
-import { mockBasicKycQuery, paymentsAccountCreationSuccess } from 'modules/payments/test-variables';
+import { paymentsAccountCreationSuccess } from 'modules/payments/test-variables';
 import { createUser } from '../utils/create-user';
 import { User } from 'modules/users/entities';
 import { generateToken } from '../utils/jwt.utils';
 import { createMockBasicKycParams } from '../utils/payments-account';
 
 let app: INestApplication;
-const mockBasicKyc: BasicKycDto = mockBasicKycQuery;
 let user: User;
 let headers;
 let mockParams;
 const mockCreateUser = jest.fn();
 const mockGetUser = jest.fn();
-
+const updateUser = jest.fn();
 jest.mock('synapsenode', () => {
   return {
     Client: jest
       .fn()
       .mockImplementation(() => ({ createUser: mockCreateUser, getUser: mockGetUser })),
+    User: jest.fn().mockImplementation(() => ({ updateUser: updateUser })),
+    PaymentsUser: jest.fn().mockImplementation(() => ({ updateUser: updateUser })),
   };
 });
 
@@ -34,17 +34,18 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
+  jest.clearAllMocks();
   user = await createUser({ email: 'test@example.com' });
   headers = { Authorization: `Bearer ${generateToken(user)}` };
   mockParams = createMockBasicKycParams(user);
 });
 
 afterEach(async () => {
-  jest.clearAllMocks();
   await clearAllData();
+  jest.clearAllMocks();
 });
 
-async function createFboAccount(returnedUser) {
+async function createFboAccount(returnedUser): Promise<void> {
   mockCreateUser.mockResolvedValueOnce(returnedUser);
   await request(app.getHttpServer())
     .post(`/v1/payments/kyc`)
@@ -54,6 +55,7 @@ async function createFboAccount(returnedUser) {
     .expect(({ body }) => {
       expect(body.status).toBe(HttpStatus.CREATED);
     });
+  // return;
 }
 
 describe('update kyc', () => {
@@ -96,15 +98,22 @@ describe('update kyc', () => {
       });
   });
 
-  test('should return if FBO account does not exist ', async () => {
-    // mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
-    mockGetUser.mockImplementation(() => {
+  test('should return NOT FOUND error if FBO account does not exist ', async () => {
+    mockGetUser.mockImplementationOnce(() => {
       return Promise.reject(
         new HttpException({ status: HttpStatus.NOT_FOUND }, HttpStatus.NOT_FOUND),
       );
     });
-
-    await createFboAccount(paymentsAccountCreationSuccess.User);
+    mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
+    await request(app.getHttpServer())
+      .post(`/v1/payments/kyc`)
+      .set(headers)
+      .send(mockParams)
+      .expect(HttpStatus.CREATED)
+      .expect(({ body }) => {
+        expect(body.status).toBe(HttpStatus.CREATED);
+      });
+    // await createFboAccount(paymentsAccountCreationSuccess.User);
 
     await request(app.getHttpServer())
       .post(`/v1/payments/update-kyc`)
@@ -118,7 +127,7 @@ describe('update kyc', () => {
   });
 
   test('should return 400 BAD REQUEST if document id does not exist', async () => {
-    mockGetUser.mockResolvedValueOnce({ body: { documents: undefined } });
+    mockGetUser.mockResolvedValueOnce({ body: { bob: undefined } });
     const mockParams = createMockBasicKycParams(user);
 
     await createFboAccount(paymentsAccountCreationSuccess.User);
@@ -129,23 +138,72 @@ describe('update kyc', () => {
       .send(mockParams)
       .expect(HttpStatus.BAD_REQUEST)
       .expect(({ body }) => {
-        expect(body.status).toBe(HttpStatus.CREATED);
+        expect(body.status).toBe(HttpStatus.BAD_REQUEST);
+        expect(body.message).toBe('Could not find document to update');
       });
   });
 
-  test('should update address', async () => {
-    test.todo;
+  test('should throw BAD REQUEST if patch fails', async () => {
+    mockGetUser.mockResolvedValueOnce({ body: { documents: [{ id: 1 }] }, updateUser });
+    updateUser.mockImplementation(() => {
+      return Promise.reject(
+        new HttpException({ status: HttpStatus.NOT_FOUND }, HttpStatus.NOT_FOUND),
+      );
+    });
+    const mockParams = createMockBasicKycParams(user);
+    mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
+    await request(app.getHttpServer())
+      .post(`/v1/payments/kyc`)
+      .set(headers)
+      .send(mockParams)
+      .expect(HttpStatus.CREATED)
+      .expect(({ body }) => {
+        expect(body.status).toBe(HttpStatus.CREATED);
+      });
+    // await createFboAccount(paymentsAccountCreationSuccess.User);
+
+    await request(app.getHttpServer())
+      .post(`/v1/payments/update-kyc`)
+      .set(headers)
+      .send(mockParams)
+      .expect(HttpStatus.BAD_REQUEST)
+      .expect(({ body }) => {
+        expect(body.status).toBe(HttpStatus.BAD_REQUEST);
+        expect(body.error).toBe('Could not patch user payment account');
+      });
   });
 
-  test('should update personal information', async () => {
-    test.todo;
+  test('should return 200 on succesful kyc update', async () => {
+    mockGetUser.mockResolvedValueOnce({ body: { documents: [{ id: 1 }] }, updateUser });
+    updateUser.mockResolvedValueOnce({ body: { status: HttpStatus.OK } });
+
+    await createFboAccount(paymentsAccountCreationSuccess.User);
+
+    await request(app.getHttpServer())
+      .post(`/v1/payments/update-kyc`)
+      .set(headers)
+      .send(mockParams)
+      .expect(HttpStatus.OK)
+      .expect(({ body }) => {
+        expect(body.status).toBe(HttpStatus.OK);
+        expect(body.msg).toBe(`Payments account updated for user -- ${user.id}`);
+      });
   });
 
-  test('should update account to deleted', async () => {
-    test.todo;
-  });
+  test('should return INTERNAL ERROR if some unkown error gets thrown', async () => {
+    mockGetUser.mockResolvedValueOnce({ body: { documents: [{ id: 1 }] }, updateUser });
+    updateUser.mockResolvedValueOnce(null);
 
-  test('should update document to deleted', async () => {
-    test.todo;
+    await createFboAccount(paymentsAccountCreationSuccess.User);
+
+    await request(app.getHttpServer())
+      .post(`/v1/payments/update-kyc`)
+      .set(headers)
+      .send(mockParams)
+      .expect(HttpStatus.BAD_REQUEST)
+      .expect(({ body }) => {
+        expect(body.status).toBe(HttpStatus.BAD_REQUEST);
+        expect(body.message).toBe('Something went wrong');
+      });
   });
 });

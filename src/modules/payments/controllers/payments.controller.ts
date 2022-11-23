@@ -74,18 +74,19 @@ export class PaymentsController {
     type: PaymentsAccountResponse,
   })
   public async createUser(
-    @ValidateFormBody()
-    submitKycDto: BasicKycDto,
+    @ValidateFormBody() submitKycDto: BasicKycDto,
     @GetUser() user: User,
     @Ip() ip_address: Ipv4Address,
   ): Promise<IPaymentsAccountResponse> {
     const response = await this.paymentsService.submitKYC(submitKycDto, user, ip_address);
     return response;
   }
+
   @ApiBody({
     type: UpdateKycDto,
   })
   @Post('update-kyc')
+  @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('bearer-token')
   @UseGuards(JwtOtpAuthGuard)
   @ApiResponse({
@@ -97,10 +98,8 @@ export class PaymentsController {
     submitKycDto: UpdateKycDto,
     @GetUser() user: User,
     @Ip() ip_address: Ipv4Address,
-  ): Promise<any> {
+  ): Promise<UpdatePaymentsAccountResponse> {
     const response = await this.paymentsService.updateKyc(submitKycDto, user, ip_address);
-    // console.log(response);
     return response;
-    // return 'test';
   }
 }
