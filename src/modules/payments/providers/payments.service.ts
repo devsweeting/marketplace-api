@@ -142,7 +142,6 @@ export class PaymentsService extends BaseService {
     Logger.log(
       `FBO payments account(${newPaymentsAccount.userAccountId}) successfully created for user -- ${user.id}`,
     );
-    console.log('created');
     return {
       status: HttpStatus.CREATED,
       msg: `Payments account created for user -- ${user.id}`,
@@ -187,14 +186,12 @@ export class PaymentsService extends BaseService {
       ip_address,
       baseDocument,
     );
-    console.log('getting payment user');
     const response = await paymentsUser
       .updateUser(updatePaymentAccountParams)
       .then((data: any) => {
         Logger.log(
           `FBO payments account(${userPaymentsAccount.id}) successfully updated for user -- ${user.id}`,
         );
-        console.log(data);
         if (!data) {
           return undefined;
         }
@@ -205,12 +202,10 @@ export class PaymentsService extends BaseService {
         };
       })
       .catch((error) => {
-        console.log(error);
         if (error?.response) {
           throw new AccountPatchError(error.response?.data);
         }
       });
-    console.log(response);
     if (response === undefined || !response) {
       throw new AccountPatchError({ error: { en: 'Something went wrong', code: '' } });
     }
