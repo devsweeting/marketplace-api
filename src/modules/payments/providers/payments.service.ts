@@ -168,11 +168,18 @@ export class PaymentsService extends BaseService {
     // check synapse database for account
     let paymentsUser: PaymentsUser;
     let baseDocument: ISynapseBaseDocuments;
+    console.log(userPaymentsAccount.paymentsAccount.userAccountId);
     try {
       paymentsUser = await this.client.getUser(
         userPaymentsAccount.paymentsAccount.userAccountId,
         {},
       );
+      console.log('here', paymentsUser.body);
+      if (!paymentsUser.body.documents) {
+        throw new BaseDocumentError();
+      }
+      console.log('bb', baseDocument);
+
       baseDocument = paymentsUser.body.documents[0];
       if (!baseDocument) {
         throw new BaseDocumentError();

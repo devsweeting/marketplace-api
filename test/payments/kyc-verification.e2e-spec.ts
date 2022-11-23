@@ -26,9 +26,11 @@ afterAll(async () => {
   await app.close();
   jest.clearAllMocks();
 });
+
 beforeAll(async () => {
   app = await createApp();
 });
+
 beforeEach(async () => {
   user = await createUser({ email: 'test@example.com' });
   headers = { Authorization: `Bearer ${generateToken(user)}` };
