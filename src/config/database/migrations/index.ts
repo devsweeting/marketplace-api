@@ -17,7 +17,6 @@ import { FixSellOrder1662423096730 } from './1662423096730-FixSellOrder';
 import { CreateRefreshTokenTable1663795468354 } from './1663795468354-CreateRefreshTokenTable';
 import { AddAssetIdToSellOrderPurchase1663352346588 } from './1663352346588-AddAssetIdToSellOrderPurchase';
 import { CreateUserAssetsTable1665784042941 } from './1665784042941-CreateUserAssetsTable';
-import { AddOAuthKeyAndDocumentIdToPaymentAccount1669057457945 } from './1669057457945-AddOAuthKeyAndDocumentIdToPaymentAccount';
 
 export const migrations = [
   Init1652279127303,
@@ -39,5 +38,4 @@ export const migrations = [
   CreateRefreshTokenTable1663795468354,
   AddAssetIdToSellOrderPurchase1663352346588,
   CreateUserAssetsTable1665784042941,
-  AddOAuthKeyAndDocumentIdToPaymentAccount1669057457945,
 ];

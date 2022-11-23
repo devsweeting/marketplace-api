@@ -41,7 +41,7 @@ export const createMockPaymentsAccount = async (
     depositNodeId: null,
     refreshToken: paymentsAccountCreationSuccess.User.body.refresh_token,
     permission: paymentsAccountCreationSuccess.User.body.permission as IPermissions,
-    permissionCode: paymentsAccountCreationSuccess.User.body.permission_code,
+    permission_code: paymentsAccountCreationSuccess.User.body.permission_code,
     ...mockAccountOptions,
   });
 

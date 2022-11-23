@@ -79,7 +79,7 @@ describe('Payments Controller', () => {
   describe('POST - create and verify a users payments account', () => {
     beforeAll(async () => {
       app = await createApp();
-      user = await createUser({ email: 'test@example.com' });
+      user = await createUser({ email: 'testuser@example.com' });
     });
 
     test('Should update database payments account details for user', async () => {
@@ -116,7 +116,7 @@ describe('Payments Controller', () => {
   describe('GET - user payment account details', () => {
     beforeAll(async () => {
       app = await createApp();
-      user = await createUser({ email: 'test@example.com' });
+      user = await createUser({ email: 'anothertest@example.com' });
     });
 
     test('Should return the users payment account information', async () => {

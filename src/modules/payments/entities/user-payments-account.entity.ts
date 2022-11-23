@@ -43,7 +43,7 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
   @Column({
     nullable: true,
   })
-  public permissionCode: IPermissionCodes;
+  public permission_code: IPermissionCodes;
 
   @Exclude()
   @Column({

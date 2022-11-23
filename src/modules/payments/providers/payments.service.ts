@@ -2,7 +2,6 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Ipv4Address } from 'aws-sdk/clients/inspector';
-import { StatusCodes } from 'http-status-codes';
 import { BaseService } from 'modules/common/services';
 import { User } from 'modules/users/entities';
 import { Client } from 'synapsenode';
@@ -127,7 +126,7 @@ export class PaymentsService extends BaseService {
       depositNodeId: null,
       refreshToken: newAccount.refresh_token,
       permission: newAccount.permission as IPermissions,
-      permissionCode: newAccount.permission_code,
+      permission_code: newAccount.permission_code,
       oauthKey: newAccount.oauth_key, //TODO check and verify in tests
       baseDocumentId: null, //TODO: add base_document_id to entity
     }).save();
