@@ -41,7 +41,6 @@ export function createKYCDocument(
   ip_address: Ipv4Address,
   baseDocument?: ISynapseBaseDocuments,
 ): ISynapseBaseDocuments {
-  // const { date_of_birth, mailing_address, gender } = bodyParams;
   let document: ISynapseBaseDocuments = {
     id: baseDocument?.id,
     email: email,

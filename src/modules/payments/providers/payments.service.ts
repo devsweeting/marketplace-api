@@ -197,7 +197,6 @@ export class PaymentsService extends BaseService {
         }
         return {
           status: HttpStatus.OK,
-          // status: data.body.status,
           msg: `Payments account updated for user -- ${user.id}`,
         };
       })
