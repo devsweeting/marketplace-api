@@ -69,7 +69,7 @@ export const account201: IPaymentsAccountResponse = {
     userAccountId: '63603d35b174c5e009cda55c',
     depositNodeId: null,
     permission: 'UNVERIFIED',
-    permission_code: null,
+    permissionCode: null,
     refreshToken: 'refresh_AtHCUXcWdyZl2bVs3zGS7h59IDw4LnMYi1poTv0B',
     deletedAt: null,
     id: '8d9980f4-41ef-41c3-82dd-1892be9dbd96',
@@ -92,7 +92,7 @@ export const account303: IPaymentsAccountResponse = {
     userAccountId: '63603d35b174c5e009cda55c',
     depositNodeId: null,
     permission: 'UNVERIFIED',
-    permission_code: null,
+    permissionCode: null,
     refreshToken: 'refresh_AtHCUXcWdyZl2bVs3zGS7h59IDw4LnMYi1poTv0B',
   } as UserPaymentsAccount,
 };

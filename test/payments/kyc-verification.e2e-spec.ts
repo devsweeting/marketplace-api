@@ -124,8 +124,9 @@ describe('Payments Controller', () => {
       await request(app.getHttpServer())
         .get(`/v1/payments/account`)
         .set(headers)
-        .expect(HttpStatus.OK)
+        // .expect(HttpStatus.OK)
         .expect(({ body }) => {
+          console.log('body', body);
           expect(body.status).toBe(HttpStatus.OK);
           expect(body.data).toBeDefined();
           expect(body.data.user).toBeDefined();

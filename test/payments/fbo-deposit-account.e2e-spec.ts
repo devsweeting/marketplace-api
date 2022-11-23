@@ -1,17 +1,17 @@
 import { INestApplication } from '@nestjs/common';
-// import { User } from 'modules/users/entities';
+import { User } from 'modules/users/entities';
 import { clearAllData, createApp } from '../utils/app.utils';
-// import { createUser } from '../utils/create-user';
+import { createUser } from '../utils/create-user';
 // import { generateToken } from '../utils/jwt.utils';
 
 describe('Payments Controller', () => {
   let app: INestApplication;
-  // let user: User;
+  let user: User;
   //   let headers;
 
   beforeAll(async () => {
     app = await createApp();
-    // user s= await createUser({ email: 'test@example.com' });
+    user = await createUser({ email: 'test@example.com' });
   });
 
   beforeEach(async () => {
@@ -23,9 +23,8 @@ describe('Payments Controller', () => {
   });
 
   it('Expect mocks to be defined', async () => {
-    console.log('app', app);
     expect(app).toBeDefined();
-    // expect(user).toBeDefined();
+    expect(user).toBeDefined();
   });
 
   // test('Should create a FBO deposit account under the newly created payments account', async () => {

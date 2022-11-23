@@ -126,7 +126,7 @@ export class PaymentsService extends BaseService {
       depositNodeId: null,
       refreshToken: newAccount.refresh_token,
       permission: newAccount.permission as IPermissions,
-      permission_code: newAccount.permission_code,
+      permissionCode: newAccount.permission_code,
       oauthKey: newAccount.oauth_key, //TODO check and verify in tests
       baseDocumentId: null, //TODO: add base_document_id to entity
     }).save();
