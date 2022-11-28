@@ -1,4 +1,4 @@
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpException, HttpStatus, INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '../utils/app.utils';
 import { AddressVerificationFailedException } from 'modules/payments/exceptions/address-verification-failed.exception';
 import { User } from 'modules/users/entities';
@@ -8,10 +8,27 @@ import { VerifyAddressDto } from 'modules/payments/dto/verify-address.dto';
 import { PaymentsAccountCreationFailed } from 'modules/payments/exceptions/account-creation-failure.exception';
 import { UserPaymentsAccountNotFound as UserPaymentsAccountNotFound } from 'modules/payments/exceptions/user-account-verification-failed.exception';
 import { PaymentsService } from 'modules/payments/providers/payments.service';
+import { paymentsAccountCreationSuccess } from 'modules/payments/test-variables';
 
 let app: INestApplication;
 let service: PaymentsService;
 let user: User;
+const mockVerifyAddress = jest.fn();
+const mockCreateUser = jest.fn();
+const mockGetUser = jest.fn();
+const updateUser = jest.fn();
+jest.mock('synapsenode', () => {
+  return {
+    Client: jest.fn().mockImplementation(() => ({
+      createUser: mockCreateUser,
+      getUser: mockGetUser,
+      verifyAddress: mockVerifyAddress,
+    })),
+    User: jest.fn().mockImplementation(() => ({ updateUser: updateUser })),
+    PaymentsUser: jest.fn().mockImplementation(() => ({ updateUser: updateUser })),
+  };
+});
+
 const realAddress = {
   address_street: '1 Market St.',
   address_city: 'SF',
@@ -47,6 +64,25 @@ afterAll(async () => {
 describe('Service', () => {
   describe('verifyAddress', () => {
     test('should first verify address', async () => {
+      mockVerifyAddress.mockResolvedValue({
+        data: {
+          deliverability: 'deliverable_missing_unit',
+          deliverability_analysis: {
+            partial_valid: true,
+            primary_number_invalid: false,
+            primary_number_missing: false,
+            secondary_invalid: false,
+            secondary_missing: true,
+          },
+          normalized_address: {
+            address_city: 'SAN FRANCISCO',
+            address_country_code: 'US',
+            address_postal_code: '94105',
+            address_street: '1 MARKET ST',
+            address_subdivision: 'CA',
+          },
+        },
+      });
       const address = await service.verifyAddress({
         address_street: '1 Market St.',
         address_city: 'SF',
@@ -74,6 +110,19 @@ describe('Service', () => {
     });
 
     test('should first verify address', async () => {
+      mockVerifyAddress.mockResolvedValue({
+        data: {
+          deliverability: 'error',
+          deliverability_analysis: {
+            partial_valid: false,
+            primary_number_invalid: false,
+            primary_number_missing: false,
+            secondary_invalid: false,
+            secondary_missing: false,
+          },
+          normalized_address: {},
+        },
+      });
       const address = await service.verifyAddress({
         address_street: 'TEST',
         address_city: 'TEST',
@@ -94,6 +143,9 @@ describe('Service', () => {
       });
     });
     test('should throw error on if something is missing.', async () => {
+      mockVerifyAddress.mockImplementation(() => {
+        return Promise.reject(new Error(''));
+      });
       try {
         await service.verifyAddress({
           address_street: '',
@@ -133,6 +185,9 @@ describe('Service', () => {
     });
 
     test('should return payments account data ', async () => {
+      mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValueOnce({ body: paymentsAccountCreationSuccess });
+
       await service.submitKYC(
         {
           first_name: 'test',
@@ -154,6 +209,27 @@ describe('Service', () => {
 
   describe('createUserAccount', () => {
     test('should throw an error if account is missing credentials', async () => {
+      mockCreateUser.mockImplementation(() => {
+        return Promise.reject(
+          new HttpException(
+            {
+              status: HttpStatus.BAD_REQUEST,
+              response: {
+                data: {
+                  message: {
+                    error: {
+                      en: 'test error',
+                    },
+                  },
+                },
+              },
+            },
+            HttpStatus.BAD_REQUEST,
+          ),
+        );
+      });
+      // mockGetUser.mockResolvedValueOnce({ body: paymentsAccountCreationSuccess });
+
       const blankMailingAddress = new VerifyAddressDto();
       const blankDateOfBirth = new DateOfBirthDto();
       try {
@@ -173,8 +249,7 @@ describe('Service', () => {
         expect(error.response).toMatchObject({
           statusCode: 400,
           error: 'Could not create user payments account',
-          message:
-            "'' does not match \"^[a-zA-Z0-9!#$%&'*+-/=?^_`{|}~.@]{3,120}$\"..Failed validating 'pattern' in schema['properties']['logins']['items']['properties']['email']:",
+          message: 'test error',
         });
         expect(error).toBeInstanceOf(PaymentsAccountCreationFailed);
         return;

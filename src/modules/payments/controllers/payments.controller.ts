@@ -102,4 +102,20 @@ export class PaymentsController {
     const response = await this.paymentsService.updateKyc(submitKycDto, user, ip_address);
     return response;
   }
+
+  // @ApiBody({
+  //   type: UpdateKycDto,
+  // })
+  // @Post('delete-user')
+  // @HttpCode(HttpStatus.OK)
+  // @ApiBearerAuth('bearer-token')
+  // @UseGuards(JwtOtpAuthGuard)
+  // @ApiResponse({
+  //   status: HttpStatus.OK,
+  //   type: UpdatePaymentsAccountResponse,
+  // })
+  // public async closeUser(@GetUser() user: User): Promise<UpdatePaymentsAccountResponse> {
+  //   const response = await this.paymentsService.closeUser(user);
+  //   return response;
+  // }
 }
