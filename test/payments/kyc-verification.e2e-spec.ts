@@ -1,88 +1,50 @@
-import { HttpStatus, INestApplication } from '@nestjs/common';
-import { BasicKycDto } from 'modules/payments/dto/basic-kyc.dto';
+import { HttpException, HttpStatus, INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { createApp } from '../utils/app.utils';
-import { PaymentsController } from 'modules/payments/controllers/payments.controller';
-import { PaymentsService } from 'modules/payments/providers/payments.service';
-import { account201, account303, mockBasicKycQuery } from 'modules/payments/test-variables';
+import { clearAllData, createApp } from '../utils/app.utils';
 import { createUser } from '../utils/create-user';
 import { UserPaymentsAccount } from 'modules/payments/entities/user-payments-account.entity';
 import { User } from 'modules/users/entities';
 import { generateToken } from '../utils/jwt.utils';
-import { createMockBasicKycParams, createMockPaymentsAccount } from '../utils/payments-account';
+import { createMockBasicKycParams } from '../utils/payments-account';
+import { paymentsAccountCreationSuccess } from 'modules/payments/test-variables';
+let app: INestApplication;
+let user: User;
+let userWithNoAccount: User;
+let headers;
 
-describe('Payments Controller', () => {
-  let app: INestApplication;
-  let paymentsController: PaymentsController;
-  let paymentsService: PaymentsService;
-  const mockBasicKyc: BasicKycDto = mockBasicKycQuery;
-  let user: User;
-  let userWithNoAccount: User;
-  let headers;
+const mockCreateUser = jest.fn();
+const mockGetUser = jest.fn();
+jest.mock('synapsenode', () => {
+  return {
+    Client: jest
+      .fn()
+      .mockImplementation(() => ({ createUser: mockCreateUser, getUser: mockGetUser })),
+  };
+});
 
-  beforeEach(async () => {
-    headers = { Authorization: `Bearer ${generateToken(user)}` };
-  });
+afterAll(async () => {
+  await app.close();
+  jest.clearAllMocks();
+});
 
-  afterAll(async () => {
-    await app.close();
-    jest.clearAllMocks();
-  });
+beforeAll(async () => {
+  app = await createApp();
+});
 
-  describe('mock payment provider API', () => {
-    const mockProviders = [
-      {
-        provide: PaymentsService,
-        // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-        useValue: { submitKYC: () => account201 },
-      },
-    ];
+beforeEach(async () => {
+  user = await createUser({ email: 'test@example.com' });
+  headers = { Authorization: `Bearer ${generateToken(user)}` };
+});
 
-    beforeAll(async () => {
-      app = await createApp(mockProviders);
-      user = await createUser({ email: 'test@example.com' });
+afterEach(async () => {
+  jest.clearAllMocks();
+  await clearAllData();
+});
 
-      paymentsService = app.get<PaymentsService>(PaymentsService);
-      paymentsController = app.get<PaymentsController>(PaymentsController);
-    });
-
-    it('Payment mocks should be defined', () => {
-      expect(paymentsService).toBeDefined();
-      expect(paymentsController).toBeDefined();
-    });
-
-    test('Should create a new user account', async () => {
-      const spy = jest
-        .spyOn(paymentsService, 'submitKYC')
-        .mockImplementation(async () => account201);
-
-      const response = await paymentsController.createUser(mockBasicKyc, user, '::ffff:172.18.0.1');
-
-      expect(spy).toHaveBeenCalled();
-
-      expect(response).toStrictEqual(account201);
-    });
-
-    test('Should return the users account if it already exists', async () => {
-      const spy = jest
-        .spyOn(paymentsService, 'submitKYC')
-        .mockImplementation(async () => account303);
-
-      const response = await paymentsController.createUser(mockBasicKyc, user, '::ffff:172.18.0.1');
-
-      expect(spy).toHaveBeenCalled();
-
-      expect(response).toStrictEqual(account303);
-    });
-  });
-
+describe('Create payments account e2e', () => {
   describe('POST - create and verify a users payments account', () => {
-    beforeAll(async () => {
-      app = await createApp();
-      user = await createUser({ email: 'test@example.com' });
-    });
-
     test('Should update database payments account details for user', async () => {
+      mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
       const mockParams = createMockBasicKycParams(user);
       await request(app.getHttpServer())
         .post(`/v1/payments/kyc`)
@@ -94,8 +56,8 @@ describe('Payments Controller', () => {
         });
 
       const userPaymentsAccount = await UserPaymentsAccount.findAccountByUser(user.id);
-
-      expect(userPaymentsAccount).not.toBeNull();
+      expect(userPaymentsAccount).toBeDefined();
+      expect(userPaymentsAccount.userId).toBe(user.id);
     });
 
     test('Should return a custom 400 if the params are malformed', async () => {
@@ -111,16 +73,44 @@ describe('Payments Controller', () => {
           expect(body.error.phone_numbers).toEqual(['phone_numbers must be a valid phone number']);
         });
     });
+
+    test('should correctly return synapse error', async () => {
+      mockCreateUser.mockImplementationOnce(() => {
+        return Promise.reject(
+          new HttpException({ data: { error: { en: 'test' } } }, HttpStatus.BAD_REQUEST),
+        );
+      });
+
+      const mockParams = createMockBasicKycParams(user);
+
+      await request(app.getHttpServer())
+        .post(`/v1/payments/kyc`)
+        .set(headers)
+        .send(mockParams)
+        .expect(HttpStatus.BAD_REQUEST)
+        .expect(({ body }) => {
+          expect(body.error).toBe('Could not create user payments account');
+          expect(body.message).toBe('test');
+        });
+    });
   });
 
   describe('GET - user payment account details', () => {
-    beforeAll(async () => {
-      app = await createApp();
-      user = await createUser({ email: 'test@example.com' });
-    });
-
     test('Should return the users payment account information', async () => {
-      await createMockPaymentsAccount(user);
+      mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValueOnce({ body: paymentsAccountCreationSuccess });
+
+      const mockParams = createMockBasicKycParams(user);
+
+      await request(app.getHttpServer())
+        .post(`/v1/payments/kyc`)
+        .set(headers)
+        .send(mockParams)
+        .expect(HttpStatus.CREATED)
+        .expect(({ body }) => {
+          expect(body.status).toBe(HttpStatus.CREATED);
+        });
+
       await request(app.getHttpServer())
         .get(`/v1/payments/account`)
         .set(headers)
@@ -128,8 +118,39 @@ describe('Payments Controller', () => {
         .expect(({ body }) => {
           expect(body.status).toBe(HttpStatus.OK);
           expect(body.data).toBeDefined();
-          expect(body.data.user).toBeDefined();
-          expect(body.data.account).toBeDefined();
+          expect(body.data.user.id).toBe(user.id);
+          expect(body.data.account.User.id).toBe(paymentsAccountCreationSuccess.User.id);
+        });
+    });
+
+    test('should throw if no FBO account is found', async () => {
+      mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockImplementation(() => {
+        return Promise.reject(
+          new HttpException({ status: HttpStatus.NOT_FOUND }, HttpStatus.NOT_FOUND),
+        );
+      });
+
+      const mockParams = createMockBasicKycParams(user);
+      await request(app.getHttpServer())
+        .post(`/v1/payments/kyc`)
+        .set(headers)
+        .send(mockParams)
+        .expect(HttpStatus.CREATED)
+        .expect(({ body }) => {
+          expect(body.status).toBe(HttpStatus.CREATED);
+        });
+
+      await request(app.getHttpServer())
+        .get(`/v1/payments/account`)
+        .set(headers)
+        // .expect(HttpStatus.NOT_FOUND)
+        .expect(({ body }) => {
+          expect(body.status).toBe(HttpStatus.NOT_FOUND);
+          expect(body.error).toBe('Payments Account Not Found');
+          expect(body.message).toBe(
+            `Cannot locate a FBO payments account with account ID -- ${paymentsAccountCreationSuccess.User.id}`,
+          );
         });
     });
 
@@ -142,6 +163,7 @@ describe('Payments Controller', () => {
         .expect(HttpStatus.NOT_FOUND)
         .expect(({ body }) => {
           expect(body.status).toBe(HttpStatus.NOT_FOUND);
+          expect(body.error).toBe('Payments Account Not Found');
         });
     });
   });

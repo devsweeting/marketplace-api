@@ -1,16 +1,19 @@
-/* eslint-disable no-console */
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { httpstatus } from 'aws-sdk/clients/glacier';
 import { Ipv4Address } from 'aws-sdk/clients/inspector';
-import { StatusCodes } from 'http-status-codes';
 import { BaseService } from 'modules/common/services';
 import { User } from 'modules/users/entities';
 import { Client } from 'synapsenode';
+import { User as PaymentsUser } from 'synapsenode';
 import { BasicKycDto } from '../dto/basic-kyc.dto';
+import { UpdateKycDto } from '../dto/update-kyc.dto';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
 import { UserPaymentsAccount } from '../entities/user-payments-account.entity';
 import { PaymentsAccountCreationFailed } from '../exceptions/account-creation-failure.exception';
+import { AccountPatchError } from '../exceptions/account-patch-failure.exception';
 import { AddressVerificationFailedException } from '../exceptions/address-verification-failed.exception';
+import { BaseDocumentError } from '../exceptions/base-document-error-exception';
 import { UserPaymentsAccountNotFound } from '../exceptions/user-account-verification-failed.exception';
 import {
   IPermissions,
@@ -18,6 +21,7 @@ import {
   IUserPaymentAccountResponse,
   IPaymentsAccountResponse,
 } from '../interfaces/create-account';
+import { ISynapseBaseDocuments } from '../interfaces/synapse-node';
 import { createUserParams } from '../util/helper';
 
 @Injectable()
@@ -80,12 +84,14 @@ export class PaymentsService extends BaseService {
         return body;
       })
       .catch(({ response }) => {
-        if (response.status === StatusCodes.NOT_FOUND) {
+        if (response.status === HttpStatus.NOT_FOUND) {
           throw new UserPaymentsAccountNotFound(
             `Cannot locate a FBO payments account with account ID -- ${accountId}`,
           );
         }
-        return response;
+        throw new UserPaymentsAccountNotFound(
+          `Something went wrong locating FBO payments account with ID -- ${accountId}`,
+        );
       });
 
     return {
@@ -112,7 +118,6 @@ export class PaymentsService extends BaseService {
 
     //Generate params to create new payments account;
     const accountUserParams = createUserParams(user.id, bodyParams, ip_address);
-
     //Create new FBO payments account with Synapse
     const newAccount = await this.client
       .createUser(accountUserParams, ip_address, {})
@@ -124,7 +129,6 @@ export class PaymentsService extends BaseService {
           throw new PaymentsAccountCreationFailed(err.response.data);
         }
       });
-
     //Associate the new payment FBO details with the user:
     const newPaymentsAccount = await UserPaymentsAccount.create({
       userId: user.id,
@@ -138,11 +142,72 @@ export class PaymentsService extends BaseService {
     Logger.log(
       `FBO payments account(${newPaymentsAccount.userAccountId}) successfully created for user -- ${user.id}`,
     );
-
     return {
       status: HttpStatus.CREATED,
       msg: `Payments account created for user -- ${user.id}`,
       account: newPaymentsAccount,
     };
+  }
+
+  public async updateKyc(
+    bodyParams: UpdateKycDto,
+    user: User,
+    ip_address: Ipv4Address,
+  ): Promise<{ status: httpstatus; msg: string }> {
+    //check local DB to see if synapse account exists
+    const userPaymentsAccount = await this.getUserPaymentsAccount(user.id);
+
+    if (!userPaymentsAccount) {
+      throw new UserPaymentsAccountNotFound();
+    }
+
+    // check synapse database for account
+    let paymentsUser: PaymentsUser;
+    let baseDocument: ISynapseBaseDocuments;
+    try {
+      paymentsUser = await this.client.getUser(
+        userPaymentsAccount.paymentsAccount.userAccountId,
+        {},
+      );
+    } catch (error) {
+      throw new UserPaymentsAccountNotFound();
+    }
+
+    try {
+      baseDocument = paymentsUser.body.documents[0];
+    } catch (error) {
+      throw new BaseDocumentError();
+    }
+
+    // Generate the patch
+    const updatePaymentAccountParams = createUserParams(
+      user.id,
+      bodyParams,
+      ip_address,
+      baseDocument,
+    );
+    const response = await paymentsUser
+      .updateUser(updatePaymentAccountParams)
+      .then((data: any) => {
+        Logger.log(
+          `FBO payments account(${userPaymentsAccount.id}) successfully updated for user -- ${user.id}`,
+        );
+        if (!data) {
+          return undefined;
+        }
+        return {
+          status: HttpStatus.OK,
+          msg: `Payments account updated for user -- ${user.id}`,
+        };
+      })
+      .catch((error) => {
+        if (error?.response) {
+          throw new AccountPatchError(error.response?.data);
+        }
+      });
+    if (response === undefined || !response) {
+      throw new AccountPatchError({ error: { en: 'Something went wrong', code: '' } });
+    }
+    return response;
   }
 }
