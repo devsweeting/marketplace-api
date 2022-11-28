@@ -96,3 +96,12 @@ export const account303: IPaymentsAccountResponse = {
     refreshToken: 'refresh_AtHCUXcWdyZl2bVs3zGS7h59IDw4LnMYi1poTv0B',
   } as UserPaymentsAccount,
 };
+
+const synapseRefreshTokenFailedExample = {
+  message: 'Payment Provider OAuth Request Failed',
+  status: '409',
+  error: {
+    code: 'invalid_filter_refresh_token',
+    en: "Unable to locate refresh token object with filter {'refresh_token': 'refresh_TNF7QRbKJhp8D6OqniekxU0vac1LuHZAtP3BslzY'}",
+  },
+};
