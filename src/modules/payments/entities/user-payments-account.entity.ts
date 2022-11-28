@@ -30,6 +30,12 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
   public depositNodeId: string;
 
   @Column({
+    length: 70,
+    nullable: true,
+  })
+  public baseDocumentId: string;
+
+  @Column({
     nullable: true,
   })
   public permission: IPermissions;
@@ -37,7 +43,7 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
   @Column({
     nullable: true,
   })
-  public permission_code: IPermissionCodes;
+  public permissionCode: IPermissionCodes;
 
   @Exclude()
   @Column({
@@ -45,9 +51,47 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
   })
   public refreshToken: string;
 
-  static async findAccountByUser(userId: string): Promise<UserPaymentsAccount> {
+  @Exclude()
+  @Column({
+    nullable: true,
+  })
+  public oauthKey: string;
+
+  @Exclude()
+  @Column({
+    nullable: true,
+    type: 'timestamp',
+  })
+  public oauthKeyExpiresAt: Date;
+
+  static async findAccountByUserId(userId: string): Promise<UserPaymentsAccount> {
     return UserPaymentsAccount.findOne({
       where: { userId: userId },
+    });
+  }
+
+  static async findAccountByAccountId(userAccountId: string): Promise<UserPaymentsAccount> {
+    return UserPaymentsAccount.findOne({
+      where: { userAccountId: userAccountId },
+    });
+  }
+
+  static async updatePaymentAccount(
+    userAccountId: string,
+    tokens: Partial<UserPaymentsAccount>,
+    baseDocumentId: string,
+    depositNodeId?: string,
+  ): Promise<UserPaymentsAccount> {
+    const account = await this.findAccountByAccountId(userAccountId);
+    console.log('Before', account);
+
+    return UserPaymentsAccount.save({
+      ...account,
+      oauthKey: tokens.oauthKey,
+      oauthKeyExpiresAt: tokens.oauthKeyExpiresAt,
+      refreshToken: tokens.refreshToken,
+      baseDocumentId,
+      depositNodeId,
     });
   }
 

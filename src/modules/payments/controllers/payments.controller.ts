@@ -1,4 +1,13 @@
-import { Controller, Get, HttpCode, HttpStatus, Ip, Post, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Headers,
+  HttpCode,
+  HttpStatus,
+  Ip,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Ipv4Address } from 'aws-sdk/clients/inspector';
@@ -101,5 +110,21 @@ export class PaymentsController {
   ): Promise<UpdatePaymentsAccountResponse> {
     const response = await this.paymentsService.updateKyc(submitKycDto, user, ip_address);
     return response;
+  }
+
+  @Get('node')
+  @ApiResponse({
+    status: HttpStatus.OK,
+  })
+  @UseGuards(JwtOtpAuthGuard)
+  public async getNodes(
+    @GetUser() user: User,
+    @Headers() headers: Headers,
+    @Ip() ip: string,
+  ): Promise<any> {
+    // console.log('headers', headers);
+    // console.log('ip', ip);
+    const data = await this.paymentsService.createNode(user, headers, ip);
+    return data;
   }
 }

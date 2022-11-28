@@ -22,7 +22,13 @@ import {
   IPaymentsAccountResponse,
 } from '../interfaces/create-account';
 import { ISynapseBaseDocuments } from '../interfaces/synapse-node';
-import { createUserParams } from '../util/helper';
+import {
+  createDepositNode,
+  createUserParams,
+  getOAuthKey,
+  getUserPaymentAccountDetails,
+  initializeUserClient,
+} from '../util/helper';
 
 @Injectable()
 export class PaymentsService extends BaseService {
@@ -78,21 +84,7 @@ export class PaymentsService extends BaseService {
     const accountId = paymentAccount.paymentsAccount.userAccountId;
 
     //Query Synapse API for full account details
-    const paymentAccountDetail = await this.client
-      .getUser(accountId, null)
-      .then(({ body }) => {
-        return body;
-      })
-      .catch(({ response }) => {
-        if (response.status === HttpStatus.NOT_FOUND) {
-          throw new UserPaymentsAccountNotFound(
-            `Cannot locate a FBO payments account with account ID -- ${accountId}`,
-          );
-        }
-        throw new UserPaymentsAccountNotFound(
-          `Something went wrong locating FBO payments account with ID -- ${accountId}`,
-        );
-      });
+    const paymentAccountDetail = await getUserPaymentAccountDetails(this.client, accountId);
 
     return {
       status: HttpStatus.OK,
@@ -126,6 +118,7 @@ export class PaymentsService extends BaseService {
       })
       .catch((err) => {
         if (err) {
+          console.log(err.response);
           throw new PaymentsAccountCreationFailed(err.response.data);
         }
       });
@@ -136,12 +129,17 @@ export class PaymentsService extends BaseService {
       depositNodeId: null,
       refreshToken: newAccount.refresh_token,
       permission: newAccount.permission as IPermissions,
-      permission_code: newAccount.permission_code,
+      permissionCode: newAccount.permission_code,
+      oauthKey: newAccount.oauth_key, //TODO check and verify in tests
+      baseDocumentId: null, //TODO: add base_document_id to entity
     }).save();
 
     Logger.log(
       `FBO payments account(${newPaymentsAccount.userAccountId}) successfully created for user -- ${user.id}`,
     );
+
+    //TODO update the first & last name of the Jump User
+
     return {
       status: HttpStatus.CREATED,
       msg: `Payments account created for user -- ${user.id}`,
@@ -210,4 +208,38 @@ export class PaymentsService extends BaseService {
     }
     return response;
   }
+
+  public async createNode(user: User, headers: object, ip_address: string): Promise<any> {
+    //Get our user's saved account data
+    const paymentAccount = await this.getUserPaymentsAccount(user.id);
+    const { refreshToken, userAccountId } = paymentAccount.paymentsAccount;
+
+    const paymentAccountDetail = await getUserPaymentAccountDetails(this.client, userAccountId);
+    const base_document_id = paymentAccountDetail.documents[0].id;
+
+    //initialize the synapse user client to communicate with the synapse API
+    const userClient = initializeUserClient(userAccountId, headers, ip_address, this.client);
+
+    //get our oauth token to make actions on behalf of the user
+    const tokens = await getOAuthKey(userClient, refreshToken);
+
+    //create the first node, or deposit hub
+    const depositHub = await createDepositNode(userClient);
+
+    console.log('node', depositHub);
+
+    //update the oauth in the user model for future uses
+    const updatedAccount = await UserPaymentsAccount.updatePaymentAccount(
+      userAccountId,
+      tokens,
+      base_document_id,
+      depositHub.nodes[0]._id,
+    );
+    console.log('after update:', updatedAccount);
+
+    // // console.log('node', node);
+    return 'sqwah';
+  }
+  // return userPaymentsAccount;
+  // }
 }

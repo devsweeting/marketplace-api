@@ -43,6 +43,11 @@ afterEach(async () => {
 
 describe('Create payments account e2e', () => {
   describe('POST - create and verify a users payments account', () => {
+    beforeAll(async () => {
+      app = await createApp();
+      user = await createUser({ email: 'testuser@example.com' });
+    });
+
     test('Should update database payments account details for user', async () => {
       mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
       const mockParams = createMockBasicKycParams(user);
@@ -55,9 +60,9 @@ describe('Create payments account e2e', () => {
           expect(body.status).toBe(HttpStatus.CREATED);
         });
 
-      const userPaymentsAccount = await UserPaymentsAccount.findAccountByUser(user.id);
-      expect(userPaymentsAccount).toBeDefined();
-      expect(userPaymentsAccount.userId).toBe(user.id);
+      const userPaymentsAccount = await UserPaymentsAccount.findAccountByUserId(user.id);
+
+      expect(userPaymentsAccount).not.toBeNull();
     });
 
     test('Should return a custom 400 if the params are malformed', async () => {
@@ -74,97 +79,85 @@ describe('Create payments account e2e', () => {
         });
     });
 
-    test('should correctly return synapse error', async () => {
-      mockCreateUser.mockImplementationOnce(() => {
-        return Promise.reject(
-          new HttpException({ data: { error: { en: 'test' } } }, HttpStatus.BAD_REQUEST),
-        );
+    describe('GET - user payment account details', () => {
+      beforeAll(async () => {
+        app = await createApp();
+        user = await createUser({ email: 'anothertest@example.com' });
       });
-
-      const mockParams = createMockBasicKycParams(user);
-
-      await request(app.getHttpServer())
-        .post(`/v1/payments/kyc`)
-        .set(headers)
-        .send(mockParams)
-        .expect(HttpStatus.BAD_REQUEST)
-        .expect(({ body }) => {
-          expect(body.error).toBe('Could not create user payments account');
-          expect(body.message).toBe('test');
-        });
-    });
-  });
-
-  describe('GET - user payment account details', () => {
-    test('Should return the users payment account information', async () => {
-      mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
-      mockGetUser.mockResolvedValueOnce({ body: paymentsAccountCreationSuccess });
-
-      const mockParams = createMockBasicKycParams(user);
-
-      await request(app.getHttpServer())
-        .post(`/v1/payments/kyc`)
-        .set(headers)
-        .send(mockParams)
-        .expect(HttpStatus.CREATED)
-        .expect(({ body }) => {
-          expect(body.status).toBe(HttpStatus.CREATED);
-        });
-
-      await request(app.getHttpServer())
-        .get(`/v1/payments/account`)
-        .set(headers)
-        .expect(HttpStatus.OK)
-        .expect(({ body }) => {
-          expect(body.status).toBe(HttpStatus.OK);
-          expect(body.data).toBeDefined();
-          expect(body.data.user.id).toBe(user.id);
-          expect(body.data.account.User.id).toBe(paymentsAccountCreationSuccess.User.id);
-        });
     });
 
-    test('should throw if no FBO account is found', async () => {
-      mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
-      mockGetUser.mockImplementation(() => {
-        return Promise.reject(
-          new HttpException({ status: HttpStatus.NOT_FOUND }, HttpStatus.NOT_FOUND),
-        );
+    describe('GET - user payment account details', () => {
+      test('Should return the users payment account information', async () => {
+        mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
+        mockGetUser.mockResolvedValueOnce({ body: paymentsAccountCreationSuccess });
+
+        const mockParams = createMockBasicKycParams(user);
+
+        await request(app.getHttpServer())
+          .post(`/v1/payments/kyc`)
+          .set(headers)
+          .send(mockParams)
+          .expect(HttpStatus.CREATED)
+          .expect(({ body }) => {
+            expect(body.status).toBe(HttpStatus.CREATED);
+          });
+
+        await request(app.getHttpServer())
+          .get(`/v1/payments/account`)
+          .set(headers)
+          .expect(HttpStatus.OK)
+          .expect(({ body }) => {
+            // console.log('body', body);
+            expect(body.status).toBe(HttpStatus.OK);
+            expect(body.data).toBeDefined();
+            expect(body.data.user.id).toBe(user.id);
+            expect(body.data.account.User.id).toBe(paymentsAccountCreationSuccess.User.id);
+          });
       });
 
-      const mockParams = createMockBasicKycParams(user);
-      await request(app.getHttpServer())
-        .post(`/v1/payments/kyc`)
-        .set(headers)
-        .send(mockParams)
-        .expect(HttpStatus.CREATED)
-        .expect(({ body }) => {
-          expect(body.status).toBe(HttpStatus.CREATED);
-        });
-
-      await request(app.getHttpServer())
-        .get(`/v1/payments/account`)
-        .set(headers)
-        // .expect(HttpStatus.NOT_FOUND)
-        .expect(({ body }) => {
-          expect(body.status).toBe(HttpStatus.NOT_FOUND);
-          expect(body.error).toBe('Payments Account Not Found');
-          expect(body.message).toBe(
-            `Cannot locate a FBO payments account with account ID -- ${paymentsAccountCreationSuccess.User.id}`,
+      test('should throw if no FBO account is found', async () => {
+        mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
+        mockGetUser.mockImplementation(() => {
+          return Promise.reject(
+            new HttpException({ status: HttpStatus.NOT_FOUND }, HttpStatus.NOT_FOUND),
           );
         });
-    });
 
-    test('Should return NOT_FOUND if there is no payments account associated with the user', async () => {
-      userWithNoAccount = await createUser({ email: 'no-account@example.com' });
-      headers = { Authorization: `Bearer ${generateToken(userWithNoAccount)}` };
-      await request(app.getHttpServer())
-        .get(`/v1/payments/account`)
-        .set(headers)
-        .expect(HttpStatus.NOT_FOUND)
-        .expect(({ body }) => {
-          expect(body.status).toBe(HttpStatus.NOT_FOUND);
-          expect(body.error).toBe('Payments Account Not Found');
-        });
+        const mockParams = createMockBasicKycParams(user);
+        await request(app.getHttpServer())
+          .post(`/v1/payments/kyc`)
+          .set(headers)
+          .send(mockParams)
+          .expect(HttpStatus.CREATED)
+          .expect(({ body }) => {
+            expect(body.status).toBe(HttpStatus.CREATED);
+          });
+
+        await request(app.getHttpServer())
+          .get(`/v1/payments/account`)
+          .set(headers)
+          // .expect(HttpStatus.NOT_FOUND)
+          .expect(({ body }) => {
+            expect(body.status).toBe(HttpStatus.NOT_FOUND);
+            expect(body.error).toBe('Payments Account Not Found');
+            expect(body.message).toBe(
+              `Cannot locate a FBO payments account with account ID -- ${paymentsAccountCreationSuccess.User.id}`,
+            );
+          });
+      });
+
+      test('Should return NOT_FOUND if there is no payments account associated with the user', async () => {
+        userWithNoAccount = await createUser({ email: 'no-account@example.com' });
+        headers = { Authorization: `Bearer ${generateToken(userWithNoAccount)}` };
+        await request(app.getHttpServer())
+          .get(`/v1/payments/account`)
+          .set(headers)
+          .expect(HttpStatus.NOT_FOUND)
+          .expect(({ body }) => {
+            expect(body.status).toBe(HttpStatus.NOT_FOUND);
+            expect(body.error).toBe('Payments Account Not Found');
+          });
+      });
     });
   });
 });
