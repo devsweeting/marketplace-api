@@ -179,9 +179,45 @@ describe('Service', () => {
     });
 
     test('should throw if no payments account exists', async () => {
-      // This tests requires a payments account account to exist locally but not have one externally,
-      // resulting in a Not found error from payments account
-      test.todo;
+      mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
+      await service.submitKYC(
+        {
+          first_name: 'test',
+          last_name: 'mcTestFace',
+          email: user.email,
+          phone_numbers: '123-123-1344',
+          mailing_address: realAddress,
+          date_of_birth: realBirthday,
+          gender: 'F',
+        },
+        user,
+        '0.0.0.0',
+      );
+      mockGetUser.mockImplementation(() => {
+        return Promise.reject(
+          new HttpException(
+            {
+              status: HttpStatus.BAD_REQUEST,
+              data: {
+                error: {
+                  en: 'test error',
+                },
+              },
+            },
+            HttpStatus.BAD_REQUEST,
+          ),
+        );
+      });
+      try {
+        await service.getPaymentAccountDetails(user);
+      } catch (error) {
+        expect(error).toBeInstanceOf(UserPaymentsAccountNotFound);
+        expect(error.response.message).toContain(
+          'Something went wrong locating FBO payments account with ID',
+        );
+        return;
+      }
+      throw new Error('Error did not throw');
     });
 
     test('should return payments account data ', async () => {
@@ -305,6 +341,32 @@ describe('Service', () => {
         '0.0.0.0',
       );
       expect(account.msg).toEqual(`Payments account already exists for user -- ${user.id}`);
+    });
+  });
+  describe('updateUserPermissions', () => {
+    test('should update the users permissions', async () => {
+      mockGetUser.mockResolvedValue({ body: paymentsAccountCreationSuccess });
+      updateUser.mockResolvedValue({ body: { status: HttpStatus.OK } });
+      mockGetUser.mockResolvedValue({ body: paymentsAccountCreationSuccess });
+
+      await service.submitKYC(
+        {
+          first_name: 'test',
+          last_name: 'mcTestFace',
+          email: user.email,
+          phone_numbers: '123-123-1344',
+          mailing_address: realAddress,
+          date_of_birth: realBirthday,
+          gender: 'F',
+        },
+        user,
+        '0.0.0.0',
+      );
+      const result = await service.updateUserPermission(user, 'VERIFIED', 'USER_REQUEST');
+      expect(result).toMatchObject({
+        status: HttpStatus.OK,
+        message: 'Updated user permissions',
+      });
     });
   });
 });
