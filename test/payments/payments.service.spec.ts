@@ -214,13 +214,9 @@ describe('Service', () => {
           new HttpException(
             {
               status: HttpStatus.BAD_REQUEST,
-              response: {
-                data: {
-                  message: {
-                    error: {
-                      en: 'test error',
-                    },
-                  },
+              data: {
+                error: {
+                  en: 'test error',
                 },
               },
             },
@@ -228,7 +224,6 @@ describe('Service', () => {
           ),
         );
       });
-      // mockGetUser.mockResolvedValueOnce({ body: paymentsAccountCreationSuccess });
 
       const blankMailingAddress = new VerifyAddressDto();
       const blankDateOfBirth = new DateOfBirthDto();
@@ -259,6 +254,8 @@ describe('Service', () => {
     });
 
     test('should successfully create an account for a new user', async () => {
+      mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValueOnce({ body: paymentsAccountCreationSuccess });
       const account = await service.submitKYC(
         {
           first_name: 'test',
@@ -277,6 +274,8 @@ describe('Service', () => {
     });
 
     test('should fail if user already exists', async () => {
+      mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValueOnce({ body: paymentsAccountCreationSuccess });
       // Create the user
       await service.submitKYC(
         {
