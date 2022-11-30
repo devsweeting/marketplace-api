@@ -80,13 +80,6 @@ describe('Create payments account e2e', () => {
     });
 
     describe('GET - user payment account details', () => {
-      beforeAll(async () => {
-        app = await createApp();
-        user = await createUser({ email: 'anothertest@example.com' });
-      });
-    });
-
-    describe('GET - user payment account details', () => {
       test('Should return the users payment account information', async () => {
         mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
         mockGetUser.mockResolvedValueOnce({ body: paymentsAccountCreationSuccess });

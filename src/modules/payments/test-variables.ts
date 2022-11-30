@@ -97,11 +97,69 @@ export const account303: IPaymentsAccountResponse = {
   } as UserPaymentsAccount,
 };
 
-const synapseRefreshTokenFailedExample = {
+export const synapseRefreshTokenFailedExample = {
   message: 'Payment Provider OAuth Request Failed',
   status: '409',
   error: {
     code: 'invalid_filter_refresh_token',
     en: "Unable to locate refresh token object with filter {'refresh_token': 'refresh_TNF7QRbKJhp8D6OqniekxU0vac1LuHZAtP3BslzY'}",
   },
+};
+
+export const synapseNewDepositAccountSuccess = {
+  error_code: '0',
+  http_code: '200',
+  limit: 20,
+  node_count: 1,
+  nodes: [
+    {
+      _id: '6387c157316d2a55f98b37ae',
+      _links: {
+        self: {
+          href: 'https://uat-api.synapsefi.com/v3.1/users/6387c146dfa0a5a8529a7e47/nodes/6387c157316d2a55f98b37ae',
+        },
+      },
+      allowed: 'CREDIT-AND-DEBIT',
+      allowed_status_code: null,
+      client: {
+        id: '633b6ad32c1ba741996ebe0b',
+        name: 'Jump Co',
+      },
+      extra: {
+        note: null,
+        other: {
+          ib_residual: 0,
+        },
+        supp_id: '',
+      },
+      info: {
+        agreements: [
+          {
+            type: 'NODE_AGREEMENT',
+            url: 'https://cdn.synapsepay.com/uploads/2022/11/30/Vd4tDZHMemgpwKPO9ALIJN2B08ojSz5EaW0lvcFk7GTiqQ3fUR.pdf',
+          },
+        ],
+        balance: {
+          amount: 0,
+          currency: 'USD',
+          interest: 0,
+        },
+        bank_code: 'EBT',
+        document_id: 'b8f64a3cdc1d3ed5e218bc6de9725650dd771bdfd607038476864b5ab1fe4644',
+        name_on_account: ' ',
+        nickname: 'insert name Deposit Account',
+      },
+      is_active: true,
+      timeline: [
+        {
+          date: 1669841227397,
+          note: 'Node created.',
+        },
+      ],
+      type: 'IC-DEPOSIT-US',
+      user_id: '6387c146dfa0a5a8529a7e47',
+    },
+  ],
+  page_count: 1,
+  success: true,
 };

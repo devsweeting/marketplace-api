@@ -86,9 +86,21 @@ export class PaymentsController {
     @ValidateFormBody() submitKycDto: BasicKycDto,
     @GetUser() user: User,
     @Ip() ip_address: Ipv4Address,
-  ): Promise<IPaymentsAccountResponse> {
+    @Headers() headers: Headers,
+  ): Promise<{ response: IPaymentsAccountResponse; newDepositHub }> {
     const response = await this.paymentsService.submitKYC(submitKycDto, user, ip_address);
-    return response;
+    console.log('account created response', response);
+
+    let newDepositHub = null;
+    if (response.status === HttpStatus.CREATED) {
+      newDepositHub = await this.paymentsService.createDepositAccount(
+        response.account,
+        headers,
+        ip_address,
+      );
+      console.log('newDepositHub created', newDepositHub);
+    }
+    return { response, newDepositHub };
   }
 
   @ApiBody({
@@ -112,19 +124,19 @@ export class PaymentsController {
     return response;
   }
 
-  @Get('node')
-  @ApiResponse({
-    status: HttpStatus.OK,
-  })
-  @UseGuards(JwtOtpAuthGuard)
-  public async getNodes(
-    @GetUser() user: User,
-    @Headers() headers: Headers,
-    @Ip() ip: string,
-  ): Promise<any> {
-    // console.log('headers', headers);
-    // console.log('ip', ip);
-    const data = await this.paymentsService.createNode(user, headers, ip);
-    return data;
-  }
+  // @Get('node')
+  // @ApiResponse({
+  //   status: HttpStatus.OK,
+  // })
+  // @UseGuards(JwtOtpAuthGuard)
+  // public async getNodes(
+  //   @GetUser() user: User,
+  //   @Headers() headers: Headers,
+  //   @Ip() ip: string,
+  // ): Promise<any> {
+  //   // console.log('headers', headers);
+  //   // console.log('ip', ip);
+  //   const data = await this.paymentsService.createDepositAccount(user, headers, ip);
+  //   return data;
+  // }
 }

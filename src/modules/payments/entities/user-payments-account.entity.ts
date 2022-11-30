@@ -18,19 +18,19 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
   public user?: User;
 
   @Column({
-    length: 50,
+    length: 24,
     nullable: true,
   })
   public userAccountId: string;
 
   @Column({
-    length: 50,
+    length: 64,
     nullable: true,
   })
   public depositNodeId: string;
 
   @Column({
-    length: 70,
+    length: 64,
     nullable: true,
   })
   public baseDocumentId: string;
@@ -47,6 +47,7 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
 
   @Exclude()
   @Column({
+    length: 48,
     nullable: true,
   })
   public refreshToken: string;
@@ -76,12 +77,13 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
     });
   }
 
-  static async updatePaymentAccount(
+  static async updateDetailsOnDepositAccountCreation(
     userAccountId: string,
-    tokens: Partial<UserPaymentsAccount>,
-    baseDocumentId: string,
-    depositNodeId?: string,
+    tokens: { oauthKey: string; oauthKeyExpiresAt: string; refreshToken: string },
+    depositNodeId: string,
   ): Promise<UserPaymentsAccount> {
+    console.log('variables', userAccountId, tokens);
+    console.log('depositNodeId', depositNodeId);
     const account = await this.findAccountByAccountId(userAccountId);
     console.log('Before', account);
 
@@ -90,7 +92,6 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
       oauthKey: tokens.oauthKey,
       oauthKeyExpiresAt: tokens.oauthKeyExpiresAt,
       refreshToken: tokens.refreshToken,
-      baseDocumentId,
       depositNodeId,
     });
   }

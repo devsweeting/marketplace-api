@@ -21,14 +21,18 @@ import {
   IUserPaymentAccountResponse,
   IPaymentsAccountResponse,
 } from '../interfaces/create-account';
-import { ISynapseBaseDocuments } from '../interfaces/synapse-node';
 import {
-  createDepositNode,
-  createUserParams,
-  getOAuthKey,
-  getUserPaymentAccountDetails,
-  initializeUserClient,
-} from '../util/helper';
+  IDepositNodeResponse,
+  IPermissionCodes,
+  ISynapseAccountResponse,
+  ISynapseBaseDocuments,
+} from '../interfaces/synapse-node';
+import { createUserParams, initializeSynapseUserClient } from '../util/kyc-helper';
+import {
+  createSynapseDepositHub,
+  getSynapseOAuthKey,
+  viewSynapseUserDetails,
+} from '../util/node-helper';
 
 @Injectable()
 export class PaymentsService extends BaseService {
@@ -84,7 +88,7 @@ export class PaymentsService extends BaseService {
     const accountId = paymentAccount.paymentsAccount.userAccountId;
 
     //Query Synapse API for full account details
-    const paymentAccountDetail = await getUserPaymentAccountDetails(this.client, accountId);
+    const paymentAccountDetail = await viewSynapseUserDetails(this.client, accountId);
 
     return {
       status: HttpStatus.OK,
@@ -111,7 +115,7 @@ export class PaymentsService extends BaseService {
     //Generate params to create new payments account;
     const accountUserParams = createUserParams(user.id, bodyParams, ip_address);
     //Create new FBO payments account with Synapse
-    const newAccount = await this.client
+    const newAccount: ISynapseAccountResponse = await this.client
       .createUser(accountUserParams, ip_address, {})
       .then((data) => {
         return data.body;
@@ -122,6 +126,8 @@ export class PaymentsService extends BaseService {
           throw new PaymentsAccountCreationFailed(err.response.data);
         }
       });
+
+    //
     //Associate the new payment FBO details with the user:
     const newPaymentsAccount = await UserPaymentsAccount.create({
       userId: user.id,
@@ -129,9 +135,9 @@ export class PaymentsService extends BaseService {
       depositNodeId: null,
       refreshToken: newAccount.refresh_token,
       permission: newAccount.permission as IPermissions,
-      permissionCode: newAccount.permission_code,
-      oauthKey: newAccount.oauth_key, //TODO check and verify in tests
-      baseDocumentId: null, //TODO: add base_document_id to entity
+      permissionCode: newAccount.permission_code as IPermissionCodes,
+      oauthKey: newAccount.oauth_key, //TODO update test
+      baseDocumentId: newAccount.documents[0].id, //TODO update test
     }).save();
 
     Logger.log(
@@ -145,6 +151,32 @@ export class PaymentsService extends BaseService {
       msg: `Payments account created for user -- ${user.id}`,
       account: newPaymentsAccount,
     };
+  }
+
+  public async createDepositAccount(
+    paymentAccount: UserPaymentsAccount,
+    headers: object,
+    ip_address: string,
+  ): Promise<IDepositNodeResponse> {
+    const { userAccountId, refreshToken, baseDocumentId } = paymentAccount;
+    //Initialize the client to communicate with the Payments Provider API
+    const userClient = initializeSynapseUserClient(userAccountId, headers, ip_address, this.client);
+
+    //Retrieve oauth token to make actions on behalf of the user.
+    const tokens = await getSynapseOAuthKey(userClient, refreshToken);
+
+    //Create the first node, or deposit hub.
+    const depositHub = await createSynapseDepositHub(userClient, baseDocumentId);
+
+    //Update tokens and other pertinent account details for future reference.
+    const updatedAccount = await UserPaymentsAccount.updateDetailsOnDepositAccountCreation(
+      userAccountId,
+      tokens,
+      depositHub.nodes[0]._id,
+    );
+    console.log('Updated account', updatedAccount);
+
+    return depositHub;
   }
 
   public async updateKyc(
@@ -208,38 +240,4 @@ export class PaymentsService extends BaseService {
     }
     return response;
   }
-
-  public async createNode(user: User, headers: object, ip_address: string): Promise<any> {
-    //Get our user's saved account data
-    const paymentAccount = await this.getUserPaymentsAccount(user.id);
-    const { refreshToken, userAccountId } = paymentAccount.paymentsAccount;
-
-    const paymentAccountDetail = await getUserPaymentAccountDetails(this.client, userAccountId);
-    const base_document_id = paymentAccountDetail.documents[0].id;
-
-    //initialize the synapse user client to communicate with the synapse API
-    const userClient = initializeUserClient(userAccountId, headers, ip_address, this.client);
-
-    //get our oauth token to make actions on behalf of the user
-    const tokens = await getOAuthKey(userClient, refreshToken);
-
-    //create the first node, or deposit hub
-    const depositHub = await createDepositNode(userClient);
-
-    console.log('node', depositHub);
-
-    //update the oauth in the user model for future uses
-    const updatedAccount = await UserPaymentsAccount.updatePaymentAccount(
-      userAccountId,
-      tokens,
-      base_document_id,
-      depositHub.nodes[0]._id,
-    );
-    console.log('after update:', updatedAccount);
-
-    // // console.log('node', node);
-    return 'sqwah';
-  }
-  // return userPaymentsAccount;
-  // }
 }

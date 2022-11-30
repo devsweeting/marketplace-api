@@ -38,7 +38,50 @@ export interface ISynapseAccountResponse {
   watchlists?: IWatchlistValue;
   documents?: ISynapseBaseDocuments[];
   ips?: string[];
+  host?: string;
+  fingerprint?: string;
+  ip_address?: string;
+  oauth_key?: string;
 }
+
+export const paymentsAccountCreationSuccess = {
+  User: {
+    id: '63603d35b174c5e009cda55c',
+    body: {
+      _id: '63603d35b174c5e009cda55c',
+      _links: { self: [Object] },
+      account_closure_date: null,
+      client: { id: '63482ed8a8a19aa7d2ca520f', name: 'Devin Sweeting' },
+      documents: [[Object]],
+      emails: [],
+      extra: {
+        cip_tag: 1,
+        date_joined: 1667251508669,
+        extra_security: false,
+        is_business: false,
+        is_trusted: false,
+        last_updated: 1667251508669,
+        public_note: null,
+        supp_id: '122eddfgbeafrfvbbb',
+      },
+      flag: 'NOT-FLAGGED',
+      flag_code: null,
+      is_hidden: false,
+      legal_names: ['Devin Sweetums'],
+      logins: [[Object]],
+      permission: 'UNVERIFIED',
+      permission_code: null,
+      phone_numbers: ['202.762.1401'],
+      photos: [],
+      refresh_token: 'refresh_AtHCUXcWdyZl2bVs3zGS7h59IDw4LnMYi1poTv0B',
+      watchlists: 'PENDING',
+    },
+    host: 'https://uat-api.synapsefi.com/v3.1',
+    fingerprint: 'e83cf6ddcf778e37bfe3d48fc78a6502062fc',
+    ip_address: '::ffff:172.18.0.1',
+    oauth_key: 'oauth_zDsa7K89EUpLHGgJrRcmbSvAVdw0TFhCkOQ3en0u',
+  },
+};
 
 export interface ISynapseBaseDocuments {
   id?: string;
@@ -541,4 +584,71 @@ export interface IGetOAuthHeadersResponse {
   refresh_token: string;
   scope: IPermissionsScope[];
   user_id: string;
+}
+
+export interface IDepositNodeRequest {
+  type: 'IC-DEPOSIT-US';
+  info: {
+    nickname: string; //consider more dynamic name
+    document_id: string;
+  };
+  preview_only: boolean;
+}
+
+export interface IDepositNodeResponse {
+  error_code: string;
+  http_code: string;
+  limit: number;
+  node_count: number;
+  nodes: [
+    {
+      _id: string;
+      _links: {
+        self: {
+          href: string;
+        };
+      };
+      allowed: string;
+      allowed_status_code: string | null;
+      client: {
+        id: string;
+        name: 'Jump Co';
+      };
+      extra: {
+        note: null;
+        other: {
+          ib_residual: number;
+        };
+        supp_id: string;
+      };
+      info: {
+        agreements: [
+          {
+            type: 'NODE_AGREEMENT';
+            url: string;
+          },
+        ];
+        balance: {
+          amount: number;
+          currency: 'USD';
+          interest: number;
+        };
+        bank_code: 'EBT';
+        document_id: string;
+        name_on_account: string;
+        nickname: string;
+      };
+      is_active: true;
+      timeline: [
+        {
+          date: number;
+          note: 'Node created.';
+        },
+      ];
+      type: 'IC-DEPOSIT-US';
+      user_id: string;
+    },
+  ];
+  page_count: number;
+  success: boolean;
 }
