@@ -9,6 +9,7 @@ import { PaymentsAccountCreationFailed } from 'modules/payments/exceptions/accou
 import { UserPaymentsAccountNotFound as UserPaymentsAccountNotFound } from 'modules/payments/exceptions/user-account-verification-failed.exception';
 import { PaymentsService } from 'modules/payments/providers/payments.service';
 import { paymentsAccountCreationSuccess } from 'modules/payments/test-variables';
+import { IPaymentsAccountResponse } from 'modules/payments/interfaces/create-account';
 
 let app: INestApplication;
 let service: PaymentsService;
@@ -41,6 +42,22 @@ const realBirthday = {
   day: 1,
   month: 1,
   year: 1990,
+};
+
+const createGenericKycAccount = async (): Promise<IPaymentsAccountResponse> => {
+  return await service.submitKYC(
+    {
+      first_name: 'test',
+      last_name: 'mcTestFace',
+      email: user.email,
+      phone_numbers: '123-123-1344',
+      mailing_address: realAddress,
+      date_of_birth: realBirthday,
+      gender: 'F',
+    },
+    user,
+    '0.0.0.0',
+  );
 };
 
 beforeAll(async () => {
@@ -179,20 +196,8 @@ describe('Service', () => {
     });
 
     test('should throw if no payments account exists', async () => {
-      mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
-      await service.submitKYC(
-        {
-          first_name: 'test',
-          last_name: 'mcTestFace',
-          email: user.email,
-          phone_numbers: '123-123-1344',
-          mailing_address: realAddress,
-          date_of_birth: realBirthday,
-          gender: 'F',
-        },
-        user,
-        '0.0.0.0',
-      );
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      await createGenericKycAccount();
       mockGetUser.mockImplementation(() => {
         return Promise.reject(
           new HttpException(
@@ -221,22 +226,10 @@ describe('Service', () => {
     });
 
     test('should return payments account data ', async () => {
-      mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
-      mockGetUser.mockResolvedValueOnce({ body: paymentsAccountCreationSuccess });
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValue({ body: paymentsAccountCreationSuccess });
 
-      await service.submitKYC(
-        {
-          first_name: 'test',
-          last_name: 'mcTestFace',
-          email: user.email,
-          phone_numbers: '123-123-1344',
-          mailing_address: realAddress,
-          date_of_birth: realBirthday,
-          gender: 'F',
-        },
-        user,
-        '0.0.0.0',
-      );
+      await createGenericKycAccount();
       const userDetails = await service.getPaymentAccountDetails(user);
       expect(userDetails.status).toEqual(HttpStatus.OK);
       //TODO possibly add more expect() to ensure that the data is returned exactly as we suspect
@@ -290,78 +283,32 @@ describe('Service', () => {
     });
 
     test('should successfully create an account for a new user', async () => {
-      mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
-      mockGetUser.mockResolvedValueOnce({ body: paymentsAccountCreationSuccess });
-      const account = await service.submitKYC(
-        {
-          first_name: 'test',
-          last_name: 'mcTestFace',
-          email: user.email,
-          phone_numbers: '123-123-1344',
-          mailing_address: realAddress,
-          date_of_birth: realBirthday,
-          gender: 'F',
-        },
-        user,
-        '0.0.0.0',
-      );
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValue({ body: paymentsAccountCreationSuccess });
+      const account = await createGenericKycAccount();
       expect(account.account.userId).toEqual(user.id);
       expect(account.msg).toEqual(`Payments account created for user -- ${user.id}`);
     });
 
     test('should fail if user already exists', async () => {
-      mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
-      mockGetUser.mockResolvedValueOnce({ body: paymentsAccountCreationSuccess });
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValue({ body: paymentsAccountCreationSuccess });
       // Create the user
-      await service.submitKYC(
-        {
-          first_name: 'test',
-          last_name: 'mcTestFace',
-          email: user.email,
-          phone_numbers: '123-123-1344',
-          mailing_address: realAddress,
-          date_of_birth: realBirthday,
-          gender: 'F',
-        },
-        user,
-        '0.0.0.0',
-      );
+      await createGenericKycAccount();
       // try to recreate the existing user
-      const account = await service.submitKYC(
-        {
-          first_name: 'test',
-          last_name: 'mcTestFace',
-          email: user.email,
-          phone_numbers: '123-123-1344',
-          mailing_address: realAddress,
-          date_of_birth: realBirthday,
-          gender: 'F',
-        },
-        user,
-        '0.0.0.0',
-      );
+      const account = await createGenericKycAccount();
       expect(account.msg).toEqual(`Payments account already exists for user -- ${user.id}`);
     });
   });
   describe('updateUserPermissions', () => {
     test('should update the users permissions', async () => {
-      mockGetUser.mockResolvedValue({ body: paymentsAccountCreationSuccess });
-      updateUser.mockResolvedValue({ body: { status: HttpStatus.OK } });
-      mockGetUser.mockResolvedValue({ body: paymentsAccountCreationSuccess });
-
-      await service.submitKYC(
-        {
-          first_name: 'test',
-          last_name: 'mcTestFace',
-          email: user.email,
-          phone_numbers: '123-123-1344',
-          mailing_address: realAddress,
-          date_of_birth: realBirthday,
-          gender: 'F',
-        },
-        user,
-        '0.0.0.0',
-      );
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValue({ body: paymentsAccountCreationSuccess, updateUser });
+      updateUser.mockResolvedValueOnce({
+        status: HttpStatus.OK,
+        body: { status: HttpStatus.OK },
+      });
+      await createGenericKycAccount();
       const result = await service.updateUserPermission(user, 'VERIFIED', 'USER_REQUEST');
       expect(result).toMatchObject({
         status: HttpStatus.OK,
