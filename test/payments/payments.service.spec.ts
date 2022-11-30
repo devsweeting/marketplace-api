@@ -10,6 +10,8 @@ import { UserPaymentsAccountNotFound as UserPaymentsAccountNotFound } from 'modu
 import { PaymentsService } from 'modules/payments/providers/payments.service';
 import { paymentsAccountCreationSuccess } from 'modules/payments/test-variables';
 import { IPaymentsAccountResponse } from 'modules/payments/interfaces/create-account';
+import { IPermissionCodes } from 'modules/payments/interfaces/synapse-node';
+import { AccountPatchError } from 'modules/payments/exceptions/account-patch-failure.exception';
 
 let app: INestApplication;
 let service: PaymentsService;
@@ -57,6 +59,20 @@ const createGenericKycAccount = async (): Promise<IPaymentsAccountResponse> => {
     },
     user,
     '0.0.0.0',
+  );
+};
+
+const synapseStyledError = (status: HttpStatus, msg?: string) => {
+  return new HttpException(
+    {
+      status: status,
+      data: {
+        error: {
+          en: msg ?? 'test error',
+        },
+      },
+    },
+    status,
   );
 };
 
@@ -199,19 +215,7 @@ describe('Service', () => {
       mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
       await createGenericKycAccount();
       mockGetUser.mockImplementation(() => {
-        return Promise.reject(
-          new HttpException(
-            {
-              status: HttpStatus.BAD_REQUEST,
-              data: {
-                error: {
-                  en: 'test error',
-                },
-              },
-            },
-            HttpStatus.BAD_REQUEST,
-          ),
-        );
+        return Promise.reject(synapseStyledError(HttpStatus.BAD_REQUEST));
       });
       try {
         await service.getPaymentAccountDetails(user);
@@ -232,26 +236,13 @@ describe('Service', () => {
       await createGenericKycAccount();
       const userDetails = await service.getPaymentAccountDetails(user);
       expect(userDetails.status).toEqual(HttpStatus.OK);
-      //TODO possibly add more expect() to ensure that the data is returned exactly as we suspect
     });
   });
 
   describe('createUserAccount', () => {
     test('should throw an error if account is missing credentials', async () => {
       mockCreateUser.mockImplementation(() => {
-        return Promise.reject(
-          new HttpException(
-            {
-              status: HttpStatus.BAD_REQUEST,
-              data: {
-                error: {
-                  en: 'test error',
-                },
-              },
-            },
-            HttpStatus.BAD_REQUEST,
-          ),
-        );
+        return Promise.reject(synapseStyledError(HttpStatus.BAD_REQUEST));
       });
 
       const blankMailingAddress = new VerifyAddressDto();
@@ -300,6 +291,7 @@ describe('Service', () => {
       expect(account.msg).toEqual(`Payments account already exists for user -- ${user.id}`);
     });
   });
+
   describe('updateUserPermissions', () => {
     test('should update the users permissions', async () => {
       mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
@@ -310,6 +302,47 @@ describe('Service', () => {
       });
       await createGenericKycAccount();
       const result = await service.updateUserPermission(user, 'VERIFIED', 'USER_REQUEST');
+      expect(result).toMatchObject({
+        status: HttpStatus.OK,
+        message: 'Updated user permissions',
+      });
+    });
+
+    test('should throw error if incorect permission is set', async () => {
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValue({ body: paymentsAccountCreationSuccess, updateUser });
+      updateUser.mockImplementation(() => {
+        return Promise.reject(
+          synapseStyledError(
+            HttpStatus.BAD_REQUEST,
+            "'FAKE_VALUE' is not one of ..Failed validating 'enum' in schema['properties']['permission_code']:",
+          ),
+        );
+      });
+      await createGenericKycAccount();
+      await expect(async () => {
+        await service.updateUserPermission(user, 'VERIFIED', 'FAKE_VALUE' as IPermissionCodes);
+      }).rejects.toThrow(
+        new AccountPatchError({
+          error: {
+            en: "'FAKE_VALUE' is not one of ..Failed validating 'enum' in schema['properties']['permission_code']:",
+            code: '',
+          },
+        }),
+      );
+    });
+  });
+
+  describe('closeUser', () => {
+    test('should update a user to closed', async () => {
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValue({ body: paymentsAccountCreationSuccess, updateUser });
+      updateUser.mockResolvedValueOnce({
+        status: HttpStatus.OK,
+        body: { status: HttpStatus.OK },
+      });
+      await createGenericKycAccount();
+      const result = await service.closeUser(user);
       expect(result).toMatchObject({
         status: HttpStatus.OK,
         message: 'Updated user permissions',

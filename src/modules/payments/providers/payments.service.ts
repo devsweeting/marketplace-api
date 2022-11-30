@@ -194,7 +194,7 @@ export class PaymentsService extends BaseService {
     return response;
   }
 
-  public async closeUser(user: User): Promise<any> {
+  public async closeUser(user: User): Promise<{ status: HttpStatus; message: string }> {
     return await this.updateUserPermission(user, 'CLOSED', 'USER_REQUEST');
   }
 
@@ -202,13 +202,20 @@ export class PaymentsService extends BaseService {
     user: User,
     permission: IPermissions,
     permissionCode: IPermissionCodes,
-  ): Promise<any> {
+  ): Promise<{ status: HttpStatus; message: string }> {
     const paymentsUser = await this.getExternalAccountFromUser(user);
 
-    const res = await paymentsUser.updateUser({
-      permission: permission,
-      permission_code: permissionCode,
-    });
+    const res = await paymentsUser
+      .updateUser({
+        permission: permission,
+        permission_code: permissionCode,
+      })
+      .then((data) => {
+        return data;
+      })
+      .catch((error) => {
+        throw new AccountPatchError(error.response?.data);
+      });
 
     if (res.status == HttpStatus.OK) {
       Logger.log(
@@ -221,7 +228,7 @@ export class PaymentsService extends BaseService {
     }
     return {
       status: res.status,
-      message: '',
+      message: res.data?.message,
     };
   }
 
