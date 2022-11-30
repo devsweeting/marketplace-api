@@ -16,7 +16,6 @@ import { AddressVerificationFailedException } from '../exceptions/address-verifi
 import { BaseDocumentError } from '../exceptions/base-document-error-exception';
 import { UserPaymentsAccountNotFound } from '../exceptions/user-account-verification-failed.exception';
 import {
-  IPermissions,
   IAddressResponse,
   IUserPaymentAccountResponse,
   IPaymentsAccountResponse,
@@ -24,6 +23,7 @@ import {
 import {
   IDepositNodeResponse,
   IPermissionCodes,
+  IPermissions,
   ISynapseAccountResponse,
   ISynapseBaseDocuments,
 } from '../interfaces/synapse-node';
@@ -185,24 +185,8 @@ export class PaymentsService extends BaseService {
     ip_address: Ipv4Address,
   ): Promise<{ status: httpstatus; msg: string }> {
     //check local DB to see if synapse account exists
-    const userPaymentsAccount = await this.getUserPaymentsAccount(user.id);
-
-    if (!userPaymentsAccount) {
-      throw new UserPaymentsAccountNotFound();
-    }
-
-    // check synapse database for account
-    let paymentsUser: PaymentsUser;
+    const paymentsUser = await this.getExternalAccountFromUser(user);
     let baseDocument: ISynapseBaseDocuments;
-    try {
-      paymentsUser = await this.client.getUser(
-        userPaymentsAccount.paymentsAccount.userAccountId,
-        {},
-      );
-    } catch (error) {
-      throw new UserPaymentsAccountNotFound();
-    }
-
     try {
       baseDocument = paymentsUser.body.documents[0];
     } catch (error) {
@@ -220,7 +204,7 @@ export class PaymentsService extends BaseService {
       .updateUser(updatePaymentAccountParams)
       .then((data: any) => {
         Logger.log(
-          `FBO payments account(${userPaymentsAccount.id}) successfully updated for user -- ${user.id}`,
+          `FBO payments account(${paymentsUser.id}) successfully updated for user -- ${user.id}`,
         );
         if (!data) {
           return undefined;
@@ -239,5 +223,63 @@ export class PaymentsService extends BaseService {
       throw new AccountPatchError({ error: { en: 'Something went wrong', code: '' } });
     }
     return response;
+  }
+
+  public async closeUser(user: User): Promise<{ status: HttpStatus; message: string }> {
+    return await this.updateUserPermission(user, 'CLOSED', 'USER_REQUEST');
+  }
+
+  public async updateUserPermission(
+    user: User,
+    permission: IPermissions,
+    permissionCode: IPermissionCodes,
+  ): Promise<{ status: HttpStatus; message: string }> {
+    const paymentsUser = await this.getExternalAccountFromUser(user);
+
+    const res = await paymentsUser
+      .updateUser({
+        permission: permission,
+        permission_code: permissionCode,
+      })
+      .then((data) => {
+        return data;
+      })
+      .catch((error) => {
+        throw new AccountPatchError(error.response?.data);
+      });
+
+    if (res.status == HttpStatus.OK) {
+      Logger.log(
+        `FBO payments account(${paymentsUser.id}) successfully updated with permission ${permission} reason ${permissionCode} for user -- ${user.id}`,
+      );
+      return {
+        status: res.status,
+        message: 'Updated user permissions',
+      };
+    }
+    return {
+      status: res.status,
+      message: res.data?.message,
+    };
+  }
+
+  public async getExternalAccountFromUser(user: User): Promise<PaymentsUser> {
+    const userPaymentsAccount = await this.getUserPaymentsAccount(user.id);
+
+    if (!userPaymentsAccount) {
+      throw new UserPaymentsAccountNotFound();
+    }
+
+    // check synapse database for account
+    let paymentsUser: PaymentsUser;
+    try {
+      paymentsUser = await this.client.getUser(
+        userPaymentsAccount.paymentsAccount.userAccountId,
+        {},
+      );
+    } catch (error) {
+      throw new UserPaymentsAccountNotFound();
+    }
+    return paymentsUser;
   }
 }

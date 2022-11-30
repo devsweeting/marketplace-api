@@ -123,20 +123,4 @@ export class PaymentsController {
     const response = await this.paymentsService.updateKyc(submitKycDto, user, ip_address);
     return response;
   }
-
-  // @Get('node')
-  // @ApiResponse({
-  //   status: HttpStatus.OK,
-  // })
-  // @UseGuards(JwtOtpAuthGuard)
-  // public async getNodes(
-  //   @GetUser() user: User,
-  //   @Headers() headers: Headers,
-  //   @Ip() ip: string,
-  // ): Promise<any> {
-  //   // console.log('headers', headers);
-  //   // console.log('ip', ip);
-  //   const data = await this.paymentsService.createDepositAccount(user, headers, ip);
-  //   return data;
-  // }
 }
