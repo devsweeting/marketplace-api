@@ -1,4 +1,4 @@
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpException, HttpStatus, INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '../utils/app.utils';
 import { AddressVerificationFailedException } from 'modules/payments/exceptions/address-verification-failed.exception';
 import { User } from 'modules/users/entities';
@@ -8,10 +8,30 @@ import { VerifyAddressDto } from 'modules/payments/dto/verify-address.dto';
 import { PaymentsAccountCreationFailed } from 'modules/payments/exceptions/account-creation-failure.exception';
 import { UserPaymentsAccountNotFound as UserPaymentsAccountNotFound } from 'modules/payments/exceptions/user-account-verification-failed.exception';
 import { PaymentsService } from 'modules/payments/providers/payments.service';
+import { paymentsAccountCreationSuccess } from 'modules/payments/test-variables';
+import { IPaymentsAccountResponse } from 'modules/payments/interfaces/create-account';
+import { IPermissionCodes } from 'modules/payments/interfaces/synapse-node';
+import { AccountPatchError } from 'modules/payments/exceptions/account-patch-failure.exception';
 
 let app: INestApplication;
 let service: PaymentsService;
 let user: User;
+const mockVerifyAddress = jest.fn();
+const mockCreateUser = jest.fn();
+const mockGetUser = jest.fn();
+const updateUser = jest.fn();
+jest.mock('synapsenode', () => {
+  return {
+    Client: jest.fn().mockImplementation(() => ({
+      createUser: mockCreateUser,
+      getUser: mockGetUser,
+      verifyAddress: mockVerifyAddress,
+    })),
+    User: jest.fn().mockImplementation(() => ({ updateUser: updateUser })),
+    PaymentsUser: jest.fn().mockImplementation(() => ({ updateUser: updateUser })),
+  };
+});
+
 const realAddress = {
   address_street: '1 Market St.',
   address_city: 'SF',
@@ -24,6 +44,36 @@ const realBirthday = {
   day: 1,
   month: 1,
   year: 1990,
+};
+
+const createGenericKycAccount = async (): Promise<IPaymentsAccountResponse> => {
+  return await service.submitKYC(
+    {
+      first_name: 'test',
+      last_name: 'mcTestFace',
+      email: user.email,
+      phone_numbers: '123-123-1344',
+      mailing_address: realAddress,
+      date_of_birth: realBirthday,
+      gender: 'F',
+    },
+    user,
+    '0.0.0.0',
+  );
+};
+
+const synapseStyledError = (status: HttpStatus, msg?: string) => {
+  return new HttpException(
+    {
+      status: status,
+      data: {
+        error: {
+          en: msg ?? 'test error',
+        },
+      },
+    },
+    status,
+  );
 };
 
 beforeAll(async () => {
@@ -47,6 +97,25 @@ afterAll(async () => {
 describe('Service', () => {
   describe('verifyAddress', () => {
     test('should first verify address', async () => {
+      mockVerifyAddress.mockResolvedValue({
+        data: {
+          deliverability: 'deliverable_missing_unit',
+          deliverability_analysis: {
+            partial_valid: true,
+            primary_number_invalid: false,
+            primary_number_missing: false,
+            secondary_invalid: false,
+            secondary_missing: true,
+          },
+          normalized_address: {
+            address_city: 'SAN FRANCISCO',
+            address_country_code: 'US',
+            address_postal_code: '94105',
+            address_street: '1 MARKET ST',
+            address_subdivision: 'CA',
+          },
+        },
+      });
       const address = await service.verifyAddress({
         address_street: '1 Market St.',
         address_city: 'SF',
@@ -74,6 +143,19 @@ describe('Service', () => {
     });
 
     test('should first verify address', async () => {
+      mockVerifyAddress.mockResolvedValue({
+        data: {
+          deliverability: 'error',
+          deliverability_analysis: {
+            partial_valid: false,
+            primary_number_invalid: false,
+            primary_number_missing: false,
+            secondary_invalid: false,
+            secondary_missing: false,
+          },
+          normalized_address: {},
+        },
+      });
       const address = await service.verifyAddress({
         address_street: 'TEST',
         address_city: 'TEST',
@@ -94,6 +176,9 @@ describe('Service', () => {
       });
     });
     test('should throw error on if something is missing.', async () => {
+      mockVerifyAddress.mockImplementation(() => {
+        return Promise.reject(new Error(''));
+      });
       try {
         await service.verifyAddress({
           address_street: '',
@@ -127,33 +212,39 @@ describe('Service', () => {
     });
 
     test('should throw if no payments account exists', async () => {
-      // This tests requires a payments account account to exist locally but not have one externally,
-      // resulting in a Not found error from payments account
-      test.todo;
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      await createGenericKycAccount();
+      mockGetUser.mockImplementation(() => {
+        return Promise.reject(synapseStyledError(HttpStatus.BAD_REQUEST));
+      });
+      try {
+        await service.getPaymentAccountDetails(user);
+      } catch (error) {
+        expect(error).toBeInstanceOf(UserPaymentsAccountNotFound);
+        expect(error.response.message).toContain(
+          'Something went wrong locating FBO payments account with ID',
+        );
+        return;
+      }
+      throw new Error('Error did not throw');
     });
 
     test('should return payments account data ', async () => {
-      await service.submitKYC(
-        {
-          first_name: 'test',
-          last_name: 'mcTestFace',
-          email: user.email,
-          phone_numbers: '123-123-1344',
-          mailing_address: realAddress,
-          date_of_birth: realBirthday,
-          gender: 'F',
-        },
-        user,
-        '0.0.0.0',
-      );
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValue({ body: paymentsAccountCreationSuccess });
+
+      await createGenericKycAccount();
       const userDetails = await service.getPaymentAccountDetails(user);
       expect(userDetails.status).toEqual(HttpStatus.OK);
-      //TODO possibly add more expect() to ensure that the data is returned exactly as we suspect
     });
   });
 
   describe('createUserAccount', () => {
     test('should throw an error if account is missing credentials', async () => {
+      mockCreateUser.mockImplementation(() => {
+        return Promise.reject(synapseStyledError(HttpStatus.BAD_REQUEST));
+      });
+
       const blankMailingAddress = new VerifyAddressDto();
       const blankDateOfBirth = new DateOfBirthDto();
       try {
@@ -173,8 +264,7 @@ describe('Service', () => {
         expect(error.response).toMatchObject({
           statusCode: 400,
           error: 'Could not create user payments account',
-          message:
-            "'' does not match \"^[a-zA-Z0-9!#$%&'*+-/=?^_`{|}~.@]{3,120}$\"..Failed validating 'pattern' in schema['properties']['logins']['items']['properties']['email']:",
+          message: 'test error',
         });
         expect(error).toBeInstanceOf(PaymentsAccountCreationFailed);
         return;
@@ -184,53 +274,79 @@ describe('Service', () => {
     });
 
     test('should successfully create an account for a new user', async () => {
-      const account = await service.submitKYC(
-        {
-          first_name: 'test',
-          last_name: 'mcTestFace',
-          email: user.email,
-          phone_numbers: '123-123-1344',
-          mailing_address: realAddress,
-          date_of_birth: realBirthday,
-          gender: 'F',
-        },
-        user,
-        '0.0.0.0',
-      );
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValue({ body: paymentsAccountCreationSuccess });
+      const account = await createGenericKycAccount();
       expect(account.account.userId).toEqual(user.id);
       expect(account.msg).toEqual(`Payments account created for user -- ${user.id}`);
     });
 
     test('should fail if user already exists', async () => {
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValue({ body: paymentsAccountCreationSuccess });
       // Create the user
-      await service.submitKYC(
-        {
-          first_name: 'test',
-          last_name: 'mcTestFace',
-          email: user.email,
-          phone_numbers: '123-123-1344',
-          mailing_address: realAddress,
-          date_of_birth: realBirthday,
-          gender: 'F',
-        },
-        user,
-        '0.0.0.0',
-      );
+      await createGenericKycAccount();
       // try to recreate the existing user
-      const account = await service.submitKYC(
-        {
-          first_name: 'test',
-          last_name: 'mcTestFace',
-          email: user.email,
-          phone_numbers: '123-123-1344',
-          mailing_address: realAddress,
-          date_of_birth: realBirthday,
-          gender: 'F',
-        },
-        user,
-        '0.0.0.0',
-      );
+      const account = await createGenericKycAccount();
       expect(account.msg).toEqual(`Payments account already exists for user -- ${user.id}`);
+    });
+  });
+
+  describe('updateUserPermissions', () => {
+    test('should update the users permissions', async () => {
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValue({ body: paymentsAccountCreationSuccess, updateUser });
+      updateUser.mockResolvedValueOnce({
+        status: HttpStatus.OK,
+        body: { status: HttpStatus.OK },
+      });
+      await createGenericKycAccount();
+      const result = await service.updateUserPermission(user, 'VERIFIED', 'USER_REQUEST');
+      expect(result).toMatchObject({
+        status: HttpStatus.OK,
+        message: 'Updated user permissions',
+      });
+    });
+
+    test('should throw error if incorect permission is set', async () => {
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValue({ body: paymentsAccountCreationSuccess, updateUser });
+      updateUser.mockImplementation(() => {
+        return Promise.reject(
+          synapseStyledError(
+            HttpStatus.BAD_REQUEST,
+            "'FAKE_VALUE' is not one of ..Failed validating 'enum' in schema['properties']['permission_code']:",
+          ),
+        );
+      });
+      await createGenericKycAccount();
+      await expect(async () => {
+        await service.updateUserPermission(user, 'VERIFIED', 'FAKE_VALUE' as IPermissionCodes);
+      }).rejects.toThrow(
+        new AccountPatchError({
+          error: {
+            en: "'FAKE_VALUE' is not one of ..Failed validating 'enum' in schema['properties']['permission_code']:",
+            code: '',
+          },
+        }),
+      );
+    });
+  });
+
+  describe('closeUser', () => {
+    test('should update a user to closed', async () => {
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValue({ body: paymentsAccountCreationSuccess, updateUser });
+      updateUser.mockResolvedValueOnce({
+        status: HttpStatus.OK,
+        body: { status: HttpStatus.OK },
+      });
+      await createGenericKycAccount();
+      const result = await service.closeUser(user);
+      expect(result).toMatchObject({
+        status: HttpStatus.OK,
+        message: 'Updated user permissions',
+      });
     });
   });
 });
