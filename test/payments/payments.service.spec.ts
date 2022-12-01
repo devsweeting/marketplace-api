@@ -31,14 +31,12 @@ jest.mock('synapsenode', () => {
       createUser: mockCreateUser,
       getUser: mockGetUser,
       verifyAddress: mockVerifyAddress,
-      // _oauthUser: _oauthUser,
     })),
     User: jest.fn().mockImplementation(() => ({
       updateUser: updateUser,
       _oauthUser: mockOauthUser,
       createNode: mockCreateNode,
     })),
-    // PaymentsUser: jest.fn().mockImplementation(() => ({ updateUser: updateUser })),
   };
 });
 
