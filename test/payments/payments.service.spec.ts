@@ -221,18 +221,21 @@ describe('Service', () => {
     });
 
     test('should throw if no payments account exists', async () => {
+      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+      mockCreateNode.mockResolvedValue({
+        data: { success: true, nodes: [{ _id: '3' }] },
+      });
       mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
       await createGenericKycAccount();
       mockGetUser.mockImplementation(() => {
         return Promise.reject(synapseStyledError(HttpStatus.BAD_REQUEST));
       });
+
       try {
         await service.getPaymentAccountDetails(user);
       } catch (error) {
         expect(error).toBeInstanceOf(UserPaymentsAccountNotFound);
-        expect(error.response.message).toContain(
-          'Something went wrong locating FBO payments account with ID',
-        );
+        expect(error.response.error).toBe('Payments Account Not Found');
         return;
       }
       throw new Error('Error did not throw');
@@ -241,7 +244,10 @@ describe('Service', () => {
     test('should return payments account data ', async () => {
       mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
       mockGetUser.mockResolvedValue({ body: paymentsAccountCreationSuccess });
-
+      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+      mockCreateNode.mockResolvedValue({
+        data: { success: true, nodes: [{ _id: '3' }] },
+      });
       await createGenericKycAccount();
       const userDetails = await service.getPaymentAccountDetails(user);
       expect(userDetails.status).toEqual(HttpStatus.OK);
