@@ -20,12 +20,14 @@ const mockVerifyAddress = jest.fn();
 const mockCreateUser = jest.fn();
 const mockGetUser = jest.fn();
 const updateUser = jest.fn();
+const mockOauthuser = jest.fn();
 jest.mock('synapsenode', () => {
   return {
     Client: jest.fn().mockImplementation(() => ({
       createUser: mockCreateUser,
       getUser: mockGetUser,
       verifyAddress: mockVerifyAddress,
+      _oauthUser: mockOauthuser,
     })),
     User: jest.fn().mockImplementation(() => ({ updateUser: updateUser })),
     PaymentsUser: jest.fn().mockImplementation(() => ({ updateUser: updateUser })),
@@ -58,6 +60,7 @@ const createGenericKycAccount = async (): Promise<IPaymentsAccountResponse> => {
       gender: 'F',
     },
     user,
+    {},
     '0.0.0.0',
   );
 };
@@ -258,6 +261,7 @@ describe('Service', () => {
             date_of_birth: blankDateOfBirth,
           },
           user,
+          {},
           '0.0.0.0',
         );
       } catch (error) {

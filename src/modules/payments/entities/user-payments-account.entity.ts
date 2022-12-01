@@ -82,10 +82,7 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
     tokens: { oauthKey: string; oauthKeyExpiresAt: string; refreshToken: string },
     depositNodeId: string,
   ): Promise<UserPaymentsAccount> {
-    console.log('variables', userAccountId, tokens);
-    console.log('depositNodeId', depositNodeId);
     const account = await this.findAccountByAccountId(userAccountId);
-    console.log('Before', account);
 
     return UserPaymentsAccount.save({
       ...account,

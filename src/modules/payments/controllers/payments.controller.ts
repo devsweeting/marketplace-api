@@ -83,24 +83,13 @@ export class PaymentsController {
     type: PaymentsAccountResponse,
   })
   public async createUser(
+    @Headers() headers: Headers,
+    @Ip() ip_address: Ipv4Address,
     @ValidateFormBody() submitKycDto: BasicKycDto,
     @GetUser() user: User,
-    @Ip() ip_address: Ipv4Address,
-    @Headers() headers: Headers,
-  ): Promise<{ response: IPaymentsAccountResponse; newDepositHub }> {
-    const response = await this.paymentsService.submitKYC(submitKycDto, user, ip_address);
-    console.log('account created response', response);
-
-    let newDepositHub = null;
-    if (response.status === HttpStatus.CREATED) {
-      newDepositHub = await this.paymentsService.createDepositAccount(
-        response.account,
-        headers,
-        ip_address,
-      );
-      console.log('newDepositHub created', newDepositHub);
-    }
-    return { response, newDepositHub };
+  ): Promise<IPaymentsAccountResponse> {
+    const response = await this.paymentsService.submitKYC(submitKycDto, user, headers, ip_address);
+    return response;
   }
 
   @ApiBody({

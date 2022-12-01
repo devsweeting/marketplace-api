@@ -5,15 +5,13 @@ import {
   ISynapseAccountResponse,
   ISynapseUserClient,
 } from '../interfaces/synapse-node';
-import { StatusCodes } from 'http-status-codes';
-import { Client, User } from 'synapsenode';
-import { UserPaymentsAccount } from '../entities/user-payments-account.entity';
+import { Client, User as PaymentsUser } from 'synapsenode';
 import { PaymentProviderOAuthFailure } from '../exceptions/oauth-failure.exception';
 import { UserPaymentsAccountNotFound } from '../exceptions/user-account-verification-failed.exception';
 
 const CONVERT_TO_MILLISECONDS = 1000;
 
-const IS_DEVELOPMENT = process.env.NODE_ENV === 'DEVELOP';
+// const IS_DEVELOPMENT = process.env.NODE_ENV === 'DEVELOP';
 
 const permissionScope = [
   'USER|PATCH',
@@ -50,27 +48,15 @@ const permissionScope = [
 export async function viewSynapseUserDetails(
   client: Client,
   accountId: string,
-  paymentAccount?: UserPaymentsAccount,
 ): Promise<ISynapseAccountResponse> {
   const accountDetails: ISynapseAccountResponse = await client
     .getUser(accountId, null)
     .then(({ body }) => {
       return body;
     })
-    .catch(({ response }) => {
-      if (response.status === StatusCodes.NOT_FOUND) {
-        throw new UserPaymentsAccountNotFound(
-          `Cannot locate a FBO payments account with account ID -- ${accountId}`,
-        );
-      }
+    .catch(() => {
+      throw new UserPaymentsAccountNotFound();
     });
-
-  //update the db with the latest user refresh token if an account is passed in
-  if (paymentAccount) {
-    Object.assign(paymentAccount, { refreshToken: accountDetails.refresh_token });
-    await paymentAccount.save();
-    await paymentAccount.reload();
-  }
 
   return accountDetails;
 }
@@ -92,7 +78,7 @@ export async function getSynapseOAuthKey(
     })
     .catch((err) => {
       if (err) {
-        throw new PaymentProviderOAuthFailure(err.response.data); // TODO - create custom error
+        throw new PaymentProviderOAuthFailure(err.response.data);
       }
     });
 
@@ -104,16 +90,16 @@ export async function getSynapseOAuthKey(
 }
 
 /**
- * Create the User's Deposit Hub.
+ * Create the User's Deposit Account.
  */
-export async function createSynapseDepositHub(
-  userClient: User,
+export async function createPaymentsDepositHub(
+  userClient: PaymentsUser,
   baseDocumentId: string,
 ): Promise<IDepositNodeResponse> {
   const bodyParams: IDepositNodeRequest = {
     type: 'IC-DEPOSIT-US',
     info: {
-      nickname: `${IS_DEVELOPMENT ? 'test' : 'insert name'} Deposit Account`,
+      nickname: `${'Test'} Deposit Account`,
       document_id: baseDocumentId,
     },
     preview_only: false,

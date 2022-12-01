@@ -14,6 +14,7 @@ import {
   ISynapseUserClient,
 } from '../interfaces/synapse-node';
 import { Client, User } from 'synapsenode';
+import { PaymentsAccountCreationFailed } from '../exceptions/account-creation-failure.exception';
 
 const IS_DEVELOPMENT = process.env.NODE_ENV === 'DEVELOP';
 
@@ -36,6 +37,22 @@ export function createUserParams(
     },
   };
   return createNewPaymentAccountParams;
+}
+export async function createPaymentProviderUserAccount(
+  client: Client,
+  accountParams: ISynapseAccountResponse,
+  ip_address: string,
+): Promise<ISynapseAccountResponse> {
+  const account: ISynapseAccountResponse = await client
+    .createUser(accountParams, ip_address, {})
+    .then((data) => {
+      return data.body;
+    })
+    .catch((err) => {
+      throw new PaymentsAccountCreationFailed(err.response.data);
+    });
+
+  return account;
 }
 
 export function initializeSynapseUserClient(

@@ -1,5 +1,5 @@
 import { HttpException } from '@nestjs/common';
-import { IPaymentsAccountErrorMessage } from '../interfaces/create-account';
+import { IPaymentsAccountErrorMessage } from '../interfaces/synapse-node';
 
 export class PaymentProviderOAuthFailure extends HttpException {
   public constructor(err: IPaymentsAccountErrorMessage) {

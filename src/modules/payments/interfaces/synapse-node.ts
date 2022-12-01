@@ -1,3 +1,4 @@
+import { HttpStatus } from '@nestjs/common';
 import { IncomingHttpHeaders } from 'http';
 import { Client, User } from 'synapsenode';
 
@@ -650,5 +651,15 @@ export interface IDepositNodeResponse {
     },
   ];
   page_count: number;
+  success: boolean;
+}
+
+export interface IPaymentsAccountErrorMessage {
+  error: {
+    code: string;
+    en: string;
+  };
+  error_code: HttpStatus;
+  http_code: HttpStatus;
   success: boolean;
 }
