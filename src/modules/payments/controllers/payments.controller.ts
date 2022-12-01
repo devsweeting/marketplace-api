@@ -33,25 +33,6 @@ import {
 })
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
-  @ApiBody({
-    type: VerifyAddressDto,
-  })
-  @Post('address')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Verifies if an address is deliverable' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-  })
-  public async verifyAddress(
-    @ValidateFormBody()
-    addressDto: VerifyAddressDto,
-  ): Promise<{ status; address }> {
-    const address = await this.paymentsService.verifyAddress(addressDto);
-    return {
-      status: HttpStatus.OK,
-      address,
-    };
-  }
 
   @Get('account')
   @ApiOperation({
@@ -70,6 +51,32 @@ export class PaymentsController {
   public async verifyUser(@GetUser() user: User): Promise<UserPaymentAccountResponse> {
     const data = await this.paymentsService.getPaymentAccountDetails(user);
     return data;
+  }
+
+  @Get('terms')
+  @ApiOperation({ summary: 'Returns user agrement' })
+  public async termsAgreement() {
+    return 'test';
+  }
+
+  @ApiBody({
+    type: VerifyAddressDto,
+  })
+  @Post('address')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Verifies if an address is deliverable' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+  })
+  public async verifyAddress(
+    @ValidateFormBody()
+    addressDto: VerifyAddressDto,
+  ): Promise<{ status; address }> {
+    const address = await this.paymentsService.verifyAddress(addressDto);
+    return {
+      status: HttpStatus.OK,
+      address,
+    };
   }
 
   @ApiBody({
