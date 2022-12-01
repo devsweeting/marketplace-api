@@ -8,7 +8,10 @@ import { VerifyAddressDto } from 'modules/payments/dto/verify-address.dto';
 import { PaymentsAccountCreationFailed } from 'modules/payments/exceptions/account-creation-failure.exception';
 import { UserPaymentsAccountNotFound as UserPaymentsAccountNotFound } from 'modules/payments/exceptions/user-account-verification-failed.exception';
 import { PaymentsService } from 'modules/payments/providers/payments.service';
-import { paymentsAccountCreationSuccess } from 'modules/payments/test-variables';
+import {
+  mockUserPaymentAccount,
+  paymentsAccountCreationSuccess,
+} from 'modules/payments/test-variables';
 import { IPaymentsAccountResponse } from 'modules/payments/interfaces/create-account';
 import { IPermissionCodes } from 'modules/payments/interfaces/synapse-node';
 import { AccountPatchError } from 'modules/payments/exceptions/account-patch-failure.exception';
@@ -20,17 +23,22 @@ const mockVerifyAddress = jest.fn();
 const mockCreateUser = jest.fn();
 const mockGetUser = jest.fn();
 const updateUser = jest.fn();
-const mockOauthuser = jest.fn();
+const mockOauthUser = jest.fn();
+const mockCreateNode = jest.fn();
 jest.mock('synapsenode', () => {
   return {
     Client: jest.fn().mockImplementation(() => ({
       createUser: mockCreateUser,
       getUser: mockGetUser,
       verifyAddress: mockVerifyAddress,
-      _oauthUser: mockOauthuser,
+      // _oauthUser: _oauthUser,
     })),
-    User: jest.fn().mockImplementation(() => ({ updateUser: updateUser })),
-    PaymentsUser: jest.fn().mockImplementation(() => ({ updateUser: updateUser })),
+    User: jest.fn().mockImplementation(() => ({
+      updateUser: updateUser,
+      _oauthUser: mockOauthUser,
+      createNode: mockCreateNode,
+    })),
+    // PaymentsUser: jest.fn().mockImplementation(() => ({ updateUser: updateUser })),
   };
 });
 
@@ -279,7 +287,11 @@ describe('Service', () => {
 
     test('should successfully create an account for a new user', async () => {
       mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
-      mockGetUser.mockResolvedValue({ body: paymentsAccountCreationSuccess });
+      mockGetUser.mockResolvedValue({ body: mockUserPaymentAccount });
+      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+      mockCreateNode.mockResolvedValue({
+        data: { success: true, nodes: [{ _id: '3' }] },
+      });
       const account = await createGenericKycAccount();
       expect(account.account.userId).toEqual(user.id);
       expect(account.msg).toEqual(`Payments account created for user -- ${user.id}`);

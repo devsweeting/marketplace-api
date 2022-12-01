@@ -22,6 +22,36 @@ export const mockBasicKycQuery: BasicKycDto = {
   },
 };
 
+export const mockUserPaymentAccount = {
+  _id: '63603d35b174c5e009cda55c',
+  _links: { self: [Object] },
+  account_closure_date: null,
+  client: { id: '63482ed8a8a19aa7d2ca520f', name: 'Devin Sweeting' },
+  documents: [[Object]],
+  emails: [],
+  extra: {
+    cip_tag: 1,
+    date_joined: 1667251508669,
+    extra_security: false,
+    is_business: false,
+    is_trusted: false,
+    last_updated: 1667251508669,
+    public_note: null,
+    supp_id: '122eddfgbeafrfvbbb',
+  },
+  oauthKeyExpiresAt: 1640599036184,
+  flag: 'NOT-FLAGGED',
+  flag_code: null,
+  is_hidden: false,
+  legal_names: ['Devin Sweetums'],
+  logins: [[Object]],
+  permission: 'UNVERIFIED',
+  permission_code: null,
+  phone_numbers: ['202.762.1401'],
+  photos: [],
+  refresh_token: 'refresh_AtHCUXcWdyZl2bVs3zGS7h59IDw4LnMYi1poTv0B',
+  watchlists: 'PENDING',
+};
 export const paymentsAccountCreationSuccess = {
   User: {
     id: '63603d35b174c5e009cda55c',
