@@ -11,16 +11,25 @@ let app: INestApplication;
 let user: User;
 let headers;
 let mockParams;
+
+const mockVerifyAddress = jest.fn();
 const mockCreateUser = jest.fn();
 const mockGetUser = jest.fn();
 const updateUser = jest.fn();
+const mockOauthUser = jest.fn();
+const mockCreateNode = jest.fn();
 jest.mock('synapsenode', () => {
   return {
-    Client: jest
-      .fn()
-      .mockImplementation(() => ({ createUser: mockCreateUser, getUser: mockGetUser })),
-    User: jest.fn().mockImplementation(() => ({ updateUser: updateUser })),
-    PaymentsUser: jest.fn().mockImplementation(() => ({ updateUser: updateUser })),
+    Client: jest.fn().mockImplementation(() => ({
+      createUser: mockCreateUser,
+      getUser: mockGetUser,
+      verifyAddress: mockVerifyAddress,
+    })),
+    User: jest.fn().mockImplementation(() => ({
+      updateUser: updateUser,
+      _oauthUser: mockOauthUser,
+      createNode: mockCreateNode,
+    })),
   };
 });
 
@@ -99,6 +108,10 @@ describe('update kyc', () => {
 
   describe('tests with payments account', () => {
     beforeEach(async () => {
+      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+      mockCreateNode.mockResolvedValue({
+        data: { success: true, nodes: [{ _id: '3' }] },
+      });
       await createFboAccount(paymentsAccountCreationSuccess.User);
     });
     test('should return NOT FOUND error if FBO account does not exist ', async () => {
