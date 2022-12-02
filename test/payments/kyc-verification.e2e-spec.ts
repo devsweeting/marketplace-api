@@ -12,13 +12,24 @@ let user: User;
 let userWithNoAccount: User;
 let headers;
 
+const mockVerifyAddress = jest.fn();
 const mockCreateUser = jest.fn();
 const mockGetUser = jest.fn();
+const updateUser = jest.fn();
+const mockOauthUser = jest.fn();
+const mockCreateNode = jest.fn();
 jest.mock('synapsenode', () => {
   return {
-    Client: jest
-      .fn()
-      .mockImplementation(() => ({ createUser: mockCreateUser, getUser: mockGetUser })),
+    Client: jest.fn().mockImplementation(() => ({
+      createUser: mockCreateUser,
+      getUser: mockGetUser,
+      verifyAddress: mockVerifyAddress,
+    })),
+    User: jest.fn().mockImplementation(() => ({
+      updateUser: updateUser,
+      _oauthUser: mockOauthUser,
+      createNode: mockCreateNode,
+    })),
   };
 });
 
@@ -49,7 +60,12 @@ describe('Create payments account e2e', () => {
     });
 
     test('Should update database payments account details for user', async () => {
-      mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
+      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+      mockCreateNode.mockResolvedValue({
+        data: { success: true, nodes: [{ _id: '3' }] },
+      });
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+
       const mockParams = createMockBasicKycParams(user);
       await request(app.getHttpServer())
         .post(`/v1/payments/kyc`)
@@ -81,6 +97,10 @@ describe('Create payments account e2e', () => {
 
     describe('GET - user payment account details', () => {
       test('Should return the users payment account information', async () => {
+        mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+        mockCreateNode.mockResolvedValue({
+          data: { success: true, nodes: [{ _id: '3' }] },
+        });
         mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
         mockGetUser.mockResolvedValueOnce({ body: paymentsAccountCreationSuccess });
 
@@ -109,6 +129,10 @@ describe('Create payments account e2e', () => {
       });
 
       test('should throw if no FBO account is found', async () => {
+        mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+        mockCreateNode.mockResolvedValue({
+          data: { success: true, nodes: [{ _id: '3' }] },
+        });
         mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
         mockGetUser.mockImplementation(() => {
           return Promise.reject(
@@ -129,13 +153,13 @@ describe('Create payments account e2e', () => {
         await request(app.getHttpServer())
           .get(`/v1/payments/account`)
           .set(headers)
-          // .expect(HttpStatus.NOT_FOUND)
+          .expect(HttpStatus.NOT_FOUND)
           .expect(({ body }) => {
             expect(body.status).toBe(HttpStatus.NOT_FOUND);
             expect(body.error).toBe('Payments Account Not Found');
-            expect(body.message).toBe(
-              `Cannot locate a FBO payments account with account ID -- ${paymentsAccountCreationSuccess.User.id}`,
-            );
+            // expect(body.message).toBe(
+            //   `Cannot locate a FBO payments account with account ID -- ${paymentsAccountCreationSuccess.User.id}`,
+            // );
           });
       });
 
