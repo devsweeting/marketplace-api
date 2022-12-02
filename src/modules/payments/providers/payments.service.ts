@@ -271,4 +271,24 @@ export class PaymentsService extends BaseService {
     }
     return paymentsUser;
   }
+  public async getAgreementPreview(user: User): Promise<{ type: 'NODE_AGREEMENT'; url: string }[]> {
+    const paymentsUser = await this.getExternalAccountFromUser(user);
+    let baseDocument: ISynapseBaseDocuments;
+    try {
+      baseDocument = paymentsUser.body.documents[0];
+    } catch (error) {
+      throw new BaseDocumentError();
+    }
+
+    const res = await createPaymentsDepositHub(paymentsUser, baseDocument.id, true);
+    if (res.node_count < 1) {
+      throw new Error('No agreements'); // TODO - create custom error;
+    }
+
+    const agreements = res.nodes[0]?.info?.agreements;
+    if (agreements) {
+      return agreements;
+    }
+    throw new Error('No agreements found'); // TODO - create custom error;
+  }
 }

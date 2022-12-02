@@ -54,9 +54,15 @@ export class PaymentsController {
   }
 
   @Get('terms')
-  @ApiOperation({ summary: 'Returns user agrement' })
-  public async termsAgreement() {
-    return 'test';
+  @ApiOperation({ summary: 'Returns user agreement' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+  })
+  @ApiBearerAuth('bearer-token')
+  @UseGuards(JwtOtpAuthGuard)
+  public async termsAgreement(@GetUser() user: User) {
+    const data = await this.paymentsService.getAgreementPreview(user);
+    return data;
   }
 
   @ApiBody({
