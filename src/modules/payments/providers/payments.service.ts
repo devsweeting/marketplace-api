@@ -271,6 +271,7 @@ export class PaymentsService extends BaseService {
     }
     return paymentsUser;
   }
+
   public async getAgreementPreview(user: User): Promise<{ type: 'NODE_AGREEMENT'; url: string }[]> {
     const paymentsUser = await this.getExternalAccountFromUser(user);
     let baseDocument: ISynapseBaseDocuments;
