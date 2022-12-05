@@ -411,8 +411,8 @@ describe('Service', () => {
       createNode.mockResolvedValue({
         data: {
           success: true,
-          node_count: 0,
-          nodes: [{ _id: '3', node_count: 1, nodes: [{ type: 'NODE_AGREEMENT', url: 'string' }] }],
+          node_count: 1,
+          nodes: [{ info: { agreements: { type: 'NODE_AGREEMENT', url: 'string' } } }],
         },
       });
       mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
@@ -421,9 +421,8 @@ describe('Service', () => {
       mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
 
       await createGenericKycAccount();
-      await expect(async () => {
-        await service.getAgreementPreview(user);
-      }).rejects.toThrow(new Error('No agreements'));
+
+      await service.getAgreementPreview(user);
     });
   });
 });
