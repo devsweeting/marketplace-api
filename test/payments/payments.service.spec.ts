@@ -425,4 +425,13 @@ describe('Service', () => {
       await service.getAgreementPreview(user);
     });
   });
+
+  describe('saveAgreementAcknowledge', () => {
+    test('should save user agreement acknowledgement', async () => {
+      const response = await service.saveAgreementAcknowledgement(user);
+      expect(response).toMatchObject({
+        status: HttpStatus.CREATED,
+      });
+    });
+  });
 });

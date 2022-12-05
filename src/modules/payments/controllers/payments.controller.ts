@@ -65,6 +65,18 @@ export class PaymentsController {
     return data;
   }
 
+  @Post('terms')
+  @ApiOperation({ summary: 'Saves to DB that users accepted a specific agreement' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+  })
+  @ApiBearerAuth('bearer-token')
+  @UseGuards(JwtOtpAuthGuard)
+  public async saveAgreement(@GetUser() user: User) {
+    const data = this.paymentsService.saveAgreementAcknowledgement(user);
+    return data;
+  }
+
   @ApiBody({
     type: VerifyAddressDto,
   })

@@ -292,4 +292,19 @@ export class PaymentsService extends BaseService {
     }
     throw new Error('No agreements found'); // TODO - create custom error;
   }
+
+  public async saveAgreementAcknowledgement(user: User) {
+    const paymentsUser = await this.getExternalAccountFromUser(user);
+    const res = await UserPaymentsAccount.updateAgreementAcknowledgement(
+      paymentsUser.id,
+      'ACCEPTED',
+    );
+    console.log('here', res);
+    //TODO save to user agreement
+    //TODO return response to users
+
+    return {
+      status: HttpStatus.CREATED,
+    };
+  }
 }

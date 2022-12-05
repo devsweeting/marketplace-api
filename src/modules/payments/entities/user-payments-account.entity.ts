@@ -45,6 +45,11 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
   })
   public permissionCode: IPermissionCodes;
 
+  @Column({
+    nullable: true,
+  })
+  public agreementStatus: 'ACCEPTED' | 'DECLINED';
+
   @Exclude()
   @Column({
     length: 48,
@@ -90,6 +95,18 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
       oauthKeyExpiresAt: tokens.oauthKeyExpiresAt,
       refreshToken: tokens.refreshToken,
       depositNodeId,
+    });
+  }
+
+  static async updateAgreementAcknowledgement(
+    userAccountId: string,
+    agreementStatus: 'ACCEPTED' | 'DECLINED' | null,
+  ): Promise<UserPaymentsAccount> {
+    const account = await this.findAccountByAccountId(userAccountId);
+
+    return UserPaymentsAccount.save({
+      ...account,
+      agreementStatus: agreementStatus,
     });
   }
 
