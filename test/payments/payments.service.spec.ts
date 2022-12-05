@@ -428,9 +428,15 @@ describe('Service', () => {
 
   describe('saveAgreementAcknowledge', () => {
     test('should save user agreement acknowledgement', async () => {
-      const response = await service.saveAgreementAcknowledgement(user);
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValue({ body: mockUserPaymentAccount });
+      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+      mockCreateNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
+      await createGenericKycAccount();
+
+      const response = await service.saveAgreementAcknowledgement(user, 'ACCEPTED');
       expect(response).toMatchObject({
-        status: HttpStatus.CREATED,
+        status: HttpStatus.OK,
       });
     });
   });

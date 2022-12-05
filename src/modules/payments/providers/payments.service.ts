@@ -1,6 +1,5 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { httpstatus } from 'aws-sdk/clients/glacier';
 import { Ipv4Address } from 'aws-sdk/clients/inspector';
 import { BaseService } from 'modules/common/services';
 import { User } from 'modules/users/entities';
@@ -18,6 +17,7 @@ import {
   IAddressResponse,
   IUserPaymentAccountResponse,
   IPaymentsAccountResponse,
+  IAgreementStatus,
 } from '../interfaces/create-account';
 import { IPermissionCodes, IPermissions, ISynapseBaseDocuments } from '../interfaces/synapse-node';
 import {
@@ -172,7 +172,7 @@ export class PaymentsService extends BaseService {
     bodyParams: UpdateKycDto,
     user: User,
     ip_address: Ipv4Address,
-  ): Promise<{ status: httpstatus; msg: string }> {
+  ): Promise<{ status: HttpStatus; msg: string }> {
     //check local DB to see if synapse account exists
     const paymentsUser = await this.getExternalAccountFromUser(user);
     let baseDocument: ISynapseBaseDocuments;
@@ -293,18 +293,20 @@ export class PaymentsService extends BaseService {
     throw new Error('No agreements found'); // TODO - create custom error;
   }
 
-  public async saveAgreementAcknowledgement(user: User) {
+  public async saveAgreementAcknowledgement(
+    user: User,
+    agreementStatus: IAgreementStatus,
+  ): Promise<{ status: HttpStatus; message: string }> {
     const paymentsUser = await this.getExternalAccountFromUser(user);
     const res = await UserPaymentsAccount.updateAgreementAcknowledgement(
       paymentsUser.id,
-      'ACCEPTED',
+      agreementStatus,
     );
-    console.log('here', res);
-    //TODO save to user agreement
-    //TODO return response to users
+    console.log(res);
 
     return {
-      status: HttpStatus.CREATED,
+      status: HttpStatus.OK,
+      message: 'user agreement updated',
     };
   }
 }

@@ -49,6 +49,7 @@ export interface IDocument {
 }
 [];
 
+export type IAgreementStatus = 'ACCEPTED' | 'DECLINED';
 export type IPermissions =
   | 'VERIFIED'
   | 'UNVERIFIED'

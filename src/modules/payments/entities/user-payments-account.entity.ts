@@ -4,7 +4,7 @@ import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
 import { Exclude } from 'class-transformer';
 import { User } from 'modules/users/entities';
-import { IPermissionCodes, IPermissions } from '../interfaces/create-account';
+import { IAgreementStatus, IPermissionCodes, IPermissions } from '../interfaces/create-account';
 
 @Entity('user_payments_account')
 @Unique('USER_ID_UNIQUE', ['userId'])
@@ -48,7 +48,7 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
   @Column({
     nullable: true,
   })
-  public agreementStatus: 'ACCEPTED' | 'DECLINED';
+  public agreementStatus: IAgreementStatus;
 
   @Exclude()
   @Column({
@@ -100,7 +100,7 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
 
   static async updateAgreementAcknowledgement(
     userAccountId: string,
-    agreementStatus: 'ACCEPTED' | 'DECLINED' | null,
+    agreementStatus: IAgreementStatus | null,
   ): Promise<UserPaymentsAccount> {
     const account = await this.findAccountByAccountId(userAccountId);
 

@@ -16,6 +16,7 @@ import JwtOtpAuthGuard from 'modules/auth/guards/jwt-otp-auth.guard';
 import { User } from 'modules/users/entities';
 import { ValidateFormBody } from '../decorators/form-validation.decorator';
 import { BasicKycDto } from '../dto/basic-kyc.dto';
+import { UpdateAgreementDto } from '../dto/update-Agreement.dto';
 import { UpdateKycDto } from '../dto/update-kyc.dto';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
 import { IPaymentsAccountResponse } from '../interfaces/create-account';
@@ -64,7 +65,9 @@ export class PaymentsController {
     const data = await this.paymentsService.getAgreementPreview(user);
     return data;
   }
-
+  @ApiBody({
+    type: UpdateAgreementDto,
+  })
   @Post('terms')
   @ApiOperation({ summary: 'Saves to DB that users accepted a specific agreement' })
   @ApiResponse({
@@ -72,8 +75,12 @@ export class PaymentsController {
   })
   @ApiBearerAuth('bearer-token')
   @UseGuards(JwtOtpAuthGuard)
-  public async saveAgreement(@GetUser() user: User) {
-    const data = this.paymentsService.saveAgreementAcknowledgement(user);
+  public async saveAgreement(
+    @GetUser() user: User,
+    @ValidateFormBody()
+    agreementStatus: UpdateAgreementDto,
+  ) {
+    const data = this.paymentsService.saveAgreementAcknowledgement(user, agreementStatus);
     return data;
   }
 
