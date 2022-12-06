@@ -12,7 +12,7 @@ describe('AppController', () => {
   test('should redirect to url', () => {
     return request(app.getHttpServer())
       .get('/')
-      .expect(HttpStatus.MOVED_TEMPORARILY)
+      .expect(HttpStatus.MOVED_PERMANENTLY)
       .expect(({ redirect, header }) => {
         expect(redirect).toBeTruthy();
         expect(header.location).toContain(`${process.env.FRONTEND_URL}`);
