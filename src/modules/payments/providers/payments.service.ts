@@ -12,6 +12,7 @@ import { UserPaymentsAccount } from '../entities/user-payments-account.entity';
 import { AccountPatchError } from '../exceptions/account-patch-failure.exception';
 import { AddressVerificationFailedException } from '../exceptions/address-verification-failed.exception';
 import { BaseDocumentError } from '../exceptions/base-document-error-exception';
+import { IncorrectAgreementError } from '../exceptions/incorrect-agreement-status.exception';
 import { UserPaymentsAccountNotFound } from '../exceptions/user-account-verification-failed.exception';
 import {
   IAddressResponse,
@@ -297,16 +298,23 @@ export class PaymentsService extends BaseService {
     user: User,
     agreementStatus: IAgreementStatus,
   ): Promise<{ status: HttpStatus; message: string }> {
+    if (agreementStatus !== 'ACCEPTED' && agreementStatus !== 'DECLINED') {
+      throw new IncorrectAgreementError(); // TODO - create custom error;
+    }
     const paymentsUser = await this.getExternalAccountFromUser(user);
     const res = await UserPaymentsAccount.updateAgreementAcknowledgement(
       paymentsUser.id,
       agreementStatus,
     );
-    console.log(res);
-
+    if (res.agreementStatus == agreementStatus) {
+      return {
+        status: HttpStatus.OK,
+        message: 'User agreement updated',
+      };
+    }
     return {
-      status: HttpStatus.OK,
-      message: 'user agreement updated',
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      message: 'Updating user agreement failed.',
     };
   }
 }

@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   Headers,
@@ -77,10 +78,13 @@ export class PaymentsController {
   @UseGuards(JwtOtpAuthGuard)
   public async saveAgreement(
     @GetUser() user: User,
-    @ValidateFormBody()
+    @Body()
     agreementStatus: UpdateAgreementDto,
-  ) {
-    const data = this.paymentsService.saveAgreementAcknowledgement(user, agreementStatus);
+  ): Promise<{ status: HttpStatus; message: string }> {
+    const data = this.paymentsService.saveAgreementAcknowledgement(
+      user,
+      agreementStatus.agreement_status,
+    );
     return data;
   }
 

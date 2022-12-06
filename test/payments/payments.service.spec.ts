@@ -12,7 +12,10 @@ import {
   mockUserPaymentAccount,
   paymentsAccountCreationSuccess,
 } from 'modules/payments/test-variables';
-import { IPaymentsAccountResponse } from 'modules/payments/interfaces/create-account';
+import {
+  IAgreementStatus,
+  IPaymentsAccountResponse,
+} from 'modules/payments/interfaces/create-account';
 import { IPermissionCodes } from 'modules/payments/interfaces/synapse-node';
 import { AccountPatchError } from 'modules/payments/exceptions/account-patch-failure.exception';
 import { BaseDocumentError } from 'modules/payments/exceptions/base-document-error-exception';
@@ -438,6 +441,18 @@ describe('Service', () => {
       expect(response).toMatchObject({
         status: HttpStatus.OK,
       });
+    });
+
+    test('should throw if the agreementStatus is not ACCEPTED or DECLINED', async () => {
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValue({ body: mockUserPaymentAccount });
+      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+      mockCreateNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
+      await createGenericKycAccount();
+
+      await expect(async () => {
+        await service.saveAgreementAcknowledgement(user, 'SOMETEXT' as IAgreementStatus);
+      }).rejects.toThrow(new Error('Incorrect agreement status'));
     });
   });
 });
