@@ -32,7 +32,6 @@ import JwtOtpAuthGuard from 'modules/auth/guards/jwt-otp-auth.guard';
 import { GetUser } from 'modules/auth/decorators/get-user.decorator';
 import { User } from 'modules/users/entities/user.entity';
 import { SellOrderTypeEnum } from '../enums/sell-order-type.enum';
-import { StatusCodes } from 'http-status-codes';
 import { PurchaseHistoryDto } from '../dto/purchase-history.dto';
 import { currentUser } from 'modules/users/decorators/currentUser.decorator';
 import { SellOrdersPurchaseService } from '../sell-order-purchase.service';
@@ -115,14 +114,14 @@ export class SellOrdersController {
   public async create(
     @GetPartner() partner: Partner,
     @Body() dto: SellOrderDto,
-  ): Promise<{ status: StatusCodes; description: string }> {
+  ): Promise<{ status: HttpStatus; description: string }> {
     try {
       await this.sellOrdersService.createSellOrder(partner, dto);
     } catch (e) {
       throw e;
     }
     return {
-      status: StatusCodes.CREATED,
+      status: HttpStatus.CREATED,
       description: 'Sell order created',
     };
   }

@@ -1,11 +1,10 @@
 import request from 'supertest';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { createFile } from '@/test/utils/file.utils';
 import { Collection } from 'modules/collections/entities';
 import { CollectionsTransformer } from 'modules/collections/transformers/collections.transformer';
 import { createCollection } from '../utils/collection.utils';
-import { StatusCodes } from 'http-status-codes';
 
 describe('CollectionController', () => {
   let app: INestApplication;
@@ -50,7 +49,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections?${params.toString()}`)
         .send()
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -74,7 +73,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections?${params.toString()}`)
         .send()
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -97,7 +96,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections?${params.toString()}`)
         .send()
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -124,7 +123,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections?${params.toString()}`)
         .send()
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -151,7 +150,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections?${params.toString()}`)
         .send()
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -178,7 +177,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections?${params.toString()}`)
         .send()
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -205,7 +204,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections?${params.toString()}`)
         .send()
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -231,7 +230,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections?${params.toString()}`)
         .send()
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -254,7 +253,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections?${params.toString()}`)
         .send()
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -277,7 +276,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections?${params.toString()}`)
         .send()
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             meta: {
@@ -303,7 +302,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections?${params.toString()}`)
         .send()
-        .expect(StatusCodes.BAD_REQUEST)
+        .expect(HttpStatus.BAD_REQUEST)
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Bad Request',
@@ -313,7 +312,7 @@ describe('CollectionController', () => {
               'limit must not be less than 0',
               'order must be a valid enum value',
             ],
-            statusCode: StatusCodes.BAD_REQUEST,
+            statusCode: HttpStatus.BAD_REQUEST,
           });
         });
     });

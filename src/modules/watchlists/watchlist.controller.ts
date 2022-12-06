@@ -32,7 +32,6 @@ import { WatchlistAssetResponse } from './responses/watchlist.response';
 import { WatchlistTransformer } from './transformers/watchlist.transformer';
 import { WatchlistService } from './watchlist.service';
 import { validate as isValidUUID } from 'uuid';
-import { StatusCodes } from 'http-status-codes';
 @ApiTags('watchlist')
 @Controller({
   path: 'watchlist',
@@ -75,13 +74,13 @@ export class WatchlistController {
   public async create(
     @GetUser() user: User,
     @Body() dto: WatchlistDto,
-  ): Promise<{ status: StatusCodes; description: string }> {
+  ): Promise<{ status: HttpStatus; description: string }> {
     const watchlistAsset = await this.watchlistService.assignAssetToWatchlist(user, dto);
     if (!watchlistAsset) {
       throw new InternalServerErrorException();
     }
     return {
-      status: StatusCodes.CREATED,
+      status: HttpStatus.CREATED,
       description: 'Asset was added to watchlist',
     };
   }

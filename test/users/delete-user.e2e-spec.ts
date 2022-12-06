@@ -1,11 +1,10 @@
 import request from 'supertest';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { createApp } from '@/test/utils/app.utils';
 import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import { generateToken } from '../utils/jwt.utils';
-import { StatusCodes } from 'http-status-codes';
 
 describe('UsersController', () => {
   let app: INestApplication;
@@ -30,7 +29,7 @@ describe('UsersController', () => {
       return request(app.getHttpServer())
         .delete(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual({});
         })
@@ -45,9 +44,9 @@ describe('UsersController', () => {
       return request(app.getHttpServer())
         .delete(`/v1/users/${wrongId}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
-        .expect(StatusCodes.NOT_FOUND)
+        .expect(HttpStatus.NOT_FOUND)
         .expect({
-          statusCode: StatusCodes.NOT_FOUND,
+          statusCode: HttpStatus.NOT_FOUND,
           message: 'USER_NOT_FOUND',
           error: 'Not Found',
         });
@@ -61,12 +60,12 @@ describe('UsersController', () => {
       return request(app.getHttpServer())
         .delete(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
-        .expect(StatusCodes.FORBIDDEN)
+        .expect(HttpStatus.FORBIDDEN)
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Forbidden',
             message: 'Forbidden resource',
-            statusCode: StatusCodes.FORBIDDEN,
+            statusCode: HttpStatus.FORBIDDEN,
           });
         })
         .then(async () => {
@@ -80,7 +79,7 @@ describe('UsersController', () => {
       return request(app.getHttpServer())
         .delete(`/v1/users/${wrongId}`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
-        .expect(StatusCodes.FORBIDDEN);
+        .expect(HttpStatus.FORBIDDEN);
     });
   });
   describe(`DELETE /users/:id AS USER`, () => {
@@ -88,12 +87,12 @@ describe('UsersController', () => {
       return request(app.getHttpServer())
         .delete(`/v1/users/${user.id}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
-        .expect(StatusCodes.FORBIDDEN)
+        .expect(HttpStatus.FORBIDDEN)
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Forbidden',
             message: 'Forbidden resource',
-            statusCode: StatusCodes.FORBIDDEN,
+            statusCode: HttpStatus.FORBIDDEN,
           });
         })
         .then(async () => {
@@ -107,7 +106,7 @@ describe('UsersController', () => {
       return request(app.getHttpServer())
         .delete(`/v1/users/${wrongId}`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
-        .expect(StatusCodes.FORBIDDEN);
+        .expect(HttpStatus.FORBIDDEN);
     });
   });
 });

@@ -31,7 +31,6 @@ import { OtpService } from './services/otp.service';
 import { RefreshRequestDto } from './dto/refresh-request.dto';
 import { JwtRefreshGaurd } from 'modules/auth/guards/jwt-refresh.guard';
 import { AuthService } from 'modules/auth/auth.service';
-import { StatusCodes } from 'http-status-codes';
 
 @ApiTags('users')
 @Controller({
@@ -55,7 +54,7 @@ export class UsersController {
   @Get()
   @UseGuards(JwtAuthGuard)
   @ApiResponse({
-    status: StatusCodes.OK,
+    status: HttpStatus.OK,
     description: 'The found records',
     type: User,
   })
@@ -67,7 +66,7 @@ export class UsersController {
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   @ApiResponse({
-    status: StatusCodes.OK,
+    status: HttpStatus.OK,
     description: 'The found record',
   })
   @ApiNotFoundResponse()
@@ -78,7 +77,7 @@ export class UsersController {
 
   @Post()
   @UseGuards(RoleGuard([RoleEnum.SUPER_ADMIN]))
-  @HttpCode(StatusCodes.CREATED)
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create user' })
   public async create(@Body() userData: CreateUserDto): Promise<IUserResponse> {
     const user = await this.usersService.create(userData);
@@ -87,7 +86,7 @@ export class UsersController {
 
   @Patch(':id')
   @UseGuards(RoleGuard([RoleEnum.SUPER_ADMIN, RoleEnum.ADMIN]))
-  @HttpCode(StatusCodes.OK)
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update user' })
   @ApiNotFoundResponse()
   public async update(
@@ -100,7 +99,7 @@ export class UsersController {
 
   @Delete(':id')
   @UseGuards(RoleGuard([RoleEnum.SUPER_ADMIN]))
-  @HttpCode(StatusCodes.OK)
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete user' })
   @ApiResponse({ status: HttpStatus.NO_CONTENT })
   @ApiNotFoundResponse()
@@ -120,11 +119,11 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   public async loginRequest(
     @Body() dto: LoginRequestDto,
-  ): Promise<{ status: StatusCodes; description: string }> {
+  ): Promise<{ status: HttpStatus; description: string }> {
     await this.otpService.sendOtpToken(dto);
 
     return {
-      status: StatusCodes.OK,
+      status: HttpStatus.OK,
       description: 'Email was sent.',
     };
   }

@@ -1,11 +1,10 @@
 import { User } from 'modules/users/entities/user.entity';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { UserLogin, UserOtp } from 'modules/users/entities';
 import request from 'supertest';
 import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { ConfigService } from '@nestjs/config';
 import { UserRefresh } from 'modules/users/entities/user-refresh.entity';
-import { StatusCodes } from 'http-status-codes';
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;
@@ -36,7 +35,7 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post(`/v1/users/login/request`)
         .send({ email })
-        .expect(StatusCodes.OK);
+        .expect(HttpStatus.OK);
 
       // OtpRecord created
       const userOtp = await UserOtp.findOne({ where: { email } });
@@ -46,7 +45,7 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post(`/v1/users/login/confirm`)
         .send({ token: userOtp.token, metadata: { ip: '0.0.0.0' } })
-        .expect(StatusCodes.OK);
+        .expect(HttpStatus.OK);
 
       const createUser = await User.findOne({ where: { email } });
       const NUMBER_OF_USERS = 1;
@@ -62,13 +61,13 @@ describe('UserController (e2e)', () => {
         await request(app.getHttpServer())
           .post(`/v1/users/login/request`)
           .send({ email })
-          .expect(StatusCodes.OK);
+          .expect(HttpStatus.OK);
       }
 
       await request(app.getHttpServer())
         .post(`/v1/users/login/request`)
         .send({ email })
-        .expect(StatusCodes.TOO_MANY_REQUESTS);
+        .expect(HttpStatus.TOO_MANY_REQUESTS);
     });
 
     test('should fail with invalid token', async () => {
@@ -76,13 +75,13 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post(`/v1/users/login/request`)
         .send({ email })
-        .expect(StatusCodes.OK);
+        .expect(HttpStatus.OK);
 
       // confirm
       await request(app.getHttpServer())
         .post(`/v1/users/login/confirm`)
         .send({ token: 'random token', metadata: { ip: '0.0.0.0' } })
-        .expect(StatusCodes.BAD_REQUEST);
+        .expect(HttpStatus.BAD_REQUEST);
     });
 
     test('should success if email is uppercase', async () => {
@@ -90,7 +89,7 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post(`/v1/users/login/request`)
         .send({ email })
-        .expect(StatusCodes.OK);
+        .expect(HttpStatus.OK);
 
       // OtpRecord created
       const userOtp = await UserOtp.findOne({ where: { email: email.toLowerCase() } });
@@ -101,7 +100,7 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post(`/v1/users/login/confirm`)
         .send({ token: userOtp.token, metadata: { ip: '0.0.0.0' } })
-        .expect(StatusCodes.OK);
+        .expect(HttpStatus.OK);
 
       const createUser = await User.findOne({ where: { email: email.toLowerCase() } });
       const NUMBER_OF_USERS = 1;
@@ -114,7 +113,7 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post(`/v1/users/login/request`)
         .send({ email })
-        .expect(StatusCodes.OK);
+        .expect(HttpStatus.OK);
 
       // OtpRecord created
       const userOtp = await UserOtp.findOne({ where: { email: email.toLowerCase() } });
@@ -124,7 +123,7 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post(`/v1/users/login/confirm`)
         .send({ token: userOtp.token, metadata: { ip: '0.0.0.0' } })
-        .expect(StatusCodes.OK);
+        .expect(HttpStatus.OK);
 
       const createUser = await User.findOne({ where: { email: email.toLowerCase() } });
       const NUMBER_OF_USERS = 1;
@@ -138,7 +137,7 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post(`/v1/users/login/request`)
         .send({ email })
-        .expect(StatusCodes.OK);
+        .expect(HttpStatus.OK);
 
       //logs the otp password
       const userOtp = await UserOtp.findOne({ where: { email } });
@@ -147,7 +146,7 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post(`/v1/users/login/confirm`)
         .send({ token: userOtp.token, metadata: { ip: '0.0.0.0' } })
-        .expect(StatusCodes.OK);
+        .expect(HttpStatus.OK);
 
       const loggedInUser = await User.findOne({ where: { email } });
       const refreshToken = await UserRefresh.findOne({ where: { userId: loggedInUser.id } });
@@ -161,7 +160,7 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post(`/v1/users/login/request`)
         .send({ email })
-        .expect(StatusCodes.OK);
+        .expect(HttpStatus.OK);
 
       //logs the otp password
       const userOtp = await UserOtp.findOne({ where: { email } });
@@ -170,7 +169,7 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post(`/v1/users/login/confirm`)
         .send({ token: userOtp.token, metadata: { ip: '0.0.0.0' } })
-        .expect(StatusCodes.OK);
+        .expect(HttpStatus.OK);
 
       const loggedInUser = await User.findOne({ where: { email } });
       expect(loggedInUser).toBeDefined();
@@ -182,7 +181,7 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post(`/v1/users/login/request`)
         .send({ email })
-        .expect(StatusCodes.OK);
+        .expect(HttpStatus.OK);
 
       const userOtp2 = await UserOtp.findOne({ where: { email, used: false } });
 
@@ -190,7 +189,7 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post(`/v1/users/login/confirm`)
         .send({ token: userOtp2.token, metadata: { ip: '1.1.1.1' } })
-        .expect(StatusCodes.OK);
+        .expect(HttpStatus.OK);
 
       const userRefreshTokens = await UserRefresh.findValidByUser(loggedInUser.id);
       const MINIMUM_NUMBER_OF_REFRESH_TOKENS = 2;
@@ -210,7 +209,7 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post(`/v1/users/login/request`)
         .send({ email })
-        .expect(StatusCodes.OK);
+        .expect(HttpStatus.OK);
 
       //logs the otp token
       const userOtp = await UserOtp.findOne({ where: { email } });
@@ -219,7 +218,7 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post(`/v1/users/login/confirm`)
         .send({ token: userOtp.token, metadata: { ip: '0.0.0.0' } })
-        .expect(StatusCodes.OK); //should return an access token.
+        .expect(HttpStatus.OK); //should return an access token.
 
       const loggedInUser = await User.findOne({ where: { email } });
       const token = await UserRefresh.findOne({ where: { userId: loggedInUser.id } });
@@ -234,7 +233,7 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post(`/v1/users/login/refresh`)
         .send({ refreshToken: token.refreshToken })
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body.accessToken).toBeDefined();
           expect(body.refreshToken).toBeDefined();
@@ -253,7 +252,7 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post(`/v1/users/login/request`)
         .send({ email })
-        .expect(StatusCodes.OK);
+        .expect(HttpStatus.OK);
 
       //logs the otp token
       const userOtp = await UserOtp.findOne({ where: { email } });
@@ -262,7 +261,7 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post(`/v1/users/login/confirm`)
         .send({ token: userOtp.token, metadata: { ip: '0.0.0.0' } })
-        .expect(StatusCodes.OK); //should return an access token.
+        .expect(HttpStatus.OK); //should return an access token.
 
       const loggedInUser = await User.findOne({ where: { email } });
       const token = await UserRefresh.findOne({ where: { userId: loggedInUser.id } });
@@ -273,7 +272,7 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post(`/v1/users/login/refresh`)
         .send({ refreshToken: token.refreshToken })
-        .expect(StatusCodes.UNAUTHORIZED)
+        .expect(HttpStatus.UNAUTHORIZED)
         .expect((request) => {
           const error = JSON.parse(request.text);
           expect(error.message).toBe('Unauthorized');

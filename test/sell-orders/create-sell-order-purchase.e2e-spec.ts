@@ -1,5 +1,5 @@
 /* eslint-disable no-magic-numbers */
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { clearAllData, createApp, SupertestResponse } from '@/test/utils/app.utils';
 import { createPartner } from '@/test/utils/partner.utils';
 import { Partner } from 'modules/partners/entities';
@@ -19,7 +19,6 @@ import {
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
 import { generateToken } from '../utils/jwt.utils';
 import { faker } from '@faker-js/faker';
-import { StatusCodes } from 'http-status-codes';
 import { createUserAsset } from '../utils/create-user-asset';
 import { UserAsset } from 'modules/users/entities/user-assets.entity';
 
@@ -125,7 +124,7 @@ describe('SellOrdersController -> Purchases', () => {
     order: SellOrder,
     purchaser: User = buyer,
   ): Promise<void> {
-    await expect4xx(StatusCodes.BAD_REQUEST, payload, 'Bad Request', msg, order, purchaser);
+    await expect4xx(HttpStatus.BAD_REQUEST, payload, 'Bad Request', msg, order, purchaser);
   }
 
   async function expect404(
@@ -134,7 +133,7 @@ describe('SellOrdersController -> Purchases', () => {
     order: SellOrder,
     purchaser: User = buyer,
   ): Promise<void> {
-    await expect4xx(StatusCodes.NOT_FOUND, payload, 'Not Found', msg, order, purchaser);
+    await expect4xx(HttpStatus.NOT_FOUND, payload, 'Not Found', msg, order, purchaser);
   }
 
   afterEach(async () => {
@@ -144,7 +143,7 @@ describe('SellOrdersController -> Purchases', () => {
 
   describe(`Sell Order purchases`, () => {
     test('should throw 401 exception if jwt is missing', () => {
-      return testApp.post(app, urlFor(sellOrder), StatusCodes.UNAUTHORIZED, null, {}, {});
+      return testApp.post(app, urlFor(sellOrder), HttpStatus.UNAUTHORIZED, null, {}, {});
     });
 
     test('Should return 201 and purchase sell order', async () => {
@@ -152,7 +151,7 @@ describe('SellOrdersController -> Purchases', () => {
         fractionsAvailableToPurchase: sellOrder.fractionQtyAvailable,
         fractionsPurchased: 0,
       };
-      await expectCheck(app, StatusCodes.OK, checkResponse, sellOrder, buyer);
+      await expectCheck(app, HttpStatus.OK, checkResponse, sellOrder, buyer);
       const fractionsToPurchase = 10;
       const fractionPriceCents = sellOrder.fractionPriceCents;
       await expectPurchaseSuccess(
@@ -170,7 +169,7 @@ describe('SellOrdersController -> Purchases', () => {
         fractionsAvailableToPurchase: sellOrder.fractionQtyAvailable,
         fractionsPurchased: fractionsToPurchase,
       };
-      await expectCheck(app, StatusCodes.OK, checkResponse, sellOrder, buyer);
+      await expectCheck(app, HttpStatus.OK, checkResponse, sellOrder, buyer);
     });
 
     test('Should return 201 when purchasing all available fractions, then return 400 on subsequent purchase request', async () => {
@@ -258,7 +257,7 @@ describe('SellOrdersController -> Purchases', () => {
         fractionsAvailableToPurchase: 10,
         fractionsPurchased: 0,
       };
-      await expectCheck(app, StatusCodes.OK, checkResponse, dropSellOrder, buyer);
+      await expectCheck(app, HttpStatus.OK, checkResponse, dropSellOrder, buyer);
       const fractionsToPurchase = dropSellOrder.userFractionLimit;
       const fractionPriceCents = dropSellOrder.fractionPriceCents;
       await expectPurchaseSuccess(
@@ -271,7 +270,7 @@ describe('SellOrdersController -> Purchases', () => {
         dropUserAsset,
       );
 
-      await expectCheck(app, StatusCodes.BAD_REQUEST, null, dropSellOrder, buyer);
+      await expectCheck(app, HttpStatus.BAD_REQUEST, null, dropSellOrder, buyer);
       const payload = {
         fractionsToPurchase: 1,
         fractionPriceCents: fractionPriceCents,
@@ -326,7 +325,7 @@ describe('SellOrdersController -> Purchases', () => {
         const results = await testApp.get(
           app,
           url,
-          StatusCodes.OK,
+          HttpStatus.OK,
           null,
           null,
           headerForUser(buyer),
@@ -343,7 +342,7 @@ describe('SellOrdersController -> Purchases', () => {
         const results = await testApp.get(
           app,
           url,
-          StatusCodes.OK,
+          HttpStatus.OK,
           null,
           null,
           headerForUser(buyer),
@@ -354,19 +353,19 @@ describe('SellOrdersController -> Purchases', () => {
       test('should return Bad Request if Id is not UUID', async () => {
         const url = `/v1/sellorders/purchase-history?assetId=1`;
 
-        await testApp.get(app, url, StatusCodes.BAD_REQUEST, null, null, headerForUser(buyer));
+        await testApp.get(app, url, HttpStatus.BAD_REQUEST, null, null, headerForUser(buyer));
       });
 
       test('should return Bad Request if Id is not present', async () => {
         const url = `/v1/sellorders/purchase-history`;
 
-        await testApp.get(app, url, StatusCodes.BAD_REQUEST, null, null, headerForUser(buyer));
+        await testApp.get(app, url, HttpStatus.BAD_REQUEST, null, null, headerForUser(buyer));
       });
 
       test('should return unauthorized if the user is not in the header', async () => {
         const url = `/v1/sellorders/purchase-history?assetId=${sellOrder.assetId}`;
 
-        await testApp.get(app, url, StatusCodes.UNAUTHORIZED, null, null, {});
+        await testApp.get(app, url, HttpStatus.UNAUTHORIZED, null, null, {});
       });
     });
   });

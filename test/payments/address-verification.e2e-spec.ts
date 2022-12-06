@@ -1,5 +1,4 @@
-import { INestApplication } from '@nestjs/common';
-import { StatusCodes } from 'http-status-codes';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { VerifyAddressDto } from 'modules/payments/dto/verify-address.dto';
 import request from 'supertest';
 import { createApp } from '../utils/app.utils';
@@ -27,7 +26,7 @@ describe('Verify address', () => {
     return request(app.getHttpServer())
       .post(`/v1/payments/address`)
       .send(mockRequest)
-      .expect(StatusCodes.OK);
+      .expect(HttpStatus.OK);
   });
 
   test('Should return undeliverable if address verification fails', () => {
@@ -41,7 +40,7 @@ describe('Verify address', () => {
     return request(app.getHttpServer())
       .post(`/v1/payments/address`)
       .send(undelivarableAddress)
-      .expect(StatusCodes.OK)
+      .expect(HttpStatus.OK)
       .expect(({ body }) => {
         expect(body.address.deliverability).toBe('error');
       });
@@ -57,9 +56,9 @@ describe('Verify address', () => {
     return request(app.getHttpServer())
       .post(`/v1/payments/address`)
       .send(badRequest)
-      .expect(StatusCodes.BAD_REQUEST)
+      .expect(HttpStatus.BAD_REQUEST)
       .expect({
-        statusCode: StatusCodes.BAD_REQUEST,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Form errors',
         error: {
           address_street: ['address_street should not be empty', 'address_street must be a string'],
@@ -79,9 +78,9 @@ describe('Verify address', () => {
     return request(app.getHttpServer())
       .post(`/v1/payments/address`)
       .send(undelivarableAddress)
-      .expect(StatusCodes.BAD_REQUEST)
+      .expect(HttpStatus.BAD_REQUEST)
       .expect({
-        statusCode: StatusCodes.BAD_REQUEST,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'ADDRESS_VERIFICATION_FAILED',
         error: 'Bad Request',
       });

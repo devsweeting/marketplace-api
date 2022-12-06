@@ -15,7 +15,6 @@ import {
 import { IPaymentsAccountResponse } from 'modules/payments/interfaces/create-account';
 import { IPermissionCodes } from 'modules/payments/interfaces/synapse-node';
 import { AccountPatchError } from 'modules/payments/exceptions/account-patch-failure.exception';
-import { StatusCodes } from 'http-status-codes';
 
 let app: INestApplication;
 let service: PaymentsService;
@@ -302,7 +301,7 @@ describe('Service', () => {
       expect(mockCreateNode).toHaveBeenCalled();
       expect(account.account.depositNodeId).toBeDefined();
       expect(account.msg).toEqual(`Payments account created for user -- ${user.id}`);
-      expect(account.status).toBe(StatusCodes.CREATED);
+      expect(account.status).toBe(HttpStatus.CREATED);
     });
 
     test('should fail if user already exists', async () => {

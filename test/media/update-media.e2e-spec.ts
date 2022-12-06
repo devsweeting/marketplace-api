@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { createPartner } from '@/test/utils/partner.utils';
 import { createAsset } from '@/test/utils/asset.utils';
@@ -14,7 +14,6 @@ import { MediaTypeEnum } from 'modules/assets/enums/media-type.enum';
 import { createImageMedia } from '../utils/media.utils';
 import { createFile } from '../utils/file.utils';
 import { MediaDto } from 'modules/assets/dto/media/media.dto';
-import { StatusCodes } from 'http-status-codes';
 
 describe('MediaController', () => {
   let app: INestApplication;
@@ -61,7 +60,7 @@ describe('MediaController', () => {
       return request(app.getHttpServer())
         .patch(`/v1/media/${imageMedia.id}`)
         .send(dtoRequest)
-        .expect(StatusCodes.UNAUTHORIZED);
+        .expect(HttpStatus.UNAUTHORIZED);
     });
 
     test('should throw 401 exception if token is invalid', () => {
@@ -72,7 +71,7 @@ describe('MediaController', () => {
           'x-api-key': 'invalid key',
         })
         .send(dtoRequest)
-        .expect(StatusCodes.UNAUTHORIZED);
+        .expect(HttpStatus.UNAUTHORIZED);
     });
 
     test('should throw 404 exception if partner is not owner', async () => {
@@ -89,7 +88,7 @@ describe('MediaController', () => {
           'x-api-key': notOwnerPartner.apiKey,
         })
         .send(dtoRequest)
-        .expect(StatusCodes.NOT_FOUND);
+        .expect(HttpStatus.NOT_FOUND);
     });
 
     test('should update a title of media object', () => {
@@ -106,7 +105,7 @@ describe('MediaController', () => {
           'x-api-key': partner.apiKey,
         })
         .send(dto)
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .then(async () => {
           const media = await Media.findOne({
             where: { id: imageMedia.id },
@@ -129,7 +128,7 @@ describe('MediaController', () => {
           'x-api-key': partner.apiKey,
         })
         .send(dto)
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .then(async () => {
           const media = await Media.findOne({
             where: { id: imageMedia.id },
@@ -152,7 +151,7 @@ describe('MediaController', () => {
           'x-api-key': partner.apiKey,
         })
         .send(dto)
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .then(async () => {
           const media = await Media.findOne({
             where: { id: imageMedia.id },
@@ -175,7 +174,7 @@ describe('MediaController', () => {
           'x-api-key': partner.apiKey,
         })
         .send(dto)
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .then(async () => {
           const media = await Media.findOne({
             where: { id: imageMedia.id },
@@ -197,7 +196,7 @@ describe('MediaController', () => {
           'x-api-key': partner.apiKey,
         })
         .send(dto)
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .then(async () => {
           const media = await Media.findOne({
             where: { id: imageMedia.id },
@@ -221,7 +220,7 @@ describe('MediaController', () => {
           'x-api-key': partner.apiKey,
         })
         .send(dtoRequest)
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             id: imageMedia.id,
@@ -246,7 +245,7 @@ describe('MediaController', () => {
           'x-api-key': partner.apiKey,
         })
         .send(dtoRequest)
-        .expect(StatusCodes.OK);
+        .expect(HttpStatus.OK);
     });
 
     test('should throw an exception if partner is deleted', async () => {
@@ -273,7 +272,7 @@ describe('MediaController', () => {
           'x-api-key': deletedPartner.apiKey,
         })
         .send(dtoRequest)
-        .expect(StatusCodes.UNAUTHORIZED);
+        .expect(HttpStatus.UNAUTHORIZED);
     });
   });
 });

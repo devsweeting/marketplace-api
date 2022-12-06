@@ -1,11 +1,10 @@
 import request from 'supertest';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { v4 } from 'uuid';
 import { createFile } from '@/test/utils/file.utils';
 import { createCollection } from '../utils/collection.utils';
 import { Collection } from 'modules/collections/entities';
-import { StatusCodes } from 'http-status-codes';
 
 describe('CollectionsController', () => {
   let app: INestApplication;
@@ -34,12 +33,12 @@ describe('CollectionsController', () => {
       return request(app.getHttpServer())
         .delete(`/v1/collections/123`)
         .send()
-        .expect(StatusCodes.BAD_REQUEST)
+        .expect(HttpStatus.BAD_REQUEST)
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Bad Request',
             message: ['id must be a UUID'],
-            statusCode: StatusCodes.BAD_REQUEST,
+            statusCode: HttpStatus.BAD_REQUEST,
           });
         });
     });
@@ -48,14 +47,14 @@ describe('CollectionsController', () => {
       return request(app.getHttpServer())
         .delete(`/v1/collections/${v4()}`)
         .send()
-        .expect(StatusCodes.NOT_FOUND);
+        .expect(HttpStatus.NOT_FOUND);
     });
 
     test('should remove collection', async () => {
       return request(app.getHttpServer())
         .delete(`/v1/collections/${collection.id}`)
         .send()
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .then(async () => {
           const persistedCollection = await Collection.findOne({
             where: { id: collection.id, isDeleted: false },

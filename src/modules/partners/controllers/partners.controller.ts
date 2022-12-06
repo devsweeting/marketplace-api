@@ -11,7 +11,6 @@ import { GetPartner } from 'modules/auth/decorators/get-partner.decorator';
 import { Partner } from '../entities';
 import { PartnersService } from '../services/partners.service';
 import { UpdatePartnerMembersDto } from '../dto';
-import { StatusCodes } from 'http-status-codes';
 
 @ApiTags('partners')
 @Controller({
@@ -36,11 +35,11 @@ export class PartnersController {
   public async update(
     @GetPartner() partner: Partner,
     @Body() dto: UpdatePartnerMembersDto,
-  ): Promise<{ status: StatusCodes; description: string }> {
+  ): Promise<{ status: HttpStatus; description: string }> {
     await this.partnersService.updatePartnerMembers(partner, dto);
 
     return {
-      status: StatusCodes.OK,
+      status: HttpStatus.OK,
       description: 'Partner updated',
     };
   }
