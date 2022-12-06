@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { createPartner } from '@/test/utils/partner.utils';
 import { createAsset } from '@/test/utils/asset.utils';
@@ -11,7 +11,6 @@ import { RoleEnum } from 'modules/users/enums/role.enum';
 import { createImageMedia } from '../utils/media.utils';
 import * as testApp from '../utils/app.utils';
 import { AUTH_UNAUTHORIZED } from '../utils/test-helper';
-import { StatusCodes } from 'http-status-codes';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -52,7 +51,7 @@ describe('AssetsController', () => {
   describe(`DELETE V1 /assets/:id`, () => {
     test('should throw 401 exception if auth token is missing', () => {
       return testApp.requireAuthorization(
-        testApp.del(app, `/v1/assets/${asset.id}`, StatusCodes.UNAUTHORIZED, null, {}, {}),
+        testApp.del(app, `/v1/assets/${asset.id}`, HttpStatus.UNAUTHORIZED, null, {}, {}),
         AUTH_UNAUTHORIZED,
       );
     });
@@ -62,28 +61,21 @@ describe('AssetsController', () => {
         'x-api-key': 'invalid key',
       };
       return testApp.requireAuthorization(
-        testApp.del(
-          app,
-          `/v1/assets/${asset.id}`,
-          StatusCodes.UNAUTHORIZED,
-          null,
-          {},
-          customHeader,
-        ),
+        testApp.del(app, `/v1/assets/${asset.id}`, HttpStatus.UNAUTHORIZED, null, {}, customHeader),
         AUTH_UNAUTHORIZED,
       );
     });
 
     test('should throw 400 exception if id is not uuid', () => {
-      return testApp.del(app, `/v1/assets/123`, StatusCodes.BAD_REQUEST, null, {}, header);
+      return testApp.del(app, `/v1/assets/123`, HttpStatus.BAD_REQUEST, null, {}, header);
     });
 
     test('should throw 404 exception if asset does not exist', () => {
       const response = {
         message: 'Not Found',
-        statusCode: StatusCodes.NOT_FOUND,
+        statusCode: HttpStatus.NOT_FOUND,
       };
-      return testApp.del(app, `/v1/assets/${v4()}`, StatusCodes.NOT_FOUND, null, response, header);
+      return testApp.del(app, `/v1/assets/${v4()}`, HttpStatus.NOT_FOUND, null, response, header);
     });
 
     test('should throw 404 exception if asset does not belong to the partner', async () => {
@@ -97,7 +89,7 @@ describe('AssetsController', () => {
       return testApp.del(
         app,
         `/v1/assets/${otherAsset.id}`,
-        StatusCodes.NOT_FOUND,
+        HttpStatus.NOT_FOUND,
         null,
         {},
         header,
@@ -105,7 +97,7 @@ describe('AssetsController', () => {
     });
 
     test('should remove asset', async () => {
-      await testApp.del(app, `/v1/assets/${asset.id}`, StatusCodes.OK, null, {}, header);
+      await testApp.del(app, `/v1/assets/${asset.id}`, HttpStatus.OK, null, {}, header);
 
       const persistedAsset = await Asset.findOne({
         where: { id: asset.id, isDeleted: false },

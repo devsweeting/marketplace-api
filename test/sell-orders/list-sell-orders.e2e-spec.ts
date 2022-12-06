@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { createPartner } from '@/test/utils/partner.utils';
 import { Partner } from 'modules/partners/entities';
@@ -12,7 +12,6 @@ import { SellOrder } from 'modules/sell-orders/entities';
 import { createSellOrder } from '../utils/sell-order.utils';
 import { SellOrdersTransformer } from 'modules/sell-orders/transformers/sell-orders.transformer';
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
-import { StatusCodes } from 'http-status-codes';
 
 describe('SellOrdersController', () => {
   let app: INestApplication;
@@ -123,7 +122,7 @@ describe('SellOrdersController', () => {
       return testApp.get(
         app,
         BASE_URL + `?${params.toString()}`,
-        StatusCodes.OK,
+        HttpStatus.OK,
         response,
         {},
         header,
@@ -148,7 +147,7 @@ describe('SellOrdersController', () => {
       return testApp.get(
         app,
         BASE_URL + `?${params.toString()}`,
-        StatusCodes.OK,
+        HttpStatus.OK,
         response,
         {},
         header,
@@ -176,7 +175,7 @@ describe('SellOrdersController', () => {
       return testApp.get(
         app,
         BASE_URL + `?${params.toString()}`,
-        StatusCodes.OK,
+        HttpStatus.OK,
         response,
         {},
         header,
@@ -204,7 +203,7 @@ describe('SellOrdersController', () => {
       return testApp.get(
         app,
         BASE_URL + `?${params.toString()}`,
-        StatusCodes.OK,
+        HttpStatus.OK,
         response,
         {},
         header,
@@ -233,7 +232,7 @@ describe('SellOrdersController', () => {
     return testApp.get(
       app,
       BASE_URL + `?${params.toString()}`,
-      StatusCodes.OK,
+      HttpStatus.OK,
       response,
       {},
       header,
@@ -263,7 +262,7 @@ describe('SellOrdersController', () => {
     return testApp.get(
       app,
       BASE_URL + `?${params.toString()}`,
-      StatusCodes.OK,
+      HttpStatus.OK,
       response,
       {},
       header,
@@ -291,7 +290,7 @@ describe('SellOrdersController', () => {
     return testApp.get(
       app,
       BASE_URL + `?${params.toString()}`,
-      StatusCodes.OK,
+      HttpStatus.OK,
       response,
       {},
       header,
@@ -321,7 +320,7 @@ describe('SellOrdersController', () => {
     return testApp.get(
       app,
       BASE_URL + `?${params.toString()}`,
-      StatusCodes.OK,
+      HttpStatus.OK,
       response,
       {},
       header,
@@ -346,7 +345,7 @@ describe('SellOrdersController', () => {
     return testApp.get(
       app,
       BASE_URL + `?${params.toString()}`,
-      StatusCodes.OK,
+      HttpStatus.OK,
       response,
       {},
       header,
@@ -371,7 +370,7 @@ describe('SellOrdersController', () => {
     return testApp.get(
       app,
       BASE_URL + `?${params.toString()}`,
-      StatusCodes.OK,
+      HttpStatus.OK,
       response,
       {},
       header,
@@ -396,7 +395,7 @@ describe('SellOrdersController', () => {
     return testApp.get(
       app,
       BASE_URL + `?${params.toString()}`,
-      StatusCodes.OK,
+      HttpStatus.OK,
       response,
       {},
       header,
@@ -421,7 +420,7 @@ describe('SellOrdersController', () => {
     return testApp.get(
       app,
       BASE_URL + `?${params.toString()}`,
-      StatusCodes.OK,
+      HttpStatus.OK,
       response,
       {},
       header,
@@ -445,7 +444,7 @@ describe('SellOrdersController', () => {
     return testApp.get(
       app,
       BASE_URL + `?${params.toString()}`,
-      StatusCodes.OK,
+      HttpStatus.OK,
       response,
       {},
       header,

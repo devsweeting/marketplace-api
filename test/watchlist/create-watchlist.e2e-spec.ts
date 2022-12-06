@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '@/test/utils/app.utils';
 
 import { createWatchlist, createWatchlistAsset } from '../utils/watchlist.utils';
@@ -12,7 +12,6 @@ import { createPartner } from '../utils/partner.utils';
 import { Partner } from 'modules/partners/entities';
 import { v4 } from 'uuid';
 import { generateNonce, generateToken } from '../utils/jwt.utils';
-import { StatusCodes } from 'http-status-codes';
 
 describe('WatchlistController', () => {
   let app: INestApplication;
@@ -58,7 +57,7 @@ describe('WatchlistController', () => {
       return request(app.getHttpServer())
         .post(`/v1/watchlist`)
         .send({})
-        .expect(StatusCodes.UNAUTHORIZED);
+        .expect(HttpStatus.UNAUTHORIZED);
     });
 
     test('should throw 401 exception if token is invalid', () => {
@@ -66,7 +65,7 @@ describe('WatchlistController', () => {
         .post(`/v1/watchlist`)
         .set({ Authorization: `Bearer wrong` })
         .send({})
-        .expect(StatusCodes.UNAUTHORIZED);
+        .expect(HttpStatus.UNAUTHORIZED);
     });
 
     test('should add new asset to watchlist if watchlist does not exists', async () => {
@@ -75,10 +74,10 @@ describe('WatchlistController', () => {
         .post(`/v1/watchlist`)
         .set({ Authorization: `Bearer ${generateToken(user)}` })
         .send(dtoRequest)
-        .expect(StatusCodes.CREATED)
+        .expect(HttpStatus.CREATED)
         .expect(({ body }) => {
           expect(body).toEqual({
-            status: StatusCodes.CREATED,
+            status: HttpStatus.CREATED,
             description: 'Asset was added to watchlist',
           });
         })
@@ -102,10 +101,10 @@ describe('WatchlistController', () => {
       .post(`/v1/watchlist`)
       .set({ Authorization: `Bearer ${generateToken(user)}` })
       .send(dtoRequest)
-      .expect(StatusCodes.CREATED)
+      .expect(HttpStatus.CREATED)
       .expect(({ body }) => {
         expect(body).toEqual({
-          status: StatusCodes.CREATED,
+          status: HttpStatus.CREATED,
           description: 'Asset was added to watchlist',
         });
       });
@@ -133,10 +132,10 @@ describe('WatchlistController', () => {
       .post(`/v1/watchlist`)
       .set({ Authorization: `Bearer ${generateToken(user)}` })
       .send(dtoRequest)
-      .expect(StatusCodes.CREATED)
+      .expect(HttpStatus.CREATED)
       .expect(({ body }) => {
         expect(body).toEqual({
-          status: StatusCodes.CREATED,
+          status: HttpStatus.CREATED,
           description: 'Asset was added to watchlist',
         });
       })
@@ -170,10 +169,10 @@ describe('WatchlistController', () => {
       .post(`/v1/watchlist`)
       .set({ Authorization: `Bearer ${generateToken(user)}` })
       .send(dtoRequest)
-      .expect(StatusCodes.CREATED)
+      .expect(HttpStatus.CREATED)
       .expect(({ body }) => {
         expect(body).toEqual({
-          status: StatusCodes.CREATED,
+          status: HttpStatus.CREATED,
           description: 'Asset was added to watchlist',
         });
       })
@@ -208,10 +207,10 @@ describe('WatchlistController', () => {
       .post(`/v1/watchlist`)
       .set({ Authorization: `Bearer ${generateToken(user)}` })
       .send(dtoRequest)
-      .expect(StatusCodes.CONFLICT)
+      .expect(HttpStatus.CONFLICT)
       .expect(({ body }) => {
         expect(body).toEqual({
-          statusCode: StatusCodes.CONFLICT,
+          statusCode: HttpStatus.CONFLICT,
           error: 'Conflict',
           message: 'WATCHLIST_ASSET_DUPLICATED',
         });
@@ -235,10 +234,10 @@ describe('WatchlistController', () => {
       .post(`/v1/watchlist`)
       .set({ Authorization: `Bearer ${generateToken(user)}` })
       .send(dtoRequest)
-      .expect(StatusCodes.NOT_FOUND)
+      .expect(HttpStatus.NOT_FOUND)
       .expect(({ body }) => {
         expect(body).toEqual({
-          statusCode: StatusCodes.NOT_FOUND,
+          statusCode: HttpStatus.NOT_FOUND,
           error: 'Not Found',
           message: 'ASSET_NOT_FOUND',
         });
@@ -266,10 +265,10 @@ describe('WatchlistController', () => {
       .post(`/v1/watchlist`)
       .set({ Authorization: `Bearer ${generateToken(user)}` })
       .send(dtoRequest)
-      .expect(StatusCodes.NOT_FOUND)
+      .expect(HttpStatus.NOT_FOUND)
       .expect(({ body }) => {
         expect(body).toEqual({
-          statusCode: StatusCodes.NOT_FOUND,
+          statusCode: HttpStatus.NOT_FOUND,
           error: 'Not Found',
           message: 'ASSET_NOT_FOUND',
         });
@@ -311,10 +310,10 @@ describe('WatchlistController', () => {
       .post(`/v1/watchlist`)
       .set({ Authorization: `Bearer ${generateToken(user)}` })
       .send(dtoRequest)
-      .expect(StatusCodes.CONFLICT)
+      .expect(HttpStatus.CONFLICT)
       .expect(({ body }) => {
         expect(body).toEqual({
-          statusCode: StatusCodes.CONFLICT,
+          statusCode: HttpStatus.CONFLICT,
           error: 'Conflict',
           message: 'WATCHLIST_MAX_ASSET_OVER_LIMIT',
         });

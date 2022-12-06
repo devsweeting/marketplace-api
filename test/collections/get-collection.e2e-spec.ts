@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { CollectionsTransformer } from 'modules/collections/transformers/collections.transformer';
 import { createFile } from '@/test/utils/file.utils';
@@ -7,7 +7,6 @@ import { v4 } from 'uuid';
 
 import { createCollection } from '../utils/collection.utils';
 import { Collection } from 'modules/collections/entities';
-import { StatusCodes } from 'http-status-codes';
 
 describe('CollectionsController', () => {
   let app: INestApplication;
@@ -39,7 +38,7 @@ describe('CollectionsController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections/${collection.id}`)
         .send()
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual(collectionsTransformer.transform(collection));
         });
@@ -49,12 +48,12 @@ describe('CollectionsController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections/123`)
         .send()
-        .expect(StatusCodes.NOT_FOUND)
+        .expect(HttpStatus.NOT_FOUND)
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Not Found',
             message: 'COLLECTION_NOT_FOUND',
-            statusCode: StatusCodes.NOT_FOUND,
+            statusCode: HttpStatus.NOT_FOUND,
           });
         });
     });
@@ -63,12 +62,12 @@ describe('CollectionsController', () => {
       return request(app.getHttpServer())
         .get(`/v1/collections/${v4()}`)
         .send()
-        .expect(StatusCodes.NOT_FOUND)
+        .expect(HttpStatus.NOT_FOUND)
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Not Found',
             message: 'COLLECTION_NOT_FOUND',
-            statusCode: StatusCodes.NOT_FOUND,
+            statusCode: HttpStatus.NOT_FOUND,
           });
         });
     });

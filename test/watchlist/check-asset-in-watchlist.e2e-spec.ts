@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '@/test/utils/app.utils';
 
 import { createWatchlist, createWatchlistAsset } from '../utils/watchlist.utils';
@@ -12,7 +12,6 @@ import { createPartner } from '../utils/partner.utils';
 import { Partner } from 'modules/partners/entities';
 import { generateNonce, generateToken } from '../utils/jwt.utils';
 import { v4 } from 'uuid';
-import { StatusCodes } from 'http-status-codes';
 
 describe('WatchlistController', () => {
   let app: INestApplication;
@@ -76,21 +75,21 @@ describe('WatchlistController', () => {
       return request(app.getHttpServer())
         .get(`/v1/watchlist/check/${v4()}`)
         .send()
-        .expect(StatusCodes.UNAUTHORIZED);
+        .expect(HttpStatus.UNAUTHORIZED);
     });
 
     test('should throw 401 exception if auth token is missing for id', () => {
       return request(app.getHttpServer())
         .get(`/v1/watchlist/check/${assets[0].id}`)
         .send({})
-        .expect(StatusCodes.UNAUTHORIZED);
+        .expect(HttpStatus.UNAUTHORIZED);
     });
 
     test('should throw 401 exception if auth token is missing for slug', () => {
       return request(app.getHttpServer())
         .get(`/v1/watchlist/check/${assets[0].slug}`)
         .send({})
-        .expect(StatusCodes.UNAUTHORIZED);
+        .expect(HttpStatus.UNAUTHORIZED);
     });
 
     test('should throw 401 exception if token is invalid for id', () => {
@@ -98,7 +97,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist/check/${assets[0].id}`)
         .set({ Authorization: `Bearer wrong` })
         .send({})
-        .expect(StatusCodes.UNAUTHORIZED);
+        .expect(HttpStatus.UNAUTHORIZED);
     });
 
     test('should throw 401 exception if token is invalid for slug', () => {
@@ -106,7 +105,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist/check/${assets[0].slug}`)
         .set({ Authorization: `Bearer wrong` })
         .send({})
-        .expect(StatusCodes.UNAUTHORIZED);
+        .expect(HttpStatus.UNAUTHORIZED);
     });
 
     test('return inWatchlist: false if user has not added asset to watchlist for id', () => {
@@ -114,7 +113,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist/check/${assets[1].id}`)
         .set({ Authorization: `Bearer ${generateToken(users[1])}` })
         .send()
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual({ assetId: assets[1].id, inWatchlist: false });
         });
@@ -125,7 +124,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist/check/${assets[1].slug}`)
         .set({ Authorization: `Bearer ${generateToken(users[1])}` })
         .send()
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual({ assetId: assets[1].id, inWatchlist: false });
         });
@@ -136,7 +135,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist/check/${assets[0].id}`)
         .set({ Authorization: `Bearer ${generateToken(users[0])}` })
         .send()
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual({ assetId: assets[0].id, inWatchlist: true });
         });
@@ -147,7 +146,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist/check/${assets[0].slug}`)
         .set({ Authorization: `Bearer ${generateToken(users[0])}` })
         .send()
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual({ assetId: assets[0].id, inWatchlist: true });
         });
@@ -173,12 +172,12 @@ describe('WatchlistController', () => {
           .get(`/v1/watchlist/check/${id}`)
           .set({ Authorization: `Bearer ${generateToken(users[0])}` })
           .send()
-          .expect(StatusCodes.NOT_FOUND)
+          .expect(HttpStatus.NOT_FOUND)
           .expect(({ body }) => {
             expect(body).toEqual({
               error: 'Not Found',
               message: 'ASSET_NOT_FOUND',
-              statusCode: StatusCodes.NOT_FOUND,
+              statusCode: HttpStatus.NOT_FOUND,
             });
           });
       }
@@ -189,7 +188,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist/check/${v4()}`)
         .set({ Authorization: `Bearer ${generateToken(users[0])}` })
         .send()
-        .expect(StatusCodes.NOT_FOUND);
+        .expect(HttpStatus.NOT_FOUND);
     });
 
     test('return 404 if asset does not exist for wrong slug ', () => {
@@ -197,7 +196,7 @@ describe('WatchlistController', () => {
         .get(`/v1/watchlist/check/wrong-slug`)
         .set({ Authorization: `Bearer ${generateToken(users[0])}` })
         .send()
-        .expect(StatusCodes.NOT_FOUND);
+        .expect(HttpStatus.NOT_FOUND);
     });
   });
 });

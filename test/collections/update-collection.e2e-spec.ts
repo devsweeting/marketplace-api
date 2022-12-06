@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '@/test/utils/app.utils';
 
 import { v4 } from 'uuid';
@@ -10,7 +10,6 @@ import { CollectionsTransformer } from 'modules/collections/transformers/collect
 import { createCollection } from '../utils/collection.utils';
 import { Collection } from 'modules/collections/entities';
 import { createFile } from '../utils/file.utils';
-import { StatusCodes } from 'http-status-codes';
 
 describe('CollectionsController', () => {
   let app: INestApplication;
@@ -45,7 +44,7 @@ describe('CollectionsController', () => {
       return request(app.getHttpServer())
         .patch(`/v1/collections/${v4()}`)
         .send({})
-        .expect(StatusCodes.NOT_FOUND);
+        .expect(HttpStatus.NOT_FOUND);
     });
 
     test('should update banner', async () => {
@@ -56,7 +55,7 @@ describe('CollectionsController', () => {
       return request(app.getHttpServer())
         .patch(`/v1/collections/${collection.id}`)
         .send(payload)
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             ...collectionsTransformer.transform(collection),
@@ -82,7 +81,7 @@ describe('CollectionsController', () => {
         .patch(`/v1/collections/${collection.id}`)
 
         .send(payload)
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             ...collectionsTransformer.transform(collection),
@@ -107,7 +106,7 @@ describe('CollectionsController', () => {
       return request(app.getHttpServer())
         .patch(`/v1/collections/${collection.id}`)
         .send(payload)
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
             ...collectionsTransformer.transform(collection),

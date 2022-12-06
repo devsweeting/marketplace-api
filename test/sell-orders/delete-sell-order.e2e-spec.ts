@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { createPartner } from '@/test/utils/partner.utils';
 import { createAsset } from '@/test/utils/asset.utils';
@@ -12,7 +12,6 @@ import * as testApp from '../utils/app.utils';
 import { AUTH_UNAUTHORIZED } from '../utils/test-helper';
 import { createSellOrder } from '../utils/sell-order.utils';
 import { SellOrder } from 'modules/sell-orders/entities';
-import { StatusCodes } from 'http-status-codes';
 
 describe('SellOrdersController', () => {
   let app: INestApplication;
@@ -67,7 +66,7 @@ describe('SellOrdersController', () => {
   describe(`DELETE V1 /assets/:id`, () => {
     test('should throw 401 exception if auth token is missing', () => {
       return testApp.requireAuthorization(
-        testApp.del(app, BASE_URL + sellOrder.id, StatusCodes.UNAUTHORIZED, null, {}, {}),
+        testApp.del(app, BASE_URL + sellOrder.id, HttpStatus.UNAUTHORIZED, null, {}, {}),
         AUTH_UNAUTHORIZED,
       );
     });
@@ -77,31 +76,31 @@ describe('SellOrdersController', () => {
         'x-api-key': 'invalid key',
       };
       return testApp.requireAuthorization(
-        testApp.del(app, BASE_URL + sellOrder.id, StatusCodes.UNAUTHORIZED, null, {}, customHeader),
+        testApp.del(app, BASE_URL + sellOrder.id, HttpStatus.UNAUTHORIZED, null, {}, customHeader),
         AUTH_UNAUTHORIZED,
       );
     });
 
     test('should throw 400 exception if id is not uuid', () => {
-      return testApp.del(app, BASE_URL + '123', StatusCodes.BAD_REQUEST, null, {}, header);
+      return testApp.del(app, BASE_URL + '123', HttpStatus.BAD_REQUEST, null, {}, header);
     });
 
     test('should throw 404 exception if sell order does not exist', () => {
       const response = {
         message: 'Not Found',
-        statusCode: StatusCodes.NOT_FOUND,
+        statusCode: HttpStatus.NOT_FOUND,
       };
-      return testApp.del(app, BASE_URL + v4(), StatusCodes.NOT_FOUND, null, response, header);
+      return testApp.del(app, BASE_URL + v4(), HttpStatus.NOT_FOUND, null, response, header);
     });
 
     test('should throw 404 exception if sell order does not belong to the partner', async () => {
       const otherAsset = await createAsset({}, anotherPartner);
 
-      return testApp.del(app, BASE_URL + otherAsset.id, StatusCodes.NOT_FOUND, null, {}, header);
+      return testApp.del(app, BASE_URL + otherAsset.id, HttpStatus.NOT_FOUND, null, {}, header);
     });
 
     test('should soft remove sell order', async () => {
-      await testApp.del(app, BASE_URL + sellOrder.id, StatusCodes.OK, null, {}, header);
+      await testApp.del(app, BASE_URL + sellOrder.id, HttpStatus.OK, null, {}, header);
 
       const persistedSellOrder = await SellOrder.findOne({
         where: { id: sellOrder.id, isDeleted: false },

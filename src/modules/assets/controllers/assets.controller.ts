@@ -37,7 +37,6 @@ import { MediaService } from '../services/media.service';
 import { MediaTransformer } from '../transformers/media.transformer';
 
 import { validate as isValidUUID } from 'uuid';
-import { StatusCodes } from 'http-status-codes';
 @ApiTags('assets')
 @Controller({
   path: 'assets',
@@ -137,7 +136,7 @@ export class AssetsController {
     @GetPartner() partner: Partner,
     @Body() dto: TransferRequestDto,
   ): Promise<{
-    status: StatusCodes;
+    status: HttpStatus;
     description: string;
   }> {
     try {
@@ -146,7 +145,7 @@ export class AssetsController {
       throw e;
     }
     return {
-      status: StatusCodes.CREATED,
+      status: HttpStatus.CREATED,
       description: 'Transfer request accepted, processing.',
     };
   }

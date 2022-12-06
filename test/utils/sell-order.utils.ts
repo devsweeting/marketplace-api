@@ -1,6 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { INestApplication } from '@nestjs/common';
-import { StatusCodes } from 'http-status-codes';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { SellOrder, SellOrderPurchase } from 'modules/sell-orders/entities';
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
 import { User } from 'modules/users/entities';
@@ -34,7 +33,7 @@ export async function expectPurchaseSuccess(
   await order.reload();
   const initialQty = order.fractionQtyAvailable;
   const payload = { fractionsToPurchase, fractionPriceCents };
-  await testApp.post(app, urlFor(order), StatusCodes.CREATED, null, payload, authHeaders);
+  await testApp.post(app, urlFor(order), HttpStatus.CREATED, null, payload, authHeaders);
   await order.reload();
   if (sellerUserAsset) {
     const initialSellerAssetQty = sellerUserAsset.quantityOwned;

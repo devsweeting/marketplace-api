@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, HttpStatus } from '@nestjs/common';
 import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { createPartner } from '@/test/utils/partner.utils';
 import { Partner } from 'modules/partners/entities';
@@ -16,7 +16,6 @@ import { createUserAsset } from '../utils/create-user-asset';
 import { UserAsset } from 'modules/users/entities/user-assets.entity';
 import { AssetsTransformer } from 'modules/assets/transformers/assets.transformer';
 import { PortfolioTransformer } from 'modules/portfolio/transformers/portfolio.transformer';
-import { StatusCodes } from 'http-status-codes';
 
 describe('PortfolioController', () => {
   const initialQty = 10000;
@@ -152,7 +151,7 @@ describe('PortfolioController', () => {
       await request(app.getHttpServer())
         .get(PORTFOLIO_URL)
         .set(headers)
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect((res) => {
           expect(res.body.totalUnits).toBe(unitsToBuyFromAsset1 + unitsToBuyFromAsset2);
           expect(res.body.totalValueInCents).toEqual(
@@ -188,7 +187,7 @@ describe('PortfolioController', () => {
       await request(app.getHttpServer())
         .get(PORTFOLIO_URL)
         .set(headers)
-        .expect(StatusCodes.UNAUTHORIZED)
+        .expect(HttpStatus.UNAUTHORIZED)
         .expect((res) => {
           expect(res.body.message).toBe('Unauthorized');
         });

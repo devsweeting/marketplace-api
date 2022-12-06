@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { Asset, Media } from 'modules/assets/entities';
 import { createAsset } from '@/test/utils/asset.utils';
@@ -14,7 +14,6 @@ import { MediaTransformer } from 'modules/assets/transformers/media.transformer'
 import { createFile } from '../utils/file.utils';
 import * as testApp from '../utils/app.utils';
 import { createSellOrder } from '../utils/sell-order.utils';
-import { StatusCodes } from 'http-status-codes';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -78,7 +77,7 @@ describe('AssetsController', () => {
         ...assetsTransformer.transform(asset),
         media: mediaTransformer.transformAll([media]),
       };
-      await testApp.get(app, `/v1/assets/${asset.id}`, StatusCodes.OK, response, {}, header);
+      await testApp.get(app, `/v1/assets/${asset.id}`, HttpStatus.OK, response, {}, header);
     });
 
     test('should return asset only with active media', async () => {
@@ -91,25 +90,25 @@ describe('AssetsController', () => {
         media: mediaTransformer.transformAll([media]),
       };
 
-      await testApp.get(app, `/v1/assets/${asset.id}`, StatusCodes.OK, response, {}, header);
+      await testApp.get(app, `/v1/assets/${asset.id}`, HttpStatus.OK, response, {}, header);
     });
 
     test('should 404 exception id is invalid', async () => {
       const response = {
         error: 'Not Found',
         message: 'ASSET_NOT_FOUND',
-        statusCode: StatusCodes.NOT_FOUND,
+        statusCode: HttpStatus.NOT_FOUND,
       };
-      await testApp.get(app, `/v1/assets/123`, StatusCodes.NOT_FOUND, response, {}, header);
+      await testApp.get(app, `/v1/assets/123`, HttpStatus.NOT_FOUND, response, {}, header);
     });
 
     test('should 404 exception if file does not exist', async () => {
       const response = {
         error: 'Not Found',
         message: 'ASSET_NOT_FOUND',
-        statusCode: StatusCodes.NOT_FOUND,
+        statusCode: HttpStatus.NOT_FOUND,
       };
-      return testApp.get(app, `/v1/assets/${v4()}`, StatusCodes.NOT_FOUND, response, {}, header);
+      return testApp.get(app, `/v1/assets/${v4()}`, HttpStatus.NOT_FOUND, response, {}, header);
     });
 
     test('should 404 if asset is soft-deleted', async () => {
@@ -129,12 +128,12 @@ describe('AssetsController', () => {
       const response = {
         error: 'Not Found',
         message: 'ASSET_NOT_FOUND',
-        statusCode: StatusCodes.NOT_FOUND,
+        statusCode: HttpStatus.NOT_FOUND,
       };
       await testApp.get(
         app,
         `/v1/assets/${toBeDeleted.id}`,
-        StatusCodes.NOT_FOUND,
+        HttpStatus.NOT_FOUND,
         response,
         {},
         header,

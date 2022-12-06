@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { createPartner } from '@/test/utils/partner.utils';
 import { Partner } from 'modules/partners/entities';
@@ -12,7 +12,6 @@ import { SellOrder } from 'modules/sell-orders/entities';
 import { v4 } from 'uuid';
 import { faker } from '@faker-js/faker';
 import { SellOrderTypeEnum } from 'modules/sell-orders/enums/sell-order-type.enum';
-import { StatusCodes } from 'http-status-codes';
 
 describe('SellOrdersController', () => {
   let app: INestApplication;
@@ -24,7 +23,7 @@ describe('SellOrdersController', () => {
   const BASE_URL = `/v1/sellorders`;
 
   async function expect400(payload, msg): Promise<void> {
-    await expect4xx(StatusCodes.BAD_REQUEST, 'Bad Request', payload, msg);
+    await expect4xx(HttpStatus.BAD_REQUEST, 'Bad Request', payload, msg);
   }
 
   async function expect4xx(status: number, err: string, payload, msg): Promise<void> {
@@ -79,12 +78,12 @@ describe('SellOrdersController', () => {
 
   describe(`POST V1 /`, () => {
     test('should throw 401 exception if auth token is missing', () => {
-      return testApp.post(app, BASE_URL, StatusCodes.UNAUTHORIZED, null, {}, {});
+      return testApp.post(app, BASE_URL, HttpStatus.UNAUTHORIZED, null, {}, {});
     });
 
     test('should throw 401 exception if token is invalid', () => {
       const customHeader = { 'x-api-key': 'invalid key' };
-      return testApp.post(app, BASE_URL, StatusCodes.UNAUTHORIZED, null, {}, customHeader);
+      return testApp.post(app, BASE_URL, HttpStatus.UNAUTHORIZED, null, {}, customHeader);
     });
 
     test('should create sell order', async () => {
@@ -97,10 +96,10 @@ describe('SellOrdersController', () => {
         startTime: new Date(), // Don't mock since it should be now-ish
       };
       const expectedResponse = {
-        status: StatusCodes.CREATED,
+        status: HttpStatus.CREATED,
         description: 'Sell order created',
       };
-      await testApp.post(app, BASE_URL, StatusCodes.CREATED, expectedResponse, payload, header);
+      await testApp.post(app, BASE_URL, HttpStatus.CREATED, expectedResponse, payload, header);
 
       const sellOrder = await SellOrder.findOne({
         where: { partnerId: partner.id, assetId: asset.id },
@@ -122,10 +121,10 @@ describe('SellOrdersController', () => {
         startTime: new Date(),
       };
       const expectedResponse = {
-        status: StatusCodes.CREATED,
+        status: HttpStatus.CREATED,
         description: 'Sell order created',
       };
-      await testApp.post(app, BASE_URL, StatusCodes.CREATED, expectedResponse, payload, header);
+      await testApp.post(app, BASE_URL, HttpStatus.CREATED, expectedResponse, payload, header);
 
       const sellOrder = await SellOrder.findOne({
         where: { partnerId: partner.id, assetId: asset.id },
@@ -167,10 +166,10 @@ describe('SellOrdersController', () => {
       };
       const response = {
         error: 'Not Found',
-        statusCode: StatusCodes.NOT_FOUND,
+        statusCode: HttpStatus.NOT_FOUND,
         message: 'ASSET_NOT_FOUND',
       };
-      await testApp.post(app, BASE_URL, StatusCodes.NOT_FOUND, response, payload, header);
+      await testApp.post(app, BASE_URL, HttpStatus.NOT_FOUND, response, payload, header);
 
       const sellOrder = await SellOrder.findOne({
         where: { partnerId: partner.id, assetId: asset.id },
@@ -188,10 +187,10 @@ describe('SellOrdersController', () => {
       };
       const response = {
         error: 'Not Found',
-        statusCode: StatusCodes.NOT_FOUND,
+        statusCode: HttpStatus.NOT_FOUND,
         message: 'USER_NOT_FOUND',
       };
-      await testApp.post(app, BASE_URL, StatusCodes.NOT_FOUND, response, payload, header);
+      await testApp.post(app, BASE_URL, HttpStatus.NOT_FOUND, response, payload, header);
 
       const sellOrder = await SellOrder.findOne({
         where: { partnerId: partner.id, assetId: asset.id },
@@ -256,10 +255,10 @@ describe('SellOrdersController', () => {
         userFractionLimitEndTime: faker.date.future(),
       };
       const expectedResponse = {
-        status: StatusCodes.CREATED,
+        status: HttpStatus.CREATED,
         description: 'Sell order created',
       };
-      await testApp.post(app, BASE_URL, StatusCodes.CREATED, expectedResponse, payload, header);
+      await testApp.post(app, BASE_URL, HttpStatus.CREATED, expectedResponse, payload, header);
 
       const sellOrder = await SellOrder.findOne({
         where: { partnerId: partner.id, assetId: asset.id },
@@ -281,10 +280,10 @@ describe('SellOrdersController', () => {
         userFractionLimitEndTime: faker.date.future(),
       };
       const expectedResponse = {
-        status: StatusCodes.CREATED,
+        status: HttpStatus.CREATED,
         description: 'Sell order created',
       };
-      await testApp.post(app, BASE_URL, StatusCodes.CREATED, expectedResponse, payload, header);
+      await testApp.post(app, BASE_URL, HttpStatus.CREATED, expectedResponse, payload, header);
 
       const sellOrder = await SellOrder.findOne({
         where: { partnerId: partner.id, assetId: asset.id },

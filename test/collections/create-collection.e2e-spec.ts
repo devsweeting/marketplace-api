@@ -1,10 +1,9 @@
 import request from 'supertest';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '@/test/utils/app.utils';
 
 import { Collection } from 'modules/collections/entities';
 import { CollectionDto } from 'modules/collections/dto';
-import { StatusCodes } from 'http-status-codes';
 
 describe('CollectionController', () => {
   let app: INestApplication;
@@ -34,7 +33,7 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .post(`/v1/collections`)
         .send(collectionDto)
-        .expect(StatusCodes.CREATED)
+        .expect(HttpStatus.CREATED)
         .then(async () => {
           const collection = await Collection.findOne({
             where: { slug: collectionDto.name },
@@ -56,9 +55,9 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .post(`/v1/collections`)
         .send(collectionDto)
-        .expect(StatusCodes.BAD_REQUEST)
+        .expect(HttpStatus.BAD_REQUEST)
         .expect({
-          statusCode: StatusCodes.BAD_REQUEST,
+          statusCode: HttpStatus.BAD_REQUEST,
           message: [
             'name must be shorter than or equal to 200 characters',
             'name should not be empty',
@@ -80,9 +79,9 @@ describe('CollectionController', () => {
       return request(app.getHttpServer())
         .post(`/v1/collections`)
         .send(collectionDto)
-        .expect(StatusCodes.BAD_REQUEST)
+        .expect(HttpStatus.BAD_REQUEST)
         .expect({
-          statusCode: StatusCodes.BAD_REQUEST,
+          statusCode: HttpStatus.BAD_REQUEST,
           message: [
             'name should not be empty',
             'description should not be empty',

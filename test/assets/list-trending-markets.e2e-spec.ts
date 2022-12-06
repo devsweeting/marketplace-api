@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Partner } from 'modules/partners/entities';
 import { User } from 'modules/users/entities';
 import { RoleEnum } from 'modules/users/enums/role.enum';
@@ -10,7 +10,6 @@ import * as testApp from '../utils/app.utils';
 import { createAsset } from '../utils/asset.utils';
 import { Asset } from 'modules/assets/entities';
 import { createSellOrder } from '../utils/sell-order.utils';
-import { StatusCodes } from 'http-status-codes';
 
 describe('Trending Markets', () => {
   let app: INestApplication;
@@ -155,7 +154,7 @@ describe('Trending Markets', () => {
           },
         ],
       };
-      await testApp.get(app, `/v1/trending`, StatusCodes.OK, response, {});
+      await testApp.get(app, `/v1/trending`, HttpStatus.OK, response, {});
     });
   });
 });

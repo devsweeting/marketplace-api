@@ -1,12 +1,11 @@
 import request from 'supertest';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { createPartner } from '@/test/utils/partner.utils';
 import { Partner, PartnerMemberUser } from 'modules/partners/entities';
 import { User } from 'modules/users/entities/user.entity';
 import { createUser } from '../utils/create-user';
 import { RoleEnum } from 'modules/users/enums/role.enum';
-import { StatusCodes } from 'http-status-codes';
 
 describe('PartnerController', () => {
   let app: INestApplication;
@@ -41,7 +40,7 @@ describe('PartnerController', () => {
       return request(app.getHttpServer())
         .patch(`/v1/partners`)
         .send({})
-        .expect(StatusCodes.UNAUTHORIZED);
+        .expect(HttpStatus.UNAUTHORIZED);
     });
 
     test('should throw 401 exception if token is invalid', () => {
@@ -51,7 +50,7 @@ describe('PartnerController', () => {
           'x-api-key': 'invalid key',
         })
         .send({})
-        .expect(StatusCodes.UNAUTHORIZED);
+        .expect(HttpStatus.UNAUTHORIZED);
     });
 
     test('should update user partner member', async () => {
@@ -65,10 +64,10 @@ describe('PartnerController', () => {
           'x-api-key': partner.apiKey,
         })
         .send(payload)
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual({
-            status: StatusCodes.OK,
+            status: HttpStatus.OK,
             description: 'Partner updated',
           });
         })
@@ -98,12 +97,12 @@ describe('PartnerController', () => {
           'x-api-key': partner.apiKey,
         })
         .send(payload)
-        .expect(StatusCodes.NOT_FOUND)
+        .expect(HttpStatus.NOT_FOUND)
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Not Found',
             message: `EMAIL_NOT_FOUND`,
-            statusCode: StatusCodes.NOT_FOUND,
+            statusCode: HttpStatus.NOT_FOUND,
           });
         })
         .then(async () => {

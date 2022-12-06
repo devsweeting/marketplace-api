@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { Asset, Attribute, Label, Media } from 'modules/assets/entities';
 import { createAsset } from '@/test/utils/asset.utils';
@@ -15,7 +15,6 @@ import { SellOrder } from 'modules/sell-orders/entities';
 import { createSellOrder } from '../utils/sell-order.utils';
 import { createImageMedia } from '../utils/media.utils';
 import { MediaTransformer } from 'modules/assets/transformers/media.transformer';
-import { StatusCodes } from 'http-status-codes';
 
 describe('AssetsController', () => {
   let app: INestApplication;
@@ -42,7 +41,7 @@ describe('AssetsController', () => {
       },
       items: assetsTransformer.transformAll(expectedAssets),
     };
-    return await testApp.get(app, `/v1/assets?${params}`, StatusCodes.OK, response);
+    return await testApp.get(app, `/v1/assets?${params}`, HttpStatus.OK, response);
   }
 
   beforeAll(async () => {
@@ -296,9 +295,9 @@ describe('AssetsController', () => {
       const response = {
         error: 'Bad Request',
         message: 'ATTRIBUTE_DUPLICATED',
-        statusCode: StatusCodes.BAD_REQUEST,
+        statusCode: HttpStatus.BAD_REQUEST,
       };
-      return testApp.get(app, `/v1/assets?${params.toString()}`, StatusCodes.BAD_REQUEST, response);
+      return testApp.get(app, `/v1/assets?${params.toString()}`, HttpStatus.BAD_REQUEST, response);
     });
 
     test('should throw exception if attr_eq and attr_lte the same', async () => {
@@ -306,9 +305,9 @@ describe('AssetsController', () => {
       const response = {
         error: 'Bad Request',
         message: 'ATTRIBUTE_DUPLICATED',
-        statusCode: StatusCodes.BAD_REQUEST,
+        statusCode: HttpStatus.BAD_REQUEST,
       };
-      return testApp.get(app, `/v1/assets?${params.toString()}`, StatusCodes.BAD_REQUEST, response);
+      return testApp.get(app, `/v1/assets?${params.toString()}`, HttpStatus.BAD_REQUEST, response);
     });
 
     test('should throw exception if attr_gte the same', async () => {
@@ -316,9 +315,9 @@ describe('AssetsController', () => {
       const response = {
         error: 'Bad Request',
         message: 'ATTRIBUTE_DUPLICATED',
-        statusCode: StatusCodes.BAD_REQUEST,
+        statusCode: HttpStatus.BAD_REQUEST,
       };
-      return testApp.get(app, `/v1/assets?${params.toString()}`, StatusCodes.BAD_REQUEST, response);
+      return testApp.get(app, `/v1/assets?${params.toString()}`, HttpStatus.BAD_REQUEST, response);
     });
 
     test('should throw exception if attr_lte the same', async () => {
@@ -326,9 +325,9 @@ describe('AssetsController', () => {
       const response = {
         error: 'Bad Request',
         message: 'ATTRIBUTE_DUPLICATED',
-        statusCode: StatusCodes.BAD_REQUEST,
+        statusCode: HttpStatus.BAD_REQUEST,
       };
-      return testApp.get(app, `/v1/assets?${params.toString()}`, StatusCodes.BAD_REQUEST, response);
+      return testApp.get(app, `/v1/assets?${params.toString()}`, HttpStatus.BAD_REQUEST, response);
     });
 
     test('should throw exception if attr_gte is greater than attr_lte', async () => {
@@ -336,9 +335,9 @@ describe('AssetsController', () => {
       const response = {
         error: 'Bad Request',
         message: 'ATTRIBUTE_LTE_MUST_BE_GREATER_THAN_GTE',
-        statusCode: StatusCodes.BAD_REQUEST,
+        statusCode: HttpStatus.BAD_REQUEST,
       };
-      return testApp.get(app, `/v1/assets?${params.toString()}`, StatusCodes.BAD_REQUEST, response);
+      return testApp.get(app, `/v1/assets?${params.toString()}`, HttpStatus.BAD_REQUEST, response);
     });
 
     test('should throw an error if asset attr_lte is less than attr_gte', async () => {
@@ -346,9 +345,9 @@ describe('AssetsController', () => {
       const response = {
         error: 'Bad Request',
         message: 'ATTRIBUTE_LTE_MUST_BE_GREATER_THAN_GTE',
-        statusCode: StatusCodes.BAD_REQUEST,
+        statusCode: HttpStatus.BAD_REQUEST,
       };
-      return testApp.get(app, `/v1/assets?${params.toString()}`, StatusCodes.BAD_REQUEST, response);
+      return testApp.get(app, `/v1/assets?${params.toString()}`, HttpStatus.BAD_REQUEST, response);
     });
 
     test('should 400 exception if params are invalid', async () => {
@@ -368,9 +367,9 @@ describe('AssetsController', () => {
           'limit must not be less than 0',
           'order must be a valid enum value',
         ],
-        statusCode: StatusCodes.BAD_REQUEST,
+        statusCode: HttpStatus.BAD_REQUEST,
       };
-      return testApp.get(app, `/v1/assets?${params.toString()}`, StatusCodes.BAD_REQUEST, response);
+      return testApp.get(app, `/v1/assets?${params.toString()}`, HttpStatus.BAD_REQUEST, response);
     });
 
     test('should return only queried assets', async () => {
@@ -387,9 +386,9 @@ describe('AssetsController', () => {
       const response = {
         error: 'Bad Request',
         message: 'MUST_BE_UUID',
-        statusCode: StatusCodes.BAD_REQUEST,
+        statusCode: HttpStatus.BAD_REQUEST,
       };
-      return testApp.get(app, `/v1/assets?${params.toString()}`, StatusCodes.BAD_REQUEST, response);
+      return testApp.get(app, `/v1/assets?${params.toString()}`, HttpStatus.BAD_REQUEST, response);
     });
 
     test('should exclude deleted media', async () => {
@@ -425,7 +424,7 @@ describe('AssetsController', () => {
       const params = new URLSearchParams({
         search: 'abc',
       });
-      return testApp.get(app, `/v1/assets?${params.toString()}`, StatusCodes.OK, response);
+      return testApp.get(app, `/v1/assets?${params.toString()}`, HttpStatus.OK, response);
     });
   });
 });

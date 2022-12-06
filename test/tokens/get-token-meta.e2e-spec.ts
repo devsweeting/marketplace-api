@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '@/test/utils/app.utils';
 import { Asset, Contract, Media, Token } from 'modules/assets/entities';
 import { createAsset } from '@/test/utils/asset.utils';
@@ -15,7 +15,6 @@ import { createImageMedia } from '../utils/media.utils';
 import { File } from 'modules/storage/entities/file.entity';
 import { createFile } from '../utils/file.utils';
 import { MediaTransformer } from 'modules/assets/transformers/media.transformer';
-import { StatusCodes } from 'http-status-codes';
 
 describe('TokensController', () => {
   let app: INestApplication;
@@ -77,7 +76,7 @@ describe('TokensController', () => {
       return request(app.getHttpServer())
         .get(`/v1/token/meta/${contract.address}/${token.tokenId}`)
         .send()
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual(response);
         });
@@ -94,7 +93,7 @@ describe('TokensController', () => {
       return request(app.getHttpServer())
         .get(`/v1/token/meta/${contract.address}/${token.tokenId}.json`)
         .send()
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ text }) => {
           expect(text).toEqual(JSON.stringify(response));
         });
@@ -104,12 +103,12 @@ describe('TokensController', () => {
       return request(app.getHttpServer())
         .get(`/v1/token/meta/${contract.address}/123`)
         .send()
-        .expect(StatusCodes.BAD_REQUEST)
+        .expect(HttpStatus.BAD_REQUEST)
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Bad Request',
             message: 'MUST_BE_UUID',
-            statusCode: StatusCodes.BAD_REQUEST,
+            statusCode: HttpStatus.BAD_REQUEST,
           });
         });
     });
@@ -118,12 +117,12 @@ describe('TokensController', () => {
       return request(app.getHttpServer())
         .get(`/v1/token/meta/wrongAddress/${token.tokenId}`)
         .send()
-        .expect(StatusCodes.NOT_FOUND)
+        .expect(HttpStatus.NOT_FOUND)
         .expect(({ body }) => {
           expect(body).toEqual({
             error: 'Not Found',
             message: 'TOKEN_NOT_FOUND',
-            statusCode: StatusCodes.NOT_FOUND,
+            statusCode: HttpStatus.NOT_FOUND,
           });
         });
     });

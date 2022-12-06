@@ -1,12 +1,11 @@
 import { User } from 'modules/users/entities/user.entity';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { RoleEnum } from 'modules/users/enums/role.enum';
 import request from 'supertest';
 
 import { createApp } from '../utils/app.utils';
 import { createUser } from '../utils/create-user';
 import { generateToken } from '../utils/jwt.utils';
-import { StatusCodes } from 'http-status-codes';
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;
@@ -32,18 +31,18 @@ describe('UserController (e2e)', () => {
       return request(app.getHttpServer())
         .get(`/v1/users`)
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
-        .expect(StatusCodes.OK);
+        .expect(HttpStatus.OK);
     });
 
     test('return status 401 for unauthorized user', async () => {
-      return request(app.getHttpServer()).get(`/v1/users`).expect(StatusCodes.UNAUTHORIZED);
+      return request(app.getHttpServer()).get(`/v1/users`).expect(HttpStatus.UNAUTHORIZED);
     });
 
     test('should list all users sorted alphabetically by last name', async () => {
       await request(app.getHttpServer())
         .get('/v1/users')
         .set({ Authorization: `Bearer ${generateToken(admin)}` })
-        .expect(StatusCodes.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
           // eslint-disable-next-line no-magic-numbers
           expect(body.length).toEqual(4);
