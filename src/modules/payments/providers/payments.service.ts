@@ -10,7 +10,6 @@ import { BasicKycDto } from '../dto/basic-kyc.dto';
 import { UpdateKycDto } from '../dto/update-kyc.dto';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
 import { UserPaymentsAccount } from '../entities/user-payments-account.entity';
-import { PaymentsAccountCreationFailed } from '../exceptions/account-creation-failure.exception';
 import { AccountPatchError } from '../exceptions/account-patch-failure.exception';
 import { AddressVerificationFailedException } from '../exceptions/address-verification-failed.exception';
 import { BaseDocumentError } from '../exceptions/base-document-error-exception';
@@ -20,8 +19,17 @@ import {
   IUserPaymentAccountResponse,
   IPaymentsAccountResponse,
 } from '../interfaces/create-account';
-import { IPermissionCodes, ISynapseBaseDocuments, IPermissions } from '../interfaces/synapse-node';
-import { createUserParams } from '../util/helper';
+import { IPermissionCodes, IPermissions, ISynapseBaseDocuments } from '../interfaces/synapse-node';
+import {
+  createPaymentProviderUserAccount,
+  createUserParams,
+  initializeSynapseUserClient as initializeProviderUserClient,
+} from '../util/kyc-helper';
+import {
+  createPaymentsDepositHub as createProviderDepositNode,
+  getSynapseOAuthKey as getProviderOAuthKey,
+  viewSynapseUserDetails as viewProviderUserDetails,
+} from '../util/node-helper';
 
 @Injectable()
 export class PaymentsService extends BaseService {
@@ -77,21 +85,7 @@ export class PaymentsService extends BaseService {
     const accountId = paymentAccount.paymentsAccount.userAccountId;
 
     //Query Synapse API for full account details
-    const paymentAccountDetail = await this.client
-      .getUser(accountId, null)
-      .then(({ body }) => {
-        return body;
-      })
-      .catch(({ response }) => {
-        if (response.status === HttpStatus.NOT_FOUND) {
-          throw new UserPaymentsAccountNotFound(
-            `Cannot locate a FBO payments account with account ID -- ${accountId}`,
-          );
-        }
-        throw new UserPaymentsAccountNotFound(
-          `Something went wrong locating FBO payments account with ID -- ${accountId}`,
-        );
-      });
+    const paymentAccountDetail = await viewProviderUserDetails(this.client, accountId);
 
     return {
       status: HttpStatus.OK,
@@ -102,6 +96,7 @@ export class PaymentsService extends BaseService {
   public async submitKYC(
     bodyParams: BasicKycDto,
     user: User,
+    headers: object,
     ip_address: Ipv4Address,
   ): Promise<IPaymentsAccountResponse> {
     //Check if the user already has an associated payments account
@@ -117,34 +112,59 @@ export class PaymentsService extends BaseService {
 
     //Generate params to create new payments account;
     const accountUserParams = createUserParams(user.id, bodyParams, ip_address);
-    //Create new FBO payments account with Synapse
-    const newAccount = await this.client
-      .createUser(accountUserParams, ip_address, {})
-      .then((data) => {
-        return data.body;
-      })
-      .catch((err) => {
-        if (err) {
-          throw new PaymentsAccountCreationFailed(err.response.data);
-        }
-      });
-    //Associate the new payment FBO details with the user:
-    const newPaymentsAccount = await UserPaymentsAccount.create({
+
+    //Create new FBO payments account with payment provider
+    const providerPaymentAccount = await createPaymentProviderUserAccount(
+      this.client,
+      accountUserParams,
+      ip_address,
+    );
+
+    //Associate the new payment account details with the Jump user:
+    const localPaymentsAccount = await UserPaymentsAccount.create({
       userId: user.id,
-      userAccountId: newAccount._id,
+      userAccountId: providerPaymentAccount._id,
       depositNodeId: null,
-      refreshToken: newAccount.refresh_token,
-      permission: newAccount.permission as IPermissions,
-      permission_code: newAccount.permission_code,
+      refreshToken: providerPaymentAccount.refresh_token,
+      permission: providerPaymentAccount.permission as IPermissions,
+      permissionCode: providerPaymentAccount.permission_code as IPermissionCodes,
+      oauthKey: providerPaymentAccount.oauth_key, //TODO update test
+      baseDocumentId: providerPaymentAccount.documents[0].id, //TODO update test
     }).save();
 
-    Logger.log(
-      `FBO payments account(${newPaymentsAccount.userAccountId}) successfully created for user -- ${user.id}`,
+    const { userAccountId, refreshToken, baseDocumentId } = localPaymentsAccount;
+
+    //Initialize the client to communicate with the Payments Provider API
+    const userClient = initializeProviderUserClient(
+      userAccountId,
+      headers,
+      ip_address,
+      this.client,
     );
+
+    //Retrieve oauth token to make actions on behalf of the user.
+    const tokens = await getProviderOAuthKey(userClient, refreshToken);
+
+    //Create the deposit hub node.
+    const depositHub = await createProviderDepositNode(userClient, baseDocumentId);
+
+    //Update pertinent account details for future reference.
+    if (depositHub.success === true) {
+      await UserPaymentsAccount.updateDetailsOnNodeCreation(
+        userAccountId,
+        tokens,
+        depositHub.nodes[0]._id,
+      );
+    }
+
+    Logger.log(
+      `FBO payments account(${localPaymentsAccount.userAccountId}) successfully created for user -- ${user.id}`,
+    );
+
     return {
       status: HttpStatus.CREATED,
       msg: `Payments account created for user -- ${user.id}`,
-      account: newPaymentsAccount,
+      account: localPaymentsAccount,
     };
   }
 

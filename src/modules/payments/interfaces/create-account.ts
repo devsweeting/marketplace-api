@@ -1,6 +1,7 @@
 import { HttpStatus } from 'aws-sdk/clients/lambda';
 import { User } from 'modules/users/entities';
 import { UserPaymentsAccount } from '../entities/user-payments-account.entity';
+import { ISynapseAccountResponse } from './synapse-node';
 
 export interface ICreatePaymentAccountParams {
   logins: { email: string }[];
@@ -89,7 +90,7 @@ export interface IUserPaymentAccountResponse {
   status: HttpStatus;
   data: {
     user: User;
-    account: Record<string, string>;
+    account: ISynapseAccountResponse;
   };
 }
 export type IDeliverability =

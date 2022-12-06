@@ -1,4 +1,13 @@
-import { Controller, Get, HttpCode, HttpStatus, Ip, Post, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Headers,
+  HttpCode,
+  HttpStatus,
+  Ip,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Ipv4Address } from 'aws-sdk/clients/inspector';
@@ -74,11 +83,12 @@ export class PaymentsController {
     type: PaymentsAccountResponse,
   })
   public async createUser(
+    @Headers() headers: Headers,
+    @Ip() ip_address: Ipv4Address,
     @ValidateFormBody() submitKycDto: BasicKycDto,
     @GetUser() user: User,
-    @Ip() ip_address: Ipv4Address,
   ): Promise<IPaymentsAccountResponse> {
-    const response = await this.paymentsService.submitKYC(submitKycDto, user, ip_address);
+    const response = await this.paymentsService.submitKYC(submitKycDto, user, headers, ip_address);
     return response;
   }
 

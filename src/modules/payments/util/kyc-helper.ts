@@ -10,7 +10,11 @@ import {
   ISynapseAccountResponse,
   ISynapseBaseDocuments,
   IVirtualDocumentType,
+  IOAuthHeaders,
+  ISynapseUserClient,
 } from '../interfaces/synapse-node';
+import { Client, User } from 'synapsenode';
+import { PaymentsAccountCreationFailed } from '../exceptions/account-creation-failure.exception';
 
 const IS_DEVELOPMENT = process.env.NODE_ENV === 'DEVELOP';
 
@@ -33,6 +37,41 @@ export function createUserParams(
     },
   };
   return createNewPaymentAccountParams;
+}
+export async function createPaymentProviderUserAccount(
+  client: Client,
+  accountParams: ISynapseAccountResponse,
+  ip_address: string,
+): Promise<ISynapseAccountResponse> {
+  const account: ISynapseAccountResponse = await client
+    .createUser(accountParams, ip_address, {})
+    .then((data) => {
+      return data.body;
+    })
+    .catch((err) => {
+      throw new PaymentsAccountCreationFailed(err.response.data);
+    });
+
+  return account;
+}
+
+export function initializeSynapseUserClient(
+  paymentAccountId: string,
+  headers: object,
+  ip_address: string,
+  client: Client,
+): ISynapseUserClient {
+  const headerObj: IOAuthHeaders = {
+    fingerprint: process.env.FINGERPRINT,
+    ip_address: ip_address,
+    ...headers,
+  };
+
+  return new User({
+    data: { _id: paymentAccountId },
+    headerObj,
+    client: client,
+  }) as ISynapseUserClient;
 }
 
 export function createKYCDocument(
@@ -86,7 +125,6 @@ export function createKYCDocument(
       document.social_docs = [{ ...social_docs }];
     }
   }
-
   return document;
 }
 

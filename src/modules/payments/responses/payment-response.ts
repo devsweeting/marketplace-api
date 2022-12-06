@@ -2,12 +2,13 @@ import { HttpStatus } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from 'modules/users/entities';
 import { UserPaymentsAccount } from '../entities/user-payments-account.entity';
+import { ISynapseAccountResponse } from '../interfaces/synapse-node';
 export class UserPaymentAccountData {
   @ApiProperty({ type: User })
   public user: User;
 
   @ApiProperty({ type: Object })
-  public account: Record<string, string>;
+  public account: ISynapseAccountResponse;
 }
 
 export class UserPaymentAccountResponse {
