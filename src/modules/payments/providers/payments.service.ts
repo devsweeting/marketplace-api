@@ -120,7 +120,7 @@ export class PaymentsService extends BaseService {
       ip_address,
     );
 
-    //Associate the new payment FBO details with the user:
+    //Associate the new payment account details with the Jump user:
     const localPaymentsAccount = await UserPaymentsAccount.create({
       userId: user.id,
       userAccountId: providerPaymentAccount._id,

@@ -120,7 +120,6 @@ describe('Create payments account e2e', () => {
           .set(headers)
           .expect(HttpStatus.OK)
           .expect(({ body }) => {
-            // console.log('body', body);
             expect(body.status).toBe(HttpStatus.OK);
             expect(body.data).toBeDefined();
             expect(body.data.user.id).toBe(user.id);
@@ -157,9 +156,6 @@ describe('Create payments account e2e', () => {
           .expect(({ body }) => {
             expect(body.status).toBe(HttpStatus.NOT_FOUND);
             expect(body.error).toBe('Payments Account Not Found');
-            // expect(body.message).toBe(
-            //   `Cannot locate a FBO payments account with account ID -- ${paymentsAccountCreationSuccess.User.id}`,
-            // );
           });
       });
 

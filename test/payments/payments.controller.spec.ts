@@ -3,7 +3,11 @@ import { BasicKycDto } from 'modules/payments/dto/basic-kyc.dto';
 import { createApp } from '../utils/app.utils';
 import { PaymentsController } from 'modules/payments/controllers/payments.controller';
 import { PaymentsService } from 'modules/payments/providers/payments.service';
-import { mockBasicKycQuery, paymentsAccountCreationSuccess } from 'modules/payments/test-variables';
+import {
+  mockBasicKycQuery,
+  paymentsAccountCreationSuccess,
+  synapseNewDepositAccountSuccess,
+} from 'modules/payments/test-variables';
 import { createUser } from '../utils/create-user';
 import { User } from 'modules/users/entities';
 import { generateToken } from '../utils/jwt.utils';
@@ -62,20 +66,26 @@ describe('Payments Controller', () => {
   test('Should create a new user account', async () => {
     mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
     mockCreateNode.mockResolvedValue({
-      data: { success: true, nodes: [{ _id: '3' }] },
+      data: synapseNewDepositAccountSuccess,
     });
     mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
     mockGetUser.mockResolvedValueOnce({ body: paymentsAccountCreationSuccess });
+
     const response = await paymentsController.createUser(
       {} as any,
       '::ffff:172.18.0.1',
       mockBasicKyc,
       user,
     );
+
     expect(response.msg).toEqual(`Payments account created for user -- ${user.id}`);
     expect(response.status).toBe(HttpStatus.CREATED);
+    expect(mockCreateNode).toBeCalled();
+    expect(mockOauthUser).toHaveBeenCalled();
     expect(response.account).toBeDefined();
     expect(response.account.userId).toBe(user.id);
+    expect(response.account.depositNodeId).toBeDefined();
+    expect(response.account.oauthKeyExpiresAt).toBeDefined();
   });
 
   test('Should return the users account if it already exists', async () => {
@@ -85,16 +95,19 @@ describe('Payments Controller', () => {
     });
     mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
     mockGetUser.mockResolvedValueOnce({ body: paymentsAccountCreationSuccess });
-    await paymentsController.createUser({} as any, '::ffff:172.18.0.1', mockBasicKyc, user);
+
     const response = await paymentsController.createUser(
       {} as any,
       '::ffff:172.18.0.1',
       mockBasicKyc,
       user,
     );
+
     expect(response.msg).toEqual(`Payments account already exists for user -- ${user.id}`);
     expect(response.status).toBe(HttpStatus.SEE_OTHER);
     expect(response.account).toBeDefined();
     expect(response.account.userId).toBe(user.id);
+    console.log('Account', response.account);
+    expect(response.account.depositNodeId).toBeDefined();
   });
 });
