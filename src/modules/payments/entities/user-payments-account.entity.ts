@@ -77,7 +77,7 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
     });
   }
 
-  static async updateDetailsOnDepositAccountCreation(
+  static async updateDetailsOnNodeCreation(
     userAccountId: string,
     tokens: { oauthKey: string; oauthKeyExpiresAt: string; refreshToken: string },
     depositNodeId: string,

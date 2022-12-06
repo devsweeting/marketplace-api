@@ -10,14 +10,12 @@ import {
 } from 'modules/payments/test-variables';
 import { createUser } from '../utils/create-user';
 import { User } from 'modules/users/entities';
-import { generateToken } from '../utils/jwt.utils';
 let app: INestApplication;
 let paymentsController: PaymentsController;
 let paymentsService: PaymentsService;
 const mockBasicKyc: BasicKycDto = mockBasicKycQuery;
 let user: User;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-let headers: Record<string, string>;
 const mockVerifyAddress = jest.fn();
 const mockCreateUser = jest.fn();
 const mockGetUser = jest.fn();
@@ -37,10 +35,6 @@ jest.mock('synapsenode', () => {
       createNode: mockCreateNode,
     })),
   };
-});
-
-beforeEach(async () => {
-  headers = { Authorization: `Bearer ${generateToken(user)}` };
 });
 
 afterAll(async () => {
@@ -91,7 +85,7 @@ describe('Payments Controller', () => {
   test('Should return the users account if it already exists', async () => {
     mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
     mockCreateNode.mockResolvedValue({
-      data: { success: true, nodes: [{ _id: '3' }] },
+      data: synapseNewDepositAccountSuccess,
     });
     mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
     mockGetUser.mockResolvedValueOnce({ body: paymentsAccountCreationSuccess });
@@ -107,7 +101,6 @@ describe('Payments Controller', () => {
     expect(response.status).toBe(HttpStatus.SEE_OTHER);
     expect(response.account).toBeDefined();
     expect(response.account.userId).toBe(user.id);
-    console.log('Account', response.account);
     expect(response.account.depositNodeId).toBeDefined();
   });
 });

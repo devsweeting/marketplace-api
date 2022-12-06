@@ -8,10 +8,11 @@ import {
 import { Client, User as PaymentsUser } from 'synapsenode';
 import { PaymentProviderOAuthFailure } from '../exceptions/oauth-failure.exception';
 import { UserPaymentsAccountNotFound } from '../exceptions/user-account-verification-failed.exception';
+import { PaymentProviderError } from '../exceptions/payment-provider-error.exception';
 
 const CONVERT_TO_MILLISECONDS = 1000;
 
-// const IS_DEVELOPMENT = process.env.NODE_ENV === 'DEVELOP';
+const IS_DEVELOPMENT = process.env.NODE_ENV === 'DEVELOP';
 
 const permissionScope = [
   'USER|PATCH',
@@ -62,7 +63,7 @@ export async function viewSynapseUserDetails(
 }
 
 /**
- * Return the users payment account auth token
+ * Returns the users payment account auth token
  */
 export async function getSynapseOAuthKey(
   userClient: ISynapseUserClient,
@@ -90,7 +91,7 @@ export async function getSynapseOAuthKey(
 }
 
 /**
- * Create the User's Deposit Account.
+ * Creates the User's Deposit Account Node.
  */
 export async function createPaymentsDepositHub(
   userClient: PaymentsUser,
@@ -99,7 +100,7 @@ export async function createPaymentsDepositHub(
   const bodyParams: IDepositNodeRequest = {
     type: 'IC-DEPOSIT-US',
     info: {
-      nickname: `${'Test'} Deposit Account`,
+      nickname: `${IS_DEVELOPMENT ? 'Test' : ''} Deposit Account`,
       document_id: baseDocumentId,
     },
     preview_only: false,
@@ -112,7 +113,7 @@ export async function createPaymentsDepositHub(
     })
     .catch((err) => {
       if (err) {
-        throw new Error(err.response.data); // TODO - create custom error
+        throw new PaymentProviderError(err.response.data);
       }
     });
 

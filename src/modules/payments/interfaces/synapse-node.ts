@@ -590,7 +590,7 @@ export interface IGetOAuthHeadersResponse {
 export interface IDepositNodeRequest {
   type: 'IC-DEPOSIT-US';
   info: {
-    nickname: string; //consider more dynamic name
+    nickname: string;
     document_id: string;
   };
   preview_only: boolean;

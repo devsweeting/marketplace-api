@@ -123,7 +123,4 @@ export interface IPaymentsAccountErrorMessage {
     code: string;
     en: string;
   };
-  // error_code: HttpStatus;
-  // http_code: HttpStatus;
-  // success: boolean;
 }

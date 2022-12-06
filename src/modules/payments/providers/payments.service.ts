@@ -23,12 +23,12 @@ import { IPermissionCodes, IPermissions, ISynapseBaseDocuments } from '../interf
 import {
   createPaymentProviderUserAccount,
   createUserParams,
-  initializeSynapseUserClient,
+  initializeSynapseUserClient as initializeProviderUserClient,
 } from '../util/kyc-helper';
 import {
-  createPaymentsDepositHub,
-  getSynapseOAuthKey,
-  viewSynapseUserDetails,
+  createPaymentsDepositHub as createProviderDepositNode,
+  getSynapseOAuthKey as getProviderOAuthKey,
+  viewSynapseUserDetails as viewProviderUserDetails,
 } from '../util/node-helper';
 
 @Injectable()
@@ -85,7 +85,7 @@ export class PaymentsService extends BaseService {
     const accountId = paymentAccount.paymentsAccount.userAccountId;
 
     //Query Synapse API for full account details
-    const paymentAccountDetail = await viewSynapseUserDetails(this.client, accountId);
+    const paymentAccountDetail = await viewProviderUserDetails(this.client, accountId);
 
     return {
       status: HttpStatus.OK,
@@ -135,17 +135,22 @@ export class PaymentsService extends BaseService {
     const { userAccountId, refreshToken, baseDocumentId } = localPaymentsAccount;
 
     //Initialize the client to communicate with the Payments Provider API
-    const userClient = initializeSynapseUserClient(userAccountId, headers, ip_address, this.client);
+    const userClient = initializeProviderUserClient(
+      userAccountId,
+      headers,
+      ip_address,
+      this.client,
+    );
 
     //Retrieve oauth token to make actions on behalf of the user.
-    const tokens = await getSynapseOAuthKey(userClient, refreshToken);
+    const tokens = await getProviderOAuthKey(userClient, refreshToken);
 
     //Create the deposit hub node.
-    const depositHub = await createPaymentsDepositHub(userClient, baseDocumentId);
+    const depositHub = await createProviderDepositNode(userClient, baseDocumentId);
 
     //Update pertinent account details for future reference.
     if (depositHub.success === true) {
-      await UserPaymentsAccount.updateDetailsOnDepositAccountCreation(
+      await UserPaymentsAccount.updateDetailsOnNodeCreation(
         userAccountId,
         tokens,
         depositHub.nodes[0]._id,
