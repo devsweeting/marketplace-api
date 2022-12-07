@@ -1,5 +1,6 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { httpstatus } from 'aws-sdk/clients/glacier';
 import { Ipv4Address } from 'aws-sdk/clients/inspector';
 import { BaseService } from 'modules/common/services';
 import { User } from 'modules/users/entities';
@@ -13,6 +14,8 @@ import { AccountPatchError } from '../exceptions/account-patch-failure.exception
 import { AddressVerificationFailedException } from '../exceptions/address-verification-failed.exception';
 import { BaseDocumentError } from '../exceptions/base-document-error-exception';
 import { IncorrectAgreementError } from '../exceptions/incorrect-agreement-status.exception';
+import { NoAgreementError } from '../exceptions/no-agreement-exception';
+import { NoAgreementFoundError } from '../exceptions/no-agreement-found-exception';
 import { UserPaymentsAccountNotFound } from '../exceptions/user-account-verification-failed.exception';
 import {
   IAddressResponse,
@@ -273,7 +276,9 @@ export class PaymentsService extends BaseService {
     return paymentsUser;
   }
 
-  public async getAgreementPreview(user: User): Promise<{ type: 'NODE_AGREEMENT'; url: string }[]> {
+  public async getAgreementPreview(
+    user: User,
+  ): Promise<{ status: HttpStatus; agreements: { type: 'NODE_AGREEMENT'; url: string }[] }> {
     const paymentsUser = await this.getExternalAccountFromUser(user);
     let baseDocument: ISynapseBaseDocuments;
     try {
@@ -284,14 +289,17 @@ export class PaymentsService extends BaseService {
 
     const res = await createPaymentsDepositHub(paymentsUser, baseDocument.id, true);
     if (res.node_count < 1) {
-      throw new Error('No agreements'); // TODO - create custom error;
+      throw new NoAgreementError();
     }
 
     const agreements = res.nodes[0]?.info?.agreements;
     if (agreements) {
-      return agreements;
+      return {
+        status: HttpStatus.OK,
+        agreements: agreements,
+      };
     }
-    throw new Error('No agreements found'); // TODO - create custom error;
+    throw new NoAgreementFoundError();
   }
 
   public async saveAgreementAcknowledgement(

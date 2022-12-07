@@ -66,14 +66,16 @@ export class PaymentsController {
     const data = await this.paymentsService.getAgreementPreview(user);
     return data;
   }
+
+  @Post('terms')
   @ApiBody({
     type: UpdateAgreementDto,
   })
-  @Post('terms')
   @ApiOperation({ summary: 'Saves to DB that users accepted a specific agreement' })
   @ApiResponse({
     status: HttpStatus.OK,
   })
+  @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('bearer-token')
   @UseGuards(JwtOtpAuthGuard)
   public async saveAgreement(
@@ -88,10 +90,10 @@ export class PaymentsController {
     return data;
   }
 
+  @Post('address')
   @ApiBody({
     type: VerifyAddressDto,
   })
-  @Post('address')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Verifies if an address is deliverable' })
   @ApiResponse({
