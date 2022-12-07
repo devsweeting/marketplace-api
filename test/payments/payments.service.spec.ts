@@ -391,7 +391,7 @@ describe('Service', () => {
       await createGenericKycAccount();
       await expect(async () => {
         await service.getAgreementPreview(user);
-      }).rejects.toThrow(new Error('No agreements found'));
+      }).rejects.toThrow(new Error('No agreement found'));
     });
 
     test('should throw if no agreement(s) are found', async () => {
@@ -406,7 +406,7 @@ describe('Service', () => {
       await createGenericKycAccount();
       await expect(async () => {
         await service.getAgreementPreview(user);
-      }).rejects.toThrow(new Error('No agreements'));
+      }).rejects.toThrow(new Error('No agreement'));
     });
 
     test('should return agreement forms', async () => {
