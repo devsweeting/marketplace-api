@@ -1,6 +1,5 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { httpstatus } from 'aws-sdk/clients/glacier';
 import { Ipv4Address } from 'aws-sdk/clients/inspector';
 import { BaseService } from 'modules/common/services';
 import { User } from 'modules/users/entities';
@@ -30,6 +29,7 @@ import {
   initializeSynapseUserClient as initializeProviderUserClient,
 } from '../util/kyc-helper';
 import {
+  createPaymentsDepositHub,
   createPaymentsDepositHub as createProviderDepositNode,
   getSynapseOAuthKey as getProviderOAuthKey,
   viewSynapseUserDetails as viewProviderUserDetails,
