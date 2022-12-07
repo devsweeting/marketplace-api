@@ -1,10 +1,7 @@
-import { HttpException, HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { clearAllData, createApp } from '../utils/app.utils';
-import {
-  mockUserPaymentAccount,
-  paymentsAccountCreationSuccess,
-} from 'modules/payments/test-variables';
+import { paymentsAccountCreationSuccess } from 'modules/payments/test-variables';
 import { createUser } from '../utils/create-user';
 import { User } from 'modules/users/entities';
 import { generateToken } from '../utils/jwt.utils';
@@ -174,6 +171,32 @@ describe('Terms and Conditions', () => {
         .expect(({ body }) => {
           expect(body.status).toBe(HttpStatus.OK);
           expect(body.message).toBe('User agreement updated');
+        });
+    });
+
+    test('should return BAD REQUEST if agreementStatus is not ACCEPTED or DECLINED', async () => {
+      const createNode = jest.fn();
+      createNode.mockResolvedValue({
+        data: {
+          success: true,
+          node_count: 1,
+          nodes: [{ info: { agreements: { type: 'NODE_AGREEMENT', url: 'string' } } }],
+        },
+      });
+      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+      mockCreateNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
+      mockGetUser.mockResolvedValue({ body: { documents: [{ id: 1 }] }, updateUser, createNode });
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      await createFboAccount(paymentsAccountCreationSuccess.User);
+
+      await request(app.getHttpServer())
+        .post(`/v1/payments/terms`)
+        .set(headers)
+        .send({ agreement_status: 'bad request' })
+        .expect(HttpStatus.BAD_REQUEST)
+        .expect(({ body }) => {
+          expect(body.status).toBe(HttpStatus.BAD_REQUEST);
+          expect(body.message).toBe('Incorrect agreement status');
         });
     });
   });
