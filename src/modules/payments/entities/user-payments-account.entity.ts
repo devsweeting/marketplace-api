@@ -5,6 +5,7 @@ import { BaseModel } from 'modules/common/entities/base.model';
 import { Exclude } from 'class-transformer';
 import { User } from 'modules/users/entities';
 import { IAgreementStatus, IPermissionCodes, IPermissions } from '../interfaces/create-account';
+import { Data } from 'aws-sdk/clients/firehose';
 
 @Entity('user_payments_account')
 @Unique('USER_ID_UNIQUE', ['userId'])
@@ -49,6 +50,18 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
     nullable: true,
   })
   public agreementStatus: IAgreementStatus;
+
+  @Column({
+    nullable: true,
+    type: 'timestamp',
+  })
+  public termsAcceptedDate: Data;
+
+  @Column({
+    nullable: true,
+    type: 'timestamp',
+  })
+  public paymentsNodeAgreedDate: Date;
 
   @Exclude()
   @Column({

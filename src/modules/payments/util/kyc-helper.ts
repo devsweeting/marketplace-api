@@ -15,12 +15,13 @@ import {
 } from '../interfaces/synapse-node';
 import { Client, User } from 'synapsenode';
 import { PaymentsAccountCreationFailed } from '../exceptions/account-creation-failure.exception';
+import { PaymentsAccountDto } from '../dto/payments-account.dto';
 
 const IS_DEVELOPMENT = process.env.NODE_ENV === 'DEVELOP';
 
 export function createUserParams(
   userId: string,
-  bodyParams: BasicKycDto | UpdateKycDto,
+  bodyParams: BasicKycDto | UpdateKycDto | PaymentsAccountDto,
   ip_address: Ipv4Address,
   baseDocument?: ISynapseBaseDocuments,
 ): ISynapseAccountResponse {
@@ -75,7 +76,13 @@ export function initializeSynapseUserClient(
 }
 
 export function createKYCDocument(
-  { date_of_birth, mailing_address, gender, email, phone_numbers }: BasicKycDto | UpdateKycDto,
+  {
+    date_of_birth,
+    mailing_address,
+    gender,
+    email,
+    phone_numbers,
+  }: BasicKycDto | UpdateKycDto | PaymentsAccountDto,
   fullName: string,
   ip_address: Ipv4Address,
   baseDocument?: ISynapseBaseDocuments,

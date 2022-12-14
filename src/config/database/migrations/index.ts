@@ -20,6 +20,7 @@ import { CreateUserAssetsTable1665784042941 } from './1665784042941-CreateUserAs
 import { CreateUserPaymentsAccountTable1668198230651 } from './1668198230651-CreateUserPaymentsAccountTable';
 import { AddAdditionalPaymentsAccountInfoFix1669840035959 } from './1669840035959-AddAdditionalPaymentsAccountInfoFix';
 import { addUserAgreementField1670270624511 } from './1670270624511-addUserAgreementField';
+import { addTermsAndNodeAgreement1670963001717 } from './1670963001717-addTermsAndNodeAgreement';
 
 export const migrations = [
   Init1652279127303,
@@ -44,4 +45,5 @@ export const migrations = [
   CreateUserPaymentsAccountTable1668198230651,
   AddAdditionalPaymentsAccountInfoFix1669840035959,
   addUserAgreementField1670270624511,
+  addTermsAndNodeAgreement1670963001717,
 ];

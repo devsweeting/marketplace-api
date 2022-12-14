@@ -6,6 +6,7 @@ import { User } from 'modules/users/entities';
 import { Client } from 'synapsenode';
 import { User as PaymentsUser } from 'synapsenode';
 import { BasicKycDto } from '../dto/basic-kyc.dto';
+import { PaymentsAccountDto } from '../dto/payments-account.dto';
 import { UpdateKycDto } from '../dto/update-kyc.dto';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
 import { UserPaymentsAccount } from '../entities/user-payments-account.entity';
@@ -97,12 +98,12 @@ export class PaymentsService extends BaseService {
     };
   }
 
-  public async submitKYC(
-    bodyParams: BasicKycDto,
+  public async createPaymentsAccount(
+    bodyParams: PaymentsAccountDto,
     user: User,
     headers: object,
     ip_address: Ipv4Address,
-  ): Promise<IPaymentsAccountResponse> {
+  ) {
     //Check if the user already has an associated payments account
     const userPaymentsAccount = await this.getUserPaymentsAccount(user.id);
 
@@ -134,7 +135,24 @@ export class PaymentsService extends BaseService {
       permissionCode: providerPaymentAccount.permission_code as IPermissionCodes,
       oauthKey: providerPaymentAccount.oauth_key, //TODO update test
       baseDocumentId: providerPaymentAccount.documents[0].id, //TODO update test
+      termsAcceptedDate: new Date(),
     }).save();
+
+    console.log(localPaymentsAccount);
+    return {
+      status: HttpStatus.CREATED,
+      msg: `Payments account created for user -- ${user.id}`,
+      account: localPaymentsAccount,
+    };
+  }
+
+  public async createPaymentNodeAccount(
+    bodyParams: BasicKycDto,
+    user: User,
+    headers: object,
+    ip_address: Ipv4Address,
+  ): Promise<IPaymentsAccountResponse> {
+    const localPaymentsAccount = await this.getExternalAccountFromUser(user);
 
     const { userAccountId, refreshToken, baseDocumentId } = localPaymentsAccount;
 
@@ -170,6 +188,63 @@ export class PaymentsService extends BaseService {
       msg: `Payments account created for user -- ${user.id}`,
       account: localPaymentsAccount,
     };
+
+    // //Generate params to create new payments account;
+    // const accountUserParams = createUserParams(user.id, bodyParams, ip_address);
+
+    // //Create new FBO payments account with payment provider
+    // const providerPaymentAccount = await createPaymentProviderUserAccount(
+    //   this.client,
+    //   accountUserParams,
+    //   ip_address,
+    // );
+
+    // //Associate the new payment account details with the Jump user:
+    // const localPaymentsAccount = await UserPaymentsAccount.create({
+    //   userId: user.id,
+    //   userAccountId: providerPaymentAccount._id,
+    //   depositNodeId: null,
+    //   refreshToken: providerPaymentAccount.refresh_token,
+    //   permission: providerPaymentAccount.permission as IPermissions,
+    //   permissionCode: providerPaymentAccount.permission_code as IPermissionCodes,
+    //   oauthKey: providerPaymentAccount.oauth_key, //TODO update test
+    //   baseDocumentId: providerPaymentAccount.documents[0].id, //TODO update test
+    // }).save();
+
+    // const { userAccountId, refreshToken, baseDocumentId } = localPaymentsAccount;
+
+    // //Initialize the client to communicate with the Payments Provider API
+    // const userClient = initializeProviderUserClient(
+    //   userAccountId,
+    //   headers,
+    //   ip_address,
+    //   this.client,
+    // );
+
+    // //Retrieve oauth token to make actions on behalf of the user.
+    // const tokens = await getProviderOAuthKey(userClient, refreshToken);
+
+    // //Create the deposit hub node.
+    // const depositHub = await createProviderDepositNode(userClient, baseDocumentId);
+
+    // //Update pertinent account details for future reference.
+    // if (depositHub.success === true) {
+    //   await UserPaymentsAccount.updateDetailsOnNodeCreation(
+    //     userAccountId,
+    //     tokens,
+    //     depositHub.nodes[0]._id,
+    //   );
+    // }
+
+    // Logger.log(
+    //   `FBO payments account(${localPaymentsAccount.userAccountId}) successfully created for user -- ${user.id}`,
+    // );
+
+    // return {
+    //   status: HttpStatus.CREATED,
+    //   msg: `Payments account created for user -- ${user.id}`,
+    //   account: localPaymentsAccount,
+    // };
   }
 
   public async updateKyc(

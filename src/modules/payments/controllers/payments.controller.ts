@@ -17,6 +17,7 @@ import JwtOtpAuthGuard from 'modules/auth/guards/jwt-otp-auth.guard';
 import { User } from 'modules/users/entities';
 import { ValidateFormBody } from '../decorators/form-validation.decorator';
 import { BasicKycDto } from '../dto/basic-kyc.dto';
+import { PaymentsAccountDto } from '../dto/payments-account.dto';
 import { UpdateAgreementDto } from '../dto/update-Agreement.dto';
 import { UpdateKycDto } from '../dto/update-kyc.dto';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
@@ -53,6 +54,34 @@ export class PaymentsController {
   public async verifyUser(@GetUser() user: User): Promise<UserPaymentAccountResponse> {
     const data = await this.paymentsService.getPaymentAccountDetails(user);
     return data;
+  }
+
+  @Post('account')
+  @ApiBody({
+    type: PaymentsAccountDto,
+  })
+  @ApiOperation({
+    summary: 'Creates a basic synapse account',
+  })
+  @ApiBearerAuth('bearer-token')
+  @UseGuards(JwtOtpAuthGuard)
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: PaymentsAccountResponse,
+  })
+  public async createBasicUser(
+    @Headers() headers: Headers,
+    @Ip() ip_address: Ipv4Address,
+    @ValidateFormBody() submitKycDto: PaymentsAccountDto,
+    @GetUser() user: User,
+  ): Promise<IPaymentsAccountResponse> {
+    const response = await this.paymentsService.createPaymentsAccount(
+      submitKycDto,
+      user,
+      headers,
+      ip_address,
+    );
+    return response;
   }
 
   @Get('terms')
@@ -126,7 +155,12 @@ export class PaymentsController {
     @ValidateFormBody() submitKycDto: BasicKycDto,
     @GetUser() user: User,
   ): Promise<IPaymentsAccountResponse> {
-    const response = await this.paymentsService.submitKYC(submitKycDto, user, headers, ip_address);
+    const response = await this.paymentsService.createPaymentNodeAccount(
+      submitKycDto,
+      user,
+      headers,
+      ip_address,
+    );
     return response;
   }
 
