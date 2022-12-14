@@ -49,13 +49,19 @@ export class PaymentsService extends BaseService {
     isProduction: this.configService.get('payments.default.isProduction'),
   });
 
-  private async getUserPaymentsAccount(userId: string): Promise<User> {
-    const userPaymentsAccount = await User.createQueryBuilder('users')
+  private async getUserPaymentsAccount(userId: string): Promise<UserPaymentsAccount> {
+    const userPaymentsAccount = await UserPaymentsAccount.createQueryBuilder('userPaymentsAccount')
+      .where('userPaymentsAccount.userId = :userId', { userId: userId })
+      .getOne();
+    return userPaymentsAccount;
+  }
+
+  private async getUserWithUserPaymentsACcount(userId: string): Promise<User> {
+    const userWithUserPaymentsAccount = await User.createQueryBuilder('users')
       .leftJoinAndMapOne('users.paymentsAccount', 'users.paymentsAccount', 'userPaymentsAccount')
       .where('userPaymentsAccount.userId = :userId', { userId: userId })
       .getOne();
-
-    return userPaymentsAccount;
+    return userWithUserPaymentsAccount;
   }
 
   public async verifyAddress(dto: VerifyAddressDto): Promise<IAddressResponse> {
@@ -80,7 +86,7 @@ export class PaymentsService extends BaseService {
 
   public async getPaymentAccountDetails(user: User): Promise<IUserPaymentAccountResponse> {
     //Check if user has an associated payment account
-    const paymentAccount = await this.getUserPaymentsAccount(user.id);
+    const paymentAccount = await this.getUserWithUserPaymentsACcount(user.id);
 
     if (paymentAccount === null) {
       throw new UserPaymentsAccountNotFound(
@@ -111,7 +117,7 @@ export class PaymentsService extends BaseService {
       return {
         status: HttpStatus.SEE_OTHER,
         msg: `Payments account already exists for user -- ${user.id}`,
-        account: userPaymentsAccount.paymentsAccount,
+        account: userPaymentsAccount,
       };
     }
 
@@ -152,9 +158,15 @@ export class PaymentsService extends BaseService {
     headers: object,
     ip_address: Ipv4Address,
   ): Promise<IPaymentsAccountResponse> {
-    const localPaymentsAccount = await this.getExternalAccountFromUser(user);
+    const localPaymentsAccount = await this.getUserPaymentsAccount(user.id);
+    console.log(localPaymentsAccount);
+    const externalPaymentsAccount = await this.getExternalAccountFromUser(user); //Synapse account
 
     const { userAccountId, refreshToken, baseDocumentId } = localPaymentsAccount;
+
+    if (!localPaymentsAccount.termsAcceptedDate) {
+      throw new NoAgreementFoundError(); //TODO make new error for this
+    }
 
     //Initialize the client to communicate with the Payments Provider API
     const userClient = initializeProviderUserClient(
@@ -162,6 +174,18 @@ export class PaymentsService extends BaseService {
       headers,
       ip_address,
       this.client,
+    );
+    const response = await this.updateKyc(bodyParams, user, ip_address);
+    if (response.status !== HttpStatus.OK) {
+      // throw new AccountPatchError(response);
+      //TODO throw error
+      return;
+    }
+
+    //Update the ToC to have an agreed date.
+    await UserPaymentsAccount.update(
+      { id: localPaymentsAccount.id },
+      { paymentsNodeAgreedDate: new Date() },
     );
 
     //Retrieve oauth token to make actions on behalf of the user.
@@ -341,10 +365,7 @@ export class PaymentsService extends BaseService {
     // check synapse database for account
     let paymentsUser: PaymentsUser;
     try {
-      paymentsUser = await this.client.getUser(
-        userPaymentsAccount.paymentsAccount.userAccountId,
-        {},
-      );
+      paymentsUser = await this.client.getUser(userPaymentsAccount.userAccountId, {});
     } catch (error) {
       throw new UserPaymentsAccountNotFound();
     }
