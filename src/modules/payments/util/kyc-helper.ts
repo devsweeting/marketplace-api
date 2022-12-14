@@ -96,9 +96,9 @@ export function createKYCDocument(
     alias: `${fullName} ${IS_DEVELOPMENT ? 'test' : 'payments'} account`,
     entity_scope: 'Arts & Entertainment',
     entity_type: gender ?? 'NOT_KNOWN',
-    day: date_of_birth.day,
-    month: date_of_birth.month,
-    year: date_of_birth.year,
+    day: date_of_birth?.day,
+    month: date_of_birth?.month,
+    year: date_of_birth?.year,
   };
 
   if (mailing_address) {

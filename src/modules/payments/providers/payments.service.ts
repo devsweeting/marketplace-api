@@ -6,6 +6,7 @@ import { User } from 'modules/users/entities';
 import { Client } from 'synapsenode';
 import { User as PaymentsUser } from 'synapsenode';
 import { BasicKycDto } from '../dto/basic-kyc.dto';
+import { PaymentsAccountNodeDto } from '../dto/payments-account-node.dto';
 import { PaymentsAccountDto } from '../dto/payments-account.dto';
 import { UpdateKycDto } from '../dto/update-kyc.dto';
 import { VerifyAddressDto } from '../dto/verify-address.dto';
@@ -153,14 +154,14 @@ export class PaymentsService extends BaseService {
   }
 
   public async createPaymentNodeAccount(
-    bodyParams: BasicKycDto,
+    bodyParams: BasicKycDto | PaymentsAccountNodeDto,
     user: User,
     headers: object,
     ip_address: Ipv4Address,
   ): Promise<IPaymentsAccountResponse> {
     const localPaymentsAccount = await this.getUserPaymentsAccount(user.id);
     console.log(localPaymentsAccount);
-    const externalPaymentsAccount = await this.getExternalAccountFromUser(user); //Synapse account
+    // const externalPaymentsAccount = await this.getExternalAccountFromUser(user); //Synapse account
 
     const { userAccountId, refreshToken, baseDocumentId } = localPaymentsAccount;
 
@@ -175,6 +176,8 @@ export class PaymentsService extends BaseService {
       ip_address,
       this.client,
     );
+
+    // Update the payments account with mailing address
     const response = await this.updateKyc(bodyParams, user, ip_address);
     if (response.status !== HttpStatus.OK) {
       // throw new AccountPatchError(response);
