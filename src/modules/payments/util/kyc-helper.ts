@@ -25,11 +25,11 @@ export function createUserParams(
   ip_address: Ipv4Address,
   baseDocument?: ISynapseBaseDocuments,
 ): ISynapseAccountResponse {
-  const fullName = `${bodyParams.first_name} ${bodyParams.last_name}`;
-  const createNewPaymentAccountParams = {
-    logins: [{ email: bodyParams.email }],
-    phone_numbers: [bodyParams.phone_numbers],
-    legal_names: [fullName],
+  const fullName = bodyParams.first_name
+    ? `${bodyParams.first_name} ${bodyParams.last_name}`
+    : undefined;
+
+  const createNewPaymentAccountParams: any = {
     documents: [createKYCDocument(bodyParams, fullName, ip_address, baseDocument)],
     extra: {
       supp_id: userId,
@@ -37,6 +37,17 @@ export function createUserParams(
       is_business: false,
     },
   };
+
+  if (bodyParams.email) {
+    createNewPaymentAccountParams.logins = [{ email: bodyParams.email }];
+  }
+  if (bodyParams.phone_numbers) {
+    createNewPaymentAccountParams.phone_numbers = [bodyParams.phone_numbers];
+  }
+  if (fullName) {
+    createNewPaymentAccountParams.legal_names = [fullName];
+  }
+
   return createNewPaymentAccountParams;
 }
 export async function createPaymentProviderUserAccount(

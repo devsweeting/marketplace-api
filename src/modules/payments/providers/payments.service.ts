@@ -161,9 +161,9 @@ export class PaymentsService extends BaseService {
   ): Promise<IPaymentsAccountResponse> {
     const localPaymentsAccount = await this.getUserPaymentsAccount(user.id);
     console.log(localPaymentsAccount);
-    // const externalPaymentsAccount = await this.getExternalAccountFromUser(user); //Synapse account
+    const externalPaymentsAccount = await this.getExternalAccountFromUser(user); //Synapse account
 
-    const { userAccountId, refreshToken, baseDocumentId } = localPaymentsAccount;
+    const { userAccountId, baseDocumentId } = localPaymentsAccount;
 
     if (!localPaymentsAccount.termsAcceptedDate) {
       throw new NoAgreementFoundError(); //TODO make new error for this
@@ -178,18 +178,21 @@ export class PaymentsService extends BaseService {
     );
 
     // Update the payments account with mailing address
+    console.log('updating payments');
     const response = await this.updateKyc(bodyParams, user, ip_address);
     if (response.status !== HttpStatus.OK) {
       // throw new AccountPatchError(response);
       //TODO throw error
       return;
     }
+    console.log('updated payments');
 
     //Update the ToC to have an agreed date.
     await UserPaymentsAccount.update(
       { id: localPaymentsAccount.id },
       { paymentsNodeAgreedDate: new Date() },
     );
+    const refreshToken = await userClient._grabRefreshToken();
 
     //Retrieve oauth token to make actions on behalf of the user.
     const tokens = await getProviderOAuthKey(userClient, refreshToken);
@@ -295,6 +298,7 @@ export class PaymentsService extends BaseService {
       ip_address,
       baseDocument,
     );
+    console.log(updatePaymentAccountParams);
     const response = await paymentsUser
       .updateUser(updatePaymentAccountParams)
       .then((data: any) => {
