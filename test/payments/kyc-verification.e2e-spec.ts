@@ -68,7 +68,7 @@ describe('Create payments account e2e', () => {
 
       const mockParams = createMockBasicKycParams(user);
       await request(app.getHttpServer())
-        .post(`/v1/payments/kyc`)
+        .post(`/v1/payments/account`)
         .set(headers)
         .send(mockParams)
         .expect(HttpStatus.CREATED)
@@ -107,7 +107,7 @@ describe('Create payments account e2e', () => {
         const mockParams = createMockBasicKycParams(user);
 
         await request(app.getHttpServer())
-          .post(`/v1/payments/kyc`)
+          .post(`/v1/payments/account`)
           .set(headers)
           .send(mockParams)
           .expect(HttpStatus.CREATED)
@@ -141,7 +141,7 @@ describe('Create payments account e2e', () => {
 
         const mockParams = createMockBasicKycParams(user);
         await request(app.getHttpServer())
-          .post(`/v1/payments/kyc`)
+          .post(`/v1/payments/account`)
           .set(headers)
           .send(mockParams)
           .expect(HttpStatus.CREATED)

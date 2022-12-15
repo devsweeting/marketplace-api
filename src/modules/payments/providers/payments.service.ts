@@ -161,7 +161,7 @@ export class PaymentsService extends BaseService {
   ): Promise<IPaymentsAccountResponse> {
     const localPaymentsAccount = await this.getUserPaymentsAccount(user.id);
     console.log(localPaymentsAccount);
-    const externalPaymentsAccount = await this.getExternalAccountFromUser(user); //Synapse account
+    // const externalPaymentsAccount = await this.getExternalAccountFromUser(user); //Synapse account
 
     const { userAccountId, baseDocumentId } = localPaymentsAccount;
 

@@ -29,6 +29,8 @@ const mockGetUser = jest.fn();
 const updateUser = jest.fn();
 const mockOauthUser = jest.fn();
 const mockCreateNode = jest.fn();
+const mockGrabRefreshToken = jest.fn();
+
 jest.mock('synapsenode', () => {
   return {
     Client: jest.fn().mockImplementation(() => ({
@@ -39,6 +41,7 @@ jest.mock('synapsenode', () => {
     User: jest.fn().mockImplementation(() => ({
       updateUser: updateUser,
       _oauthUser: mockOauthUser,
+      _grabRefreshToken: mockGrabRefreshToken,
       createNode: mockCreateNode,
     })),
   };
@@ -59,7 +62,7 @@ const realBirthday = {
 };
 
 const createGenericKycAccount = async (): Promise<IPaymentsAccountResponse> => {
-  return await service.submitKYC(
+  return await service.createPaymentsAccount(
     {
       first_name: 'test',
       last_name: 'mcTestFace',
@@ -263,7 +266,7 @@ describe('Service', () => {
       const blankMailingAddress = new VerifyAddressDto();
       const blankDateOfBirth = new DateOfBirthDto();
       try {
-        await service.submitKYC(
+        await service.createPaymentsAccount(
           {
             first_name: 'test',
             last_name: 'mcTestFace',
@@ -291,10 +294,20 @@ describe('Service', () => {
 
     test('should successfully create an account for a new user', async () => {
       mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
-      mockGetUser.mockResolvedValue({ body: mockUserPaymentAccount });
+      mockGetUser.mockResolvedValue({ body: { documents: [{ id: 1 }] }, updateUser });
+      updateUser.mockResolvedValueOnce({ status: HttpStatus.OK, body: { status: HttpStatus.OK } });
       mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
       mockCreateNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
+      mockGrabRefreshToken.mockResolvedValue('asdfa');
       const account = await createGenericKycAccount();
+      await service.createPaymentNodeAccount(
+        {
+          mailing_address: realAddress,
+        },
+        user,
+        {},
+        '0.0.0.0',
+      );
       expect(account.account.userId).toEqual(user.id);
       expect(mockCreateNode).toHaveBeenCalled();
       expect(account.account.depositNodeId).toBeDefined();

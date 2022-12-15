@@ -57,7 +57,7 @@ afterEach(async () => {
 async function createFboAccount(returnedUser): Promise<void> {
   mockCreateUser.mockResolvedValueOnce(returnedUser);
   await request(app.getHttpServer())
-    .post(`/v1/payments/kyc`)
+    .post(`/v1/payments/account`)
     .set(headers)
     .send(createMockBasicKycParams(user))
     .expect(HttpStatus.CREATED)
