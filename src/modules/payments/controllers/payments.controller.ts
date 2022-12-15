@@ -16,7 +16,7 @@ import { GetUser } from 'modules/auth/decorators/get-user.decorator';
 import JwtOtpAuthGuard from 'modules/auth/guards/jwt-otp-auth.guard';
 import { User } from 'modules/users/entities';
 import { ValidateFormBody } from '../decorators/form-validation.decorator';
-import { BasicKycDto } from '../dto/basic-kyc.dto';
+// import { BasicKycDto } from '../dto/basic-kyc.dto';
 import { PaymentsAccountNodeDto } from '../dto/payments-account-node.dto';
 import { PaymentsAccountDto } from '../dto/payments-account.dto';
 import { UpdateAgreementDto } from '../dto/update-Agreement.dto';
@@ -168,30 +168,30 @@ export class PaymentsController {
     };
   }
 
-  @ApiBody({
-    type: BasicKycDto,
-  })
-  @Post('kyc')
-  @ApiBearerAuth('bearer-token')
-  @UseGuards(JwtOtpAuthGuard)
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    type: PaymentsAccountResponse,
-  })
-  public async createUser(
-    @Headers() headers: Headers,
-    @Ip() ip_address: Ipv4Address,
-    @ValidateFormBody() submitKycDto: BasicKycDto,
-    @GetUser() user: User,
-  ): Promise<IPaymentsAccountResponse> {
-    const response = await this.paymentsService.createPaymentNodeAccount(
-      submitKycDto,
-      user,
-      headers,
-      ip_address,
-    );
-    return response;
-  }
+  // @ApiBody({
+  //   type: BasicKycDto,
+  // })
+  // @Post('kyc')
+  // @ApiBearerAuth('bearer-token')
+  // @UseGuards(JwtOtpAuthGuard)
+  // @ApiResponse({
+  //   status: HttpStatus.CREATED,
+  //   type: PaymentsAccountResponse,
+  // })
+  // public async createUser(
+  //   @Headers() headers: Headers,
+  //   @Ip() ip_address: Ipv4Address,
+  //   @ValidateFormBody() submitKycDto: BasicKycDto,
+  //   @GetUser() user: User,
+  // ): Promise<IPaymentsAccountResponse> {
+  //   const response = await this.paymentsService.createPaymentNodeAccount(
+  //     submitKycDto,
+  //     user,
+  //     headers,
+  //     ip_address,
+  //   );
+  //   return response;
+  // }
 
   @ApiBody({
     type: UpdateKycDto,

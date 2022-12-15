@@ -165,6 +165,7 @@ export class PaymentsService extends BaseService {
 
     const { userAccountId, baseDocumentId } = localPaymentsAccount;
 
+    // Check that the initial ToC were accepted
     if (!localPaymentsAccount.termsAcceptedDate) {
       throw new NoAgreementFoundError(); //TODO make new error for this
     }
@@ -218,63 +219,6 @@ export class PaymentsService extends BaseService {
       msg: `Payments account created for user -- ${user.id}`,
       account: localPaymentsAccount,
     };
-
-    // //Generate params to create new payments account;
-    // const accountUserParams = createUserParams(user.id, bodyParams, ip_address);
-
-    // //Create new FBO payments account with payment provider
-    // const providerPaymentAccount = await createPaymentProviderUserAccount(
-    //   this.client,
-    //   accountUserParams,
-    //   ip_address,
-    // );
-
-    // //Associate the new payment account details with the Jump user:
-    // const localPaymentsAccount = await UserPaymentsAccount.create({
-    //   userId: user.id,
-    //   userAccountId: providerPaymentAccount._id,
-    //   depositNodeId: null,
-    //   refreshToken: providerPaymentAccount.refresh_token,
-    //   permission: providerPaymentAccount.permission as IPermissions,
-    //   permissionCode: providerPaymentAccount.permission_code as IPermissionCodes,
-    //   oauthKey: providerPaymentAccount.oauth_key, //TODO update test
-    //   baseDocumentId: providerPaymentAccount.documents[0].id, //TODO update test
-    // }).save();
-
-    // const { userAccountId, refreshToken, baseDocumentId } = localPaymentsAccount;
-
-    // //Initialize the client to communicate with the Payments Provider API
-    // const userClient = initializeProviderUserClient(
-    //   userAccountId,
-    //   headers,
-    //   ip_address,
-    //   this.client,
-    // );
-
-    // //Retrieve oauth token to make actions on behalf of the user.
-    // const tokens = await getProviderOAuthKey(userClient, refreshToken);
-
-    // //Create the deposit hub node.
-    // const depositHub = await createProviderDepositNode(userClient, baseDocumentId);
-
-    // //Update pertinent account details for future reference.
-    // if (depositHub.success === true) {
-    //   await UserPaymentsAccount.updateDetailsOnNodeCreation(
-    //     userAccountId,
-    //     tokens,
-    //     depositHub.nodes[0]._id,
-    //   );
-    // }
-
-    // Logger.log(
-    //   `FBO payments account(${localPaymentsAccount.userAccountId}) successfully created for user -- ${user.id}`,
-    // );
-
-    // return {
-    //   status: HttpStatus.CREATED,
-    //   msg: `Payments account created for user -- ${user.id}`,
-    //   account: localPaymentsAccount,
-    // };
   }
 
   public async updateKyc(
@@ -405,6 +349,8 @@ export class PaymentsService extends BaseService {
     throw new NoAgreementFoundError();
   }
 
+  // This technically doesn't do anything anymore.
+  // TODO update this to update the dates of the toc instead of the current functionality.
   public async saveAgreementAcknowledgement(
     user: User,
     agreementStatus: IAgreementStatus,
