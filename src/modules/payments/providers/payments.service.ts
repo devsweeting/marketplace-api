@@ -1,6 +1,7 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Ipv4Address } from 'aws-sdk/clients/inspector';
+import { UserNotFoundException } from 'modules/common/exceptions/user-not-found.exception';
 import { BaseService } from 'modules/common/services';
 import { User } from 'modules/users/entities';
 import { Client } from 'synapsenode';
@@ -56,7 +57,7 @@ export class PaymentsService extends BaseService {
     return userPaymentsAccount;
   }
 
-  private async getUserWithUserPaymentsACcount(userId: string): Promise<User> {
+  private async getUserWithUserPaymentsAccount(userId: string): Promise<User> {
     const userWithUserPaymentsAccount = await User.createQueryBuilder('users')
       .leftJoinAndMapOne('users.paymentsAccount', 'users.paymentsAccount', 'userPaymentsAccount')
       .where('userPaymentsAccount.userId = :userId', { userId: userId })
@@ -86,7 +87,7 @@ export class PaymentsService extends BaseService {
 
   public async getPaymentAccountDetails(user: User): Promise<IUserPaymentAccountResponse> {
     //Check if user has an associated payment account
-    const paymentAccount = await this.getUserWithUserPaymentsACcount(user.id);
+    const paymentAccount = await this.getUserWithUserPaymentsAccount(user.id);
 
     if (paymentAccount === null) {
       throw new UserPaymentsAccountNotFound(
@@ -158,6 +159,9 @@ export class PaymentsService extends BaseService {
     ip_address: Ipv4Address,
   ): Promise<IPaymentsAccountResponse> {
     const localPaymentsAccount = await this.getUserPaymentsAccount(user.id);
+    if (!localPaymentsAccount) {
+      throw new UserNotFoundException();
+    }
     const { userAccountId, baseDocumentId } = localPaymentsAccount;
 
     // Check that the initial ToC were accepted
@@ -175,6 +179,7 @@ export class PaymentsService extends BaseService {
 
     // Update the payments account with mailing address
     const response = await this.updateKyc(bodyParams, user, ip_address);
+    console.log(response);
     if (response.status !== HttpStatus.OK) {
       throw new AccountPatchError();
     }
@@ -238,6 +243,10 @@ export class PaymentsService extends BaseService {
           `FBO payments account(${paymentsUser.id}) successfully updated for user -- ${user.id}`,
         );
         if (!data) {
+          return undefined;
+        }
+        console.log('data:----------', data);
+        if (data.status !== HttpStatus.OK) {
           return undefined;
         }
         return {

@@ -19,8 +19,9 @@ import { AddAssetIdToSellOrderPurchase1663352346588 } from './1663352346588-AddA
 import { CreateUserAssetsTable1665784042941 } from './1665784042941-CreateUserAssetsTable';
 import { CreateUserPaymentsAccountTable1668198230651 } from './1668198230651-CreateUserPaymentsAccountTable';
 import { AddAdditionalPaymentsAccountInfoFix1669840035959 } from './1669840035959-AddAdditionalPaymentsAccountInfoFix';
-import { addUserAgreementField1670270624511 } from './1670270624511-addUserAgreementField';
+import { addTermsAndServicesToPaymentUser1671224234531 } from './1671224234531-add-terms-and-services-to-paymentUser';
 import { addTermsAndNodeAgreement1670963001717 } from './1670963001717-addTermsAndNodeAgreement';
+import { addUserAgreementField1670270624511 } from './1670270624511-addUserAgreementField';
 
 export const migrations = [
   Init1652279127303,
@@ -46,4 +47,5 @@ export const migrations = [
   AddAdditionalPaymentsAccountInfoFix1669840035959,
   addUserAgreementField1670270624511,
   addTermsAndNodeAgreement1670963001717,
+  addTermsAndServicesToPaymentUser1671224234531,
 ];

@@ -168,7 +168,7 @@ describe('update kyc', () => {
 
     test('should return 200 on succesful kyc update', async () => {
       mockGetUser.mockResolvedValueOnce({ body: { documents: [{ id: 1 }] }, updateUser });
-      updateUser.mockResolvedValueOnce({ body: { status: HttpStatus.OK } });
+      updateUser.mockResolvedValueOnce({ status: HttpStatus.OK, body: { status: HttpStatus.OK } });
 
       await request(app.getHttpServer())
         .post(`/v1/payments/update-kyc`)

@@ -4,12 +4,7 @@ import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
 import { Exclude } from 'class-transformer';
 import { User } from 'modules/users/entities';
-import {
-  IAgreementStatus,
-  IAgreementType,
-  IPermissionCodes,
-  IPermissions,
-} from '../interfaces/create-account';
+import { IAgreementType, IPermissionCodes, IPermissions } from '../interfaces/create-account';
 import { Data } from 'aws-sdk/clients/firehose';
 import { IncorrectAgreementError } from '../exceptions/incorrect-agreement-status.exception';
 
@@ -54,11 +49,6 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
 
   @Column({
     nullable: true,
-  })
-  public agreementStatus: IAgreementStatus;
-
-  @Column({
-    nullable: true,
     type: 'timestamp',
   })
   public termsAcceptedDate: Data;
@@ -67,7 +57,7 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
     nullable: true,
     type: 'timestamp',
   })
-  public paymentsNodeAgreedDate: Date;
+  public nodeAgreedDate: Date;
 
   @Exclude()
   @Column({
@@ -133,7 +123,7 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
     if (agreementToUpdate === 'NODE_AGREEMENT') {
       return UserPaymentsAccount.save({
         ...account,
-        paymentsNodeAgreedDate: acceptedDate ?? new Date(),
+        nodeAgreedDate: acceptedDate ?? new Date(),
       });
     }
     throw new IncorrectAgreementError();
