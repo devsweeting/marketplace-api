@@ -143,7 +143,7 @@ describe('Terms and Conditions', () => {
         .expect(HttpStatus.BAD_REQUEST)
         .expect(({ body }) => {
           expect(body.status).toBe(HttpStatus.BAD_REQUEST);
-          expect(body.message).toBe('No agreement found');
+          expect(body.message).toBe('No agreement');
         });
     });
   });
@@ -167,9 +167,8 @@ describe('Terms and Conditions', () => {
         .post(`/v1/payments/terms`)
         .set(headers)
         .send(mockParams)
-        // .expect(HttpStatus.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
-          console.log(body);
           expect(body.status).toBe(HttpStatus.OK);
           expect(body.message).toBe('User agreement updated');
         });

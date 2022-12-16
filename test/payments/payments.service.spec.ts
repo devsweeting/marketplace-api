@@ -404,7 +404,7 @@ describe('Service', () => {
       await createGenericKycAccount();
       await expect(async () => {
         await service.getAgreementPreview(user);
-      }).rejects.toThrow(new Error('No agreement found'));
+      }).rejects.toThrow(new Error('No agreement'));
     });
 
     test('should throw if no agreement(s) are found', async () => {
