@@ -16,7 +16,6 @@ import { AddressVerificationFailedException } from '../exceptions/address-verifi
 import { BaseDocumentError } from '../exceptions/base-document-error-exception';
 import { IncorrectAgreementError } from '../exceptions/incorrect-agreement-status.exception';
 import { NoAgreementError } from '../exceptions/no-agreement-exception';
-import { NoAgreementFoundError } from '../exceptions/no-agreement-found-exception';
 import { UserPaymentsAccountNotFound } from '../exceptions/user-account-verification-failed.exception';
 import {
   IAddressResponse,
@@ -110,7 +109,7 @@ export class PaymentsService extends BaseService {
     user: User,
     headers: object,
     ip_address: Ipv4Address,
-  ) {
+  ): Promise<{ status: HttpStatus; msg: string; account: UserPaymentsAccount }> {
     //Check if the user already has an associated payments account
     const userPaymentsAccount = await this.getUserPaymentsAccount(user.id);
 
@@ -145,7 +144,6 @@ export class PaymentsService extends BaseService {
       termsAcceptedDate: new Date(),
     }).save();
 
-    console.log(localPaymentsAccount);
     return {
       status: HttpStatus.CREATED,
       msg: `Payments account created for user -- ${user.id}`,
@@ -160,14 +158,11 @@ export class PaymentsService extends BaseService {
     ip_address: Ipv4Address,
   ): Promise<IPaymentsAccountResponse> {
     const localPaymentsAccount = await this.getUserPaymentsAccount(user.id);
-    console.log(localPaymentsAccount);
-    // const externalPaymentsAccount = await this.getExternalAccountFromUser(user); //Synapse account
-
     const { userAccountId, baseDocumentId } = localPaymentsAccount;
 
     // Check that the initial ToC were accepted
     if (!localPaymentsAccount.termsAcceptedDate) {
-      throw new NoAgreementFoundError(); //TODO make new error for this
+      throw new NoAgreementError();
     }
 
     //Initialize the client to communicate with the Payments Provider API
@@ -179,14 +174,10 @@ export class PaymentsService extends BaseService {
     );
 
     // Update the payments account with mailing address
-    console.log('updating payments');
     const response = await this.updateKyc(bodyParams, user, ip_address);
     if (response.status !== HttpStatus.OK) {
-      // throw new AccountPatchError(response);
-      //TODO throw error
-      return;
+      throw new AccountPatchError();
     }
-    console.log('updated payments');
 
     //Update the ToC to have an agreed date.
     await UserPaymentsAccount.updateUserAgreement(localPaymentsAccount.id, 'NODE_AGREEMENT');
@@ -239,7 +230,7 @@ export class PaymentsService extends BaseService {
       ip_address,
       baseDocument,
     );
-    console.log(updatePaymentAccountParams);
+
     const response = await paymentsUser
       .updateUser(updatePaymentAccountParams)
       .then((data: any) => {
@@ -343,14 +334,13 @@ export class PaymentsService extends BaseService {
         agreements: agreements,
       };
     }
-    throw new NoAgreementFoundError();
+    throw new NoAgreementError();
   }
 
   public async saveAgreementAcknowledgement(
     user: User,
     agreementToUpdate: IAgreementType,
   ): Promise<{ status: HttpStatus; message: string }> {
-    console.log(agreementToUpdate);
     if (agreementToUpdate !== 'NODE_AGREEMENT' && agreementToUpdate !== 'TERMS_AND_CONDITIONS') {
       throw new IncorrectAgreementError();
     }

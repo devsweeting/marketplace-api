@@ -196,7 +196,6 @@ describe('Terms and Conditions', () => {
         .send({ agreement_type: 'bad request' })
         .expect(HttpStatus.BAD_REQUEST)
         .expect(({ body }) => {
-          console.log(body);
           expect(body.status).toBe(HttpStatus.BAD_REQUEST);
           expect(body.message).toBe('Incorrect agreement');
         });
