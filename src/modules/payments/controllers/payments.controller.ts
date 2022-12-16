@@ -139,12 +139,9 @@ export class PaymentsController {
   public async saveAgreement(
     @GetUser() user: User,
     @Body()
-    agreementStatus: UpdateAgreementDto,
+    agreement: UpdateAgreementDto,
   ): Promise<{ status: HttpStatus; message: string }> {
-    const data = this.paymentsService.saveAgreementAcknowledgement(
-      user,
-      agreementStatus.agreement_status,
-    );
+    const data = this.paymentsService.saveAgreementAcknowledgement(user, agreement.agreement_type);
     return data;
   }
 

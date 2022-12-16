@@ -84,7 +84,7 @@ describe('Create payments account e2e', () => {
     test('Should return a custom 400 if the params are malformed', async () => {
       const mockParams = createMockBasicKycParams(user, { phone_numbers: '111.111.111' });
       await request(app.getHttpServer())
-        .post(`/v1/payments/kyc`)
+        .post(`/v1/payments/account`)
         .set(headers)
         .send(mockParams)
         .expect(HttpStatus.BAD_REQUEST)

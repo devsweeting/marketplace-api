@@ -4,8 +4,14 @@ import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
 import { Exclude } from 'class-transformer';
 import { User } from 'modules/users/entities';
-import { IAgreementStatus, IPermissionCodes, IPermissions } from '../interfaces/create-account';
+import {
+  IAgreementStatus,
+  IAgreementType,
+  IPermissionCodes,
+  IPermissions,
+} from '../interfaces/create-account';
 import { Data } from 'aws-sdk/clients/firehose';
+import { IncorrectAgreementError } from '../exceptions/incorrect-agreement-status.exception';
 
 @Entity('user_payments_account')
 @Unique('USER_ID_UNIQUE', ['userId'])
@@ -111,16 +117,26 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
     });
   }
 
-  static async updateAgreementAcknowledgement(
+  static async updateUserAgreement(
     userAccountId: string,
-    agreementStatus: IAgreementStatus | null,
+    agreementToUpdate: IAgreementType,
+    acceptedDate?: Date,
   ): Promise<UserPaymentsAccount> {
     const account = await this.findAccountByAccountId(userAccountId);
 
-    return UserPaymentsAccount.save({
-      ...account,
-      agreementStatus: agreementStatus,
-    });
+    if (agreementToUpdate === 'TERMS_AND_CONDITIONS') {
+      return UserPaymentsAccount.save({
+        ...account,
+        termsAcceptedDate: acceptedDate ?? new Date(),
+      });
+    }
+    if (agreementToUpdate === 'NODE_AGREEMENT') {
+      return UserPaymentsAccount.save({
+        ...account,
+        paymentsNodeAgreedDate: acceptedDate ?? new Date(),
+      });
+    }
+    throw new IncorrectAgreementError();
   }
 
   constructor(partial: Partial<UserPaymentsAccount> = {}) {

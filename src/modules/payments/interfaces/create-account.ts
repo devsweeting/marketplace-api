@@ -50,6 +50,7 @@ export interface IDocument {
 [];
 
 export type IAgreementStatus = 'ACCEPTED' | 'DECLINED';
+export type IAgreementType = 'TERMS_AND_CONDITIONS' | 'NODE_AGREEMENT';
 export type IPermissions =
   | 'VERIFIED'
   | 'UNVERIFIED'

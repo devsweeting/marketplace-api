@@ -4,7 +4,7 @@ export class IncorrectAgreementError extends BadRequestException {
   public constructor() {
     super({
       status: HttpStatus.BAD_REQUEST,
-      message: 'Incorrect agreement status',
+      message: 'Incorrect agreement',
     });
   }
 }

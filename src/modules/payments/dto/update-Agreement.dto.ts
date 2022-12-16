@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
-import { IAgreementStatus } from '../interfaces/create-account';
+import { IAgreementType } from '../interfaces/create-account';
 
 export class UpdateAgreementDto {
-  @ApiProperty({ example: 'ACCEPTED' })
+  @ApiProperty({ example: 'TERMS_AND_CONDITIONS' })
   @IsString()
   @IsNotEmpty()
-  public agreement_status: IAgreementStatus;
+  public agreement_type: IAgreementType;
 }

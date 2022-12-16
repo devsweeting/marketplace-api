@@ -22,7 +22,7 @@ import {
   IAddressResponse,
   IUserPaymentAccountResponse,
   IPaymentsAccountResponse,
-  IAgreementStatus,
+  IAgreementType,
 } from '../interfaces/create-account';
 import { IPermissionCodes, IPermissions, ISynapseBaseDocuments } from '../interfaces/synapse-node';
 import {
@@ -189,10 +189,7 @@ export class PaymentsService extends BaseService {
     console.log('updated payments');
 
     //Update the ToC to have an agreed date.
-    await UserPaymentsAccount.update(
-      { id: localPaymentsAccount.id },
-      { paymentsNodeAgreedDate: new Date() },
-    );
+    await UserPaymentsAccount.updateUserAgreement(localPaymentsAccount.id, 'NODE_AGREEMENT');
     const refreshToken = await userClient._grabRefreshToken();
 
     //Retrieve oauth token to make actions on behalf of the user.
@@ -349,21 +346,17 @@ export class PaymentsService extends BaseService {
     throw new NoAgreementFoundError();
   }
 
-  // This technically doesn't do anything anymore.
-  // TODO update this to update the dates of the toc instead of the current functionality.
   public async saveAgreementAcknowledgement(
     user: User,
-    agreementStatus: IAgreementStatus,
+    agreementToUpdate: IAgreementType,
   ): Promise<{ status: HttpStatus; message: string }> {
-    if (agreementStatus !== 'ACCEPTED' && agreementStatus !== 'DECLINED') {
-      throw new IncorrectAgreementError(); // TODO - create custom error;
+    console.log(agreementToUpdate);
+    if (agreementToUpdate !== 'NODE_AGREEMENT' && agreementToUpdate !== 'TERMS_AND_CONDITIONS') {
+      throw new IncorrectAgreementError();
     }
     const paymentsUser = await this.getExternalAccountFromUser(user);
-    const res = await UserPaymentsAccount.updateAgreementAcknowledgement(
-      paymentsUser.id,
-      agreementStatus,
-    );
-    if (res.agreementStatus == agreementStatus) {
+    const res = await UserPaymentsAccount.updateUserAgreement(paymentsUser.id, agreementToUpdate);
+    if (res) {
       return {
         status: HttpStatus.OK,
         message: 'User agreement updated',

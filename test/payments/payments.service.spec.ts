@@ -13,7 +13,7 @@ import {
   paymentsAccountCreationSuccess,
 } from 'modules/payments/test-variables';
 import {
-  IAgreementStatus,
+  IAgreementType,
   IPaymentsAccountResponse,
 } from 'modules/payments/interfaces/create-account';
 import { IPermissionCodes } from 'modules/payments/interfaces/synapse-node';
@@ -450,7 +450,7 @@ describe('Service', () => {
       mockCreateNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
       await createGenericKycAccount();
 
-      const response = await service.saveAgreementAcknowledgement(user, 'ACCEPTED');
+      const response = await service.saveAgreementAcknowledgement(user, 'NODE_AGREEMENT');
       expect(response).toMatchObject({
         status: HttpStatus.OK,
       });
@@ -464,8 +464,8 @@ describe('Service', () => {
       await createGenericKycAccount();
 
       await expect(async () => {
-        await service.saveAgreementAcknowledgement(user, 'SOMETEXT' as IAgreementStatus);
-      }).rejects.toThrow(new Error('Incorrect agreement status'));
+        await service.saveAgreementAcknowledgement(user, 'SOMETEXT' as IAgreementType);
+      }).rejects.toThrow(new Error('Incorrect agreement'));
     });
   });
 });

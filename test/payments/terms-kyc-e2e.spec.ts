@@ -46,7 +46,7 @@ beforeEach(async () => {
   jest.clearAllMocks();
   user = await createUser({ email: 'test@example.com' });
   headers = { Authorization: `Bearer ${generateToken(user)}` };
-  mockParams = { agreement_status: 'ACCEPTED' };
+  mockParams = { agreement_type: 'TERMS_AND_CONDITIONS' };
 });
 
 afterEach(async () => {
@@ -167,14 +167,15 @@ describe('Terms and Conditions', () => {
         .post(`/v1/payments/terms`)
         .set(headers)
         .send(mockParams)
-        .expect(HttpStatus.OK)
+        // .expect(HttpStatus.OK)
         .expect(({ body }) => {
+          console.log(body);
           expect(body.status).toBe(HttpStatus.OK);
           expect(body.message).toBe('User agreement updated');
         });
     });
 
-    test('should return BAD REQUEST if agreementStatus is not ACCEPTED or DECLINED', async () => {
+    test('should return BAD REQUEST if agreementStatus is not TERMS_AND_CONDITIONS or NODE_AGREEMENT', async () => {
       const createNode = jest.fn();
       createNode.mockResolvedValue({
         data: {
@@ -192,11 +193,12 @@ describe('Terms and Conditions', () => {
       await request(app.getHttpServer())
         .post(`/v1/payments/terms`)
         .set(headers)
-        .send({ agreement_status: 'bad request' })
+        .send({ agreement_type: 'bad request' })
         .expect(HttpStatus.BAD_REQUEST)
         .expect(({ body }) => {
+          console.log(body);
           expect(body.status).toBe(HttpStatus.BAD_REQUEST);
-          expect(body.message).toBe('Incorrect agreement status');
+          expect(body.message).toBe('Incorrect agreement');
         });
     });
   });
