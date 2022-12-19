@@ -74,8 +74,7 @@ describe('Payments Controller', () => {
     mockCreateNode.mockResolvedValue({
       data: synapseNewDepositAccountSuccess,
     });
-    mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
-    mockGetUser.mockResolvedValueOnce({ body: paymentsAccountCreationSuccess });
+    mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
 
     const response = await paymentsController.createBasePaymentUser(
       {} as any,
@@ -97,7 +96,7 @@ describe('Payments Controller', () => {
     mockGetUser.mockResolvedValue({ body: { documents: [{ id: 1 }] }, updateUser });
     mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
     mockCreateNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
-    updateUser.mockResolvedValueOnce({ status: HttpStatus.OK, body: { status: HttpStatus.OK } });
+    updateUser.mockResolvedValue({ status: HttpStatus.OK, body: { status: HttpStatus.OK } });
     mockGrabRefreshToken.mockResolvedValue('token');
     await paymentsController.createBasePaymentUser(
       {} as any,

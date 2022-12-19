@@ -220,6 +220,7 @@ export class PaymentsService extends BaseService {
   ): Promise<{ status: HttpStatus; msg: string }> {
     //check local DB to see if synapse account exists
     const paymentsUser = await this.getExternalAccountFromUser(user);
+    console.log(paymentsUser);
     let baseDocument: ISynapseBaseDocuments;
     try {
       baseDocument = paymentsUser.body.documents[0];
