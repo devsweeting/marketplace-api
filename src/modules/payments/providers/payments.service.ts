@@ -17,7 +17,6 @@ import { AddressVerificationFailedException } from '../exceptions/address-verifi
 import { BaseDocumentError } from '../exceptions/base-document-error-exception';
 import { IncorrectAgreementError } from '../exceptions/incorrect-agreement-status.exception';
 import { NoAgreementError } from '../exceptions/no-agreement-exception';
-import { PaymentProviderError } from '../exceptions/payment-provider-error.exception';
 import { UserPaymentsAccountNotFound } from '../exceptions/user-account-verification-failed.exception';
 import {
   IAddressResponse,
