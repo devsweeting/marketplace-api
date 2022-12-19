@@ -325,7 +325,6 @@ describe('Service', () => {
       mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
       mockCreateNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
       mockGrabRefreshToken.mockResolvedValue('asdfa');
-      // const account = await createGenericKycAccount();
       await expect(
         async () =>
           await service.createPaymentNodeAccount(

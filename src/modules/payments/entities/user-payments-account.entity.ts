@@ -5,7 +5,6 @@ import { BaseModel } from 'modules/common/entities/base.model';
 import { Exclude } from 'class-transformer';
 import { User } from 'modules/users/entities';
 import { IAgreementType, IPermissionCodes, IPermissions } from '../interfaces/create-account';
-import { Data } from 'aws-sdk/clients/firehose';
 import { IncorrectAgreementError } from '../exceptions/incorrect-agreement-status.exception';
 
 @Entity('user_payments_account')
@@ -51,7 +50,7 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
     nullable: true,
     type: 'timestamp',
   })
-  public termsAcceptedDate: Data;
+  public termsAcceptedDate: Date;
 
   @Column({
     nullable: true,

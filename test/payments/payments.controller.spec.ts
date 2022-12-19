@@ -113,7 +113,6 @@ describe('Payments Controller', () => {
       },
       user,
     );
-    console.log(response);
     expect(response.msg).toEqual(`Payments account created for user -- ${user.id}`);
     expect(response.status).toBe(HttpStatus.CREATED);
     expect(response.account).toBeDefined();

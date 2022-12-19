@@ -87,9 +87,8 @@ describe('Terms and Conditions', () => {
         .get(`/v1/payments/terms`)
         .set(headers)
         .send(mockParams)
-        // .expect(HttpStatus.OK)
+        .expect(HttpStatus.OK)
         .expect(({ body }) => {
-          console.log(body);
           expect(body.status).toBe(HttpStatus.OK);
           expect(body.agreements).toMatchObject({ type: 'NODE_AGREEMENT', url: 'string' });
         });
