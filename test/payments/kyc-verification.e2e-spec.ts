@@ -18,6 +18,8 @@ const mockGetUser = jest.fn();
 const updateUser = jest.fn();
 const mockOauthUser = jest.fn();
 const mockCreateNode = jest.fn();
+const mockGrabRefreshToken = jest.fn();
+
 jest.mock('synapsenode', () => {
   return {
     Client: jest.fn().mockImplementation(() => ({
@@ -28,6 +30,7 @@ jest.mock('synapsenode', () => {
     User: jest.fn().mockImplementation(() => ({
       updateUser: updateUser,
       _oauthUser: mockOauthUser,
+      _grabRefreshToken: mockGrabRefreshToken,
       createNode: mockCreateNode,
     })),
   };
@@ -68,7 +71,7 @@ describe('Create payments account e2e', () => {
 
       const mockParams = createMockBasicKycParams(user);
       await request(app.getHttpServer())
-        .post(`/v1/payments/kyc`)
+        .post(`/v1/payments/account`)
         .set(headers)
         .send(mockParams)
         .expect(HttpStatus.CREATED)
@@ -84,7 +87,7 @@ describe('Create payments account e2e', () => {
     test('Should return a custom 400 if the params are malformed', async () => {
       const mockParams = createMockBasicKycParams(user, { phone_numbers: '111.111.111' });
       await request(app.getHttpServer())
-        .post(`/v1/payments/kyc`)
+        .post(`/v1/payments/account`)
         .set(headers)
         .send(mockParams)
         .expect(HttpStatus.BAD_REQUEST)
@@ -94,83 +97,145 @@ describe('Create payments account e2e', () => {
           expect(body.error.phone_numbers).toEqual(['phone_numbers must be a valid phone number']);
         });
     });
-
-    describe('GET - user payment account details', () => {
-      test('Should return the users payment account information', async () => {
-        mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
-        mockCreateNode.mockResolvedValue({
-          data: { success: true, nodes: [{ _id: '3' }] },
+  });
+  describe('POST - create node account', () => {
+    test('should throw if mailing address is wrong', async () => {
+      await request(app.getHttpServer())
+        .post(`/v1/payments/account/node`)
+        .set(headers)
+        .send({})
+        .expect(HttpStatus.BAD_REQUEST)
+        .expect(({ body }) => {
+          expect(body.statusCode).toBe(HttpStatus.BAD_REQUEST);
+          expect(body.message).toBe('Form errors');
+          expect(body.error).toMatchObject({
+            mailing_address: ['mailing_address should not be empty'],
+          });
         });
-        mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
-        mockGetUser.mockResolvedValueOnce({ body: paymentsAccountCreationSuccess });
+    });
 
-        const mockParams = createMockBasicKycParams(user);
+    test('should throw if payments account has not been created', async () => {
+      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+      mockCreateNode.mockResolvedValue({
+        data: { success: true, nodes: [{ _id: '3' }] },
+      });
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      const mockParams = createMockBasicKycParams(user);
 
-        await request(app.getHttpServer())
-          .post(`/v1/payments/kyc`)
-          .set(headers)
-          .send(mockParams)
-          .expect(HttpStatus.CREATED)
-          .expect(({ body }) => {
-            expect(body.status).toBe(HttpStatus.CREATED);
-          });
+      await request(app.getHttpServer())
+        .post(`/v1/payments/account/node`)
+        .set(headers)
+        .send(mockParams)
+        .expect(HttpStatus.NOT_FOUND)
+        .expect(({ body }) => {
+          expect(body.statusCode).toBe(HttpStatus.NOT_FOUND);
+          expect(body.message).toBe('USER_NOT_FOUND');
+        });
+    });
+    test('should successfully create user node', async () => {
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValue({ body: { documents: [{ id: 1 }] }, updateUser });
+      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+      mockCreateNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
+      updateUser.mockResolvedValue({ status: HttpStatus.OK, body: { status: HttpStatus.OK } });
+      mockGrabRefreshToken.mockResolvedValue('token');
 
-        await request(app.getHttpServer())
-          .get(`/v1/payments/account`)
-          .set(headers)
-          .expect(HttpStatus.OK)
-          .expect(({ body }) => {
-            expect(body.status).toBe(HttpStatus.OK);
-            expect(body.data).toBeDefined();
-            expect(body.data.user.id).toBe(user.id);
-            expect(body.data.account.User.id).toBe(paymentsAccountCreationSuccess.User.id);
-          });
+      const mockParams = createMockBasicKycParams(user);
+      await request(app.getHttpServer())
+        .post(`/v1/payments/account`)
+        .set(headers)
+        .send(mockParams)
+        .expect(HttpStatus.CREATED)
+        .expect(({ body }) => {
+          expect(body.status).toBe(HttpStatus.CREATED);
+        });
+
+      await request(app.getHttpServer())
+        .post(`/v1/payments/account/node`)
+        .set(headers)
+        .send(mockParams)
+        .expect(HttpStatus.CREATED)
+        .expect(({ body }) => {
+          expect(body.status).toBe(HttpStatus.CREATED);
+          expect(body.msg).toBe(`Payments account created for user -- ${user.id}`);
+        });
+    });
+  });
+  describe('GET - user payment account details', () => {
+    test('Should return the users payment account information', async () => {
+      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+      mockCreateNode.mockResolvedValue({
+        data: { success: true, nodes: [{ _id: '3' }] },
+      });
+      mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValueOnce({ body: paymentsAccountCreationSuccess });
+
+      const mockParams = createMockBasicKycParams(user);
+
+      await request(app.getHttpServer())
+        .post(`/v1/payments/account`)
+        .set(headers)
+        .send(mockParams)
+        .expect(HttpStatus.CREATED)
+        .expect(({ body }) => {
+          expect(body.status).toBe(HttpStatus.CREATED);
+        });
+
+      await request(app.getHttpServer())
+        .get(`/v1/payments/account`)
+        .set(headers)
+        .expect(HttpStatus.OK)
+        .expect(({ body }) => {
+          expect(body.status).toBe(HttpStatus.OK);
+          expect(body.data).toBeDefined();
+          expect(body.data.user.id).toBe(user.id);
+          expect(body.data.account.User.id).toBe(paymentsAccountCreationSuccess.User.id);
+        });
+    });
+
+    test('should throw if no FBO account is found', async () => {
+      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+      mockCreateNode.mockResolvedValue({
+        data: { success: true, nodes: [{ _id: '3' }] },
+      });
+      mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockImplementation(() => {
+        return Promise.reject(
+          new HttpException({ status: HttpStatus.NOT_FOUND }, HttpStatus.NOT_FOUND),
+        );
       });
 
-      test('should throw if no FBO account is found', async () => {
-        mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
-        mockCreateNode.mockResolvedValue({
-          data: { success: true, nodes: [{ _id: '3' }] },
-        });
-        mockCreateUser.mockResolvedValueOnce(paymentsAccountCreationSuccess.User);
-        mockGetUser.mockImplementation(() => {
-          return Promise.reject(
-            new HttpException({ status: HttpStatus.NOT_FOUND }, HttpStatus.NOT_FOUND),
-          );
+      const mockParams = createMockBasicKycParams(user);
+      await request(app.getHttpServer())
+        .post(`/v1/payments/account`)
+        .set(headers)
+        .send(mockParams)
+        .expect(HttpStatus.CREATED)
+        .expect(({ body }) => {
+          expect(body.status).toBe(HttpStatus.CREATED);
         });
 
-        const mockParams = createMockBasicKycParams(user);
-        await request(app.getHttpServer())
-          .post(`/v1/payments/kyc`)
-          .set(headers)
-          .send(mockParams)
-          .expect(HttpStatus.CREATED)
-          .expect(({ body }) => {
-            expect(body.status).toBe(HttpStatus.CREATED);
-          });
+      await request(app.getHttpServer())
+        .get(`/v1/payments/account`)
+        .set(headers)
+        .expect(HttpStatus.NOT_FOUND)
+        .expect(({ body }) => {
+          expect(body.status).toBe(HttpStatus.NOT_FOUND);
+          expect(body.error).toBe('Payments Account Not Found');
+        });
+    });
 
-        await request(app.getHttpServer())
-          .get(`/v1/payments/account`)
-          .set(headers)
-          .expect(HttpStatus.NOT_FOUND)
-          .expect(({ body }) => {
-            expect(body.status).toBe(HttpStatus.NOT_FOUND);
-            expect(body.error).toBe('Payments Account Not Found');
-          });
-      });
-
-      test('Should return NOT_FOUND if there is no payments account associated with the user', async () => {
-        userWithNoAccount = await createUser({ email: 'no-account@example.com' });
-        headers = { Authorization: `Bearer ${generateToken(userWithNoAccount)}` };
-        await request(app.getHttpServer())
-          .get(`/v1/payments/account`)
-          .set(headers)
-          .expect(HttpStatus.NOT_FOUND)
-          .expect(({ body }) => {
-            expect(body.status).toBe(HttpStatus.NOT_FOUND);
-            expect(body.error).toBe('Payments Account Not Found');
-          });
-      });
+    test('Should return NOT_FOUND if there is no payments account associated with the user', async () => {
+      userWithNoAccount = await createUser({ email: 'no-account@example.com' });
+      headers = { Authorization: `Bearer ${generateToken(userWithNoAccount)}` };
+      await request(app.getHttpServer())
+        .get(`/v1/payments/account`)
+        .set(headers)
+        .expect(HttpStatus.NOT_FOUND)
+        .expect(({ body }) => {
+          expect(body.status).toBe(HttpStatus.NOT_FOUND);
+          expect(body.error).toBe('Payments Account Not Found');
+        });
     });
   });
 });

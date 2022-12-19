@@ -96,6 +96,7 @@ export async function getSynapseOAuthKey(
 export async function createPaymentsDepositHub(
   userClient: PaymentsUser,
   baseDocumentId: string,
+  previewOnly = false,
 ): Promise<IDepositNodeResponse> {
   const bodyParams: IDepositNodeRequest = {
     type: 'IC-DEPOSIT-US',
@@ -103,7 +104,7 @@ export async function createPaymentsDepositHub(
       nickname: `${IS_DEVELOPMENT ? 'Test' : ''} Deposit Account`,
       document_id: baseDocumentId,
     },
-    preview_only: false,
+    preview_only: previewOnly,
   };
 
   const response = await userClient

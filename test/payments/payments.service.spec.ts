@@ -1,3 +1,4 @@
+/* eslint-disable no-magic-numbers */
 import { HttpException, HttpStatus, INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '../utils/app.utils';
 import { AddressVerificationFailedException } from 'modules/payments/exceptions/address-verification-failed.exception';
@@ -12,9 +13,14 @@ import {
   mockUserPaymentAccount,
   paymentsAccountCreationSuccess,
 } from 'modules/payments/test-variables';
-import { IPaymentsAccountResponse } from 'modules/payments/interfaces/create-account';
+import {
+  IAgreementType,
+  IPaymentsAccountResponse,
+} from 'modules/payments/interfaces/create-account';
 import { IPermissionCodes } from 'modules/payments/interfaces/synapse-node';
 import { AccountPatchError } from 'modules/payments/exceptions/account-patch-failure.exception';
+import { BaseDocumentError } from 'modules/payments/exceptions/base-document-error-exception';
+import { UserNotFoundException } from 'modules/common/exceptions/user-not-found.exception';
 
 let app: INestApplication;
 let service: PaymentsService;
@@ -25,6 +31,8 @@ const mockGetUser = jest.fn();
 const updateUser = jest.fn();
 const mockOauthUser = jest.fn();
 const mockCreateNode = jest.fn();
+const mockGrabRefreshToken = jest.fn();
+
 jest.mock('synapsenode', () => {
   return {
     Client: jest.fn().mockImplementation(() => ({
@@ -35,6 +43,7 @@ jest.mock('synapsenode', () => {
     User: jest.fn().mockImplementation(() => ({
       updateUser: updateUser,
       _oauthUser: mockOauthUser,
+      _grabRefreshToken: mockGrabRefreshToken,
       createNode: mockCreateNode,
     })),
   };
@@ -55,7 +64,7 @@ const realBirthday = {
 };
 
 const createGenericKycAccount = async (): Promise<IPaymentsAccountResponse> => {
-  return await service.submitKYC(
+  return await service.createPaymentsAccount(
     {
       first_name: 'test',
       last_name: 'mcTestFace',
@@ -222,9 +231,7 @@ describe('Service', () => {
 
     test('should throw if no payments account exists', async () => {
       mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
-      mockCreateNode.mockResolvedValue({
-        data: { success: true, nodes: [{ _id: '3' }] },
-      });
+      mockCreateNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
       mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
       await createGenericKycAccount();
       mockGetUser.mockImplementation(() => {
@@ -245,16 +252,14 @@ describe('Service', () => {
       mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
       mockGetUser.mockResolvedValue({ body: paymentsAccountCreationSuccess });
       mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
-      mockCreateNode.mockResolvedValue({
-        data: { success: true, nodes: [{ _id: '3' }] },
-      });
+      mockCreateNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
       await createGenericKycAccount();
       const userDetails = await service.getPaymentAccountDetails(user);
       expect(userDetails.status).toEqual(HttpStatus.OK);
     });
   });
 
-  describe('createUserAccount', () => {
+  describe('createPaymentsAccount', () => {
     test('should throw an error if account is missing credentials', async () => {
       mockCreateUser.mockImplementation(() => {
         return Promise.reject(synapseStyledError(HttpStatus.BAD_REQUEST));
@@ -263,7 +268,7 @@ describe('Service', () => {
       const blankMailingAddress = new VerifyAddressDto();
       const blankDateOfBirth = new DateOfBirthDto();
       try {
-        await service.submitKYC(
+        await service.createPaymentsAccount(
           {
             first_name: 'test',
             last_name: 'mcTestFace',
@@ -291,14 +296,12 @@ describe('Service', () => {
 
     test('should successfully create an account for a new user', async () => {
       mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
-      mockGetUser.mockResolvedValue({ body: mockUserPaymentAccount });
+      mockGetUser.mockResolvedValue({ body: { documents: [{ id: 1 }] }, updateUser });
       mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
-      mockCreateNode.mockResolvedValue({
-        data: { success: true, nodes: [{ _id: '3' }] },
-      });
+      mockCreateNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
+      mockGrabRefreshToken.mockResolvedValue('asdfa');
       const account = await createGenericKycAccount();
       expect(account.account.userId).toEqual(user.id);
-      expect(mockCreateNode).toHaveBeenCalled();
       expect(account.account.depositNodeId).toBeDefined();
       expect(account.msg).toEqual(`Payments account created for user -- ${user.id}`);
       expect(account.status).toBe(HttpStatus.CREATED);
@@ -315,14 +318,79 @@ describe('Service', () => {
     });
   });
 
+  describe('createPaymentNodeAccount', () => {
+    test('should throw if no account is made', async () => {
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValue({ body: { documents: [{ id: 1 }] }, updateUser });
+      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+      mockCreateNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
+      mockGrabRefreshToken.mockResolvedValue('asdfa');
+      await expect(
+        async () =>
+          await service.createPaymentNodeAccount(
+            {
+              mailing_address: realAddress,
+            },
+            user,
+            {},
+            '0.0.0.0',
+          ),
+      ).rejects.toThrow(new UserNotFoundException());
+    });
+
+    test('should throw if patching the synapse account fails', async () => {
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValue({ body: { documents: [{ id: 1 }] }, updateUser });
+      updateUser.mockResolvedValue({
+        status: HttpStatus.BAD_REQUEST,
+        body: { status: HttpStatus.BAD_REQUEST },
+      });
+      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+      mockCreateNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
+      mockGrabRefreshToken.mockResolvedValue('asdfa');
+      await createGenericKycAccount();
+      await expect(
+        async () =>
+          await service.createPaymentNodeAccount(
+            {
+              mailing_address: realAddress,
+            },
+            user,
+            {},
+            '0.0.0.0',
+          ),
+      ).rejects.toThrow(new AccountPatchError({ error: { en: 'Something went wrong', code: '' } }));
+    });
+
+    test('should successfully create synapse node', async () => {
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValue({ body: { documents: [{ id: 1 }] }, updateUser });
+      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+      mockCreateNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
+      updateUser.mockResolvedValueOnce({ status: HttpStatus.OK, body: { status: HttpStatus.OK } });
+      mockGrabRefreshToken.mockResolvedValue('token');
+      await createGenericKycAccount();
+      const account = await service.createPaymentNodeAccount(
+        {
+          mailing_address: realAddress,
+        },
+        user,
+        {},
+        '0.0.0.0',
+      );
+      expect(mockGrabRefreshToken).toBeCalledTimes(1);
+      expect(mockOauthUser).toBeCalledTimes(1);
+      expect(mockCreateNode).toBeCalledTimes(1);
+      expect(account.status).toBe(HttpStatus.CREATED);
+      expect(account.msg).toBe(`Payments account created for user -- ${user.id}`);
+    });
+  });
+
   describe('updateUserPermissions', () => {
     test('should update the users permissions', async () => {
       mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
       mockGetUser.mockResolvedValue({ body: paymentsAccountCreationSuccess, updateUser });
-      updateUser.mockResolvedValueOnce({
-        status: HttpStatus.OK,
-        body: { status: HttpStatus.OK },
-      });
+      updateUser.mockResolvedValueOnce({ status: HttpStatus.OK, body: { status: HttpStatus.OK } });
       await createGenericKycAccount();
       const result = await service.updateUserPermission(user, 'VERIFIED', 'USER_REQUEST');
       expect(result).toMatchObject({
@@ -360,16 +428,104 @@ describe('Service', () => {
     test('should update a user to closed', async () => {
       mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
       mockGetUser.mockResolvedValue({ body: paymentsAccountCreationSuccess, updateUser });
-      updateUser.mockResolvedValueOnce({
-        status: HttpStatus.OK,
-        body: { status: HttpStatus.OK },
-      });
+      updateUser.mockResolvedValueOnce({ status: HttpStatus.OK, body: { status: HttpStatus.OK } });
+
       await createGenericKycAccount();
       const result = await service.closeUser(user);
       expect(result).toMatchObject({
         status: HttpStatus.OK,
         message: 'Updated user permissions',
       });
+    });
+  });
+
+  describe('getAgreementPreview', () => {
+    test('should throw error if no base documents are found.', async () => {
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValue({ body: paymentsAccountCreationSuccess, updateUser });
+      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+      mockCreateNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
+      updateUser.mockResolvedValueOnce({ status: HttpStatus.OK, body: { status: HttpStatus.OK } });
+
+      await createGenericKycAccount();
+      await expect(async () => {
+        await service.getAgreementPreview(user);
+      }).rejects.toThrow(BaseDocumentError);
+    });
+
+    test('should throw if no agreement(s) are found', async () => {
+      const createNode = jest.fn();
+      createNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+      mockCreateNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
+      mockGetUser.mockResolvedValue({ body: { documents: [{ id: 1 }] }, updateUser, createNode });
+
+      await createGenericKycAccount();
+      await expect(async () => {
+        await service.getAgreementPreview(user);
+      }).rejects.toThrow(new Error('No agreement'));
+    });
+
+    test('should throw if no agreement(s) are found', async () => {
+      const createNode = jest.fn();
+      createNode.mockResolvedValue({
+        data: { success: true, node_count: 0, nodes: [{ _id: '3', node_count: 0 }] },
+      });
+      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+      mockCreateNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
+      mockGetUser.mockResolvedValue({ body: { documents: [{ id: 1 }] }, updateUser, createNode });
+
+      await createGenericKycAccount();
+      await expect(async () => {
+        await service.getAgreementPreview(user);
+      }).rejects.toThrow(new Error('No agreement'));
+    });
+
+    test('should return agreement forms', async () => {
+      const createNode = jest.fn();
+      createNode.mockResolvedValue({
+        data: {
+          success: true,
+          node_count: 1,
+          nodes: [{ info: { agreements: { type: 'NODE_AGREEMENT', url: 'string' } } }],
+        },
+      });
+      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+      mockCreateNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
+      mockGetUser.mockResolvedValue({ body: { documents: [{ id: 1 }] }, updateUser, createNode });
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+
+      await createGenericKycAccount();
+
+      await service.getAgreementPreview(user);
+    });
+  });
+
+  describe('saveAgreementAcknowledge', () => {
+    test('should save user agreement acknowledgement', async () => {
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValue({ body: mockUserPaymentAccount });
+      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+      mockCreateNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
+      await createGenericKycAccount();
+
+      const response = await service.saveAgreementAcknowledgement(user, 'NODE_AGREEMENT');
+      expect(response).toMatchObject({
+        status: HttpStatus.OK,
+      });
+    });
+
+    test('should throw if the agreementStatus is not ACCEPTED or DECLINED', async () => {
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValue({ body: mockUserPaymentAccount });
+      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+      mockCreateNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
+      await createGenericKycAccount();
+
+      await expect(async () => {
+        await service.saveAgreementAcknowledgement(user, 'SOMETEXT' as IAgreementType);
+      }).rejects.toThrow(new Error('Incorrect agreement'));
     });
   });
 });

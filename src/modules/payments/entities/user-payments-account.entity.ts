@@ -4,7 +4,8 @@ import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
 import { BaseModel } from 'modules/common/entities/base.model';
 import { Exclude } from 'class-transformer';
 import { User } from 'modules/users/entities';
-import { IPermissionCodes, IPermissions } from '../interfaces/create-account';
+import { IAgreementType, IPermissionCodes, IPermissions } from '../interfaces/create-account';
+import { IncorrectAgreementError } from '../exceptions/incorrect-agreement-status.exception';
 
 @Entity('user_payments_account')
 @Unique('USER_ID_UNIQUE', ['userId'])
@@ -44,6 +45,18 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
     nullable: true,
   })
   public permissionCode: IPermissionCodes;
+
+  @Column({
+    nullable: true,
+    type: 'timestamp',
+  })
+  public termsAcceptedDate: Date;
+
+  @Column({
+    nullable: true,
+    type: 'timestamp',
+  })
+  public nodeAgreedDate: Date;
 
   @Exclude()
   @Column({
@@ -91,6 +104,28 @@ export class UserPaymentsAccount extends BaseModel implements IBaseEntity {
       refreshToken: tokens.refreshToken,
       depositNodeId,
     });
+  }
+
+  static async updateUserAgreement(
+    userAccountId: string,
+    agreementToUpdate: IAgreementType,
+    acceptedDate?: Date,
+  ): Promise<UserPaymentsAccount> {
+    const account = await this.findAccountByAccountId(userAccountId);
+
+    if (agreementToUpdate === 'TERMS_AND_CONDITIONS') {
+      return UserPaymentsAccount.save({
+        ...account,
+        termsAcceptedDate: acceptedDate ?? new Date(),
+      });
+    }
+    if (agreementToUpdate === 'NODE_AGREEMENT') {
+      return UserPaymentsAccount.save({
+        ...account,
+        nodeAgreedDate: acceptedDate ?? new Date(),
+      });
+    }
+    throw new IncorrectAgreementError();
   }
 
   constructor(partial: Partial<UserPaymentsAccount> = {}) {

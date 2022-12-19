@@ -39,7 +39,7 @@ export const ValidateFormBody = () =>
 function generateErrorMessage(validationErrors: ValidationError[]): Record<string, string[]> {
   const customErrors: Record<string, string[]> = {};
   for (const error of validationErrors) {
-    if (error.children.length >= 1) {
+    if (error.children && error.children.length >= 1) {
       for (const child of error.children) {
         customErrors[child.property] = Object.values(child.constraints);
       }

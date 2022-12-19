@@ -15,20 +15,21 @@ import {
 } from '../interfaces/synapse-node';
 import { Client, User } from 'synapsenode';
 import { PaymentsAccountCreationFailed } from '../exceptions/account-creation-failure.exception';
+import { PaymentsAccountDto } from '../dto/payments-account.dto';
 
 const IS_DEVELOPMENT = process.env.NODE_ENV === 'DEVELOP';
 
 export function createUserParams(
   userId: string,
-  bodyParams: BasicKycDto | UpdateKycDto,
+  bodyParams: BasicKycDto | UpdateKycDto | PaymentsAccountDto,
   ip_address: Ipv4Address,
   baseDocument?: ISynapseBaseDocuments,
 ): ISynapseAccountResponse {
-  const fullName = `${bodyParams.first_name} ${bodyParams.last_name}`;
-  const createNewPaymentAccountParams = {
-    logins: [{ email: bodyParams.email }],
-    phone_numbers: [bodyParams.phone_numbers],
-    legal_names: [fullName],
+  const fullName = bodyParams.first_name
+    ? `${bodyParams.first_name} ${bodyParams.last_name}`
+    : undefined;
+
+  const createNewPaymentAccountParams: any = {
     documents: [createKYCDocument(bodyParams, fullName, ip_address, baseDocument)],
     extra: {
       supp_id: userId,
@@ -36,6 +37,17 @@ export function createUserParams(
       is_business: false,
     },
   };
+
+  if (bodyParams.email) {
+    createNewPaymentAccountParams.logins = [{ email: bodyParams.email }];
+  }
+  if (bodyParams.phone_numbers) {
+    createNewPaymentAccountParams.phone_numbers = [bodyParams.phone_numbers];
+  }
+  if (fullName) {
+    createNewPaymentAccountParams.legal_names = [fullName];
+  }
+
   return createNewPaymentAccountParams;
 }
 export async function createPaymentProviderUserAccount(
@@ -75,7 +87,13 @@ export function initializeSynapseUserClient(
 }
 
 export function createKYCDocument(
-  { date_of_birth, mailing_address, gender, email, phone_numbers }: BasicKycDto | UpdateKycDto,
+  {
+    date_of_birth,
+    mailing_address,
+    gender,
+    email,
+    phone_numbers,
+  }: BasicKycDto | UpdateKycDto | PaymentsAccountDto,
   fullName: string,
   ip_address: Ipv4Address,
   baseDocument?: ISynapseBaseDocuments,
@@ -89,9 +107,9 @@ export function createKYCDocument(
     alias: `${fullName} ${IS_DEVELOPMENT ? 'test' : 'payments'} account`,
     entity_scope: 'Arts & Entertainment',
     entity_type: gender ?? 'NOT_KNOWN',
-    day: date_of_birth.day,
-    month: date_of_birth.month,
-    year: date_of_birth.year,
+    day: date_of_birth?.day,
+    month: date_of_birth?.month,
+    year: date_of_birth?.year,
   };
 
   if (mailing_address) {
