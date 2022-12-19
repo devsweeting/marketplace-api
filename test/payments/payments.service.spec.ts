@@ -1,3 +1,4 @@
+/* eslint-disable no-magic-numbers */
 import { HttpException, HttpStatus, INestApplication } from '@nestjs/common';
 import { clearAllData, createApp } from '../utils/app.utils';
 import { AddressVerificationFailedException } from 'modules/payments/exceptions/address-verification-failed.exception';
@@ -339,24 +340,7 @@ describe('Service', () => {
     });
 
     test('should throw if terms were not accepted', async () => {
-      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
-      mockGetUser.mockResolvedValue({ body: { documents: [{ id: 1 }] }, updateUser });
-      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
-      mockCreateNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
-      mockGrabRefreshToken.mockResolvedValue('asdfa');
-      // const account = await createGenericKycAccount();
-
-      //   await expect(
-      //     async () =>
-      //       await service.createPaymentNodeAccount(
-      //         {
-      //           mailing_address: realAddress,
-      //         },
-      //         user,
-      //         {},
-      //         '0.0.0.0',
-      //       ),
-      //   ).rejects.toThrow(new NoAgreementError());
+      test.todo;
     });
 
     test('should throw if patching the synapse account fails', async () => {
@@ -381,6 +365,33 @@ describe('Service', () => {
             '0.0.0.0',
           ),
       ).rejects.toThrow(new AccountPatchError({ error: { en: 'Something went wrong', code: '' } }));
+    });
+
+    test('should update NODE_AGREEMENT', async () => {
+      test.todo;
+    });
+
+    test('should successfully create synapse node', async () => {
+      mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
+      mockGetUser.mockResolvedValue({ body: { documents: [{ id: 1 }] }, updateUser });
+      mockOauthUser.mockResolvedValue({ expires_at: new Date().getTime() });
+      mockCreateNode.mockResolvedValue({ data: { success: true, nodes: [{ _id: '3' }] } });
+      updateUser.mockResolvedValueOnce({ status: HttpStatus.OK, body: { status: HttpStatus.OK } });
+      mockGrabRefreshToken.mockResolvedValue('token');
+      await createGenericKycAccount();
+      const account = await service.createPaymentNodeAccount(
+        {
+          mailing_address: realAddress,
+        },
+        user,
+        {},
+        '0.0.0.0',
+      );
+      expect(mockGrabRefreshToken).toBeCalledTimes(1);
+      expect(mockOauthUser).toBeCalledTimes(1);
+      expect(mockCreateNode).toBeCalledTimes(1);
+      expect(account.status).toBe(HttpStatus.CREATED);
+      expect(account.msg).toBe(`Payments account created for user -- ${user.id}`);
     });
   });
 

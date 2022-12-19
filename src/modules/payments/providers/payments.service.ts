@@ -179,7 +179,6 @@ export class PaymentsService extends BaseService {
 
     // Update the payments account with mailing address
     const response = await this.updateKyc(bodyParams, user, ip_address);
-    console.log(response);
     if (response.status !== HttpStatus.OK) {
       throw new AccountPatchError();
     }
