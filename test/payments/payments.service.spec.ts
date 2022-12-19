@@ -339,10 +339,6 @@ describe('Service', () => {
       ).rejects.toThrow(new UserNotFoundException());
     });
 
-    test('should throw if terms were not accepted', async () => {
-      test.todo;
-    });
-
     test('should throw if patching the synapse account fails', async () => {
       mockCreateUser.mockResolvedValue(paymentsAccountCreationSuccess.User);
       mockGetUser.mockResolvedValue({ body: { documents: [{ id: 1 }] }, updateUser });
@@ -365,10 +361,6 @@ describe('Service', () => {
             '0.0.0.0',
           ),
       ).rejects.toThrow(new AccountPatchError({ error: { en: 'Something went wrong', code: '' } }));
-    });
-
-    test('should update NODE_AGREEMENT', async () => {
-      test.todo;
     });
 
     test('should successfully create synapse node', async () => {
