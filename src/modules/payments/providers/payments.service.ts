@@ -17,6 +17,7 @@ import { AddressVerificationFailedException } from '../exceptions/address-verifi
 import { BaseDocumentError } from '../exceptions/base-document-error-exception';
 import { IncorrectAgreementError } from '../exceptions/incorrect-agreement-status.exception';
 import { NoAgreementError } from '../exceptions/no-agreement-exception';
+import { PaymentProviderError } from '../exceptions/payment-provider-error.exception';
 import { UserPaymentsAccountNotFound } from '../exceptions/user-account-verification-failed.exception';
 import {
   IAddressResponse,
@@ -194,13 +195,15 @@ export class PaymentsService extends BaseService {
     const depositHub = await createProviderDepositNode(userClient, baseDocumentId);
 
     //Update pertinent account details for future reference.
-    if (depositHub.success === true) {
-      await UserPaymentsAccount.updateDetailsOnNodeCreation(
-        userAccountId,
-        tokens,
-        depositHub.nodes[0]._id,
-      );
+    if (depositHub.success !== true) {
+      throw new AccountPatchError();
     }
+
+    await UserPaymentsAccount.updateDetailsOnNodeCreation(
+      userAccountId,
+      tokens,
+      depositHub.nodes[0]._id,
+    );
 
     Logger.log(
       `FBO payments account(${localPaymentsAccount.userAccountId}) successfully created for user -- ${user.id}`,
@@ -220,7 +223,6 @@ export class PaymentsService extends BaseService {
   ): Promise<{ status: HttpStatus; msg: string }> {
     //check local DB to see if synapse account exists
     const paymentsUser = await this.getExternalAccountFromUser(user);
-    console.log(paymentsUser);
     let baseDocument: ISynapseBaseDocuments;
     try {
       baseDocument = paymentsUser.body.documents[0];
@@ -245,7 +247,6 @@ export class PaymentsService extends BaseService {
         if (!data) {
           return undefined;
         }
-        console.log('data:----------', data);
         if (data.status !== HttpStatus.OK) {
           return undefined;
         }
