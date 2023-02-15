@@ -34,7 +34,7 @@ export class AssetsTransformer {
       partner: encodeHashId(asset.partnerId, this.configService.get('common.default.hashIdSalt')),
       sellOrders: asset.sellOrders?.length
         ? this.sellOrderTransformer.transformAll(asset.sellOrders)
-        : null,
+        : [],
       userAsset: this.userAssetTransformer.transform(asset.userAsset),
     };
   }
