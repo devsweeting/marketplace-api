@@ -16,6 +16,7 @@ import {
   PurchaseLimitReached,
   SellOrderNotFoundException,
 } from './exceptions';
+import { SellOrderPurchaseValidateResponse } from './responses/sell-order.response';
 
 @Injectable()
 export class SellOrdersService extends BaseService {
@@ -118,6 +119,14 @@ export class SellOrdersService extends BaseService {
     purchaseDto: SellOrderPurchaseDto,
   ): Promise<SellOrderPurchase> {
     return SellOrderPurchase.from(user, dto, purchaseDto);
+  }
+
+  async validatePurchase(
+    user: User,
+    dto: SellOrderIdDto,
+    purchaseDto: SellOrderPurchaseDto,
+  ): Promise<SellOrderPurchaseValidateResponse> {
+    return SellOrderPurchase.validate(user, dto, purchaseDto);
   }
 
   async getUserSellOrders(user: User): Promise<SellOrder[]> {
