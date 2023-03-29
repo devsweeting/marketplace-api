@@ -254,7 +254,6 @@ describe('SellOrdersController -> Purchases', () => {
 
     test('should return 400 if user hits limit after successfully purchasing some shares', async () => {
       const checkResponse = {
-        //update for new field
         fractionsAvailableToPurchase: 10,
         fractionsPurchased: 0,
       };

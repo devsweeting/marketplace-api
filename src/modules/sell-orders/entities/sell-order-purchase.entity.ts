@@ -73,8 +73,6 @@ export class SellOrderPurchase extends BaseModel implements IBaseEntity {
       lock: { mode: 'pessimistic_write' },
     });
 
-    console.log('SELLORDER FOUND', sellOrder);
-
     if (!sellOrder) {
       throw new SellOrderNotFoundException();
     }
