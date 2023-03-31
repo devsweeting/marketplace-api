@@ -1,6 +1,6 @@
 /* eslint-disable no-magic-numbers */
 import { ApiProperty } from '@nestjs/swagger';
-import { Max, Min } from 'class-validator';
+import { IsObject, Max, Min } from 'class-validator';
 
 export type IStripePurchaseTracking = {
   intentId: string;
@@ -20,5 +20,6 @@ export class SellOrderPurchaseDto {
   public fractionPriceCents: number;
 
   @ApiProperty()
+  @IsObject()
   public stripeTrackingDetails?: IStripePurchaseTracking;
 }
