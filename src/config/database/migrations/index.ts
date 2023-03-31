@@ -22,6 +22,7 @@ import { AddAdditionalPaymentsAccountInfoFix1669840035959 } from './166984003595
 import { addTermsAndServicesToPaymentUser1671224234531 } from './1671224234531-add-terms-and-services-to-paymentUser';
 import { addTermsAndNodeAgreement1670963001717 } from './1670963001717-addTermsAndNodeAgreement';
 import { addUserAgreementField1670270624511 } from './1670270624511-addUserAgreementField';
+import { AddStripePurchaseTracking1680288698036 } from './1680288698036-AddStripePurchaseTracking';
 
 export const migrations = [
   Init1652279127303,
@@ -48,4 +49,5 @@ export const migrations = [
   addUserAgreementField1670270624511,
   addTermsAndNodeAgreement1670963001717,
   addTermsAndServicesToPaymentUser1671224234531,
+  AddStripePurchaseTracking1680288698036,
 ];

@@ -23,11 +23,14 @@ import {
   PurchaseLimitReached,
   SellOrderNotFoundException,
 } from 'modules/sell-orders/exceptions';
+import { IStripePurchaseTracking } from 'modules/sell-orders/dto/sell-order-purchase.dto';
+import { v4 } from 'uuid';
 
 let app: INestApplication;
 const initialQty = 10000;
 const fakeUUID = '39353a36-4b28-11ed-b878-0242ac120002';
 const ONE_SECOND_IN_MS = 1000;
+const DOLLAR_CONVERSION = 100;
 
 let service: SellOrdersService;
 let partner: Partner;
@@ -256,9 +259,16 @@ describe('SellOrdersService', () => {
   });
   describe('checkDrop', () => {
     test('should throw if sellOrder is a drop and purchased is greater than userFractionLimit', async () => {
+      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+        intentId: v4(),
+        purchaseStatus: 'succeeded',
+        amount:
+          (sellOrderDrop.userFractionLimit * sellOrder.fractionPriceCents) / DOLLAR_CONVERSION,
+      };
       await service.purchase(buyer, sellOrderDrop, {
         fractionsToPurchase: sellOrderDrop.userFractionLimit,
         fractionPriceCents: sellOrderDrop.fractionPriceCents,
+        stripeTrackingDetails: mockStripeTrackingDetails,
       });
       try {
         await service.checkDrop(buyer, sellOrderDrop);
@@ -271,18 +281,30 @@ describe('SellOrdersService', () => {
 
     test('should return number of units purchased for a drop sellOrder', async () => {
       const unitsToPurchase = 9;
+      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+        intentId: v4(),
+        purchaseStatus: 'succeeded',
+        amount: (unitsToPurchase * sellOrder.fractionPriceCents) / DOLLAR_CONVERSION,
+      };
       await service.purchase(buyer, sellOrderDrop, {
         fractionsToPurchase: unitsToPurchase,
         fractionPriceCents: sellOrderDrop.fractionPriceCents,
+        stripeTrackingDetails: mockStripeTrackingDetails,
       });
       const unitsPurchased = await service.checkDrop(buyer, sellOrderDrop);
       expect(unitsPurchased).toBe(unitsToPurchase.toString());
     });
     test('should return number of units purchased for standard sellOrder', async () => {
       const unitsToPurchase = 9;
+      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+        intentId: v4(),
+        purchaseStatus: 'succeeded',
+        amount: (unitsToPurchase * sellOrder.fractionPriceCents) / DOLLAR_CONVERSION,
+      };
       await service.purchase(buyer, sellOrder, {
         fractionsToPurchase: unitsToPurchase,
         fractionPriceCents: sellOrder.fractionPriceCents,
+        stripeTrackingDetails: mockStripeTrackingDetails,
       });
       const unitsPurchased = await service.checkDrop(buyer, sellOrder);
       expect(unitsPurchased).toBe(unitsToPurchase.toString());
@@ -305,9 +327,16 @@ describe('SellOrdersService', () => {
   describe('purchase', () => {
     test('should return a sellOrderPurchase', async () => {
       const unitsToPurchase = 9;
+      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+        intentId: v4(),
+        purchaseStatus: 'succeeded',
+        amount: (unitsToPurchase * sellOrder.fractionPriceCents) / DOLLAR_CONVERSION,
+      };
+
       const sellOrderPurchase = await service.purchase(buyer, sellOrder, {
         fractionsToPurchase: unitsToPurchase,
         fractionPriceCents: sellOrder.fractionPriceCents,
+        stripeTrackingDetails: mockStripeTrackingDetails,
       });
       expect(sellOrderPurchase).toMatchObject({
         ...sellOrderPurchase,
