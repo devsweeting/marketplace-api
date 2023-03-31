@@ -40,6 +40,7 @@ import { PurchaseHistoryDto } from '../dto/purchase-history.dto';
 import { currentUser } from 'modules/users/decorators/currentUser.decorator';
 import { SellOrdersPurchaseService } from '../sell-order-purchase.service';
 import { SellOrderPurchaseResponse } from '../responses/sell-order-purchase.response';
+import { SellOrderValidateDto } from '../dto/sell-order-validate.dto';
 
 @ApiTags('sellorders')
 @Controller({
@@ -207,7 +208,7 @@ export class SellOrdersController {
   public async validatePurchase(
     @GetUser() user: User,
     @Param() params: SellOrderIdDto,
-    @Body() dto: SellOrderPurchaseDto,
+    @Body() dto: SellOrderValidateDto,
   ): Promise<SellOrderPurchaseValidateResponse> {
     const validationStatus = await this.sellOrdersService.validatePurchase(user, params, dto);
     return validationStatus;
