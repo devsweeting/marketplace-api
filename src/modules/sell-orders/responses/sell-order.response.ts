@@ -1,3 +1,4 @@
+import { HttpStatus } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class SellOrderResponse {
@@ -46,4 +47,13 @@ export class SellOrderCheckResponse {
   fractionsPurchased: number;
   @ApiProperty({ example: 100 })
   fractionsAvailableToPurchase: number;
+}
+
+export class SellOrderPurchaseValidateResponse {
+  @ApiProperty({ example: HttpStatus.OK })
+  statusCode: HttpStatus;
+  @ApiProperty({ example: 'NO SELL ORDER FOUND' })
+  message: string | null;
+  @ApiProperty({ example: '' })
+  error: string | null;
 }
