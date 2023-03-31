@@ -2,6 +2,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Max, Min } from 'class-validator';
 
+export type IStripePurchaseTracking = {
+  intentId: string;
+  purchaseStatus: string;
+  amount: number;
+};
+
 export class SellOrderPurchaseDto {
   @ApiProperty()
   @Min(1)
@@ -12,4 +18,7 @@ export class SellOrderPurchaseDto {
   @Min(1)
   @Max(100000000)
   public fractionPriceCents: number;
+
+  @ApiProperty()
+  public stripeTrackingDetails?: IStripePurchaseTracking;
 }

@@ -60,6 +60,15 @@ export class SellOrderPurchase extends BaseModel implements IBaseEntity {
   @JoinColumn({ name: 'assetId' })
   public asset?: Asset;
 
+  @Column({ nullable: true })
+  public stripePurchaseIntentId: string | null;
+
+  @Column({ nullable: true })
+  public stripePurchaseStatus: string | null;
+
+  @Column({ type: 'int', nullable: true })
+  public stripeAmountCharged: number | null;
+
   static async runPurchaseValidations(
     user: User,
     idDto: SellOrderIdDto,
@@ -177,12 +186,26 @@ export class SellOrderPurchase extends BaseModel implements IBaseEntity {
         });
       }
 
+      //If Stripe Details are prvided, save them in the sell order purchase
+      const stripeTrackingDetails = purchaseDto.stripeTrackingDetails
+        ? {
+            stripePurchaseIntentId: purchaseDto.stripeTrackingDetails.intentId,
+            stripePurchaseStatus: purchaseDto.stripeTrackingDetails.purchaseStatus,
+            stripeAmountCharged: purchaseDto.stripeTrackingDetails.amount,
+          }
+        : {
+            stripePurchaseIntentId: null,
+            stripePurchaseStatus: null,
+            stripeAmountCharged: null,
+          };
+
       const purchase = new SellOrderPurchase({
         userId: user.id,
         sellOrderId: sellOrder.id,
         assetId: sellOrder.assetId,
         fractionQty: purchaseDto.fractionsToPurchase,
         fractionPriceCents: purchaseDto.fractionPriceCents,
+        ...stripeTrackingDetails,
       });
       sellOrder.fractionQtyAvailable -= purchaseDto.fractionsToPurchase;
       sellerAsset.quantityOwned -= purchaseDto.fractionsToPurchase;

@@ -23,6 +23,8 @@ import { createUser } from '../utils/create-user';
 import { createPartner } from '../utils/partner.utils';
 import { createSellOrder } from '../utils/sell-order.utils';
 import { createUserAsset } from '../utils/create-user-asset';
+import { IStripePurchaseTracking } from 'modules/sell-orders/dto/sell-order-purchase.dto';
+import { v4 } from 'uuid';
 
 const initialQty = 10000;
 const fakeUUID = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
@@ -88,6 +90,7 @@ beforeEach(async () => {
     quantityOwned: sellOrderDrop.fractionQty,
   });
 });
+
 afterEach(async () => {
   jest.clearAllMocks();
   await clearAllData();
@@ -115,10 +118,16 @@ describe('SellOrderPurchase', () => {
 
     test('should throw error if purchase amount is greater than available amount ', async () => {
       const unitsToPurchase = sellOrder.fractionQty + 1;
+      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+        intentId: v4(),
+        purchaseStatus: 'succeeded',
+        amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
+      };
       try {
         await SellOrderPurchase.from(buyer, sellOrder, {
           fractionsToPurchase: unitsToPurchase,
           fractionPriceCents: sellOrder.fractionPriceCents,
+          stripeTrackingDetails: mockStripeTrackingDetails,
         });
       } catch (error) {
         expect(error).toBeInstanceOf(NotEnoughAvailableException);
@@ -129,11 +138,17 @@ describe('SellOrderPurchase', () => {
 
     test('should throw error if fraction price is not equal', async () => {
       const unitsToPurchase = sellOrder.fractionQty;
+      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+        intentId: v4(),
+        purchaseStatus: 'succeeded',
+        amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
+      };
       const wrongFractionPriceCents = 1;
       try {
         await SellOrderPurchase.from(buyer, sellOrder, {
           fractionsToPurchase: unitsToPurchase,
           fractionPriceCents: wrongFractionPriceCents,
+          stripeTrackingDetails: mockStripeTrackingDetails,
         });
       } catch (error) {
         expect(error).toBeInstanceOf(PriceMismatchException);
@@ -144,10 +159,16 @@ describe('SellOrderPurchase', () => {
 
     test('should throw error if buyer userId matches seller userId', async () => {
       const unitsToPurchase = sellOrder.fractionQty;
+      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+        intentId: v4(),
+        purchaseStatus: 'succeeded',
+        amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
+      };
       try {
         await SellOrderPurchase.from(seller, sellOrder, {
           fractionsToPurchase: unitsToPurchase,
           fractionPriceCents: sellOrder.fractionPriceCents,
+          stripeTrackingDetails: mockStripeTrackingDetails,
         });
       } catch (error) {
         expect(error).toBeInstanceOf(UserCannotPurchaseOwnOrderException);
@@ -167,10 +188,18 @@ describe('SellOrderPurchase', () => {
         startTime: new Date(new Date().getTime() + ONE_SECOND_IN_MS),
       });
       const unitsToPurchase = sellOrder.fractionQty;
+
+      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+        intentId: v4(),
+        purchaseStatus: 'succeeded',
+        amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
+      };
+
       try {
         await SellOrderPurchase.from(buyer, futureSellOrder, {
           fractionsToPurchase: unitsToPurchase,
           fractionPriceCents: futureSellOrder.fractionPriceCents,
+          stripeTrackingDetails: mockStripeTrackingDetails,
         });
       } catch (error) {
         expect(error).toBeInstanceOf(SellOrderNotFoundException);
@@ -190,10 +219,16 @@ describe('SellOrderPurchase', () => {
         expireTime: new Date(new Date().getTime() - ONE_SECOND_IN_MS),
       });
       const unitsToPurchase = sellOrder.fractionQty;
+      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+        intentId: v4(),
+        purchaseStatus: 'succeeded',
+        amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
+      };
       try {
         await SellOrderPurchase.from(buyer, futureSellOrder, {
           fractionsToPurchase: unitsToPurchase,
           fractionPriceCents: futureSellOrder.fractionPriceCents,
+          stripeTrackingDetails: mockStripeTrackingDetails,
         });
       } catch (error) {
         expect(error).toBeInstanceOf(SellOrderNotFoundException);
@@ -204,6 +239,11 @@ describe('SellOrderPurchase', () => {
 
     test('should throw if sellOrder drop does not have a userFractionLimit', async () => {
       const unitsToPurchase = 1;
+      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+        intentId: v4(),
+        purchaseStatus: 'succeeded',
+        amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
+      };
       const brokenSellOrderDrop = await createSellOrder({
         ...sellOrder,
         type: SellOrderTypeEnum.drop,
@@ -214,6 +254,7 @@ describe('SellOrderPurchase', () => {
         await SellOrderPurchase.from(buyer, brokenSellOrderDrop, {
           fractionsToPurchase: unitsToPurchase,
           fractionPriceCents: brokenSellOrderDrop.fractionPriceCents,
+          stripeTrackingDetails: mockStripeTrackingDetails,
         });
       } catch (error) {
         expect(error).toBeInstanceOf(InternalServerErrorException);
@@ -225,6 +266,11 @@ describe('SellOrderPurchase', () => {
 
     test('should throw error if sellOrder drop does not specify end time', async () => {
       const unitsToPurchase = 1;
+      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+        intentId: v4(),
+        purchaseStatus: 'succeeded',
+        amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
+      };
       const brokenSellOrderDrop = await createSellOrder({
         ...sellOrder,
         type: SellOrderTypeEnum.drop,
@@ -235,6 +281,7 @@ describe('SellOrderPurchase', () => {
         await SellOrderPurchase.from(buyer, brokenSellOrderDrop, {
           fractionsToPurchase: unitsToPurchase,
           fractionPriceCents: brokenSellOrderDrop.fractionPriceCents,
+          stripeTrackingDetails: mockStripeTrackingDetails,
         });
       } catch (error) {
         expect(error).toBeInstanceOf(InternalServerErrorException);
@@ -247,10 +294,17 @@ describe('SellOrderPurchase', () => {
     test('should throw error if user tries to buy more than drop limit', async () => {
       const unitsToPurchase = sellOrderDrop.userFractionLimit + 1;
 
+      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+        intentId: v4(),
+        purchaseStatus: 'succeeded',
+        amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
+      };
+
       try {
         await SellOrderPurchase.from(buyer, sellOrderDrop, {
           fractionsToPurchase: unitsToPurchase,
           fractionPriceCents: sellOrderDrop.fractionPriceCents,
+          stripeTrackingDetails: mockStripeTrackingDetails,
         });
       } catch (error) {
         expect(error).toBeInstanceOf(PurchaseLimitReached);
@@ -261,14 +315,21 @@ describe('SellOrderPurchase', () => {
 
     test('should throw error if user already has bought shares of a drop and tries to buy more than their limit', async () => {
       const unitsToPurchase = 6;
+      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+        intentId: v4(),
+        purchaseStatus: 'succeeded',
+        amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
+      };
       await SellOrderPurchase.from(buyer, sellOrderDrop, {
         fractionsToPurchase: unitsToPurchase,
         fractionPriceCents: sellOrderDrop.fractionPriceCents,
+        stripeTrackingDetails: mockStripeTrackingDetails,
       });
       try {
         await SellOrderPurchase.from(buyer, sellOrderDrop, {
           fractionsToPurchase: unitsToPurchase,
           fractionPriceCents: sellOrderDrop.fractionPriceCents,
+          stripeTrackingDetails: mockStripeTrackingDetails,
         });
       } catch (error) {
         expect(error).toBeInstanceOf(PurchaseLimitReached);
@@ -290,10 +351,17 @@ describe('SellOrderPurchase', () => {
 
       const unitsToPurchase = 1;
 
+      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+        intentId: v4(),
+        purchaseStatus: 'succeeded',
+        amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
+      };
+
       try {
         await SellOrderPurchase.from(buyer, testSellOrder, {
           fractionsToPurchase: unitsToPurchase,
           fractionPriceCents: testSellOrder.fractionPriceCents,
+          stripeTrackingDetails: mockStripeTrackingDetails,
         });
       } catch (error) {
         expect(error).toBeInstanceOf(SellerNotAssetOwnerException);
@@ -321,10 +389,17 @@ describe('SellOrderPurchase', () => {
 
       const unitsToPurchase = 2;
 
+      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+        intentId: v4(),
+        purchaseStatus: 'succeeded',
+        amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
+      };
+
       try {
         await SellOrderPurchase.from(buyer, testSellOrder, {
           fractionsToPurchase: unitsToPurchase,
           fractionPriceCents: testSellOrder.fractionPriceCents,
+          stripeTrackingDetails: mockStripeTrackingDetails,
         });
       } catch (error) {
         expect(error).toBeInstanceOf(NotEnoughUnitsFromSeller);
@@ -335,6 +410,13 @@ describe('SellOrderPurchase', () => {
 
     test('should create userAsset for buyer userAsset if userAsset does not already exist', async () => {
       const unitsToPurchase = 2;
+
+      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+        intentId: v4(),
+        purchaseStatus: 'succeeded',
+        amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
+      };
+
       const manager = SellOrderPurchase.getRepository().manager;
       const userAsset = await manager.findOne(UserAsset, {
         where: { userId: buyer.id, assetId: sellOrder.assetId, isDeleted: false },
@@ -343,6 +425,7 @@ describe('SellOrderPurchase', () => {
       await SellOrderPurchase.from(buyer, sellOrder, {
         fractionsToPurchase: unitsToPurchase,
         fractionPriceCents: sellOrder.fractionPriceCents,
+        stripeTrackingDetails: mockStripeTrackingDetails,
       });
       const newUserAsset = await manager.findOne(UserAsset, {
         where: { userId: buyer.id, assetId: sellOrder.assetId, isDeleted: false },
@@ -355,6 +438,13 @@ describe('SellOrderPurchase', () => {
 
     test('should correctly process purchase', async () => {
       const unitsToPurchase = 2;
+
+      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+        intentId: v4(),
+        purchaseStatus: 'succeeded',
+        amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
+      };
+
       const oldSellOrderFractionQtyAvailable = sellOrder.fractionQtyAvailable;
       const oldSellerUserAssetQty = userAsset.quantityOwned;
       const manager = SellOrderPurchase.getRepository().manager;
@@ -365,6 +455,7 @@ describe('SellOrderPurchase', () => {
       await SellOrderPurchase.from(buyer, sellOrder, {
         fractionsToPurchase: unitsToPurchase,
         fractionPriceCents: sellOrder.fractionPriceCents,
+        stripeTrackingDetails: mockStripeTrackingDetails,
       });
       const newBuyerUserAsset = await manager.findOne(UserAsset, {
         where: { userId: buyer.id, assetId: sellOrder.assetId, isDeleted: false },
@@ -387,6 +478,7 @@ describe('SellOrderPurchase', () => {
       await SellOrderPurchase.from(buyer, sellOrder, {
         fractionsToPurchase: unitsToPurchase,
         fractionPriceCents: sellOrder.fractionPriceCents,
+        stripeTrackingDetails: mockStripeTrackingDetails,
       });
       const newPurchasedAmount = unitsToPurchase + unitsToPurchase;
       await sellOrder.reload();
@@ -415,9 +507,17 @@ describe('SellOrderPurchase', () => {
 
     test('should return number of units a user has bought', async () => {
       const unitsToPurchase = 2;
+
+      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+        intentId: v4(),
+        purchaseStatus: 'succeeded',
+        amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
+      };
+
       await SellOrderPurchase.from(buyer, sellOrder, {
         fractionsToPurchase: unitsToPurchase,
         fractionPriceCents: sellOrder.fractionPriceCents,
+        stripeTrackingDetails: mockStripeTrackingDetails,
       });
       const totalPurchased = await SellOrderPurchase.getTotalPurchased(buyer, sellOrder);
       expect(totalPurchased).toBe(unitsToPurchase.toString());
