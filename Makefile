@@ -1,4 +1,4 @@
-ENV ?= test
+ENV ?= staging
 ACCOUNT_ID = $(shell aws --profile jump${ENV} sts get-caller-identity --query "Account" --output text)
 
 .PHONY : help
