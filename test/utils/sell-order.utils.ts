@@ -32,7 +32,7 @@ export async function expectPurchaseSuccess(
   const authHeaders = headers ?? headerForUser(purchaser);
   await order.reload();
   const initialQty = order.fractionQtyAvailable;
-  const payload = { fractionsToPurchase, fractionPriceCents };
+  const payload = { fractionsToPurchase, fractionPriceCents, stripeTrackingDetails: undefined };
   await testApp.post(app, urlFor(order), HttpStatus.CREATED, null, payload, authHeaders);
   await order.reload();
   if (sellerUserAsset) {

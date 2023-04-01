@@ -22,7 +22,11 @@ import {
 import { SellOrdersService } from '../sell-orders.service';
 import { PaginatedResponse } from 'modules/common/dto/paginated.response';
 import { generateSwaggerPaginatedSchema } from 'modules/common/helpers/generate-swagger-paginated-schema';
-import { SellOrderCheckResponse, SellOrderResponse } from '../responses/sell-order.response';
+import {
+  SellOrderCheckResponse,
+  SellOrderPurchaseValidateResponse,
+  SellOrderResponse,
+} from '../responses/sell-order.response';
 import { SellOrderIdDto, SellOrderDto, ListSellOrderDto, SellOrderPurchaseDto } from '../dto';
 import { SellOrdersTransformer } from '../transformers/sell-orders.transformer';
 import { AuthGuard } from '@nestjs/passport';
@@ -36,6 +40,7 @@ import { PurchaseHistoryDto } from '../dto/purchase-history.dto';
 import { currentUser } from 'modules/users/decorators/currentUser.decorator';
 import { SellOrdersPurchaseService } from '../sell-order-purchase.service';
 import { SellOrderPurchaseResponse } from '../responses/sell-order-purchase.response';
+import { SellOrderValidateDto } from '../dto/sell-order-validate.dto';
 
 @ApiTags('sellorders')
 @Controller({
@@ -187,5 +192,25 @@ export class SellOrdersController {
       fractionsPurchased,
       fractionsAvailableToPurchase,
     };
+  }
+
+  @Post(':id/validate')
+  @ApiBearerAuth('bearer-token')
+  @UseGuards(JwtOtpAuthGuard)
+  @ApiOperation({
+    summary:
+      'runs the same pre-check validations that happen before a purchase, without actually purchasing',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'validate a fraction transfer will process successfully',
+  })
+  public async validatePurchase(
+    @GetUser() user: User,
+    @Param() params: SellOrderIdDto,
+    @Body() dto: SellOrderValidateDto,
+  ): Promise<SellOrderPurchaseValidateResponse> {
+    const validationStatus = await this.sellOrdersService.validatePurchase(user, params, dto);
+    return validationStatus;
   }
 }

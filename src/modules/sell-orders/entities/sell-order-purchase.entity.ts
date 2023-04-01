@@ -1,4 +1,4 @@
-import { InternalServerErrorException, Logger } from '@nestjs/common';
+import { HttpStatus, InternalServerErrorException, Logger } from '@nestjs/common';
 import { Asset } from 'modules/assets/entities';
 import { AssetNotFoundException } from 'modules/assets/exceptions';
 import { IBaseEntity } from 'modules/common/entities/base.entity.interface';
@@ -26,6 +26,7 @@ import {
   SellerNotAssetOwnerException,
 } from '../exceptions';
 import { SellOrder } from './sell-orders.entity';
+import { SellOrderPurchaseValidateResponse } from '../responses/sell-order.response';
 
 @Entity('sell_order_purchases')
 export class SellOrderPurchase extends BaseModel implements IBaseEntity {
@@ -59,77 +60,124 @@ export class SellOrderPurchase extends BaseModel implements IBaseEntity {
   @JoinColumn({ name: 'assetId' })
   public asset?: Asset;
 
+  @Column({ nullable: true })
+  public stripePurchaseIntentId: string | null;
+
+  @Column({ nullable: true })
+  public stripePurchaseStatus: string | null;
+
+  @Column({ type: 'int', nullable: true })
+  public stripeAmountCharged: number | null;
+
+  static async runPurchaseValidations(
+    user: User,
+    idDto: SellOrderIdDto,
+    purchaseDto: SellOrderPurchaseDto,
+    manager: EntityManager = this.getRepository().manager,
+  ): Promise<{ sellOrder: SellOrder; sellerAsset: UserAsset }> {
+    const now = new Date();
+
+    const sellOrder = await manager.findOne(SellOrder, {
+      where: { id: idDto.id, isDeleted: false },
+      lock: { mode: 'pessimistic_write' },
+    });
+
+    if (!sellOrder) {
+      throw new SellOrderNotFoundException();
+    }
+    if (sellOrder.fractionQtyAvailable < purchaseDto.fractionsToPurchase) {
+      throw new NotEnoughAvailableException();
+    }
+    if (Number(sellOrder.fractionPriceCents) !== Number(purchaseDto.fractionPriceCents)) {
+      throw new PriceMismatchException();
+    }
+    if (sellOrder.userId === user.id) {
+      throw new UserCannotPurchaseOwnOrderException();
+    }
+    if (sellOrder.startTime > now) {
+      throw new SellOrderNotFoundException();
+    }
+    if (sellOrder.expireTime < now) {
+      throw new SellOrderNotFoundException();
+    }
+
+    if (!sellOrder.type) {
+      throw new InternalServerErrorException('Sell order type is not set');
+    }
+
+    if (!sellOrder.assetId) {
+      throw new AssetNotFoundException();
+    }
+    if (sellOrder.type === SellOrderTypeEnum.drop) {
+      if (!sellOrder.userFractionLimit) {
+        throw new InternalServerErrorException('User fraction limit is not set');
+      }
+      if (!sellOrder.userFractionLimitEndTime) {
+        throw new InternalServerErrorException('User fraction limit end time is not set');
+      }
+      if (now < sellOrder.userFractionLimitEndTime) {
+        const userLimit = Number(sellOrder.userFractionLimit);
+        if (purchaseDto.fractionsToPurchase > userLimit) {
+          throw new PurchaseLimitReached();
+        }
+
+        const totalPurchased = await this.getTotalPurchased(user, sellOrder, manager);
+        if (totalPurchased + purchaseDto.fractionsToPurchase > userLimit) {
+          throw new PurchaseLimitReached();
+        }
+      }
+    }
+
+    const sellerAsset = await manager.findOne(UserAsset, {
+      where: { userId: sellOrder.userId, assetId: sellOrder.assetId, isDeleted: false },
+      lock: { mode: 'pessimistic_write' },
+    });
+    if (!sellerAsset) {
+      throw new SellerNotAssetOwnerException();
+    }
+    if (sellerAsset.quantityOwned < purchaseDto.fractionsToPurchase) {
+      throw new NotEnoughUnitsFromSeller();
+    }
+    return { sellOrder, sellerAsset };
+  }
+
+  static async validate(
+    user: User,
+    idDto: SellOrderIdDto,
+    purchaseDto: SellOrderPurchaseDto,
+  ): Promise<SellOrderPurchaseValidateResponse> {
+    const purchaseValidation = await this.getRepository().manager.transaction(async (manager) => {
+      const { sellOrder, sellerAsset } = await this.runPurchaseValidations(
+        user,
+        idDto,
+        purchaseDto,
+        manager,
+      );
+      if (sellOrder && sellerAsset) {
+        return { statusCode: HttpStatus.OK, error: null, message: 'Passed Validations' };
+      }
+    });
+    return purchaseValidation;
+  }
+
   static async from(
     user: User,
     idDto: SellOrderIdDto,
     purchaseDto: SellOrderPurchaseDto,
   ): Promise<SellOrderPurchase> {
-    const now = new Date();
     const purchase = await this.getRepository().manager.transaction(async (manager) => {
-      const sellOrder = await manager.findOne(SellOrder, {
-        where: { id: idDto.id, isDeleted: false },
-        lock: { mode: 'pessimistic_write' },
-      });
+      const { sellOrder, sellerAsset } = await this.runPurchaseValidations(
+        user,
+        idDto,
+        purchaseDto,
+        manager,
+      );
 
-      if (!sellOrder) {
-        throw new SellOrderNotFoundException();
-      }
-      if (sellOrder.fractionQtyAvailable < purchaseDto.fractionsToPurchase) {
-        throw new NotEnoughAvailableException();
-      }
-      if (Number(sellOrder.fractionPriceCents) !== Number(purchaseDto.fractionPriceCents)) {
-        throw new PriceMismatchException();
-      }
-      if (sellOrder.userId === user.id) {
-        throw new UserCannotPurchaseOwnOrderException();
-      }
-      if (sellOrder.startTime > now) {
-        throw new SellOrderNotFoundException();
-      }
-      if (sellOrder.expireTime < now) {
-        throw new SellOrderNotFoundException();
-      }
-
-      if (!sellOrder.type) {
-        throw new InternalServerErrorException('Sell order type is not set');
-      }
-
-      if (!sellOrder.assetId) {
-        throw new AssetNotFoundException();
-      }
-      if (sellOrder.type === SellOrderTypeEnum.drop) {
-        if (!sellOrder.userFractionLimit) {
-          throw new InternalServerErrorException('User fraction limit is not set');
-        }
-        if (!sellOrder.userFractionLimitEndTime) {
-          throw new InternalServerErrorException('User fraction limit end time is not set');
-        }
-        if (now < sellOrder.userFractionLimitEndTime) {
-          const userLimit = Number(sellOrder.userFractionLimit);
-          if (purchaseDto.fractionsToPurchase > userLimit) {
-            throw new PurchaseLimitReached();
-          }
-
-          const totalPurchased = await this.getTotalPurchased(user, sellOrder, manager);
-          if (totalPurchased + purchaseDto.fractionsToPurchase > userLimit) {
-            throw new PurchaseLimitReached();
-          }
-        }
-      }
-      const sellerAsset = await manager.findOne(UserAsset, {
-        where: { userId: sellOrder.userId, assetId: sellOrder.assetId, isDeleted: false },
-        lock: { mode: 'pessimistic_write' },
-      });
-      if (!sellerAsset) {
-        throw new SellerNotAssetOwnerException();
-      }
-      if (sellerAsset.quantityOwned < purchaseDto.fractionsToPurchase) {
-        throw new NotEnoughUnitsFromSeller();
-      }
       let buyerAsset = await manager.findOne(UserAsset, {
         where: { userId: user.id, assetId: sellOrder.assetId, isDeleted: false },
         lock: { mode: 'pessimistic_write' },
       });
+
       if (!buyerAsset) {
         buyerAsset = new UserAsset({
           assetId: sellOrder.assetId,
@@ -138,12 +186,26 @@ export class SellOrderPurchase extends BaseModel implements IBaseEntity {
         });
       }
 
+      //If Stripe Details are prvided, save them in the sell order purchase
+      const stripeTrackingDetails = purchaseDto.stripeTrackingDetails
+        ? {
+            stripePurchaseIntentId: purchaseDto.stripeTrackingDetails.intentId,
+            stripePurchaseStatus: purchaseDto.stripeTrackingDetails.purchaseStatus,
+            stripeAmountCharged: purchaseDto.stripeTrackingDetails.amount,
+          }
+        : {
+            stripePurchaseIntentId: null,
+            stripePurchaseStatus: null,
+            stripeAmountCharged: null,
+          };
+
       const purchase = new SellOrderPurchase({
         userId: user.id,
         sellOrderId: sellOrder.id,
         assetId: sellOrder.assetId,
         fractionQty: purchaseDto.fractionsToPurchase,
         fractionPriceCents: purchaseDto.fractionPriceCents,
+        ...stripeTrackingDetails,
       });
       sellOrder.fractionQtyAvailable -= purchaseDto.fractionsToPurchase;
       sellerAsset.quantityOwned -= purchaseDto.fractionsToPurchase;
