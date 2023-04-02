@@ -9,7 +9,7 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
 WORKDIR /srv/app
 COPY . .
 COPY docker/entrypoint.sh /srv/app
-RUN yarn install --frozen-lockfile --ignore-platform
+RUN yarn install --frozen-lockfile --ignore-platform --network-timeout 100000
 RUN yarn build
 RUN yarn bundle
 EXPOSE 3000

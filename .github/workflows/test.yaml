@@ -1,9 +1,8 @@
-name: "Run tests"
+name: "Test"
 on:
   push:
     branches:
       - "**"
-
 jobs:
   main:
     name: "Test"
@@ -35,27 +34,21 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     steps:
       - name: "Checkout source code"
         uses: actions/checkout@v3
-
       - name: "Setup NodeJS 16"
         uses: actions/setup-node@v3
         with:
           node-version: "16"
           cache: "yarn"
           cache-dependency-path: yarn.lock
-
       - name: "Install Dependencies"
         run: yarn install
-
       - name: "Build"
         run: yarn build
-
       - name: "Bundle"
         run: yarn bundle
-
       - name: "Run Tests"
         run: yarn test
         env:
