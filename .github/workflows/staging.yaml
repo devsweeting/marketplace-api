@@ -60,3 +60,11 @@ jobs:
           SLACK_TITLE: "API Deployment: Staging Environment"
           SLACK_WEBHOOK: ${{ secrets.SLACK_DEPLOYMENTS_WEBHOOK_URL }}
           SLACK_FOOTER: "Powered by our GitHub automated deploys"
+      - name: Sentry Release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: jumpco
+          SENTRY_PROJECT: jump-api
+        with:
+          environment: staging
