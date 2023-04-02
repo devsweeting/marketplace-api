@@ -20,7 +20,9 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.STAGING_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.STAGING_AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.STAGING_AWS_REGION }}
+          role-to-assume: gh-actions-deploy-role
+          role-duration-seconds: 1200
+          aws-region: us-west-2
       - name: Login to Amazon ECR
         id: ecr-login
         if: steps.aws_creds.outcome == 'success'
@@ -40,8 +42,9 @@ jobs:
         if: steps.ecr.outcome == 'success'
         env:
           CLUSTER_NAME: jumpco-cluster-staging
+          SERVICE_NAME: api-staging
         run: |
-          aws ecs update-service --cluster $CLUSTER_NAME --service api-staging --force-new-deployment
+          aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --force-new-deployment
       - name: Slack Notification
         if: ${{ always() }}
         uses: rtCamp/action-slack-notify@v2
