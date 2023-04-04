@@ -1,11 +1,11 @@
 name: "Test"
 on:
-  push:
-    branches:
-      - "develop"
   pull_request:
     branches:
       - "**"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   main:
     name: "Test"
