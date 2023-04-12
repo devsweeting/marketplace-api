@@ -23,8 +23,8 @@ import { createUser } from '../utils/create-user';
 import { createPartner } from '../utils/partner.utils';
 import { createSellOrder } from '../utils/sell-order.utils';
 import { createUserAsset } from '../utils/create-user-asset';
-import { IStripePurchaseTracking } from 'modules/sell-orders/dto/sell-order-purchase.dto';
 import { v4 } from 'uuid';
+import { StripePurchaseDetailsDto } from 'modules/sell-orders/dto/sell-order-stripe-tracking.dto';
 
 const initialQty = 10000;
 const fakeUUID = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
@@ -107,6 +107,11 @@ describe('SellOrderPurchase', () => {
           {
             fractionsToPurchase: unitsToPurchase,
             fractionPriceCents: sellOrder.fractionPriceCents,
+            stripeTrackingDetails: {
+              intentId: '123',
+              purchaseStatus: 'succeeded',
+              amount: 0,
+            },
           },
         );
       } catch (error) {
@@ -118,7 +123,7 @@ describe('SellOrderPurchase', () => {
 
     test('should throw error if purchase amount is greater than available amount ', async () => {
       const unitsToPurchase = sellOrder.fractionQty + 1;
-      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+      const mockStripeTrackingDetails: StripePurchaseDetailsDto = {
         intentId: v4(),
         purchaseStatus: 'succeeded',
         amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
@@ -138,7 +143,7 @@ describe('SellOrderPurchase', () => {
 
     test('should throw error if fraction price is not equal', async () => {
       const unitsToPurchase = sellOrder.fractionQty;
-      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+      const mockStripeTrackingDetails: StripePurchaseDetailsDto = {
         intentId: v4(),
         purchaseStatus: 'succeeded',
         amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
@@ -159,7 +164,7 @@ describe('SellOrderPurchase', () => {
 
     test('should throw error if buyer userId matches seller userId', async () => {
       const unitsToPurchase = sellOrder.fractionQty;
-      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+      const mockStripeTrackingDetails: StripePurchaseDetailsDto = {
         intentId: v4(),
         purchaseStatus: 'succeeded',
         amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
@@ -189,7 +194,7 @@ describe('SellOrderPurchase', () => {
       });
       const unitsToPurchase = sellOrder.fractionQty;
 
-      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+      const mockStripeTrackingDetails: StripePurchaseDetailsDto = {
         intentId: v4(),
         purchaseStatus: 'succeeded',
         amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
@@ -219,7 +224,7 @@ describe('SellOrderPurchase', () => {
         expireTime: new Date(new Date().getTime() - ONE_SECOND_IN_MS),
       });
       const unitsToPurchase = sellOrder.fractionQty;
-      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+      const mockStripeTrackingDetails: StripePurchaseDetailsDto = {
         intentId: v4(),
         purchaseStatus: 'succeeded',
         amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
@@ -239,7 +244,7 @@ describe('SellOrderPurchase', () => {
 
     test('should throw if sellOrder drop does not have a userFractionLimit', async () => {
       const unitsToPurchase = 1;
-      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+      const mockStripeTrackingDetails: StripePurchaseDetailsDto = {
         intentId: v4(),
         purchaseStatus: 'succeeded',
         amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
@@ -266,7 +271,7 @@ describe('SellOrderPurchase', () => {
 
     test('should throw error if sellOrder drop does not specify end time', async () => {
       const unitsToPurchase = 1;
-      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+      const mockStripeTrackingDetails: StripePurchaseDetailsDto = {
         intentId: v4(),
         purchaseStatus: 'succeeded',
         amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
@@ -294,7 +299,7 @@ describe('SellOrderPurchase', () => {
     test('should throw error if user tries to buy more than drop limit', async () => {
       const unitsToPurchase = sellOrderDrop.userFractionLimit + 1;
 
-      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+      const mockStripeTrackingDetails: StripePurchaseDetailsDto = {
         intentId: v4(),
         purchaseStatus: 'succeeded',
         amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
@@ -315,7 +320,7 @@ describe('SellOrderPurchase', () => {
 
     test('should throw error if user already has bought shares of a drop and tries to buy more than their limit', async () => {
       const unitsToPurchase = 6;
-      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+      const mockStripeTrackingDetails: StripePurchaseDetailsDto = {
         intentId: v4(),
         purchaseStatus: 'succeeded',
         amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
@@ -351,7 +356,7 @@ describe('SellOrderPurchase', () => {
 
       const unitsToPurchase = 1;
 
-      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+      const mockStripeTrackingDetails: StripePurchaseDetailsDto = {
         intentId: v4(),
         purchaseStatus: 'succeeded',
         amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
@@ -389,7 +394,7 @@ describe('SellOrderPurchase', () => {
 
       const unitsToPurchase = 2;
 
-      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+      const mockStripeTrackingDetails: StripePurchaseDetailsDto = {
         intentId: v4(),
         purchaseStatus: 'succeeded',
         amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
@@ -411,7 +416,7 @@ describe('SellOrderPurchase', () => {
     test('should create userAsset for buyer userAsset if userAsset does not already exist', async () => {
       const unitsToPurchase = 2;
 
-      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+      const mockStripeTrackingDetails: StripePurchaseDetailsDto = {
         intentId: v4(),
         purchaseStatus: 'succeeded',
         amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
@@ -439,7 +444,7 @@ describe('SellOrderPurchase', () => {
     test('should correctly process purchase', async () => {
       const unitsToPurchase = 2;
 
-      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+      const mockStripeTrackingDetails: StripePurchaseDetailsDto = {
         intentId: v4(),
         purchaseStatus: 'succeeded',
         amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
@@ -508,7 +513,7 @@ describe('SellOrderPurchase', () => {
     test('should return number of units a user has bought', async () => {
       const unitsToPurchase = 2;
 
-      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+      const mockStripeTrackingDetails: StripePurchaseDetailsDto = {
         intentId: v4(),
         purchaseStatus: 'succeeded',
         amount: (unitsToPurchase * sellOrder.fractionPriceCents) / 100,
