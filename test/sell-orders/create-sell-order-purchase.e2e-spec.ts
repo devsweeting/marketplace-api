@@ -190,21 +190,22 @@ describe('SellOrdersController -> Purchases', () => {
       await expect400(payload2, 'NOT_ENOUGH_AVAILABLE', sellOrder);
     });
 
-    test('should return 404 if sell order startTime is in the future', async () => {
-      sellOrder.startTime = faker.date.future();
-      await sellOrder.save();
+    //DEV - removed since we don't have the concept of a 'Drop' defined anymore
+    // test('should return 404 if sell order startTime is in the future', async () => {
+    //   sellOrder.startTime = faker.date.future();
+    //   await sellOrder.save();
 
-      const payload = { fractionsToPurchase: 10, fractionPriceCents: sellOrder.fractionPriceCents };
-      await expect404(payload, 'SELL_ORDER_NOT_FOUND', sellOrder, buyer);
-    });
+    //   const payload = { fractionsToPurchase: 10, fractionPriceCents: sellOrder.fractionPriceCents };
+    //   await expect404(payload, 'SELL_ORDER_NOT_FOUND', sellOrder, buyer);
+    // });
 
-    test('should return 404 if sell order expireTime is in the past', async () => {
-      sellOrder.expireTime = faker.date.past();
-      await sellOrder.save();
+    // test('should return 404 if sell order expireTime is in the past', async () => {
+    //   sellOrder.expireTime = faker.date.past();
+    //   await sellOrder.save();
 
-      const payload = { fractionsToPurchase: 10, fractionPriceCents: sellOrder.fractionPriceCents };
-      await expect404(payload, 'SELL_ORDER_NOT_FOUND', sellOrder, buyer);
-    });
+    //   const payload = { fractionsToPurchase: 10, fractionPriceCents: sellOrder.fractionPriceCents };
+    //   await expect404(payload, 'SELL_ORDER_NOT_FOUND', sellOrder, buyer);
+    // });
 
     test('should return 404 if sell order does not exist', async () => {
       await SellOrder.delete({ id: sellOrder.id });
