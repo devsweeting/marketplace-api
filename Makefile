@@ -1,4 +1,4 @@
-ENV ?= test
+ENV ?= staging
 ACCOUNT_ID = $(shell aws --profile jump${ENV} sts get-caller-identity --query "Account" --output text)
 
 .PHONY : help
@@ -14,7 +14,7 @@ env: ## Echo out environment
 
 .PHONY : build
 build: ## Build docker image locally
-	docker build -t api .
+	docker build -f Dockerfile.ecs -t api .
 
 .PHONY : tag-test
 tag-test: ## Add test tag to current HEAD and push tag remotely
