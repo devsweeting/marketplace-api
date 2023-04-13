@@ -1,0 +1,6 @@
+repo:
+  - .github/**/*
+  - README.md
+  - SECURITY.md
+  - Makefile
+  - .giignore
