@@ -23,8 +23,8 @@ import {
   PurchaseLimitReached,
   SellOrderNotFoundException,
 } from 'modules/sell-orders/exceptions';
-import { IStripePurchaseTracking } from 'modules/sell-orders/dto/sell-order-purchase.dto';
 import { v4 } from 'uuid';
+import { StripePurchaseDetailsDto } from 'modules/sell-orders/dto/sell-order-stripe-tracking.dto';
 
 let app: INestApplication;
 const initialQty = 10000;
@@ -259,7 +259,7 @@ describe('SellOrdersService', () => {
   });
   describe('checkDrop', () => {
     test('should throw if sellOrder is a drop and purchased is greater than userFractionLimit', async () => {
-      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+      const mockStripeTrackingDetails: StripePurchaseDetailsDto = {
         intentId: v4(),
         purchaseStatus: 'succeeded',
         amount:
@@ -281,7 +281,7 @@ describe('SellOrdersService', () => {
 
     test('should return number of units purchased for a drop sellOrder', async () => {
       const unitsToPurchase = 9;
-      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+      const mockStripeTrackingDetails: StripePurchaseDetailsDto = {
         intentId: v4(),
         purchaseStatus: 'succeeded',
         amount: (unitsToPurchase * sellOrder.fractionPriceCents) / DOLLAR_CONVERSION,
@@ -296,7 +296,7 @@ describe('SellOrdersService', () => {
     });
     test('should return number of units purchased for standard sellOrder', async () => {
       const unitsToPurchase = 9;
-      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+      const mockStripeTrackingDetails: StripePurchaseDetailsDto = {
         intentId: v4(),
         purchaseStatus: 'succeeded',
         amount: (unitsToPurchase * sellOrder.fractionPriceCents) / DOLLAR_CONVERSION,
@@ -327,7 +327,7 @@ describe('SellOrdersService', () => {
   describe('purchase', () => {
     test('should return a sellOrderPurchase', async () => {
       const unitsToPurchase = 9;
-      const mockStripeTrackingDetails: IStripePurchaseTracking = {
+      const mockStripeTrackingDetails: StripePurchaseDetailsDto = {
         intentId: v4(),
         purchaseStatus: 'succeeded',
         amount: (unitsToPurchase * sellOrder.fractionPriceCents) / DOLLAR_CONVERSION,

@@ -1,12 +1,8 @@
 /* eslint-disable no-magic-numbers */
 import { ApiProperty } from '@nestjs/swagger';
-import { Max, Min } from 'class-validator';
-
-export type IStripePurchaseTracking = {
-  intentId: string;
-  purchaseStatus: string;
-  amount: number;
-};
+import { Max, Min, ValidateNested } from 'class-validator';
+import { StripePurchaseDetailsDto } from './sell-order-stripe-tracking.dto';
+import { Type } from 'class-transformer';
 
 export class SellOrderPurchaseDto {
   @ApiProperty()
@@ -20,5 +16,7 @@ export class SellOrderPurchaseDto {
   public fractionPriceCents: number;
 
   @ApiProperty()
-  public stripeTrackingDetails?: IStripePurchaseTracking;
+  @ValidateNested({ each: true })
+  @Type(() => StripePurchaseDetailsDto)
+  public stripeTrackingDetails: StripePurchaseDetailsDto;
 }

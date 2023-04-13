@@ -27,6 +27,7 @@ import {
 } from '../exceptions';
 import { SellOrder } from './sell-orders.entity';
 import { SellOrderPurchaseValidateResponse } from '../responses/sell-order.response';
+import { SellOrderValidateDto } from '../dto/sell-order-validate.dto';
 
 @Entity('sell_order_purchases')
 export class SellOrderPurchase extends BaseModel implements IBaseEntity {
@@ -72,7 +73,7 @@ export class SellOrderPurchase extends BaseModel implements IBaseEntity {
   static async runPurchaseValidations(
     user: User,
     idDto: SellOrderIdDto,
-    purchaseDto: SellOrderPurchaseDto,
+    purchaseDto: SellOrderPurchaseDto | SellOrderValidateDto,
     manager: EntityManager = this.getRepository().manager,
   ): Promise<{ sellOrder: SellOrder; sellerAsset: UserAsset }> {
     const now = new Date();
@@ -93,12 +94,6 @@ export class SellOrderPurchase extends BaseModel implements IBaseEntity {
     }
     if (sellOrder.userId === user.id) {
       throw new UserCannotPurchaseOwnOrderException();
-    }
-    if (sellOrder.startTime > now) {
-      throw new SellOrderNotFoundException();
-    }
-    if (sellOrder.expireTime < now) {
-      throw new SellOrderNotFoundException();
     }
 
     if (!sellOrder.type) {
@@ -144,7 +139,7 @@ export class SellOrderPurchase extends BaseModel implements IBaseEntity {
   static async validate(
     user: User,
     idDto: SellOrderIdDto,
-    purchaseDto: SellOrderPurchaseDto,
+    purchaseDto: SellOrderPurchaseDto | SellOrderValidateDto,
   ): Promise<SellOrderPurchaseValidateResponse> {
     const purchaseValidation = await this.getRepository().manager.transaction(async (manager) => {
       const { sellOrder, sellerAsset } = await this.runPurchaseValidations(

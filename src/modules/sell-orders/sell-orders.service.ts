@@ -17,6 +17,7 @@ import {
   SellOrderNotFoundException,
 } from './exceptions';
 import { SellOrderPurchaseValidateResponse } from './responses/sell-order.response';
+import { SellOrderValidateDto } from './dto/sell-order-validate.dto';
 
 @Injectable()
 export class SellOrdersService extends BaseService {
@@ -124,9 +125,9 @@ export class SellOrdersService extends BaseService {
   async validatePurchase(
     user: User,
     dto: SellOrderIdDto,
-    purchaseDto: SellOrderPurchaseDto,
+    validateDto: SellOrderValidateDto,
   ): Promise<SellOrderPurchaseValidateResponse> {
-    return SellOrderPurchase.validate(user, dto, purchaseDto);
+    return SellOrderPurchase.validate(user, dto, validateDto);
   }
 
   async getUserSellOrders(user: User): Promise<SellOrder[]> {
