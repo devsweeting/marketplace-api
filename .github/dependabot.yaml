@@ -3,8 +3,8 @@ udpates:
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
-      interval: 'weekly
+      interval: 'weekly'
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
-      interval: 'weekly
+      interval: 'weekly'
