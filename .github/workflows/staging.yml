@@ -10,8 +10,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout source code'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+      - name: 'Detect Changed Files'
+        uses: dorny/paths-filter@v2
+        id: changed-files
+        with:
+          filters: |
+             src:
+              - .github/**
+              - .gitignore
+              - README.md
+              - SECURITY.md
+              - MAKEFILE
       - name: Configure AWS credentials
+        if: steps.changed-files.outputs.src == 'false'
         id: aws_creds
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -22,11 +34,11 @@ jobs:
           aws-region: us-west-2
       - name: Login to Amazon ECR
         id: ecr-login
-        if: steps.aws_creds.outcome == 'success'
+        if: steps.changed-files.outputs.src == 'false' && steps.aws_creds.outcome == 'success'
         uses: aws-actions/amazon-ecr-login@v1
       - name: Build, tag, and push image to Amazon ECR
         id: ecr
-        if: steps.ecr-login.outcome == 'success'
+        if: steps.changed-files.outputs.src == 'false' && steps.ecr-login.outcome == 'success'
         env:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
           ECR_REPOSITORY: api-staging
@@ -36,14 +48,14 @@ jobs:
           docker build --platform=linux/amd64 -f $DOCKER_FILE -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG  .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
       - name: Restart API and ADMIN services to enfore pulling latest/newest ECR image
-        if: steps.ecr.outcome == 'success'
+        if: steps.changed-files.outputs.src == 'false' && steps.ecr.outcome == 'success'
         env:
           CLUSTER_NAME: jumpco-cluster-staging
           SERVICE_NAME: api-staging
         run: |
           aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --force-new-deployment
       - name: Slack Notification
-        if: ${{ always() }}
+        if: steps.changed-files.outputs.src == 'false'
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_CHANNEL: jump-dev
@@ -58,6 +70,7 @@ jobs:
           SLACK_WEBHOOK: ${{ secrets.SLACK_DEPLOYMENTS_WEBHOOK_URL }}
           SLACK_FOOTER: "Powered by our GitHub automated deploys"
       - name: Sentry Release
+        if: steps.changed-files.outputs.src == 'false'
         uses: getsentry/action-release@v1
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}

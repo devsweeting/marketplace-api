@@ -40,19 +40,35 @@ jobs:
     steps:
       - name: "Checkout source code"
         uses: actions/checkout@v3
+      - name: 'Detect Changed Files'
+        uses: dorny/paths-filter@v2
+        id: changed-files
+        with:
+          filters: |
+             src:
+              - .github/**
+              - .gitignore
+              - README.md
+              - SECURITY.md
+              - MAKEFILE
       - name: "Setup NodeJS 16"
+        if: steps.changed-files.outputs.src == 'false'
         uses: actions/setup-node@v3
         with:
           node-version: "16"
           cache: "yarn"
           cache-dependency-path: yarn.lock
       - name: "Install Dependencies"
+        if: steps.changed-files.outputs.src == 'false'
         run: yarn install
       - name: "Build"
+        if: steps.changed-files.outputs.src == 'false'
         run: yarn build
       - name: "Bundle"
+        if: steps.changed-files.outputs.src == 'false'
         run: yarn bundle
       - name: "Run Tests"
+        if: steps.changed-files.outputs.src == 'false'
         run: yarn test
         env:
           NODE_ENV: test
