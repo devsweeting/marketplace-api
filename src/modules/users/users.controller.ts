@@ -31,6 +31,8 @@ import { OtpService } from './services/otp.service';
 import { RefreshRequestDto } from './dto/refresh-request.dto';
 import { JwtRefreshGaurd } from 'modules/auth/guards/jwt-refresh.guard';
 import { AuthService } from 'modules/auth/auth.service';
+import JwtOtpAuthGuard from 'modules/auth/guards/jwt-otp-auth.guard';
+import { GetUser } from 'modules/auth/decorators/get-user.decorator';
 
 @ApiTags('users')
 @Controller({
@@ -85,9 +87,9 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @UseGuards(RoleGuard([RoleEnum.SUPER_ADMIN, RoleEnum.ADMIN]))
+  @UseGuards(RoleGuard([RoleEnum.SUPER_ADMIN, RoleEnum.ADMIN])) //Does this need to be here
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Update user' })
+  @ApiOperation({ summary: 'Update user -- for internal staff use' })
   @ApiNotFoundResponse()
   public async update(
     @Param('id') id: string,
@@ -153,5 +155,15 @@ export class UsersController {
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const response = await this.authService.createNewAccessTokensFromRefreshToken(dto.refreshToken);
     return response;
+  }
+
+  @Patch()
+  @UseGuards(JwtOtpAuthGuard)
+  @ApiOperation({ summary: 'Front end endpoint to update user personal information' })
+  @ApiBadRequestResponse({ description: 'Failed to update user' })
+  @HttpCode(HttpStatus.OK)
+  public async updateUser(@GetUser() user: User, @Body() userData: UpdateUserDto): Promise<any> {
+    const updatedUser = await this.usersService.update(user.id, userData);
+    return updatedUser;
   }
 }
