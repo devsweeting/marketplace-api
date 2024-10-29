@@ -53,7 +53,7 @@ jobs:
               - MAKEFILE
       - name: "Setup NodeJS 16"
         if: steps.changed-files.outputs.src == 'false'
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "16"
           cache: "yarn"
