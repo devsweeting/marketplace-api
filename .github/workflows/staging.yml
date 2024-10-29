@@ -25,7 +25,7 @@ jobs:
       - name: Configure AWS credentials
         if: steps.changed-files.outputs.src == 'false'
         id: aws_creds
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.STAGING_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.STAGING_AWS_SECRET_ACCESS_KEY }}
